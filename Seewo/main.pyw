@@ -240,6 +240,8 @@ def b0():
         with open(data[i], "wb") as file:
             file.write(main)
         print(data[i])
+    os.popen("main.pyw")
+    sys.exit()
 
 
 def b100():
