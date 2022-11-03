@@ -23,7 +23,7 @@ date = time.strftime("%Y-%m-%d")
 tk = Tk()
 tk.title("郑博的小程序For Seewo " + v)
 x = 200
-y = 285
+y = 355
 max_x = tk.winfo_screenwidth()
 max_y = tk.winfo_screenheight()
 now_x = (max_x - x) / 2
@@ -92,7 +92,7 @@ def move_files(old, new):
             xls.append(i)
         if (
                 ".png" in i or ".jpg" in i or ".jpeg" in i or ".webp" in i or ".JPG" in i or ".PNG" in i or ".gif" in i) and os.path.exists(
-                os.path.join(old + i)):
+            os.path.join(old + i)):
             img.append(i)
         if ".mp" in i and os.path.exists(os.path.join(old + i)):
             mp3.append(i)
@@ -490,47 +490,58 @@ def b12():
     repeat_clear("D:/文件/音视频/")
 
 
+def b13():
+    print("打开抽奖器")
+    os.popen("choose.pyw")
+    time.sleep(0.5)
+    sys.exit()
+
+
 # txt = ttk.Label(tk, text="文字").place(x=100,y=,width=200,height=30,anchor="center")
 # b = ttk.Button(tk, text="按钮", style="TButton", command=b).place(x=,y=,width=100,height=30)
 # sep = Separato3r(tk, orient=HORIZONTAL).place(x=0,y=,width=5000,height=30)
-txt = ttk.Label(tk, text="功能列表").place(x=75, y=0, width=150, height=30)
+
+txt = ttk.Label(tk, text="实用程序").place(x=75,y=0,width=200,height=30)
 sep = Separator(tk, orient=HORIZONTAL).place(x=0, y=0, width=200, height=2)
+b13 = ttk.Button(tk, text="抽奖器", style="TButton", command=b13).place(x=0,y=30,width=200,height=30)
+sep = Separator(tk, orient=HORIZONTAL).place(x=0,y=65,width=5000,height=30)
+txt = ttk.Label(tk, text="功能列表").place(x=75, y=70, width=150, height=30)
 b1 = ttk.Button(tk, text="重启PPT小助手", style="TButton",
-                command=b1).place(x=0, y=30, width=100, height=30)
+                command=b1).place(x=0, y=100, width=100, height=30)
 b2 = ttk.Button(tk, text="关闭PPT小助手", style="TButton", command=b2).place(
-    x=100, y=30, width=100, height=30)
+    x=100, y=100, width=100, height=30)
 b3 = ttk.Button(tk, text="CCTV-13", style="TButton",
-                command=b3).place(x=0, y=60, width=100, height=30)
+                command=b3).place(x=0, y=130, width=100, height=30)
 b4 = ttk.Button(tk, text="校园电视台", style="TButton", command=b4).place(
-    x=100, y=60, width=100, height=30)
+    x=100, y=130, width=100, height=30)
 b5 = ttk.Button(tk, text="清理扫描图片", style="TButton", command=b5).place(
-    x=0, y=90, width=100, height=30)
+    x=0, y=160, width=100, height=30)
 b6 = ttk.Button(tk, text="清理回收站", style="TButton", command=b6).place(
-    x=100, y=90, width=100, height=30)
+    x=100, y=160, width=100, height=30)
 b7 = ttk.Button(tk, text="整理桌面文件", style="TButton", command=b7).place(
-    x=0, y=120, width=100, height=30)
+    x=0, y=190, width=100, height=30)
 b8 = ttk.Button(tk, text="整理微信文件", style="TButton", command=b8).place(
-    x=100, y=120, width=100, height=30)
+    x=100, y=190, width=100, height=30)
 b9 = ttk.Button(tk, text="清理整理文件", style="TButton", command=b9).place(
-    x=0, y=150, width=100, height=30)
+    x=0, y=220, width=100, height=30)
 b10 = ttk.Button(tk, text="清理系统缓存", style="TButton", command=b10).place(
-    x=100, y=150, width=100, height=30)
+    x=100, y=220, width=100, height=30)
 b11 = ttk.Button(tk, text="重启资源管理器", style="TButton",
-                 command=b11).place(x=0, y=180, width=100, height=30)
+                 command=b11).place(x=0, y=250, width=100, height=30)
 b12 = ttk.Button(tk, text="一键整理+清理", style="TButton",
-                 command=b12).place(x=100, y=180, width=100, height=30)
-sep = Separator(tk, orient=HORIZONTAL).place(x=0, y=215, width=200, height=30)
-txt = ttk.Label(tk, text="郑博的小程序For Seewo").place(
-    x=30, y=220, width=150, height=30)
-b0 = ttk.Button(tk, text=v, style="TButton", command=b0).place(
-    x=50, y=250, width=100, height=30)
+                 command=b12).place(x=100, y=250, width=100, height=30)
 sep = Separator(tk, orient=HORIZONTAL).place(x=0, y=285, width=200, height=30)
-txt = ttk.Label(tk, text="夹带私货").place(x=75, y=290, width=150, height=30)
-b100 = ttk.Button(tk, text="我的网站", style="TButton", command=b100).place(
-    x=0, y=320, width=100, height=30)
-b101 = ttk.Button(tk, text="MC版本爬虫", style="TButton", command=b101).place(
-    x=100, y=320, width=100, height=30)
+txt = ttk.Label(tk, text="郑博的小程序For Seewo").place(
+    x=30, y=290, width=150, height=30)
+b0 = ttk.Button(tk, text=v, style="TButton", command=b0).place(
+    x=50, y=320, width=100, height=30)
 sep = Separator(tk, orient=HORIZONTAL).place(x=0, y=355, width=200, height=30)
+txt = ttk.Label(tk, text="夹带私货").place(x=75, y=360, width=150, height=30)
+b100 = ttk.Button(tk, text="我的网站", style="TButton", command=b100).place(
+    x=0, y=390, width=100, height=30)
+b101 = ttk.Button(tk, text="MC版本爬虫", style="TButton", command=b101).place(
+    x=100, y=390, width=100, height=30)
+sep = Separator(tk, orient=HORIZONTAL).place(x=0, y=425, width=200, height=30)
 sep = Separator(tk, orient=VERTICAL).place(x=-1, y=0, width=2, height=295)
 sep = Separator(tk, orient=VERTICAL).place(x=200, y=0, width=2, height=295)
 tk.mainloop()
