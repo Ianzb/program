@@ -503,7 +503,7 @@ def b13():
 
 txt = ttk.Label(tk, text="实用程序").place(x=75,y=0,width=200,height=30)
 sep = Separator(tk, orient=HORIZONTAL).place(x=0, y=0, width=200, height=2)
-b13 = ttk.Button(tk, text="抽奖器", style="TButton", command=b13).place(x=0,y=30,width=200,height=30)
+b13 = ttk.Button(tk, text="点名器", style="TButton", command=b13).place(x=0,y=30,width=200,height=30)
 sep = Separator(tk, orient=HORIZONTAL).place(x=0,y=65,width=5000,height=30)
 txt = ttk.Label(tk, text="功能列表").place(x=75, y=70, width=150, height=30)
 b1 = ttk.Button(tk, text="重启PPT小助手", style="TButton",
