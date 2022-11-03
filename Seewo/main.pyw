@@ -1,19 +1,22 @@
+import filecmp
+import glob
+import os
+import re
+import shutil
+import stat
+import sys
+import time
+import webbrowser
+import winreg
 from tkinter import *
 from tkinter import ttk
 from tkinter.ttk import Separator
-import os
-import webbrowser
-import time
-import send2trash
-import shutil
-import winshell
-import filecmp
-import glob
-import stat
-import requests
+
 import bs4
-import winreg
-import sys
+import requests
+import send2trash
+import winshell
+
 v = "1.8.0"
 date = time.strftime("%Y-%m-%d")
 # 初始化
@@ -30,6 +33,8 @@ tk.resizable(False, True)
 # 设置样式
 st = ttk.Style()
 st.configure("TButton")
+
+
 # 定制
 
 
@@ -85,7 +90,8 @@ def move_files(old, new):
             doc.append(i)
         if ".xls" in i and os.path.exists(os.path.join(old + i)):
             xls.append(i)
-        if (".png" in i or ".jpg" in i or ".jpeg" in i or ".webp" in i or ".JPG" in i or ".PNG" in i or ".gif" in i) and os.path.exists(
+        if (
+                ".png" in i or ".jpg" in i or ".jpeg" in i or ".webp" in i or ".JPG" in i or ".PNG" in i or ".gif" in i) and os.path.exists(
                 os.path.join(old + i)):
             img.append(i)
         if ".mp" in i and os.path.exists(os.path.join(old + i)):
@@ -212,13 +218,28 @@ def move_files(old, new):
             shutil.move(old + i, new + "文件夹/" + i)
         except:
             shutil.move(old + i[:i.rfind("(")], new + "文件夹/" + i)
+
+
 # 功能
 
 
 def b0():
     print("检查更新")
+    link = "https://ianzb.github.io/server.github.io/Seewo/"
     res = requests.get(
-        "https://ianzb.github.io/server.github.ip/seewo/seewo.html")
+        link + "seewo.html")
+    res.encoding = "UTF-8"
+    soup = bs4.BeautifulSoup(res.text, "lxml")
+    data = soup.find_all(name="div", text=re.compile("."))
+    for i in range(len(data)):
+        data[i] = str(data[i]).replace("<div>", "").replace("</div>", "").replace(r"\r", "").replace(r"\n", "").strip()
+    for i in range(len(data)):
+        response1 = requests.get(link + data[i])
+        response1.encoding = "UTF-8"
+        main = response1.content
+        with open(data[i], "wb") as file:
+            file.write(main)
+        print(data[i])
 
 
 def b100():
