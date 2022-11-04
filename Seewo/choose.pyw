@@ -8,14 +8,16 @@ from tkinter.constants import *
 from tkinter.messagebox import *
 from tkinter import ttk
 from tkinter import *
-v = "1.2.0"
+v = "1.2.1"
 
 # 读取表格
 df = pandas.read_excel("list.xlsx")
 names = []
+numbers=[]
 for i in df["姓名"]:
     names.append(i)
-numbers = list(range(1, 42))
+for i in df["学号"]:
+    numbers.append(i)
 del df
 
 
