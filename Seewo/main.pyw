@@ -1,3 +1,11 @@
+from tkinter import *
+from tkinter import ttk
+from tkinter.ttk import Separator
+
+import bs4
+import requests
+import send2trash
+import winshell
 import filecmp
 import glob
 import os
@@ -8,33 +16,25 @@ import sys
 import time
 import webbrowser
 import winreg
-from tkinter import *
-from tkinter import ttk
-from tkinter.ttk import Separator
 
-import bs4
-import requests
-import send2trash
-import winshell
-
-v = "1.8.0"
+v = "1.9.0"
 date = time.strftime("%Y-%m-%d")
 # 初始化
 tk = Tk()
+# 设置风格样式
+st = ttk.Style()
+st.configure("TButton")
+# 窗口属性
 tk.title("郑博的小程序For Seewo " + v)
 x = 200
 y = 355
-max_x = tk.winfo_screenwidth()
-max_y = tk.winfo_screenheight()
-now_x = (max_x - x) / 2
-now_y = (max_y - y) / 2
+now_x = (tk.winfo_screenwidth() - x) / 2
+now_y = (tk.winfo_screenheight() - y) / 2
 tk.geometry("%dx%d+%d+%d" % (x, y, now_x, now_y))
-tk.resizable(False, True)
-# 设置样式
-st = ttk.Style()
-st.configure("TButton")
-
-
+tk.wm_attributes('-topmost', 1)
+tk.minsize(200, 355)
+tk.maxsize(200, 425)
+tk.wm_iconbitmap("ico.ico")
 # 定制
 
 
@@ -501,10 +501,10 @@ def b13():
 # b = ttk.Button(tk, text="按钮", style="TButton", command=b).place(x=,y=,width=100,height=30)
 # sep = Separato3r(tk, orient=HORIZONTAL).place(x=0,y=,width=5000,height=30)
 
-txt = ttk.Label(tk, text="实用程序").place(x=75,y=0,width=200,height=30)
+txt = ttk.Label(tk, text="实用程序").place(x=75, y=0, width=200, height=30)
 sep = Separator(tk, orient=HORIZONTAL).place(x=0, y=0, width=200, height=2)
-b13 = ttk.Button(tk, text="点名器", style="TButton", command=b13).place(x=0,y=30,width=200,height=30)
-sep = Separator(tk, orient=HORIZONTAL).place(x=0,y=65,width=5000,height=30)
+b13 = ttk.Button(tk, text="点名器", style="TButton", command=b13).place(x=0, y=30, width=200, height=30)
+sep = Separator(tk, orient=HORIZONTAL).place(x=0, y=65, width=5000, height=30)
 txt = ttk.Label(tk, text="功能列表").place(x=75, y=70, width=150, height=30)
 b1 = ttk.Button(tk, text="重启PPT小助手", style="TButton",
                 command=b1).place(x=0, y=100, width=100, height=30)
