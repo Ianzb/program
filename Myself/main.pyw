@@ -1,58 +1,55 @@
-import sys
-import winreg
+v = "1.1.0"
+
 import bs4
+import os
 import requests
-import stat
-import glob
-import filecmp
-import winshell
 import shutil
-import send2trash
+import stat
+import sys
 import time
 import webbrowser
-import os
-from tkinter.ttk import Separator
-from tkinter import ttk
 from tkinter import *
-v = "1.0.0-20221029"
+from tkinter import ttk
+from tkinter.ttk import Separator
 
 date = time.strftime("%Y-%m-%d")
 # 初始化
 tk = Tk()
-tk.title("郑博的小程序For Seewo " + v)
-x = 200
-y = 220
-max_x = tk.winfo_screenwidth()
-max_y = tk.winfo_screenheight()
-now_x = (max_x - x) / 2
-now_y = (max_y - y) / 2
-tk.geometry("%dx%d+%d+%d" % (x, y, now_x, now_y))
-# 设置样式
 st = ttk.Style()
 st.configure("TButton")
+tk.title("zb的小程序For Myself " + v)
+x = 400
+y = 170
+now_x = (tk.winfo_screenwidth() - x) / 2
+now_y = (tk.winfo_screenheight() - y) / 2
+tk.geometry("%dx%d+%d+%d" % (x, y, now_x, now_y))
+tk.wm_attributes('-topmost', 1)
+tk.resizable(False, False)
+tk.minsize(400, 170)
+tk.maxsize(400, 170)
+tk.wm_iconbitmap("ico.ico")
 
 
-# 定制
+# 定制功能
+
+
 def pc_remove(d, name):
     a = [k for (k, v) in d.items() if v == name]
-    for i in a:
-        del d[i]
+    for i in a: del d[i]
 
 
 def remove_if_in(d, name):
     a = []
     for i in d.keys():
-        if name in i:
-            a.append(i)
-    for i in a:
-        del d[i]
+        if name in i: a.append(i)
+    for i in a: del d[i]
 
 
 def repeat_clear(path):
+    import filecmp, glob
     file_lst = []
     for i in glob.glob(path + '/**/*', recursive=True):
-        if os.path.isfile(i):
-            file_lst.append(i)
+        if os.path.isfile(i): file_lst.append(i)
     for x in file_lst:
         for y in file_lst:
             if x != y and os.path.exists(x) and os.path.exists(y):
@@ -66,8 +63,7 @@ def repeat_clear(path):
 def move_files(old, new):
     list2 = []
     list3 = os.walk(old)
-    for i in list3:
-        list2.append(i)
+    for i in list3: list2.append(i)
     try:
         list3 = list2[0][2]
     except:
@@ -79,19 +75,24 @@ def move_files(old, new):
     mp3 = []
     zip = []
     for i in list3:
-        if ".ppt" in i and os.path.exists(os.path.join(old + i)):
-            ppt.append(i)
-        if (".doc" in i or ".txt" in i or ".pdf" in i) and os.path.exists(os.path.join(old + i)):
-            doc.append(i)
-        if ".xls" in i and os.path.exists(os.path.join(old + i)):
-            xls.append(i)
-        if (".png" in i or ".jpg" in i or ".jpeg" in i or ".webp" in i) and os.path.exists(
-                os.path.join(old + i)):
-            img.append(i)
-        if ".mp" in i and os.path.exists(os.path.join(old + i)):
-            mp3.append(i)
-        if (".zip" in i or ".rar" in i or ".7z" in i) and os.path.exists(os.path.join(old + i)):
-            zip.append(i)
+        for j in [".ppt",".PPT"]:
+            if j in i and  os.path.exists(os.path.join(old + i)):
+                ppt.append(i)
+        for j in [".doc",".DOC",".txt",".TXT",".pdf",".PDF"]:
+            if j in i and os.path.exists(os.path.join(old + i)):
+                doc.append(i)
+        for j in [".xls",".XLS"]:
+            if j in i and os.path.exists(os.path.join(old + i)):
+                xls.append(i)
+        for j in [".png",".PNG",".jpg",".JPG",".jpeg",".JPEG",".webp",".WEBP",".gif",".GIF"]:
+            if j in i and os.path.exists(os.path.join(old + i)):
+                img.append(i)
+        for j in [".mp",".MP"]:
+            if j in i and os.path.exists(os.path.join(old + i)):
+                mp3.append(i)
+        for j in [".zip",".ZIP",".rar",".RAR",".7z",".7Z"]:
+            if j in i and os.path.exists(os.path.join(old + i)):
+                zip.append(i)
     for i in range(len(ppt)):
         if os.path.exists(new + "PPT/" + ppt[i]):
             j = 1
@@ -217,6 +218,28 @@ def move_files(old, new):
 # 功能
 
 
+def b0():
+    print("检查更新")
+    import re
+    link = "https://ianzb.github.io/server.github.io/Myself/"
+    res = requests.get(
+        link + "myself.html")
+    res.encoding = "UTF-8"
+    soup = bs4.BeautifulSoup(res.text, "lxml")
+    data = soup.find_all(name="div", text=re.compile("."))
+    for i in range(len(data)):
+        data[i] = str(data[i]).replace("<div>", "").replace("</div>", "").replace(r"\r", "").replace(r"\n", "").strip()
+    for i in range(len(data)):
+        response1 = requests.get(link + data[i])
+        response1.encoding = "UTF-8"
+        main = response1.content
+        with open(data[i], "wb") as file:
+            file.write(main)
+        print(data[i])
+    os.popen("main.pyw")
+    sys.exit()
+
+
 def b100():
     print("打开郑博网站")
     webbrowser.open("https://ianzb.github.io/")
@@ -227,8 +250,7 @@ def b101():
     b = []
     a = []
     v = {}
-    response = requests.get(
-        "https://minecraft.fandom.com/zh/wiki/Template:Version#table")
+    response = requests.get("https://minecraft.fandom.com/zh/wiki/Template:Version#table")
     response.encoding = "UTF-8"
     soup = bs4.BeautifulSoup(response.text, "lxml")
     data1 = soup.find_all(name="td")
@@ -241,8 +263,7 @@ def b101():
         if i % 2 == 0:
             v[b[i]] = b[i + 1]
     pc_remove(v, "")
-    for c in ["内部", "Windows", "macOS", "Linux", "即将到来", "ChromeOS", "PlayStation", "Nintendo", "Xbox", "Steam",
-              "demo", "教育版（iOS）", "Minecraft Dungeons（启动器版）", "战斗测试"]:
+    for c in ["内部", "Windows", "macOS", "Linux", "即将到来", "ChromeOS", "PlayStation", "Nintendo", "Xbox", "Steam", "demo", "教育版（iOS）", "Minecraft Dungeons（启动器版）", "战斗测试"]:
         remove_if_in(v, c)
     with open("mc.txt", "w", encoding="utf-8") as file:
         for (k, v) in v.items():
@@ -252,97 +273,37 @@ def b101():
     os.remove("mc.txt")
 
 
-def b1():
-    print("清理回收站")
+
+
+
+
+
+def b9():
+    print("清理整理文件")
     try:
-        winshell.recycle_bin().empty(confirm=False, show_progress=False, sound=False)
+        import send2trash
+        send2trash.send2trash(r"D:\文件")
     except:
         pass
 
 
-def b2():
-    print("整理桌面文件")
-    key = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
-                         r'Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders')
-    path = winreg.QueryValueEx(key, "Desktop")[0] + r"\ "[0:-1]
-    move_files(path, "D:/文件/")
-    repeat_clear("D:/文件/PPT/")
-    repeat_clear("D:/文件/表格/")
-    repeat_clear("D:/文件/图片/")
-    repeat_clear("D:/文件/文档/")
-    repeat_clear("D:/文件/文件夹/")
-    repeat_clear("D:/文件/压缩包/")
-    repeat_clear("D:/文件/音视频/")
-
-
-def b3():
-    print("整理微信文件")
-    try:
-        list = []
-        list2 = []
-        for i in os.walk("D:/微信文件/WeChat Files/"):
-            list.append(i)
-        for i in list[0][1]:
-            if os.path.exists(os.path.join("D:/微信文件/WeChat Files/", i, "FileStorage\File")):
-                list2.append(
-                    os.path.join("D:/微信文件/WeChat Files/", i, "FileStorage\File"))
-        list = []
-        list3 = []
-        for i in range(len(list2)):
-            for j in os.walk(list2[i]):
-                list.append(j)
-            for k in list[0][1]:
-                list3.append(os.path.join(list2[i], k))
-        list = list3
-        for i in list:
-            move_files(i + "/", "D:/文件/")
-        repeat_clear("D:/文件/PPT/")
-        repeat_clear("D:/文件/表格/")
-        repeat_clear("D:/文件/图片/")
-        repeat_clear("D:/文件/文档/")
-        repeat_clear("D:/文件/文件夹/")
-        repeat_clear("D:/文件/压缩包/")
-        repeat_clear("D:/文件/音视频/")
-    except:
-        pass
-
-
-def b4():
-    print("清理系统缓存")
-    list = []
-    list1 = os.walk(os.getenv("TEMP"))
-    for i in list1:
-        list.append(i)
-    if list != []:
-        list1 = list[0][1]
-    list2 = list[0][2]
-    for i in list1:
-        try:
-            shutil.rmtree(os.path.join(os.getenv("TEMP"), i))
-        except:
-            pass
-    for i in list2:
-        try:
-            os.remove(os.path.join(os.getenv("TEMP"), i))
-        except:
-            pass
-
-
-def b5():
+def b11():
     print("重启文件资源管理器")
     os.popen("taskkill /f /im explorer.exe")
     time.sleep(0.2)
     os.popen("start c:\windows\explorer.exe")
 
 
-def b6():
+def b12():
     print("一键整理+清理")
     print("清理回收站")
     try:
+        import winshell
         winshell.recycle_bin().empty(confirm=False, show_progress=False, sound=False)
     except:
         pass
     print("整理桌面文件")
+    import winreg
     key = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
                          r'Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders')
     path = winreg.QueryValueEx(key, "Desktop")[0] + r"\ "[0:-1]
@@ -369,14 +330,6 @@ def b6():
             move_files(i + "/", "D:/文件/")
     except:
         pass
-    repeat_clear("D:/文件/PPT/")
-    repeat_clear("D:/文件/表格/")
-    repeat_clear("D:/文件/图片/")
-    repeat_clear("D:/文件/文档/")
-    repeat_clear("D:/文件/文件夹/")
-    repeat_clear("D:/文件/压缩包/")
-    repeat_clear("D:/文件/音视频/")
-
     print("清理系统缓存")
     list = []
     list1 = os.walk(os.getenv("TEMP"))
@@ -395,37 +348,40 @@ def b6():
             os.remove(os.path.join(os.getenv("TEMP"), i))
         except:
             pass
+    repeat_clear("D:/文件/PPT/")
+    repeat_clear("D:/文件/表格/")
+    repeat_clear("D:/文件/图片/")
+    repeat_clear("D:/文件/文档/")
+    repeat_clear("D:/文件/文件夹/")
+    repeat_clear("D:/文件/压缩包/")
+    repeat_clear("D:/文件/音视频/")
+
+
 
 
 # txt = ttk.Label(tk, text="文字").place(x=100,y=,width=200,height=30,anchor="center")
 # b = ttk.Button(tk, text="按钮", style="TButton", command=b).place(x=,y=,width=100,height=30)
 # sep = Separato3r(tk, orient=HORIZONTAL).place(x=0,y=,width=5000,height=30)
 
-txt = ttk.Label(tk, text="功能列表").place(x=75, y=0, width=150, height=30)
-sep = Separator(tk, orient=HORIZONTAL).place(x=0, y=0, width=200, height=2)
-b1 = ttk.Button(tk, text="清理回收站", style="TButton", command=b1).place(
-    x=0, y=30, width=100, height=30)
-b2 = ttk.Button(tk, text="整理桌面文件", style="TButton", command=b2).place(
-    x=100, y=30, width=100, height=30)
-b3 = ttk.Button(tk, text="整理微信文件", style="TButton", command=b3).place(
-    x=0, y=60, width=100, height=30)
-b4 = ttk.Button(tk, text="清理系统缓存", style="TButton", command=b4).place(
-    x=100, y=60, width=100, height=30)
-b5 = ttk.Button(tk, text="重启资源管理器", style="TButton",
-                command=b5).place(x=0, y=90, width=100, height=30)
-b6 = ttk.Button(tk, text="一键整理+清理", style="TButton",
-                command=b6).place(x=100, y=90, width=100, height=30)
-b100 = ttk.Button(tk, text="我的网站", style="TButton", command=b100).place(
-    x=0, y=120, width=100, height=30)
-b101 = ttk.Button(tk, text="MC版本爬虫", style="TButton", command=b101).place(
-    x=100, y=120, width=100, height=30)
-sep = Separator(tk, orient=HORIZONTAL).place(x=0, y=155, width=200, height=30)
-txt = ttk.Label(tk, text="郑博的小程序For Myself").place(
-    x=30, y=160, width=150, height=30)
-txt = ttk.Label(tk, text=v).place(x=50, y=185, width=100, height=30)
-sep = Separator(tk, orient=HORIZONTAL).place(x=0, y=220, width=200, height=30)
-sep = Separator(tk, orient=VERTICAL).place(x=-1, y=0, width=2, height=220)
-sep = Separator(tk, orient=VERTICAL).place(x=200, y=0, width=2, height=220)
+txt = ttk.Label(tk, text="实用程序").place(x=75, y=0, width=150, height=30)
+txt = ttk.Label(tk, text="功能列表").place(x=275, y=0, width=150, height=30)
+sep = Separator(tk, orient=HORIZONTAL).place(x=0, y=0, width=400, height=2)
+
+# 左侧
+b100 = ttk.Button(tk, text="我的网站", style="TButton", command=b100).place(x=0, y=30, width=200, height=30)
+b101 = ttk.Button(tk, text="MC版本爬虫", style="TButton", command=b101).place(x=0, y=60, width=200, height=30)
+# 右侧
+
+b12 = ttk.Button(tk, text="一键整理+清理", style="TButton", command=b12).place(x=200, y=30, width=200, height=30)
+b9 = ttk.Button(tk, text="清理整理文件", style="TButton", command=b9).place(x=200, y=60, width=100, height=30)
+b11 = ttk.Button(tk, text="重启资源管理器", style="TButton", command=b11).place(x=300, y=60, width=100, height=30)
+sep = Separator(tk, orient=VERTICAL).place(x=200, y=0, width=1, height=120)
+sep = Separator(tk, orient=HORIZONTAL).place(x=0, y=120, width=400, height=2)
+txt = ttk.Label(tk, text="郑博的小程序For Myself 版本  " + v).place(x=40, y=130, width=200, height=30)
+b0 = ttk.Button(tk, text="检查并更新版本", style="TButton", command=b0).place(x=260, y=130, width=100, height=30)
+sep = Separator(tk, orient=HORIZONTAL).place(x=0, y=170, width=400, height=2)
+
+
+
 tk.mainloop()
-# 2022-10-21：1.0.0：最初版本，根据For Seewo 1.7.0改编
-#
+
