@@ -1,19 +1,19 @@
-import sys
 import os
-import pandas
-import time
 import random
-from tkinter.ttk import Separator
-from tkinter.constants import *
-from tkinter.messagebox import *
-from tkinter import ttk
+import sys
+import time
 from tkinter import *
+from tkinter import ttk
+from tkinter.messagebox import *
+
+import pandas
+
 v = "1.2.1"
 
 # 读取表格
 df = pandas.read_excel("list.xlsx")
 names = []
-numbers=[]
+numbers = []
 for i in df["姓名"]:
     names.append(i)
 for i in df["学号"]:
@@ -34,6 +34,7 @@ max_x = tk.winfo_screenwidth()
 max_y = tk.winfo_screenheight()
 now_x = (max_x - x) / 2
 now_y = (max_y - y) / 2
+tk.wm_attributes('-topmost', 1)
 tk.resizable(False, False)
 tk.wm_iconbitmap("ico.ico")
 tk.geometry("%dx%d+%d+%d" % (x, y, now_x, now_y))
@@ -42,10 +43,11 @@ st = ttk.Style()
 st.configure("TButton")
 t2 = StringVar()
 t3 = StringVar()
-w=[0]
+w = [0]
+
 
 def btn1():
-    if w[0]==0:
+    if w[0] == 0:
         w[0] = 1
         t3.set("")
         wait = 0
@@ -58,9 +60,9 @@ def btn1():
                 sys.exit()
             name = get(names)
             num = numbers[names.index(name)]
-            t2.set("                    "+str(num) + "号 " + name)
+            t2.set("                       " + str(num) + "号 " + name)
             tk.update()
-            if i == repeat-1:
+            if i == repeat - 1:
                 print(name)
                 names.remove(name)
                 numbers.remove(num)
@@ -68,7 +70,7 @@ def btn1():
             wait += 0.002
         t3.set("恭喜这位同学(ง •_•)ง")
         tk.update()
-        w[0] =0
+        w[0] = 0
 
 
 def btn2():
@@ -87,7 +89,7 @@ def btn2():
             for i in range(5):
                 name = get(names)
                 num = numbers[names.index(name)]
-                n=n+" "+name
+                n = n + " " + name
             t2.set(n)
             tk.update()
             time.sleep(wait)
@@ -108,7 +110,7 @@ def btn2():
                 name = get(names)
                 num = numbers[names.index(name)]
                 if i == repeat - 1:
-                    n = n+" "+name
+                    n = n + " " + name
                     names.remove(name)
                     numbers.remove(num)
                 tk.update()
@@ -123,11 +125,11 @@ def btn2():
 # b = ttk.Button(tk, text="按钮", style="TButton", command=b).place(x=,y=,width=100,height=30)
 # 横 sep = Separato3r(tk, orient=HORIZONTAL).place(x=0,y=,width=5000,height=30)
 # 竖 sep = Separato3r(tk, orient=VERTICAL).place(x=0,y=,width=5000,height=30)
-txt = ttk.Label(tk, font=("微软雅黑", 15), text="   点名器").place(
+txt = ttk.Label(tk, font=("等线", 15), text="   点名器").place(
     x=300, y=0, width=200, height=30)
-txt2 = ttk.Label(tk, font=("微软雅黑", 30), textvariable=t2).place(
+txt2 = ttk.Label(tk, font=("等线", 30), textvariable=t2).place(
     x=-5, y=50, width=800, height=100)
-txt3 = ttk.Label(tk, font=("微软雅黑", 20), textvariable=t3).place(
+txt3 = ttk.Label(tk, font=("等线", 20), textvariable=t3).place(
     x=230, y=150, width=400, height=100)
 b1 = ttk.Button(tk, text="点名1人", style="TButton", command=btn1).place(
     x=250, y=270, width=100, height=30)
@@ -137,3 +139,4 @@ tk.mainloop()
 # 2022-11-01：1.0.0：
 # 2022-11-02：1.1.0：添加5连抽，无法抽中同一个人，添加提示语，增大字体
 # 2022-11-03：1.2.0：优化动画，修复连点错乱bug
+# 2022-11-05：1.3.0：优化字体，添加窗口图标，置顶
