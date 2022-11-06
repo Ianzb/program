@@ -432,35 +432,39 @@ def b13():
     time.sleep(0.5)
     sys.exit()
 
+def b14():
+    print("打开更新服务器")
+    webbrowser.open("https://ianzb.github.io/server.github.io/Seewo/seewo.html")
 
 # txt = ttk.Label(tk, text="文字").place(x=100,y=,width=200,height=30,anchor="center")
 # b = ttk.Button(tk, text="按钮", style="TButton", command=b).place(x=,y=,width=100,height=30)
 # sep = Separato3r(tk, orient=HORIZONTAL).place(x=0,y=,width=5000,height=30)
 
-txt = ttk.Label(tk, text="实用程序").place(x=75, y=0, width=150, height=30)
-txt = ttk.Label(tk, text="功能列表").place(x=275, y=0, width=150, height=30)
-sep = Separator(tk, orient=HORIZONTAL).place(x=0, y=0, width=400, height=2)
+ttk.Label(tk, text="实用程序").place(x=75, y=0, width=150, height=30)
+ttk.Label(tk, text="功能列表").place(x=275, y=0, width=150, height=30)
+Separator(tk, orient=HORIZONTAL).place(x=0, y=0, width=400, height=2)
 
 # 左侧
 
-b13 = ttk.Button(tk, text="点名器", style="TButton", command=b13).place(x=0, y=30, width=200, height=30)
+ttk.Button(tk, text="点名器", style="TButton", command=b13).place(x=0, y=30, width=200, height=30)
 # 右侧
 
-b12 = ttk.Button(tk, text="一键整理+清理", style="TButton", command=b12).place(x=200, y=30, width=200, height=30)
-b1 = ttk.Button(tk, text="重启PPT小助手", style="TButton", command=b1).place(x=200, y=60, width=100, height=30)
-b2 = ttk.Button(tk, text="关闭PPT小助手", style="TButton", command=b2).place(x=300, y=60, width=100, height=30)
-b9 = ttk.Button(tk, text="清理整理文件", style="TButton", command=b9).place(x=200, y=90, width=100, height=30)
-b11 = ttk.Button(tk, text="重启资源管理器", style="TButton", command=b11).place(x=300, y=90, width=100, height=30)
-b3 = ttk.Button(tk, text="CCTV-13", style="TButton", command=b3).place(x=200, y=120, width=100, height=30)
-b4 = ttk.Button(tk, text="校园电视台", style="TButton", command=b4).place(x=300, y=120, width=100, height=30)
-sep = Separator(tk, orient=VERTICAL).place(x=200, y=0, width=1, height=180)
-sep = Separator(tk, orient=HORIZONTAL).place(x=0, y=180, width=400, height=2)
-txt = ttk.Label(tk, text="郑博的小程序For Seewo 版本  " + v).place(x=40, y=190, width=200, height=30)
-b0 = ttk.Button(tk, text="检查并更新版本", style="TButton", command=b0).place(x=260, y=190, width=100, height=30)
-sep = Separator(tk, orient=HORIZONTAL).place(x=0, y=230, width=400, height=2)
+ttk.Button(tk, text="一键整理+清理", style="TButton", command=b12).place(x=200, y=30, width=200, height=30)
+ttk.Button(tk, text="重启PPT小助手", style="TButton", command=b1).place(x=200, y=60, width=100, height=30)
+ttk.Button(tk, text="关闭PPT小助手", style="TButton", command=b2).place(x=300, y=60, width=100, height=30)
+ttk.Button(tk, text="清理整理文件", style="TButton", command=b9).place(x=200, y=90, width=100, height=30)
+ttk.Button(tk, text="重启资源管理器", style="TButton", command=b11).place(x=300, y=90, width=100, height=30)
+ttk.Button(tk, text="CCTV-13", style="TButton", command=b3).place(x=200, y=120, width=100, height=30)
+ttk.Button(tk, text="校园电视台", style="TButton", command=b4).place(x=300, y=120, width=100, height=30)
+Separator(tk, orient=VERTICAL).place(x=200, y=0, width=1, height=180)
+Separator(tk, orient=HORIZONTAL).place(x=0, y=180, width=400, height=2)
+ttk.Label(tk, text="郑博的小程序For Seewo 版本  " + v).place(x=40, y=190, width=200, height=30)
+ttk.Button(tk, text="检查并更新版本", style="TButton", command=b0).place(x=260, y=190, width=100, height=30)
+Separator(tk, orient=HORIZONTAL).place(x=0, y=230, width=400, height=2)
 
-txt = ttk.Label(tk, text="夹带私货").place(x=175, y=235, width=150, height=30)
-b100 = ttk.Button(tk, text="我的网站", style="TButton", command=b100).place(x=0, y=265, width=200, height=30)
-b101 = ttk.Button(tk, text="MC版本爬虫", style="TButton", command=b101).place(x=200, y=265, width=200, height=30)
+ttk.Label(tk, text="夹带私货").place(x=175, y=235, width=150, height=30)
+ttk.Button(tk, text="zb的网站", style="TButton", command=b100).place(x=0, y=265, width=100, height=30)
+ttk.Button(tk, text="更新服务器", style="TButton", command=b14).place(x=100, y=265, width=100, height=30)
+ttk.Button(tk, text="MC版本爬虫", style="TButton", command=b101).place(x=200, y=265, width=200, height=30)
 
 tk.mainloop()
