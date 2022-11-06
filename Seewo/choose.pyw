@@ -2,27 +2,24 @@ import os
 import random
 import sys
 import time
+import pandas
 from tkinter import *
 from tkinter import ttk
 from tkinter.messagebox import *
 
-import pandas
 
-v = "1.2.1"
+
+v = "1.3.1"
 
 # 读取表格
 df = pandas.read_excel("list.xlsx")
 names = []
 numbers = []
-for i in df["姓名"]:
-    names.append(i)
-for i in df["学号"]:
-    numbers.append(i)
-del df
+for i in df["姓名"]:names.append(i)
+for i in df["学号"]:numbers.append(i)
 
 
-def get(list):
-    return random.choice(list)
+def get(list):return random.choice(list)
 
 
 # 初始化
@@ -125,18 +122,14 @@ def btn2():
 # b = ttk.Button(tk, text="按钮", style="TButton", command=b).place(x=,y=,width=100,height=30)
 # 横 sep = Separato3r(tk, orient=HORIZONTAL).place(x=0,y=,width=5000,height=30)
 # 竖 sep = Separato3r(tk, orient=VERTICAL).place(x=0,y=,width=5000,height=30)
-txt = ttk.Label(tk, font=("等线", 15), text="   点名器").place(
-    x=300, y=0, width=200, height=30)
-txt2 = ttk.Label(tk, font=("等线", 30), textvariable=t2).place(
-    x=-5, y=50, width=800, height=100)
-txt3 = ttk.Label(tk, font=("等线", 20), textvariable=t3).place(
-    x=230, y=150, width=400, height=100)
-b1 = ttk.Button(tk, text="点名1人", style="TButton", command=btn1).place(
-    x=250, y=270, width=100, height=30)
-b2 = ttk.Button(tk, text="点名5人", style="TButton", command=btn2).place(
-    x=350, y=270, width=100, height=30)
+txt = ttk.Label(tk, font=("等线", 15), text="   点名器").place(x=300, y=0, width=200, height=30)
+txt2 = ttk.Label(tk, font=("等线", 30), textvariable=t2).place(x=-5, y=50, width=800, height=100)
+txt3 = ttk.Label(tk, font=("等线", 20), textvariable=t3).place(x=230, y=150, width=400, height=100)
+b1 = ttk.Button(tk, text="点名1人", style="TButton", command=btn1).place(x=250, y=270, width=100, height=30)
+b2 = ttk.Button(tk, text="点名5人", style="TButton", command=btn2).place(x=350, y=270, width=100, height=30)
 tk.mainloop()
 # 2022-11-01：1.0.0：
 # 2022-11-02：1.1.0：添加5连抽，无法抽中同一个人，添加提示语，增大字体
 # 2022-11-03：1.2.0：优化动画，修复连点错乱bug
 # 2022-11-05：1.3.0：优化字体，添加窗口图标，置顶
+# 2022-11-06：1.3.1：优化代码，提高速度
