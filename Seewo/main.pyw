@@ -1,4 +1,4 @@
-v = "2.1.0"
+v = "2.2.0"
 
 import bs4
 import os
@@ -10,6 +10,7 @@ import webbrowser
 from tkinter import *
 from tkinter import ttk
 from tkinter.ttk import Separator
+from tkinter.messagebox import *
 
 date = time.strftime("%Y-%m-%d")
 # 初始化
@@ -27,7 +28,11 @@ tk.geometry("%dx%d+%d+%d" % (x, y, now_x, now_y))
 tk.wm_attributes('-topmost', 1)
 tk.minsize(400, 230)
 tk.maxsize(400, 295)
-tk.wm_iconbitmap("ico.ico")
+
+try:
+    tk.wm_iconbitmap("ico.ico")
+except:
+    showinfo("提示", "软件图标文件缺失，请使用检查更新功能补全文件！")
 
 
 # 定制
@@ -432,9 +437,11 @@ def b13():
     time.sleep(0.5)
     sys.exit()
 
+
 def b14():
     print("打开更新服务器")
     webbrowser.open("https://ianzb.github.io/server.github.io/Seewo/seewo.html")
+
 
 # txt = ttk.Label(tk, text="文字").place(x=100,y=,width=200,height=30,anchor="center")
 # b = ttk.Button(tk, text="按钮", style="TButton", command=b).place(x=,y=,width=100,height=30)
