@@ -1,4 +1,4 @@
-v = "1.2.0"
+v = "1.3.0"
 
 import bs4
 import os
@@ -261,21 +261,21 @@ def b12():
     import winreg
     key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r'Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders')
     path = winreg.QueryValueEx(key, "Desktop")[0] + r"\ "[0:-1]
-    move_files(path, "D:/文件/")
+    move_files(path, "E:/整理文件/")
     print("整理微信文件")
     try:
         list = []
         list2 = []
-        for i in os.walk("D:/微信文件/WeChat Files/"): list.append(i)
+        for i in os.walk("E:/Files/Wechat/WeChat Files/"): list.append(i)
         for i in list[0][1]:
-            if os.path.exists(os.path.join("D:/微信文件/WeChat Files/", i, "FileStorage\File")): list2.append(os.path.join("D:/微信文件/WeChat Files/", i, "FileStorage\File"))
+            if os.path.exists(os.path.join("E:/Files/Wechat/WeChat Files/", i, "FileStorage\File")): list2.append(os.path.join("E:/Files/Wechat/WeChat Files/", i, "FileStorage\File"))
         list = []
         list3 = []
         for i in range(len(list2)):
             for j in os.walk(list2[i]): list.append(j)
             for k in list[0][1]: list3.append(os.path.join(list2[i], k))
         list = list3
-        for i in list: move_files(i + "/", "D:/文件/")
+        for i in list: move_files(i + "/", "E:/整理文件/")
     except:
         pass
     print("清理系统缓存")
@@ -296,13 +296,13 @@ def b12():
             os.remove(os.path.join(os.getenv("TEMP"), i))
         except:
             pass
-    repeat_clear("D:/文件/PPT/")
-    repeat_clear("D:/文件/表格/")
-    repeat_clear("D:/文件/图片/")
-    repeat_clear("D:/文件/文档/")
-    repeat_clear("D:/文件/文件夹/")
-    repeat_clear("D:/文件/压缩包/")
-    repeat_clear("D:/文件/音视频/")
+    repeat_clear("E:/整理文件/PPT/")
+    repeat_clear("E:/整理文件/表格/")
+    repeat_clear("E:/整理文件/图片/")
+    repeat_clear("E:/整理文件/文档/")
+    repeat_clear("E:/整理文件/文件夹/")
+    repeat_clear("E:/整理文件/压缩包/")
+    repeat_clear("E:/整理文件/音视频/")
 
 
 # txt = ttk.Label(tk, text="文字").place(x=100,y=,width=200,height=30,anchor="center")

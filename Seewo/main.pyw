@@ -95,32 +95,40 @@ def move_files(old, new):
     for i in range(len(ppt)):
         if os.path.exists(new + "PPT/" + ppt[i]):
             j = 1
-            while os.path.exists(new + "PPT/" + ppt[i][:ppt[i].rfind(".")] + "(" + str(j) + ")" + ppt[i][ppt[i].rfind("."):]): j = j + 1
+            while os.path.exists(
+                new + "PPT/" + ppt[i][:ppt[i].rfind(".")] + "(" + str(j) + ")" + ppt[i][ppt[i].rfind("."):]): j = j + 1
             ppt[i] = ppt[i] + "(" + str(j) + ")"
     for i in range(len(doc)):
         if os.path.exists(new + "文档/" + doc[i]):
             j = 1
-            while os.path.exists(new + "文档/" + doc[i][:doc[i].rfind(".")] + "(" + str(j) + ")" + doc[i][doc[i].rfind("."):]): j = j + 1
+            while os.path.exists(
+                new + "文档/" + doc[i][:doc[i].rfind(".")] + "(" + str(j) + ")" + doc[i][doc[i].rfind("."):]): j = j + 1
             doc[i] = doc[i] + "(" + str(j) + ")"
     for i in range(len(xls)):
         if os.path.exists(new + "表格/" + xls[i]):
             j = 1
-            while os.path.exists(new + "表格/" + xls[i][:xls[i].rfind(".")] + "(" + str(j) + ")" + xls[i][xls[i].rfind("."):]): j = j + 1
+            while os.path.exists(
+                new + "表格/" + xls[i][:xls[i].rfind(".")] + "(" + str(j) + ")" + xls[i][xls[i].rfind("."):]): j = j + 1
             xls[i] = xls[i] + "(" + str(j) + ")"
     for i in range(len(img)):
         if os.path.exists(new + "图片/" + img[i]):
             j = 1
-            while os.path.exists(new + "图片/" + img[i][:img[i].rfind(".")] + "(" + str(j) + ")" + img[i][img[i].rfind("."):]): j = j + 1
+            while os.path.exists(
+                new + "图片/" + img[i][:img[i].rfind(".")] + "(" + str(j) + ")" + img[i][img[i].rfind("."):]): j = j + 1
             img[i] = img[i] + "(" + str(j) + ")"
     for i in range(len(mp3)):
         if os.path.exists(new + "音视频/" + mp3[i]):
             j = 1
-            while os.path.exists(new + "音视频/" + mp3[i][:mp3[i].rfind(".")] + "(" + str(j) + ")" + mp3[i][mp3[i].rfind("."):]): j = j + 1
+            while os.path.exists(new + "音视频/" + mp3[i][:mp3[i].rfind(".")] + "(" + str(j) + ")" + mp3[i][
+                                                                                                     mp3[i].rfind(
+                                                                                                         "."):]): j = j + 1
             mp3[i] = mp3[i] + "(" + str(j) + ")"
     for i in range(len(zip)):
         if os.path.exists(new + "压缩包/" + zip[i]):
             j = 1
-            while os.path.exists(new + "压缩包/" + zip[i][:zip[i].rfind(".")] + "(" + str(j) + ")" + zip[i][zip[i].rfind("."):]): j = j + 1
+            while os.path.exists(new + "压缩包/" + zip[i][:zip[i].rfind(".")] + "(" + str(j) + ")" + zip[i][
+                                                                                                     zip[i].rfind(
+                                                                                                         "."):]): j = j + 1
             zip[i] = zip[i] + "(" + str(j) + ")"
     if not os.path.exists(new + "PPT/"): os.makedirs(new + "PPT/")
     if not os.path.exists(new + "表格/"): os.makedirs(new + "表格/")
@@ -136,42 +144,48 @@ def move_files(old, new):
             shutil.move(old + i, new + "PPT/" + i)
         except:
             os.chmod(old + i[:i.rfind("(")], stat.S_IWRITE)
-            shutil.move(old + i[:i.rfind("(")], new + "PPT/" + i[:i.rfind(".")] + i[i.rfind("("):] + i[i.rfind("."):i.rfind("(")])
+            shutil.move(old + i[:i.rfind("(")],
+                        new + "PPT/" + i[:i.rfind(".")] + i[i.rfind("("):] + i[i.rfind("."):i.rfind("(")])
     for i in doc:
         try:
             os.chmod(old + i, stat.S_IWRITE)
             shutil.move(old + i, new + "文档/" + i)
         except:
             os.chmod(old + i[:i.rfind("(")], stat.S_IWRITE)
-            shutil.move(old + i[:i.rfind("(")], new + "文档/" + i[:i.rfind(".")] + i[i.rfind("("):] + i[i.rfind("."):i.rfind("(")])
+            shutil.move(old + i[:i.rfind("(")],
+                        new + "文档/" + i[:i.rfind(".")] + i[i.rfind("("):] + i[i.rfind("."):i.rfind("(")])
     for i in xls:
         try:
             os.chmod(old + i, stat.S_IWRITE)
             shutil.move(old + i, new + "表格/" + i)
         except:
             os.chmod(old + i[:i.rfind("(")], stat.S_IWRITE)
-            shutil.move(old + i[:i.rfind("(")], new + "表格/" + i[:i.rfind(".")] + i[i.rfind("("):] + i[i.rfind("."):i.rfind("(")])
+            shutil.move(old + i[:i.rfind("(")],
+                        new + "表格/" + i[:i.rfind(".")] + i[i.rfind("("):] + i[i.rfind("."):i.rfind("(")])
     for i in img:
         try:
             os.chmod(old + i, stat.S_IWRITE)
             shutil.move(old + i, new + "图片/" + i)
         except:
             os.chmod(old + i[:i.rfind("(")], stat.S_IWRITE)
-            shutil.move(old + i[:i.rfind("(")], new + "图片/" + i[:i.rfind(".")] + i[i.rfind("("):] + i[i.rfind("."):i.rfind("(")])
+            shutil.move(old + i[:i.rfind("(")],
+                        new + "图片/" + i[:i.rfind(".")] + i[i.rfind("("):] + i[i.rfind("."):i.rfind("(")])
     for i in mp3:
         try:
             os.chmod(old + i, stat.S_IWRITE)
             shutil.move(old + i, new + "音视频/" + i)
         except:
             os.chmod(old + i[:i.rfind("(")], stat.S_IWRITE)
-            shutil.move(old + i[:i.rfind("(")], new + "音视频/" + i[:i.rfind(".")] + i[i.rfind("("):] + i[i.rfind("."):i.rfind("(")])
+            shutil.move(old + i[:i.rfind("(")],
+                        new + "音视频/" + i[:i.rfind(".")] + i[i.rfind("("):] + i[i.rfind("."):i.rfind("(")])
     for i in zip:
         try:
             os.chmod(old + i, stat.S_IWRITE)
             shutil.move(old + i, new + "压缩包/" + i)
         except:
             os.chmod(old + i[:i.rfind("(")], stat.S_IWRITE)
-            shutil.move(old + i[:i.rfind("(")], new + "压缩包/" + i[:i.rfind(".")] + i[i.rfind("("):] + i[i.rfind("."):i.rfind("(")])
+            shutil.move(old + i[:i.rfind("(")],
+                        new + "压缩包/" + i[:i.rfind(".")] + i[i.rfind("("):] + i[i.rfind("."):i.rfind("(")])
     list3 = list2[0][1]
     fold = []
     for i in list3:
@@ -199,7 +213,9 @@ def b0():
     res.encoding = "UTF-8"
     soup = bs4.BeautifulSoup(res.text, "lxml")
     data = soup.find_all(name="div", text=re.compile("."))
-    for i in range(len(data)): data[i] = str(data[i]).replace("<div>", "").replace("</div>", "").replace(r"\r", "").replace(r"\n", "").strip()
+    for i in range(len(data)): data[i] = str(data[i]).replace("<div>", "").replace("</div>", "").replace(r"\r",
+                                                                                                         "").replace(
+        r"\n", "").strip()
     for i in range(len(data)):
         response1 = requests.get(link + data[i])
         response1.encoding = "UTF-8"
@@ -230,7 +246,8 @@ def b101():
     for i in range(len(b)):
         if i % 2 == 0: v[b[i]] = b[i + 1]
     pc_remove(v, "")
-    list = ["内部", "Windows", "macOS", "Linux", "即将到来", "ChromeOS", "PlayStation", "Nintendo", "Xbox", "Steam", "demo", "教育版（iOS）", "Minecraft Dungeons（启动器版）", "战斗测试"]
+    list = ["内部", "Windows", "macOS", "Linux", "即将到来", "ChromeOS", "PlayStation", "Nintendo", "Xbox", "Steam",
+            "demo", "教育版（iOS）", "Minecraft Dungeons（启动器版）", "战斗测试"]
     for c in list: remove_if_in(v, c)
     with open("mc.txt", "w", encoding="utf-8") as file:
         for (k, v) in v.items(): file.write(k + "版本：" + v + "\n")
@@ -272,7 +289,8 @@ def b5():
         for i in list: list2.append(i)
         list = list2[0][1]
         for i in list:
-            if i != date and os.path.exists(r"D:/EasiCameraPhoto/" + i): send2trash.send2trash(os.path.join(r"D:\EasiCameraPhoto\ "[:-1] + i))
+            if i != date and os.path.exists(r"D:/EasiCameraPhoto/" + i): send2trash.send2trash(
+                os.path.join(r"D:\EasiCameraPhoto\ "[:-1] + i))
     except:
         pass
 
@@ -308,7 +326,8 @@ def b8():
         list2 = []
         for i in os.walk("D:/WeChat Files/WeChat Files/"): list.append(i)
         for i in list[0][1]:
-            if os.path.exists(os.path.join("D:/WeChat Files/WeChat Files/", i, "FileStorage\File")): list2.append(os.path.join("D:/WeChat Files/WeChat Files/", i, "FileStorage\File"))
+            if os.path.exists(os.path.join("D:/WeChat Files/WeChat Files/", i, "FileStorage\File")): list2.append(
+                os.path.join("D:/WeChat Files/WeChat Files/", i, "FileStorage\File"))
         list = []
         list3 = []
         for i in range(len(list2)):
@@ -376,7 +395,8 @@ def b12():
         for i in list: list2.append(i)
         list = list2[0][1]
         for i in list:
-            if i != date and os.path.exists(r"D:/EasiCameraPhoto/" + i): send2trash.send2trash(os.path.join(r"D:\EasiCameraPhoto\ "[:-1] + i))
+            if i != date and os.path.exists(r"D:/EasiCameraPhoto/" + i): send2trash.send2trash(
+                os.path.join(r"D:\EasiCameraPhoto\ "[:-1] + i))
     except:
         pass
     print("清理回收站")
@@ -396,7 +416,8 @@ def b12():
         list2 = []
         for i in os.walk("D:/WeChat Files/WeChat Files/"): list.append(i)
         for i in list[0][1]:
-            if os.path.exists(os.path.join("D:/WeChat Files/WeChat Files/", i, "FileStorage\File")): list2.append(os.path.join("D:/WeChat Files/WeChat Files/", i, "FileStorage\File"))
+            if os.path.exists(os.path.join("D:/WeChat Files/WeChat Files/", i, "FileStorage\File")): list2.append(
+                os.path.join("D:/WeChat Files/WeChat Files/", i, "FileStorage\File"))
         list = []
         list3 = []
         for i in range(len(list2)):

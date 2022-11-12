@@ -8,8 +8,7 @@ from tkinter import ttk
 from tkinter.messagebox import *
 
 res=""
-v = "1.3.2"
-res = b'\xe4\xbd\xa0\xe8\xaf\x95\xe5\x9b\xbe\xe7\xbb\x95\xe8\xbf\x87\xe7\xa8\x8b\xe5\xba\x8f\xe8\xbf\x9b\xe8\xa1\x8c\xe6\x81\xb6\xe6\x90\x9e\xe5\x88\xb6\xe4\xbd\x9c\xef\xbc\x8c\xe8\xa2\xab\xe6\x88\x91\xe5\x8f\x91\xe7\x8e\xb0\xe4\xba\x86\xef\xbc\x81'
+v = "1.3.3"
 
 # 读取表格
 df = pandas.read_excel("list.xlsx")
@@ -44,15 +43,10 @@ now_x = (max_x - x) / 2
 now_y = (max_y - y) / 2
 tk.wm_attributes('-topmost', 1)
 tk.resizable(False, False)
-data=[""]
 try:
     tk.wm_iconbitmap("ico.ico")
 except:
     showinfo("提示", "软件图标文件缺失！")
-if res == data[0]:
-    showinfo("提示","别改了！")
-    data[0]== "1"
-    sys.exit()
 tk.geometry("%dx%d+%d+%d" % (x, y, now_x, now_y))
 # 设置样式
 st = ttk.Style()
@@ -63,9 +57,6 @@ w = [0]
 
 
 def btn1():
-    if numbers[0] != "1":
-        showinfo("提示", res.decode())
-        sys.exit()
     if w[0] == 0:
         w[0] = 1
         t3.set("")
@@ -87,17 +78,12 @@ def btn1():
                 numbers.remove(num)
             time.sleep(wait)
             wait += 0.002
-        if data[0]!= "1":
-            sys.exit()
         t3.set("恭喜这位同学(ง •_•)ง")
         tk.update()
         w[0] = 0
 
 
 def btn2():
-    if numbers[0] != "1":
-        showinfo("提示", res.decode())
-        sys.exit()
     if w[0] == 0:
         w[0] = 1
         if len(names) < 2:
@@ -160,3 +146,4 @@ tk.mainloop()
 # 2022-11-05：1.3.0：优化字体，添加窗口图标，置顶
 # 2022-11-06：1.3.1：优化代码，提高速度
 # 2022-11-07：1.3.2：添加阻止恶搞版本提示，添加图标缺失提示
+# 2022-11-12：1.3.3：优化阻止恶搞版本提示
