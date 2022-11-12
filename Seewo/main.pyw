@@ -1,4 +1,4 @@
-v = "2.2.0"
+v = "2.3.0"
 
 import bs4
 import os
@@ -96,25 +96,29 @@ def move_files(old, new):
         if os.path.exists(new + "PPT/" + ppt[i]):
             j = 1
             while os.path.exists(
-                new + "PPT/" + ppt[i][:ppt[i].rfind(".")] + "(" + str(j) + ")" + ppt[i][ppt[i].rfind("."):]): j = j + 1
+                    new + "PPT/" + ppt[i][:ppt[i].rfind(".")] + "(" + str(j) + ")" + ppt[i][
+                                                                                     ppt[i].rfind("."):]): j = j + 1
             ppt[i] = ppt[i] + "(" + str(j) + ")"
     for i in range(len(doc)):
         if os.path.exists(new + "文档/" + doc[i]):
             j = 1
             while os.path.exists(
-                new + "文档/" + doc[i][:doc[i].rfind(".")] + "(" + str(j) + ")" + doc[i][doc[i].rfind("."):]): j = j + 1
+                    new + "文档/" + doc[i][:doc[i].rfind(".")] + "(" + str(j) + ")" + doc[i][
+                                                                                      doc[i].rfind("."):]): j = j + 1
             doc[i] = doc[i] + "(" + str(j) + ")"
     for i in range(len(xls)):
         if os.path.exists(new + "表格/" + xls[i]):
             j = 1
             while os.path.exists(
-                new + "表格/" + xls[i][:xls[i].rfind(".")] + "(" + str(j) + ")" + xls[i][xls[i].rfind("."):]): j = j + 1
+                    new + "表格/" + xls[i][:xls[i].rfind(".")] + "(" + str(j) + ")" + xls[i][
+                                                                                      xls[i].rfind("."):]): j = j + 1
             xls[i] = xls[i] + "(" + str(j) + ")"
     for i in range(len(img)):
         if os.path.exists(new + "图片/" + img[i]):
             j = 1
             while os.path.exists(
-                new + "图片/" + img[i][:img[i].rfind(".")] + "(" + str(j) + ")" + img[i][img[i].rfind("."):]): j = j + 1
+                    new + "图片/" + img[i][:img[i].rfind(".")] + "(" + str(j) + ")" + img[i][
+                                                                                      img[i].rfind("."):]): j = j + 1
             img[i] = img[i] + "(" + str(j) + ")"
     for i in range(len(mp3)):
         if os.path.exists(new + "音视频/" + mp3[i]):
@@ -347,10 +351,10 @@ def b8():
 
 
 def b9():
-    print("清理整理文件")
-    import send2trash
+    print("清理回收站")
+    import winshell
     try:
-        send2trash.send2trash(r"D:\文件")
+        winshell.recycle_bin().empty(confirm=False, show_progress=False, sound=False)
     except:
         pass
 
@@ -464,6 +468,10 @@ def b14():
     webbrowser.open("https://ianzb.github.io/server.github.io/Seewo/seewo.html")
 
 
+def b15():
+    os.startfile("D:/文件")
+
+
 # txt = ttk.Label(tk, text="文字").place(x=100,y=,width=200,height=30,anchor="center")
 # b = ttk.Button(tk, text="按钮", style="TButton", command=b).place(x=,y=,width=100,height=30)
 # sep = Separato3r(tk, orient=HORIZONTAL).place(x=0,y=,width=5000,height=30)
@@ -477,10 +485,12 @@ Separator(tk, orient=HORIZONTAL).place(x=0, y=0, width=400, height=2)
 ttk.Button(tk, text="点名器", style="TButton", command=b13).place(x=0, y=30, width=200, height=30)
 # 右侧
 
-ttk.Button(tk, text="一键整理+清理", style="TButton", command=b12).place(x=200, y=30, width=200, height=30)
+ttk.Button(tk, text="一键整理+清理", style="TButton", command=b12).place(x=200, y=30, width=150, height=30)
+ttk.Button(tk, text="打开", style="TButton", command=b15).place(x=350, y=30, width=50, height=30)
+
 ttk.Button(tk, text="重启PPT小助手", style="TButton", command=b1).place(x=200, y=60, width=100, height=30)
 ttk.Button(tk, text="关闭PPT小助手", style="TButton", command=b2).place(x=300, y=60, width=100, height=30)
-ttk.Button(tk, text="清理整理文件", style="TButton", command=b9).place(x=200, y=90, width=100, height=30)
+ttk.Button(tk, text="清理回收站", style="TButton", command=b9).place(x=200, y=90, width=100, height=30)
 ttk.Button(tk, text="重启资源管理器", style="TButton", command=b11).place(x=300, y=90, width=100, height=30)
 ttk.Button(tk, text="CCTV-13", style="TButton", command=b3).place(x=200, y=120, width=100, height=30)
 ttk.Button(tk, text="校园电视台", style="TButton", command=b4).place(x=300, y=120, width=100, height=30)

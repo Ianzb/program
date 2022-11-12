@@ -34,7 +34,7 @@ else:
     choose("正确")
 # 初始化
 tk = Tk()
-tk.title("zb的随机点名器 " + v)
+tk.title("zb的点名器 " + v)
 x = 700
 y = 300
 max_x = tk.winfo_screenwidth()
