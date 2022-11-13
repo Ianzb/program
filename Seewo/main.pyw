@@ -1,4 +1,4 @@
-v = "2.3.0"
+v = "2.3.1"
 
 import bs4
 import os

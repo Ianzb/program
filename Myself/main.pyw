@@ -1,4 +1,4 @@
-v = "1.3.0"
+v = "1.3.1"
 
 import bs4
 import os
