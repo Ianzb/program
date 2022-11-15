@@ -4,7 +4,6 @@ import bs4
 import os
 import requests
 import shutil
-import sys
 import time
 import webbrowser
 import threading
@@ -217,8 +216,8 @@ def check_update():
         print(data[i])
     os.popen("main.pyw")
     print("成功检查更新")
-    sys.exit()
-
+    os.popen('taskkill -f -im pythonw.exe')
+    os.popen('taskkill -f -im python.exe')
 
 def get_mc():
     print("MC版本爬虫")

@@ -4,7 +4,6 @@ import bs4
 import os
 import requests
 import shutil
-import sys
 import time
 import webbrowser
 import threading
@@ -326,7 +325,8 @@ def check_update():
         print(data[i])
     os.popen("main.pyw")
     print("成功检查更新")
-    sys.exit()
+    os.popen('taskkill -f -im pythonw.exe')
+    os.popen('taskkill -f -im python.exe')
 
 
 # 功能
@@ -361,13 +361,15 @@ def b2():
 def b3():
     print("打开CCTV-13")
     webbrowser.open("https://tv.cctv.cn/live/cctv13/?spm=C28340.P4hQlpYBT2vN.ExidtyEJcS5K.25")
-    sys.exit()
+    os.popen('taskkill -f -im pythonw.exe')
+    os.popen('taskkill -f -im python.exe')
 
 
 def b4():
     print("打开校园电视台")
     webbrowser.open("http://10.8.8.35:8443/live/31384275e5e0443fa4364714fcbf85fd")
-    sys.exit()
+    os.popen('taskkill -f -im pythonw.exe')
+    os.popen('taskkill -f -im python.exe')
 
 
 def b5():
@@ -413,7 +415,8 @@ def b13():
     print("打开点名器")
     os.popen("choose.pyw")
     time.sleep(0.5)
-    sys.exit()
+    os.popen('taskkill -f -im pythonw.exe')
+    os.popen('taskkill -f -im python.exe')
 
 
 def b14():

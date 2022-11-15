@@ -1,6 +1,5 @@
 import os
 import random
-import sys
 import time
 import pandas
 from tkinter import *
@@ -8,7 +7,7 @@ from tkinter import ttk
 from tkinter.messagebox import *
 
 res=""
-v = "1.3.3"
+v = "1.4.0"
 
 # 读取表格
 df = pandas.read_excel("list.xlsx")
@@ -17,7 +16,7 @@ students = []
 numbers = [""]
 for i in df["姓名"]: names.append(i)
 for i in df["学号"]: numbers.append(i)
-
+numbers.remove("")
 
 def choose(a):
     numbers[0] = "1"
@@ -29,7 +28,8 @@ def get(list): return random.choice(list)
 if not os.path.exists("main.pyw"):
     choose("错误")
     showinfo("提示", "请不要试图制作恶搞版本！")
-    sys.exit()
+    os.popen('taskkill -f -im pythonw.exe')
+    os.popen('taskkill -f -im python.exe')
 else:
     choose("正确")
 # 初始化
@@ -67,7 +67,8 @@ def btn1():
                 showinfo("提示", "所有人已经被点名，点击确定重置！")
                 os.popen("choose.pyw")
                 time.sleep(1)
-                sys.exit()
+                os.popen('taskkill -f -im pythonw.exe')
+                os.popen('taskkill -f -im python.exe')
             name = get(names)
             num = numbers[names.index(name)]
             t2.set("                       " + str(num) + "号 " + name)
@@ -90,7 +91,8 @@ def btn2():
             showinfo("提示", "所有人已经被点名，点击确定重置！")
             os.popen("choose.pyw")
             time.sleep(1)
-            sys.exit()
+            os.popen('taskkill -f -im pythonw.exe')
+            os.popen('taskkill -f -im python.exe')
         t3.set("")
         wait = 0
         repeat = random.randint(35, 40)
@@ -115,7 +117,8 @@ def btn2():
                     showinfo("提示", "所有人已经被点名，点击确定重新开始")
                     os.popen("choose.pyw")
                     time.sleep(1)
-                    sys.exit()
+                    os.popen('taskkill -f -im pythonw.exe')
+                    os.popen('taskkill -f -im python.exe')
                 name = get(names)
                 num = numbers[names.index(name)]
                 if i == repeat - 1:
@@ -146,4 +149,5 @@ tk.mainloop()
 # 2022-11-05：1.3.0：优化字体，添加窗口图标，置顶
 # 2022-11-06：1.3.1：优化代码，提高速度
 # 2022-11-07：1.3.2：添加阻止恶搞版本提示，添加图标缺失提示
-# 2022-11-12：1.3.3：优化阻止恶搞版本提示，优化图标
+# 2022-11-12：1.3.3：优化阻止恶搞版本提示
+# 2022-11-15：1.4.0：修复学号错位bug，添加新同学，优化图标，优化退出方式
