@@ -1,4 +1,4 @@
-v = "1.3.1"
+v = "1.4.0"
 
 import bs4
 import os
@@ -7,6 +7,7 @@ import shutil
 import sys
 import time
 import webbrowser
+import threading
 from tkinter import *
 from tkinter import ttk
 from tkinter.ttk import Separator
@@ -26,7 +27,7 @@ tk.wm_attributes('-topmost', 1)
 tk.resizable(False, False)
 tk.minsize(400, 170)
 tk.maxsize(400, 170)
-tk.wm_iconbitmap("ico.ico")
+tk.wm_iconbitmap("logo.ico")
 
 
 # 定制功能
@@ -90,25 +91,25 @@ def move_files(old, new):
         if os.path.exists(new + "PPT/" + ppt[i]):
             j = 1
             while os.path.exists(
-                new + "PPT/" + ppt[i][:ppt[i].rfind(".")] + "(" + str(j) + ")" + ppt[i][ppt[i].rfind("."):]): j = j + 1
+                    new + "PPT/" + ppt[i][:ppt[i].rfind(".")] + "(" + str(j) + ")" + ppt[i][ppt[i].rfind("."):]): j = j + 1
             ppt[i] = ppt[i] + "(" + str(j) + ")"
     for i in range(len(doc)):
         if os.path.exists(new + "文档/" + doc[i]):
             j = 1
             while os.path.exists(
-                new + "文档/" + doc[i][:doc[i].rfind(".")] + "(" + str(j) + ")" + doc[i][doc[i].rfind("."):]): j = j + 1
+                    new + "文档/" + doc[i][:doc[i].rfind(".")] + "(" + str(j) + ")" + doc[i][doc[i].rfind("."):]): j = j + 1
             doc[i] = doc[i] + "(" + str(j) + ")"
     for i in range(len(xls)):
         if os.path.exists(new + "表格/" + xls[i]):
             j = 1
             while os.path.exists(
-                new + "表格/" + xls[i][:xls[i].rfind(".")] + "(" + str(j) + ")" + xls[i][xls[i].rfind("."):]): j = j + 1
+                    new + "表格/" + xls[i][:xls[i].rfind(".")] + "(" + str(j) + ")" + xls[i][xls[i].rfind("."):]): j = j + 1
             xls[i] = xls[i] + "(" + str(j) + ")"
     for i in range(len(img)):
         if os.path.exists(new + "图片/" + img[i]):
             j = 1
             while os.path.exists(
-                new + "图片/" + img[i][:img[i].rfind(".")] + "(" + str(j) + ")" + img[i][img[i].rfind("."):]): j = j + 1
+                    new + "图片/" + img[i][:img[i].rfind(".")] + "(" + str(j) + ")" + img[i][img[i].rfind("."):]): j = j + 1
             img[i] = img[i] + "(" + str(j) + ")"
     for i in range(len(mp3)):
         if os.path.exists(new + "音视频/" + mp3[i]):
@@ -197,10 +198,7 @@ def move_files(old, new):
             shutil.move(old + i[:i.rfind("(")], new + "文件夹/" + i)
 
 
-# 功能
-
-
-def b0():
+def check_update():
     print("检查更新")
     import re
     link = "https://ianzb.github.io/server.github.io/Myself/"
@@ -218,15 +216,11 @@ def b0():
         with open(data[i], "wb") as file: file.write(main)
         print(data[i])
     os.popen("main.pyw")
+    print("成功检查更新")
     sys.exit()
 
 
-def b100():
-    print("打开郑博网站")
-    webbrowser.open("https://ianzb.github.io/")
-
-
-def b101():
+def get_mc():
     print("MC版本爬虫")
     b = []
     a = []
@@ -249,36 +243,28 @@ def b101():
     os.popen("mc.txt")
     time.sleep(1)
     os.remove("mc.txt")
+    print("成功爬取MC版本")
 
 
-def b11():
+def restart_explorer():
     print("重启文件资源管理器")
     os.popen("taskkill /f /im explorer.exe")
     time.sleep(0.2)
     os.popen("start c:\windows\explorer.exe")
+    print("成功重启文件资源管理器")
 
 
-def b1():
-    os.startfile("E:\整理文件")
-
-
-def b2():
+def clear_rubbish():
     print("清理回收站")
     import winshell
     try:
         winshell.recycle_bin().empty(confirm=False, show_progress=False, sound=False)
     except:
         pass
+    print("成功清理回收站")
 
 
-def b12():
-    print("一键整理+清理")
-    print("清理回收站")
-    import winshell
-    try:
-        winshell.recycle_bin().empty(confirm=False, show_progress=False, sound=False)
-    except:
-        pass
+def clear_cache():
     print("清理系统缓存")
     list = []
     list1 = os.walk(os.getenv("TEMP"))
@@ -297,19 +283,27 @@ def b12():
             os.remove(os.path.join(os.getenv("TEMP"), i))
         except:
             pass
+    print("成功清理系统缓存")
+
+
+def clear_desk():
     print("整理桌面文件")
     import winreg
     key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r'Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders')
     path = winreg.QueryValueEx(key, "Desktop")[0] + r"\ "[0:-1]
     move_files(path, "E:/整理文件/")
+    print("成功整理桌面文件")
+
+
+def clear_wechat():
     print("整理微信文件")
     try:
         list = []
         list2 = []
-        for i in os.walk("E:/Files/Wechat/WeChat Files/"): list.append(i)
+        for i in os.walk("D:/Files/Wechat/WeChat Files/"): list.append(i)
         for i in list[0][1]:
-            if os.path.exists(os.path.join("E:/Files/Wechat/WeChat Files/", i, "FileStorage\File")): list2.append(
-                os.path.join("E:/Files/Wechat/WeChat Files/", i, "FileStorage\File"))
+            if os.path.exists(os.path.join("D:/Files/Wechat/WeChat Files/", i, "FileStorage\File")): list2.append(
+                os.path.join("D:/Files/Wechat/WeChat Files/", i, "FileStorage\File"))
         list = []
         list3 = []
         for i in range(len(list2)):
@@ -319,12 +313,65 @@ def b12():
         for i in list: move_files(i + "/", "E:/整理文件/")
     except:
         pass
+    print("成功整理微信文件")
+
+
+def clear_apps():
     print("整理QQ文件")
-    move_files(r"E:\Files\QQ\93322252\FileRecv/", "E:/整理文件/")
+    move_files(r"D:\Files\QQ\93322252\FileRecv/", "E:/整理文件/")
+    print("成功整理QQ文件")
     print("整理钉钉文件")
-    move_files(r"E:\Files\Ding Talk/", "E:/整理文件/")
+    move_files(r"D:\Files\Ding Talk/", "E:/整理文件/")
+    print("成功整理钉钉文件")
     print("整理百度网盘下载文件")
-    move_files(r"E:\Files\百度网盘/", "E:/整理文件/")
+    move_files(r"D:\Files\百度网盘/", "E:/整理文件/")
+    print("成功整理百度网盘下载文件")
+
+
+# 功能
+
+
+def b0():
+    pro1 = threading.Thread(target=check_update)
+    pro1.start()
+
+
+def b100():
+    print("打开郑博网站")
+    webbrowser.open("https://ianzb.github.io/")
+
+
+def b101():
+    pro2 = threading.Thread(target=get_mc)
+    pro2.start()
+
+
+def b11():
+    pro3 = threading.Thread(target=restart_explorer)
+    pro3.start()
+
+
+def b1():
+    os.startfile("E:\整理文件")
+
+
+def b2():
+    pro4 = threading.Thread(target=clear_rubbish)
+    pro4.start()
+
+
+def b12():
+    print("一键整理+清理")
+    pro5 = threading.Thread(target=clear_rubbish)
+    pro5.start()
+    pro6 = threading.Thread(target=clear_cache)
+    pro6.start()
+    pro7 = threading.Thread(target=clear_desk)
+    pro7.start()
+    pro8 = threading.Thread(target=clear_wechat)
+    pro8.start()
+    pro9 = threading.Thread(target=clear_apps)
+    pro9.start()
     repeat_clear("E:/整理文件/PPT/")
     repeat_clear("E:/整理文件/表格/")
     repeat_clear("E:/整理文件/图片/")
@@ -332,6 +379,7 @@ def b12():
     repeat_clear("E:/整理文件/文件夹/")
     repeat_clear("E:/整理文件/压缩包/")
     repeat_clear("E:/整理文件/音视频/")
+    print("成功整理+清理")
 
 
 # txt = ttk.Label(tk, text="文字").place(x=100,y=,width=200,height=30,anchor="center")

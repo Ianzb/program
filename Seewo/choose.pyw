@@ -44,7 +44,7 @@ now_y = (max_y - y) / 2
 tk.wm_attributes('-topmost', 1)
 tk.resizable(False, False)
 try:
-    tk.wm_iconbitmap("ico.ico")
+    tk.wm_iconbitmap("logo.ico")
 except:
     showinfo("提示", "软件图标文件缺失！")
 tk.geometry("%dx%d+%d+%d" % (x, y, now_x, now_y))
@@ -146,4 +146,4 @@ tk.mainloop()
 # 2022-11-05：1.3.0：优化字体，添加窗口图标，置顶
 # 2022-11-06：1.3.1：优化代码，提高速度
 # 2022-11-07：1.3.2：添加阻止恶搞版本提示，添加图标缺失提示
-# 2022-11-12：1.3.3：优化阻止恶搞版本提示
+# 2022-11-12：1.3.3：优化阻止恶搞版本提示，优化图标

@@ -1,4 +1,4 @@
-v = "2.3.1"
+v = "2.4.0"
 
 import bs4
 import os
@@ -7,6 +7,7 @@ import shutil
 import sys
 import time
 import webbrowser
+import threading
 from tkinter import *
 from tkinter import ttk
 from tkinter.ttk import Separator
@@ -30,7 +31,7 @@ tk.minsize(400, 230)
 tk.maxsize(400, 295)
 
 try:
-    tk.wm_iconbitmap("ico.ico")
+    tk.wm_iconbitmap("logo.ico")
 except:
     showinfo("提示", "软件图标文件缺失，请使用检查更新功能补全文件！")
 
@@ -96,43 +97,35 @@ def move_files(old, new):
         if os.path.exists(new + "PPT/" + ppt[i]):
             j = 1
             while os.path.exists(
-                    new + "PPT/" + ppt[i][:ppt[i].rfind(".")] + "(" + str(j) + ")" + ppt[i][
-                                                                                     ppt[i].rfind("."):]): j = j + 1
+                    new + "PPT/" + ppt[i][:ppt[i].rfind(".")] + "(" + str(j) + ")" + ppt[i][ppt[i].rfind("."):]): j = j + 1
             ppt[i] = ppt[i] + "(" + str(j) + ")"
     for i in range(len(doc)):
         if os.path.exists(new + "文档/" + doc[i]):
             j = 1
             while os.path.exists(
-                    new + "文档/" + doc[i][:doc[i].rfind(".")] + "(" + str(j) + ")" + doc[i][
-                                                                                      doc[i].rfind("."):]): j = j + 1
+                    new + "文档/" + doc[i][:doc[i].rfind(".")] + "(" + str(j) + ")" + doc[i][doc[i].rfind("."):]): j = j + 1
             doc[i] = doc[i] + "(" + str(j) + ")"
     for i in range(len(xls)):
         if os.path.exists(new + "表格/" + xls[i]):
             j = 1
             while os.path.exists(
-                    new + "表格/" + xls[i][:xls[i].rfind(".")] + "(" + str(j) + ")" + xls[i][
-                                                                                      xls[i].rfind("."):]): j = j + 1
+                    new + "表格/" + xls[i][:xls[i].rfind(".")] + "(" + str(j) + ")" + xls[i][xls[i].rfind("."):]): j = j + 1
             xls[i] = xls[i] + "(" + str(j) + ")"
     for i in range(len(img)):
         if os.path.exists(new + "图片/" + img[i]):
             j = 1
             while os.path.exists(
-                    new + "图片/" + img[i][:img[i].rfind(".")] + "(" + str(j) + ")" + img[i][
-                                                                                      img[i].rfind("."):]): j = j + 1
+                    new + "图片/" + img[i][:img[i].rfind(".")] + "(" + str(j) + ")" + img[i][img[i].rfind("."):]): j = j + 1
             img[i] = img[i] + "(" + str(j) + ")"
     for i in range(len(mp3)):
         if os.path.exists(new + "音视频/" + mp3[i]):
             j = 1
-            while os.path.exists(new + "音视频/" + mp3[i][:mp3[i].rfind(".")] + "(" + str(j) + ")" + mp3[i][
-                                                                                                     mp3[i].rfind(
-                                                                                                         "."):]): j = j + 1
+            while os.path.exists(new + "音视频/" + mp3[i][:mp3[i].rfind(".")] + "(" + str(j) + ")" + mp3[i][mp3[i].rfind("."):]): j = j + 1
             mp3[i] = mp3[i] + "(" + str(j) + ")"
     for i in range(len(zip)):
         if os.path.exists(new + "压缩包/" + zip[i]):
             j = 1
-            while os.path.exists(new + "压缩包/" + zip[i][:zip[i].rfind(".")] + "(" + str(j) + ")" + zip[i][
-                                                                                                     zip[i].rfind(
-                                                                                                         "."):]): j = j + 1
+            while os.path.exists(new + "压缩包/" + zip[i][:zip[i].rfind(".")] + "(" + str(j) + ")" + zip[i][zip[i].rfind("."):]): j = j + 1
             zip[i] = zip[i] + "(" + str(j) + ")"
     if not os.path.exists(new + "PPT/"): os.makedirs(new + "PPT/")
     if not os.path.exists(new + "表格/"): os.makedirs(new + "表格/")
@@ -148,48 +141,42 @@ def move_files(old, new):
             shutil.move(old + i, new + "PPT/" + i)
         except:
             os.chmod(old + i[:i.rfind("(")], stat.S_IWRITE)
-            shutil.move(old + i[:i.rfind("(")],
-                        new + "PPT/" + i[:i.rfind(".")] + i[i.rfind("("):] + i[i.rfind("."):i.rfind("(")])
+            shutil.move(old + i[:i.rfind("(")], new + "PPT/" + i[:i.rfind(".")] + i[i.rfind("("):] + i[i.rfind("."):i.rfind("(")])
     for i in doc:
         try:
             os.chmod(old + i, stat.S_IWRITE)
             shutil.move(old + i, new + "文档/" + i)
         except:
             os.chmod(old + i[:i.rfind("(")], stat.S_IWRITE)
-            shutil.move(old + i[:i.rfind("(")],
-                        new + "文档/" + i[:i.rfind(".")] + i[i.rfind("("):] + i[i.rfind("."):i.rfind("(")])
+            shutil.move(old + i[:i.rfind("(")], new + "文档/" + i[:i.rfind(".")] + i[i.rfind("("):] + i[i.rfind("."):i.rfind("(")])
     for i in xls:
         try:
             os.chmod(old + i, stat.S_IWRITE)
             shutil.move(old + i, new + "表格/" + i)
         except:
             os.chmod(old + i[:i.rfind("(")], stat.S_IWRITE)
-            shutil.move(old + i[:i.rfind("(")],
-                        new + "表格/" + i[:i.rfind(".")] + i[i.rfind("("):] + i[i.rfind("."):i.rfind("(")])
+            shutil.move(old + i[:i.rfind("(")], new + "表格/" + i[:i.rfind(".")] + i[i.rfind("("):] + i[i.rfind("."):i.rfind("(")])
     for i in img:
         try:
             os.chmod(old + i, stat.S_IWRITE)
             shutil.move(old + i, new + "图片/" + i)
         except:
             os.chmod(old + i[:i.rfind("(")], stat.S_IWRITE)
-            shutil.move(old + i[:i.rfind("(")],
-                        new + "图片/" + i[:i.rfind(".")] + i[i.rfind("("):] + i[i.rfind("."):i.rfind("(")])
+            shutil.move(old + i[:i.rfind("(")], new + "图片/" + i[:i.rfind(".")] + i[i.rfind("("):] + i[i.rfind("."):i.rfind("(")])
     for i in mp3:
         try:
             os.chmod(old + i, stat.S_IWRITE)
             shutil.move(old + i, new + "音视频/" + i)
         except:
             os.chmod(old + i[:i.rfind("(")], stat.S_IWRITE)
-            shutil.move(old + i[:i.rfind("(")],
-                        new + "音视频/" + i[:i.rfind(".")] + i[i.rfind("("):] + i[i.rfind("."):i.rfind("(")])
+            shutil.move(old + i[:i.rfind("(")], new + "音视频/" + i[:i.rfind(".")] + i[i.rfind("("):] + i[i.rfind("."):i.rfind("(")])
     for i in zip:
         try:
             os.chmod(old + i, stat.S_IWRITE)
             shutil.move(old + i, new + "压缩包/" + i)
         except:
             os.chmod(old + i[:i.rfind("(")], stat.S_IWRITE)
-            shutil.move(old + i[:i.rfind("(")],
-                        new + "压缩包/" + i[:i.rfind(".")] + i[i.rfind("("):] + i[i.rfind("."):i.rfind("(")])
+            shutil.move(old + i[:i.rfind("(")], new + "压缩包/" + i[:i.rfind(".")] + i[i.rfind("("):] + i[i.rfind("."):i.rfind("(")])
     list3 = list2[0][1]
     fold = []
     for i in list3:
@@ -206,36 +193,7 @@ def move_files(old, new):
             shutil.move(old + i[:i.rfind("(")], new + "文件夹/" + i)
 
 
-# 功能
-
-
-def b0():
-    print("检查更新")
-    import re
-    link = "https://ianzb.github.io/server.github.io/Seewo/"
-    res = requests.get(link + "seewo.html")
-    res.encoding = "UTF-8"
-    soup = bs4.BeautifulSoup(res.text, "lxml")
-    data = soup.find_all(name="div", text=re.compile("."))
-    for i in range(len(data)): data[i] = str(data[i]).replace("<div>", "").replace("</div>", "").replace(r"\r",
-                                                                                                         "").replace(
-        r"\n", "").strip()
-    for i in range(len(data)):
-        response1 = requests.get(link + data[i])
-        response1.encoding = "UTF-8"
-        main = response1.content
-        with open(data[i], "wb") as file: file.write(main)
-        print(data[i])
-    os.popen("main.pyw")
-    sys.exit()
-
-
-def b100():
-    print("打开郑博网站")
-    webbrowser.open("https://ianzb.github.io/")
-
-
-def b101():
+def get_mc():
     print("MC版本爬虫")
     b = []
     a = []
@@ -256,20 +214,148 @@ def b101():
     with open("mc.txt", "w", encoding="utf-8") as file:
         for (k, v) in v.items(): file.write(k + "版本：" + v + "\n")
     os.popen("mc.txt")
-    time.sleep(1)
+    time.sleep(2)
     os.remove("mc.txt")
+    print("成功爬取MC版本")
+
+
+def ppt_restart():
+    print("重启PPT小助手")
+    os.popen("taskkill -f -im PPTService.exe")
+    time.sleep(0.1)
+    os.popen("C:\Program Files (x86)\Seewo\PPTService\Main\PPTService.exe")
+    print("成功重启PPT小助手")
+
+
+def clear_seewo():
+    print("清理希沃视频展台文件")
+    import send2trash
+    try:
+        list = os.walk(r"D:/EasiCameraPhoto")
+        list2 = []
+        for i in list: list2.append(i)
+        list = list2[0][1]
+        for i in list:
+            if i != date and os.path.exists(r"D:/EasiCameraPhoto/" + i): send2trash.send2trash(os.path.join(r"D:\EasiCameraPhoto\ "[:-1] + i))
+    except:
+        pass
+    print("成功清理希沃视频展台文件")
+
+
+def clear_wechat():
+    print("整理微信文件")
+    try:
+        list = []
+        list2 = []
+        for i in os.walk("D:/WeChat Files/WeChat Files/"): list.append(i)
+        for i in list[0][1]:
+            if os.path.exists(os.path.join("D:/WeChat Files/WeChat Files/", i, "FileStorage\File")): list2.append(os.path.join("D:/WeChat Files/WeChat Files/", i, "FileStorage\File"))
+        list = []
+        list3 = []
+        for i in range(len(list2)):
+            for j in os.walk(list2[i]): list.append(j)
+            for k in list[0][1]: list3.append(os.path.join(list2[i], k))
+        list = list3
+        for i in list: move_files(i + "/", "D:/文件/")
+    except:
+        pass
+    print("成功整理微信文件")
+
+
+def clear_desk():
+    print("整理桌面文件")
+    import winreg
+    key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r'Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders')
+    path = winreg.QueryValueEx(key, "Desktop")[0] + r"\ "[0:-1]
+    move_files(path, "D:/文件/")
+    print("成功整理桌面文件")
+
+
+def clear_cache():
+    print("清理系统缓存")
+    list = []
+    list1 = os.walk(os.getenv("TEMP"))
+    for i in list1: list.append(i)
+    if list != []: list1 = list[0][1]
+    list2 = list[0][2]
+    for i in list1:
+        try:
+            shutil.rmtree(os.path.join(os.getenv("TEMP"), i))
+        except:
+            pass
+    for i in list2:
+        try:
+            os.remove(os.path.join(os.getenv("TEMP"), i))
+        except:
+            pass
+    print("成功清理系统缓存")
+
+
+def clear_rubbish():
+    print("清理回收站")
+    import winshell
+    try:
+        winshell.recycle_bin().empty(confirm=False, show_progress=False, sound=False)
+    except:
+        pass
+    print("成功清理回收站")
+
+
+def restart_explorer():
+    print("重启文件资源管理器")
+    os.popen("taskkill /f /im explorer.exe")
+    time.sleep(0.2)
+    os.popen("start c:\windows\explorer.exe")
+    print("成功重启文件资源管理器")
+
+
+def check_update():
+    print("检查更新")
+    import re
+    link = "https://ianzb.github.io/server.github.io/Seewo/"
+    res = requests.get(link + "seewo.html")
+    res.encoding = "UTF-8"
+    soup = bs4.BeautifulSoup(res.text, "lxml")
+    data = soup.find_all(name="div", text=re.compile("."))
+    for i in range(len(data)): data[i] = str(data[i]).replace("<div>", "").replace("</div>", "").replace(r"\r", "").replace(r"\n", "").strip()
+    for i in range(len(data)):
+        response1 = requests.get(link + data[i])
+        response1.encoding = "UTF-8"
+        main = response1.content
+        with open(data[i], "wb") as file: file.write(main)
+        print(data[i])
+    os.popen("main.pyw")
+    print("成功检查更新")
+    sys.exit()
+
+
+# 功能
+
+
+def b0():
+    pro1 = threading.Thread(target=check_update)
+    pro1.start()
+
+
+def b100():
+    print("打开郑博网站")
+    webbrowser.open("https://ianzb.github.io/")
+
+
+def b101():
+    pro1 = threading.Thread(target=get_mc)
+    pro1.start()
 
 
 def b1():
-    print("重启PPT小助手")
-    os.popen("taskkill -f -im PPTService.exe")
-    time.sleep(0.2)
-    os.popen("C:\Program Files (x86)\Seewo\PPTService\Main\PPTService.exe")
+    pro2 = threading.Thread(target=ppt_restart)
+    pro2.start()
 
 
 def b2():
     print("关闭PPT小助手")
     os.popen("taskkill -f -im PPTService.exe")
+    print("成功关闭PPT小助手")
 
 
 def b3():
@@ -285,168 +371,34 @@ def b4():
 
 
 def b5():
-    print("清理希沃视频展台文件")
-    import send2trash
-    try:
-        list = os.walk(r"D:/EasiCameraPhoto")
-        list2 = []
-        for i in list: list2.append(i)
-        list = list2[0][1]
-        for i in list:
-            if i != date and os.path.exists(r"D:/EasiCameraPhoto/" + i): send2trash.send2trash(
-                os.path.join(r"D:\EasiCameraPhoto\ "[:-1] + i))
-    except:
-        pass
-
-
-def b6():
-    print("清理回收站")
-    import winshell
-    try:
-        winshell.recycle_bin().empty(confirm=False, show_progress=False, sound=False)
-    except:
-        pass
-
-
-def b7():
-    print("整理桌面文件")
-    import winreg
-    key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r'Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders')
-    path = winreg.QueryValueEx(key, "Desktop")[0] + r"\ "[0:-1]
-    move_files(path, "D:/文件/")
-    repeat_clear("D:/文件/PPT/")
-    repeat_clear("D:/文件/表格/")
-    repeat_clear("D:/文件/图片/")
-    repeat_clear("D:/文件/文档/")
-    repeat_clear("D:/文件/文件夹/")
-    repeat_clear("D:/文件/压缩包/")
-    repeat_clear("D:/文件/音视频/")
-
-
-def b8():
-    print("整理微信文件")
-    try:
-        list = []
-        list2 = []
-        for i in os.walk("D:/WeChat Files/WeChat Files/"): list.append(i)
-        for i in list[0][1]:
-            if os.path.exists(os.path.join("D:/WeChat Files/WeChat Files/", i, "FileStorage\File")): list2.append(
-                os.path.join("D:/WeChat Files/WeChat Files/", i, "FileStorage\File"))
-        list = []
-        list3 = []
-        for i in range(len(list2)):
-            for j in os.walk(list2[i]): list.append(j)
-            for k in list[0][1]: list3.append(os.path.join(list2[i], k))
-        list = list3
-        for i in list: move_files(i + "/", "D:/文件/")
-        repeat_clear("D:/文件/PPT/")
-        repeat_clear("D:/文件/表格/")
-        repeat_clear("D:/文件/图片/")
-        repeat_clear("D:/文件/文档/")
-        repeat_clear("D:/文件/文件夹/")
-        repeat_clear("D:/文件/压缩包/")
-        repeat_clear("D:/文件/音视频/")
-    except:
-        pass
+    pro3 = threading.Thread(target=clear_seewo)
+    pro3.start()
 
 
 def b9():
-    print("清理回收站")
-    import winshell
-    try:
-        winshell.recycle_bin().empty(confirm=False, show_progress=False, sound=False)
-    except:
-        pass
-
-
-def b10():
-    print("清理系统缓存")
-    list = []
-    list1 = os.walk(os.getenv("TEMP"))
-    for i in list1: list.append(i)
-    if list != []: list1 = list[0][1]
-    list2 = list[0][2]
-    for i in list1:
-        try:
-            shutil.rmtree(os.path.join(os.getenv("TEMP"), i))
-        except:
-            pass
-    for i in list2:
-        try:
-            os.remove(os.path.join(os.getenv("TEMP"), i))
-        except:
-            pass
+    pro9 = threading.Thread(target=clear_rubbish)
+    pro9.start()
 
 
 def b11():
-    print("重启文件资源管理器")
-    os.popen("taskkill /f /im explorer.exe")
-    time.sleep(0.2)
-    os.popen("start c:\windows\explorer.exe")
+    pro10 = threading.Thread(target=restart_explorer)
+    pro10.start()
 
 
 def b12():
     print("一键整理+清理")
-    print("重启PPT小助手")
-    os.popen("taskkill -f -im PPTService.exe")
-    time.sleep(0.1)
-    os.popen("C:\Program Files (x86)\Seewo\PPTService\Main\PPTService.exe")
-    print("清理希沃视频展台文件")
-    import send2trash
-    try:
-        list = os.walk(r"D:/EasiCameraPhoto")
-        list2 = []
-        for i in list: list2.append(i)
-        list = list2[0][1]
-        for i in list:
-            if i != date and os.path.exists(r"D:/EasiCameraPhoto/" + i): send2trash.send2trash(
-                os.path.join(r"D:\EasiCameraPhoto\ "[:-1] + i))
-    except:
-        pass
-    print("清理回收站")
-    import winshell
-    try:
-        winshell.recycle_bin().empty(confirm=False, show_progress=False, sound=False)
-    except:
-        pass
-    print("整理桌面文件")
-    import winreg
-    key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r'Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders')
-    path = winreg.QueryValueEx(key, "Desktop")[0] + r"\ "[0:-1]
-    move_files(path, "D:/文件/")
-    print("整理微信文件")
-    try:
-        list = []
-        list2 = []
-        for i in os.walk("D:/WeChat Files/WeChat Files/"): list.append(i)
-        for i in list[0][1]:
-            if os.path.exists(os.path.join("D:/WeChat Files/WeChat Files/", i, "FileStorage\File")): list2.append(
-                os.path.join("D:/WeChat Files/WeChat Files/", i, "FileStorage\File"))
-        list = []
-        list3 = []
-        for i in range(len(list2)):
-            for j in os.walk(list2[i]): list.append(j)
-            for k in list[0][1]: list3.append(os.path.join(list2[i], k))
-        list = list3
-        for i in list: move_files(i + "/", "D:/文件/")
-    except:
-        pass
-    print("清理系统缓存")
-    list = []
-    list1 = os.walk(os.getenv("TEMP"))
-    for i in list1: list.append(i)
-    if list != []: list1 = list[0][1]
-    list2 = list[0][2]
-    for i in list1:
-        try:
-            shutil.rmtree(os.path.join(os.getenv("TEMP"), i))
-        except:
-            pass
-    for i in list2:
-        try:
-            os.remove(os.path.join(os.getenv("TEMP"), i))
-        except:
-            pass
+    pro4 = threading.Thread(target=ppt_restart)
+    pro4.start()
+    pro3 = threading.Thread(target=clear_seewo)
+    pro3.start()
+    pro8 = threading.Thread(target=clear_rubbish)
+    pro8.start()
+    pro6 = threading.Thread(target=clear_desk)
+    pro6.start()
+    pro5 = threading.Thread(target=clear_wechat)
+    pro5.start()
+    pro7 = threading.Thread(target=clear_cache)
+    pro7.start()
     repeat_clear("D:/文件/PPT/")
     repeat_clear("D:/文件/表格/")
     repeat_clear("D:/文件/图片/")
@@ -454,6 +406,7 @@ def b12():
     repeat_clear("D:/文件/文件夹/")
     repeat_clear("D:/文件/压缩包/")
     repeat_clear("D:/文件/音视频/")
+    print("成功整理+清理")
 
 
 def b13():
