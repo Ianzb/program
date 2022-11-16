@@ -1,13 +1,7 @@
-import os
-import random
-import time
-import pandas
-from tkinter import *
-from tkinter import ttk
-from tkinter.messagebox import *
+v = "1.4.1"
+from zb import *
 
-res=""
-v = "1.4.0"
+res = ""
 
 # 读取表格
 df = pandas.read_excel("list.xlsx")
@@ -18,20 +12,12 @@ for i in df["姓名"]: names.append(i)
 for i in df["学号"]: numbers.append(i)
 numbers.remove("")
 
-def choose(a):
-    numbers[0] = "1"
-
 
 def get(list): return random.choice(list)
 
 
-if not os.path.exists("main.pyw"):
-    choose("错误")
-    showinfo("提示", "请不要试图制作恶搞版本！")
-    os.popen('taskkill -f -im pythonw.exe')
-    os.popen('taskkill -f -im python.exe')
-else:
-    choose("正确")
+warn()
+
 # 初始化
 tk = Tk()
 tk.title("zb的点名器 " + v)
@@ -43,10 +29,7 @@ now_x = (max_x - x) / 2
 now_y = (max_y - y) / 2
 tk.wm_attributes('-topmost', 1)
 tk.resizable(False, False)
-try:
-    tk.wm_iconbitmap("logo.ico")
-except:
-    showinfo("提示", "软件图标文件缺失！")
+check_ico(tk, "logo.ico")
 tk.geometry("%dx%d+%d+%d" % (x, y, now_x, now_y))
 # 设置样式
 st = ttk.Style()
@@ -67,8 +50,7 @@ def btn1():
                 showinfo("提示", "所有人已经被点名，点击确定重置！")
                 os.popen("choose.pyw")
                 time.sleep(1)
-                os.popen('taskkill -f -im pythonw.exe')
-                os.popen('taskkill -f -im python.exe')
+                exit()
             name = get(names)
             num = numbers[names.index(name)]
             t2.set("                       " + str(num) + "号 " + name)
@@ -91,8 +73,7 @@ def btn2():
             showinfo("提示", "所有人已经被点名，点击确定重置！")
             os.popen("choose.pyw")
             time.sleep(1)
-            os.popen('taskkill -f -im pythonw.exe')
-            os.popen('taskkill -f -im python.exe')
+            exit()
         t3.set("")
         wait = 0
         repeat = random.randint(35, 40)
@@ -117,8 +98,7 @@ def btn2():
                     showinfo("提示", "所有人已经被点名，点击确定重新开始")
                     os.popen("choose.pyw")
                     time.sleep(1)
-                    os.popen('taskkill -f -im pythonw.exe')
-                    os.popen('taskkill -f -im python.exe')
+                    exit()
                 name = get(names)
                 num = numbers[names.index(name)]
                 if i == repeat - 1:
@@ -151,3 +131,4 @@ tk.mainloop()
 # 2022-11-07：1.3.2：添加阻止恶搞版本提示，添加图标缺失提示
 # 2022-11-12：1.3.3：优化阻止恶搞版本提示
 # 2022-11-15：1.4.0：修复学号错位bug，添加新同学，优化图标，优化退出方式
+# 2022-11-16：1.4.1：将部分功能移动至zb库中，修复退出异常bug
