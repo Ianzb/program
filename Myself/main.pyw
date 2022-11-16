@@ -60,7 +60,7 @@ def b12():
     pro6.start()
     pro7 = threading.Thread(target=clear_desk)
     pro7.start()
-    pro8 = threading.Thread(target=clear_wechat("D:/Files/WeChat Files/"))
+    pro8 = threading.Thread(target=clear_wechat("D:\Files\Wechat\WeChat Files"))
     pro8.start()
     pro9 = threading.Thread(target=clear_apps)
     pro9.start()
