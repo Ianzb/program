@@ -27,7 +27,7 @@ max_x = tk.winfo_screenwidth()
 max_y = tk.winfo_screenheight()
 now_x = (max_x - x) / 2
 now_y = (max_y - y) / 2
-tk.wm_attributes('-topmost', 1)
+tk.wm_attributes("-topmost", 1)
 tk.resizable(False, False)
 check_ico(tk, "logo.ico")
 tk.geometry("%dx%d+%d+%d" % (x, y, now_x, now_y))

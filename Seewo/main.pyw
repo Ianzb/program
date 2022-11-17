@@ -1,4 +1,4 @@
-v = "2.5.0"
+v = "2.5.1"
 
 from zb import *
 
@@ -14,7 +14,7 @@ y = 230
 now_x = (tk.winfo_screenwidth() - x) / 2
 now_y = (tk.winfo_screenheight() - y) / 2
 tk.geometry("%dx%d+%d+%d" % (x, y, now_x, now_y))
-tk.wm_attributes('-topmost', 1)
+tk.wm_attributes("-topmost", 1)
 tk.minsize(400, 230)
 tk.maxsize(400, 295)
 check_ico(tk, "logo.ico")
@@ -24,8 +24,8 @@ check_ico(tk, "logo.ico")
 
 
 def b0():
-    pro1 = threading.Thread(target=check_update("Seewo"))
-    pro1.start()
+    pro100 = threading.Thread(target=check_update("Seewo"))
+    pro100.start()
 
 
 def b100():
@@ -84,9 +84,9 @@ def b12():
     pro3.start()
     pro8 = threading.Thread(target=clear_rubbish)
     pro8.start()
-    pro6 = threading.Thread(target=clear_desk)
+    pro6 = threading.Thread(target=clear_desk("D:/文件"))
     pro6.start()
-    pro5 = threading.Thread(target=clear_wechat("D:/WeChat Files/WeChat Files/"))
+    pro5 = threading.Thread(target=clear_wechat("D:/WeChat Files/WeChat Files/", "D:/文件"))
     pro5.start()
     pro7 = threading.Thread(target=clear_cache)
     pro7.start()

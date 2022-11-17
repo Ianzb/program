@@ -1,4 +1,4 @@
-v = "1.5.0"
+v = "1.5.1"
 
 from zb import *
 
@@ -13,7 +13,7 @@ y = 170
 now_x = (tk.winfo_screenwidth() - x) / 2
 now_y = (tk.winfo_screenheight() - y) / 2
 tk.geometry("%dx%d+%d+%d" % (x, y, now_x, now_y))
-tk.wm_attributes('-topmost', 1)
+tk.wm_attributes("-topmost", 1)
 tk.resizable(False, False)
 tk.minsize(400, 170)
 tk.maxsize(400, 170)
@@ -24,8 +24,8 @@ tk.wm_iconbitmap("logo.ico")
 
 
 def b0():
-    pro1 = threading.Thread(target=check_update("Myself"))
-    pro1.start()
+    pro100 = threading.Thread(target=check_update("Myself"))
+    pro100.start()
 
 
 def b100():
@@ -44,7 +44,7 @@ def b11():
 
 
 def b1():
-    os.startfile("E:\整理文件")
+    os.startfile("E:/整理文件")
 
 
 def b2():
@@ -58,9 +58,9 @@ def b12():
     pro5.start()
     pro6 = threading.Thread(target=clear_cache)
     pro6.start()
-    pro7 = threading.Thread(target=clear_desk)
+    pro7 = threading.Thread(target=clear_desk("E:/整理文件"))
     pro7.start()
-    pro8 = threading.Thread(target=clear_wechat("D:\Files\Wechat\WeChat Files"))
+    pro8 = threading.Thread(target=clear_wechat("D:/Files/Wechat/WeChat Files", "E:/整理文件"))
     pro8.start()
     pro9 = threading.Thread(target=clear_apps)
     pro9.start()
