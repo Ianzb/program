@@ -78,7 +78,7 @@ def b1():
     topx2 = topx2.replace("-0.0", "0")
     topy2 = topy2.replace("-0.0", "0")
     if b != "0":
-        special = str(a) + "(x+" + str(-1 * topx) + ")²"
+        special = "y="+str(a) + "(x+" + str(-1 * topx) + ")²"
         if topy != 0:
             special = special + "+" + topy2
         special = special.replace("1(", "(").replace("+-", "-")
