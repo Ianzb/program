@@ -1,4 +1,4 @@
-v = "1.5.1"
+v = "1.5.2"
 
 from zb import *
 

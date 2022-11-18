@@ -98,16 +98,15 @@ def move_files(old, new):  # 整理指定目录文件到指定位置
     name1 = ["PPT", "文档", "表格", "图片", "音视频", "压缩包"]
     name2 = [ppt, doc, xls, img, mp3, zip]
     for name in range(len(name1)):
-        if name == 0: ends = [".ppt"]
-        if name == 1: ends = [".doc", ".txt", ".pdf"]
-        if name == 2: ends = [".xls"]
-        if name == 3: ends = [".png", ".jpg", ".jpeg", ".webp", ".gif"]
-        if name == 4: ends = [".mp"]
-        if name == 5: ends = [".zip", ".rar", ".7z", ]
+        if name == 0: ends = ["ppt"]
+        if name == 1: ends = ["doc", "txt", "pdf", "json"]
+        if name == 2: ends = ["xls", "xlt", "csv"]
+        if name == 3: ends = ["png", "jpg", "jpeg", "webp", "gif", "bmp", "tif", "pcx", "tga", "exif", "fpx", "svg", "psd", "cdr", "pcd", "dxf", "ufo", "eps", "ai", "raw", "wmf", "avif"]
+        if name == 4: ends = ["mp", "wav", "ogg", "flv", "avi", "mov"]
+        if name == 5: ends = ["zip", "rar", "7z"]
         for i in list3:
             for j in ends:
-                if j in i[i.rfind("."):].lower() and os.path.exists(pj(old + i)): name2[name].append(i)
-
+                if j in i[i.rfind("."):].lower(): name2[name].append(i)
     for name in range(len(name1)):
         for i in range(len(name2[name])):
             if os.path.exists(pj(new, name1[name], name2[name][i])):
@@ -116,7 +115,6 @@ def move_files(old, new):  # 整理指定目录文件到指定位置
                 name2[name][i] = name2[name][i] + "(" + str(j) + ")"
     for name in range(len(name1)):
         if not os.path.exists(pj(new, name1[name])): os.makedirs(pj(new, name1[name]))
-
     for name in range(len(name1)):
         for i in name2[name]:
             try:
@@ -124,7 +122,16 @@ def move_files(old, new):  # 整理指定目录文件到指定位置
                 shutil.move(pj(old, i), pj(new, name1[name], i))
             except:
                 os.chmod(pj(old, i[:i.rfind("(")]), stat.S_IWRITE)
-                shutil.move(pj(old, i[:i.rfind("(")]), pj(new + name1[name], i[:i.rfind(".")], i[i.rfind("("):], i[i.rfind("."):i.rfind("(")]))
+                shutil.move(pj(old, i[:i.rfind("(")]), pj(new, name1[name], i[:i.rfind(".")] + i[i.rfind("("):] + i[i.rfind("."):i.rfind("(")]))
+    for name in range(len(name1)):
+        files = os.listdir(pj(new, name1[name]))
+        for file in files:
+            if os.path.isfile(pj(new, name1[name], file)):
+                if os.path.getsize(pj(new, name1[name], file)) == 0:
+                    os.remove(pj(new, name1[name], file))
+            if os.path.isdir(pj(new, name1[name], file)):
+                if not os.listdir(pj(new, name1[name], file)):
+                    os.rmdir(pj(new, name1[name], file))
     list3 = list2[0][1]
     fold = []
     for i in list3:
@@ -132,13 +139,18 @@ def move_files(old, new):  # 整理指定目录文件到指定位置
     for i in range(len(fold)):
         if os.path.exists(pj(new, "文件夹", fold[i])):
             j = 1
-            while os.path.exists(pj(new, "文件夹", fold[i], "(", str(j), ")")): j = j + 1
+            while os.path.exists(pj(new, "文件夹", fold[i] + "(" + str(j) + ")")): j = j + 1
             fold[i] = fold[i] + "(" + str(j) + ")"
     for i in fold:
+        print(i)
         try:
             shutil.move(pj(old, i), pj(new, "文件夹", i))
         except:
             shutil.move(pj(old, i[:i.rfind("(")]), pj(new, "文件夹", i))
+    for file in os.listdir(pj(new, "文件夹")):
+        if os.path.isdir(pj(new, "文件夹", file)):
+            if not os.listdir(pj(new, "文件夹", file)):
+                os.rmdir(pj(new, "文件夹", file))
 
 
 def get_mc():  # MC版本爬虫
