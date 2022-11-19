@@ -8,6 +8,8 @@ import threading
 import random
 import pandas
 import sys
+import numpy
+from matplotlib import pyplot
 from tkinter import *
 from tkinter import ttk
 from tkinter.ttk import Separator
