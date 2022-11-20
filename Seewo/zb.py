@@ -16,7 +16,8 @@ from tkinter.ttk import Separator
 from tkinter.messagebox import *
 
 
-def pj(*a):  # 更好的路径拼接
+# 更好的路径拼接
+def pj(*a):
     out = ""
     for i in a:
         out = os.path.join(out, i)
@@ -28,37 +29,43 @@ def pj(*a):  # 更好的路径拼接
     return out
 
 
-def exit():  # 关闭程序
+# 关闭程序
+def exit():
     sys.exit()
     os.popen("taskkill -f -im pythonw.exe")
     os.popen("taskkill -f -im python.exe")
 
 
-def warn():  # 警告
+# 警告
+def warn():
     if not os.path.exists("main.pyw"):
         showinfo("提示", "请不要试图制作恶搞版本！")
         exit()
 
 
-def check_ico(tk, name):  # 检查图标是否存在
+# 检查图标是否存在
+def check_ico(tk, name):
     try:
         tk.wm_iconbitmap(name)
     except:
         showinfo("提示", "软件图标文件缺失，请使用检查更新功能补全文件！")
 
 
-def pc_remove(d, name):  # MC版本爬虫去除不符内容1
+# MC版本爬虫去除不符内容1
+def pc_remove(d, name):
     for i in [k for (k, v) in d.items() if v == name]: del d[i]
 
 
-def remove_if_in(d, name):  # MC版本爬虫去除不符内容2
+# MC版本爬虫去除不符内容2
+def remove_if_in(d, name):
     a = []
     for i in d.keys():
         if name in i: a.append(i)
     for i in a: del d[i]
 
 
-def clear_repeat(name):  # 清理重复整理文件
+# 清理重复整理文件
+def clear_repeat(name):
     import filecmp, glob
     list = []
     list.append(pj(name, "PPT/"))
@@ -82,7 +89,33 @@ def clear_repeat(name):  # 清理重复整理文件
                             os.remove(y)
 
 
-def move_files(old, new):  # 整理指定目录文件到指定位置
+#下载文件
+def download(link):
+    response1 = requests.get(link)
+    response1.encoding = "UTF-8"
+    main = response1.content
+    with open(link[link.rfind("/") + 1:], "wb") as file: file.write(main)
+
+
+# 检查更新
+def check_update(name):
+    print("检查更新")
+    import re
+    link = "https://ianzb.github.io/server.github.io/" + name + "/"
+    res = requests.get(link + name.lower() + ".html")
+    res.encoding = "UTF-8"
+    soup = bs4.BeautifulSoup(res.text, "lxml")
+    data = soup.find_all(name="div", text=re.compile("."))
+    for i in range(len(data)): data[i] = str(data[i]).replace("<div>", "").replace("</div>", "").replace(r"\r", "").replace(r"\n", "").strip()
+    for i in range(len(data)):
+        download(link + data[i])
+    os.popen("main.pyw")
+    print("成功检查更新")
+    exit()
+
+
+# 整理指定目录文件到指定位置
+def move_files(old, new):
     import stat
     list2 = []
     list3 = os.walk(old)
@@ -155,7 +188,8 @@ def move_files(old, new):  # 整理指定目录文件到指定位置
                 os.rmdir(pj(new, "文件夹", file))
 
 
-def get_mc():  # MC版本爬虫
+# MC版本爬虫
+def get_mc():
     print("MC版本爬虫")
     temp = os.getenv("TEMP")
     b = []
@@ -180,7 +214,8 @@ def get_mc():  # MC版本爬虫
     print("成功爬取MC版本")
 
 
-def ppt_restart():  # 重启PPT小助手
+# 重启PPT小助手
+def ppt_restart():
     print("重启PPT小助手")
     os.popen("taskkill -f -im PPTService.exe")
     time.sleep(0.1)
@@ -188,7 +223,8 @@ def ppt_restart():  # 重启PPT小助手
     print("成功重启PPT小助手")
 
 
-def clear_seewo():  # 清理希沃视频展台文件
+# 清理希沃视频展台文件
+def clear_seewo():
     print("清理希沃视频展台文件")
     import send2trash
     try:
@@ -203,7 +239,8 @@ def clear_seewo():  # 清理希沃视频展台文件
     print("成功清理希沃视频展台文件")
 
 
-def clear_wechat(path, to):  # 整理微信文件
+# 整理微信文件
+def clear_wechat(path, to):
     print("整理微信文件")
     try:
         list = []
@@ -223,7 +260,8 @@ def clear_wechat(path, to):  # 整理微信文件
     print("成功整理微信文件")
 
 
-def clear_desk(to):  # 整理桌面文件
+# 整理桌面文件
+def clear_desk(to):
     print("整理桌面文件")
     import winreg
     key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, "Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders")
@@ -232,7 +270,8 @@ def clear_desk(to):  # 整理桌面文件
     print("成功整理桌面文件")
 
 
-def clear_cache():  # 清理系统缓存
+# 清理系统缓存
+def clear_cache():
     print("清理系统缓存")
     list = []
     list1 = os.walk(os.getenv("TEMP"))
@@ -252,7 +291,8 @@ def clear_cache():  # 清理系统缓存
     print("成功清理系统缓存")
 
 
-def clear_rubbish():  # 清理回收站
+# 清理回收站
+def clear_rubbish():
     print("清理回收站")
     import winshell
     try:
@@ -262,7 +302,8 @@ def clear_rubbish():  # 清理回收站
     print("成功清理回收站")
 
 
-def restart_explorer():  # 重启文件资源管理器
+# 重启文件资源管理器
+def restart_explorer():
     print("重启文件资源管理器")
     os.popen("taskkill /f /im explorer.exe")
     time.sleep(0.2)
@@ -270,27 +311,8 @@ def restart_explorer():  # 重启文件资源管理器
     print("成功重启文件资源管理器")
 
 
-def check_update(name):  # 检查更新
-    print("检查更新")
-    import re
-    link = "https://ianzb.github.io/server.github.io/" + name + "/"
-    res = requests.get(link + name.lower() + ".html")
-    res.encoding = "UTF-8"
-    soup = bs4.BeautifulSoup(res.text, "lxml")
-    data = soup.find_all(name="div", text=re.compile("."))
-    for i in range(len(data)): data[i] = str(data[i]).replace("<div>", "").replace("</div>", "").replace(r"\r", "").replace(r"\n", "").strip()
-    for i in range(len(data)):
-        response1 = requests.get(link + data[i])
-        response1.encoding = "UTF-8"
-        main = response1.content
-        with open(data[i], "wb") as file: file.write(main)
-        print(data[i])
-    os.popen("main.pyw")
-    print("成功检查更新")
-    exit()
-
-
-def clear_apps():  # 整理常用软件文件
+# 整理常用软件文件
+def clear_apps():
     print("整理QQ文件")
     move_files(r"D:/Files/QQ/93322252/FileRecv", "E:/整理文件")
     print("成功整理QQ文件")

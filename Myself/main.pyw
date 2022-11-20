@@ -1,6 +1,12 @@
-v = "1.5.2"
+v = "1.5.3"
 
-from zb import *
+try:
+    from zb import *
+except:
+    import os, sys
+
+    os.system("fix.bat")
+    sys.exit()
 
 date = time.strftime("%Y-%m-%d")
 # 初始化
@@ -89,8 +95,8 @@ ttk.Button(tk, text="清理回收站", style="TButton", command=b2).place(x=200,
 ttk.Button(tk, text="重启资源管理器", style="TButton", command=b11).place(x=300, y=60, width=100, height=30)
 Separator(tk, orient=VERTICAL).place(x=200, y=0, width=1, height=120)
 Separator(tk, orient=HORIZONTAL).place(x=0, y=120, width=400, height=2)
-ttk.Label(tk, text="郑博的小程序For Myself 版本  " + v).place(x=40, y=130, width=200, height=30)
-ttk.Button(tk, text="检查并更新版本", style="TButton", command=b0).place(x=260, y=130, width=100, height=30)
+ttk.Label(tk, text="zb的小程序For Myself 版本  " + v).place(x=45, y=130, width=200, height=30)
+ttk.Button(tk, text="检查并更新版本", style="TButton", command=b0).place(x=255, y=130, width=100, height=30)
 Separator(tk, orient=HORIZONTAL).place(x=0, y=170, width=400, height=2)
 
 tk.mainloop()
