@@ -7,4 +7,4 @@ pip install requests
 pip install send2trash
 pip install winshell
 pip install matplotlib
-start "main.pyw"
+pip install openpyxl
