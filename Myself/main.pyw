@@ -35,7 +35,7 @@ def b0():
 
 
 def b100():
-    print("打开郑博网站")
+    print("打开zb网站")
     webbrowser.open("https://ianzb.github.io/")
 
 
