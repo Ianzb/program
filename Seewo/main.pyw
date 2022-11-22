@@ -3,8 +3,10 @@ try:
     from zb import *
 except:
     import os, sys
+
     os.system("fix.bat")
     sys.exit()
+
 # 初始化
 tk = Tk()
 # 设置风格样式

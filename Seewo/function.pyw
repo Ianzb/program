@@ -1,6 +1,9 @@
-v = "1.1.0"
+v = "1.2.0"
 
 from zb import *
+from fractions import Fraction
+from math import *
+from decimal import Decimal, getcontext
 
 # 初始化
 tk = Tk()
@@ -19,51 +22,35 @@ tk.resizable(False, False)
 check_ico(tk, "logo.ico")
 
 
-def process(a, b, c):
+def process(a, num=1, no=None):
+    a = str(a)
+    if a == no:
+        print(1 / 0)
     if a == "":
-        a = "1"
-    if b == "":
-        b = "0"
-    if c == "":
-        c = "0"
+        a = str(num)
     if a == "-":
         a = "-1"
-    if b == "-":
-        b = "-1"
-    if c == "-":
-        c = "-1"
+    a = a.replace("^", "**").replace("[", "(").replace("]", ")").replace("{", "(").replace("}", ")").replace("\ "[:-1], "/")
     try:
         a = int(a)
     except:
-        a = float(a)
-    try:
-        b = int(b)
-    except:
-        b = float(b)
-    try:
-        c = int(c)
-    except:
-        c = float(c)
+        try:
+            a = float(a)
+            #a = Fraction(a)
+        except:
+            a = eval(a)
     if a == int(a):
         a = int(a)
-    if b == int(b):
-        b = int(b)
-    if c == int(c):
-        c = int(c)
     if a == 0:
         a = 0
-    if b == 0:
-        b = 0
-    if c == 0:
-        c = 0
-    return (a, b, c)
+    return a
 
 
 # 功能
 def draw(a, b, c):
-    a, b, c = process(a, b, c)
-    if a == 0:
-        return False
+    a = process(a, 1, 0)
+    b = process(b, 1)
+    c = process(c, 0)
     if a == 1:
         normal = "y=x²"
     else:
@@ -83,16 +70,13 @@ def draw(a, b, c):
     pyplot.xlabel('x')
     pyplot.ylabel('y')
     pyplot.plot(x, y)
-    pyplot.xlim(-100, 100)
-    pyplot.ylim(-100, 100)
-    pyplot.grid(color="0.5", linestyle="--", linewidth=1)
+    pyplot.xlim(-20, 20)
+    pyplot.ylim(-20, 20)
+    pyplot.grid(color="0.7", linestyle="--", linewidth=1)
     pyplot.show()
 
 
 def get(a, b, c):
-    a, b, c = process(a, b, c)
-    if a == 0:
-        return False
     if a == 1:
         normal = "y=x²"
     else:
@@ -121,12 +105,18 @@ def get(a, b, c):
     topy2 = str(topy)
     if b != "0":
         if b != 0:
-            special = "y=" + str(a) + "(x+" + str(-1 * topx) + ")²"
+            if a != 1:
+                special = "y=" + str(a) + "(x+" + str(-1 * topx) + ")²"
+            else:
+                special = "y=(x+" + str(-1 * topx) + ")²"
         else:
-            special = "y=" + str(a) + "x²"
+            if a != 1:
+                special = "y=" + str(a) + "x²"
+            else:
+                special = "y=x²"
         if topy != 0:
             special = special + "+" + topy2
-        special = special.replace("1(", "(").replace("+-", "-").replace("1x", "x")
+        special = special.replace("+-", "-").replace("1x", "x")
     der = b ** 2 - 4 * a * c
     if der == int(der):
         der = int(der)
@@ -159,9 +149,9 @@ def get(a, b, c):
         file.write("\n图像与y轴交点为(0," + str(c) + ")")
         file.write("\n当y=0时，Δ为" + str(der))
         if a > 0:
-            file.write("\n当x>" + topx2 + "时，y随x的增大而增大，当x<" + topx2 + "时，y随x的增大而减小")
+            file.write("\n图像开口向上\n当x>" + topx2 + "时，y随x的增大而增大，当x<" + topx2 + "时，y随x的增大而减小")
         if a < 0:
-            file.write("\n当x>" + topx2 + "时，y随x的增大而减小，当x<" + topx2 + "时，y随x的增大而增大")
+            file.write("\n图像开口向下\n当x>" + topx2 + "时，y随x的增大而减小，当x<" + topx2 + "时，y随x的增大而增大")
     os.popen(pj(temp, "f.txt"))
 
 
@@ -169,6 +159,9 @@ def b1():
     a = entry1.get()
     b = entry2.get()
     c = entry3.get()
+    a = process(a, 1, 0)
+    b = process(b, 1)
+    c = process(c, 0)
     get(a, b, c)
 
 
@@ -176,6 +169,9 @@ def b2():
     a = entry1.get()
     b = entry2.get()
     c = entry3.get()
+    a = process(a, 1, 0)
+    b = process(b, 1)
+    c = process(c, 0)
     draw(a, b, c)
 
 
@@ -183,10 +179,12 @@ def b3():
     a = entry4.get()
     b = entry5.get()
     c = entry6.get()
-    a, b, c = process(a, b, c)
-    a1 = str(a)
-    c1 = str(a * b ** 2 + c)
-    b1 = str(a * 2 * b)
+    a = process(a, 1, 0)
+    b = process(b, 0)
+    c = process(c, 0)
+    a1 = a
+    c1 = a * b ** 2 + c
+    b1 = a * 2 * b
     get(a1, b1, c1)
 
 
@@ -194,7 +192,9 @@ def b4():
     a = entry4.get()
     b = entry5.get()
     c = entry6.get()
-    a, b, c = process(a, b, c)
+    a = process(a, 1, 0)
+    b = process(b, 0)
+    c = process(c, 0)
     a1 = str(a)
     c1 = str(a * b ** 2 + c)
     b1 = str(a * 2 * b)
@@ -234,3 +234,4 @@ Separator(tk, orient=HORIZONTAL).place(x=0, y=175, width=200, height=2)
 tk.mainloop()
 # 2022-11-18：1.0.0：
 # 2022-11-20：1.1.0：添加更多信息，添加图标绘制，添加顶点式，优化代码，优化外观
+# 2022-11-22：1.2.0：添加分数和运算式处理功能
