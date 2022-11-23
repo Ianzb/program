@@ -7,6 +7,7 @@ except:
 
     os.system("fix.bat")
     sys.exit()
+
 date = time.strftime("%Y-%m-%d")
 # 初始化
 tk = Tk()

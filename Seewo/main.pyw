@@ -1,4 +1,10 @@
-v = "2.6.1"
+import threading
+import time
+import webbrowser
+from tkinter import ttk
+from tkinter.ttk import Separator
+
+v = "2.6.2"
 try:
     from zb import *
 except:
@@ -135,7 +141,7 @@ Separator(tk, orient=HORIZONTAL).place(x=0, y=0, width=400, height=2)
 # 左侧
 
 ttk.Button(tk, text="点名器", style="TButton", command=b13).place(x=0, y=30, width=200, height=30)
-ttk.Button(tk, text="二次函数工具", style="TButton", command=b6).place(x=0, y=60, width=200, height=30)
+ttk.Button(tk, text="函数工具", style="TButton", command=b6).place(x=0, y=60, width=200, height=30)
 # 右侧
 
 ttk.Button(tk, text="一键整理+清理", style="TButton", command=b12).place(x=200, y=30, width=150, height=30)

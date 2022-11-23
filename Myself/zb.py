@@ -14,7 +14,6 @@ from tkinter import *
 from tkinter import ttk
 from tkinter.ttk import Separator
 from tkinter.messagebox import *
-from numba import jit
 
 
 # 更好的路径拼接

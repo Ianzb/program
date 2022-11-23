@@ -1,4 +1,12 @@
-v = "1.2.0"
+import os
+import random
+from tkinter import ttk
+from tkinter.ttk import Separator
+
+import numpy
+from matplotlib import pyplot
+
+v = "2.0.0"
 
 from zb import *
 from fractions import Fraction
@@ -11,9 +19,9 @@ tk = Tk()
 st = ttk.Style()
 st.configure("TButton")
 # 窗口属性
-tk.title(" zb的二次函数工具 " + v)
-x = 200
-y = 175
+tk.title(" zb的函数工具 " + v)
+x = 400
+y = 270
 now_x = (tk.winfo_screenwidth() - x) / 2
 now_y = (tk.winfo_screenheight() - y) / 2
 tk.geometry("%dx%d+%d+%d" % (x, y, now_x, now_y))
@@ -24,19 +32,19 @@ check_ico(tk, "logo.ico")
 
 def process(a, num=1, no=None):
     a = str(a)
-    if a == no:
+    if a == str(no):
         print(1 / 0)
     if a == "":
         a = str(num)
     if a == "-":
         a = "-1"
-    a = a.replace("^", "**").replace("[", "(").replace("]", ")").replace("{", "(").replace("}", ")").replace("\ "[:-1], "/")
+    a = a.replace("^", "**").replace("[", "(").replace("]", ")").replace("{", "(").replace("}", ")").replace("\ "[:-1], "/").replace("（", "(").replace("）", ")").replace("【", "(").replace("】", ")")
     try:
         a = int(a)
     except:
         try:
             a = float(a)
-            #a = Fraction(a)
+            # a = Fraction(a)
         except:
             a = eval(a)
     if a == int(a):
@@ -76,7 +84,7 @@ def draw(a, b, c):
     pyplot.show()
 
 
-def get(a, b, c):
+def get1(a, b, c):
     if a == 1:
         normal = "y=x²"
     else:
@@ -162,7 +170,7 @@ def b1():
     a = process(a, 1, 0)
     b = process(b, 1)
     c = process(c, 0)
-    get(a, b, c)
+    get1(a, b, c)
 
 
 def b2():
@@ -185,7 +193,7 @@ def b3():
     a1 = a
     c1 = a * b ** 2 + c
     b1 = a * 2 * b
-    get(a1, b1, c1)
+    get1(a1, b1, c1)
 
 
 def b4():
@@ -201,37 +209,172 @@ def b4():
     draw(a1, b1, c1)
 
 
+def b5():
+    k = entry7.get()
+    b = entry8.get()
+    k = process(k, 1, 0)
+    b = process(b, 0)
+    normal = "y="
+    if k == 1:
+        normal = normal + "x"
+    elif k == -1:
+        normal = normal + "-x"
+    else:
+        normal = normal + str(k) + "x"
+    if b != 0:
+        normal = normal + "+" + str(b)
+    temp = os.getenv("TEMP")
+    with open(pj(temp, "f.txt"), "w", encoding="utf-8") as file:
+        file.write("该一次函数一般式为" + normal)
+        file.write("\n图像与x轴交点为(" + str(process((-1 * b) / k)) + ",0)")
+        file.write("\n图像与y轴交点为(0," + str(b) + ")")
+        if k > 0:
+            file.write("\ny随x的增大而增大")
+        if k < 0:
+            file.write("\ny随x的增大而减小")
+    os.popen(pj(temp, "f.txt"))
+
+
+def b6():
+    k = entry7.get()
+    b = entry8.get()
+    k = process(k, 1, 0)
+    b = process(b, 0)
+    x = numpy.arange(-10000, 10000, 0.1)
+    y = k * x + b
+    pyplot.xlabel('x')
+    pyplot.ylabel('y')
+    pyplot.plot(x, y)
+    pyplot.xlim(-20, 20)
+    pyplot.ylim(-20, 20)
+    pyplot.grid(color="0.7", linestyle="--", linewidth=1)
+    pyplot.show()
+
+
+def b7():
+    k = entry9.get()
+    k = process(k, 1, 0)
+    if k == 0:
+        return False
+    pyplot.xlabel('x')
+    pyplot.ylabel('y')
+    col = (random.randint(0, 10) / 10, random.randint(0, 10) / 10, random.randint(0, 10) / 10)
+    x = numpy.arange(-10000, 0, 0.1)
+    y = k / x
+    pyplot.plot(x, y, color=col)
+
+    pyplot.xlim(-20, 20)
+    pyplot.ylim(-20, 20)
+    x = numpy.arange(0, 10000, 0.1)
+    y = k / x
+    pyplot.plot(x, y, color=col)
+    y = numpy.arange(0, 10000, 0.1)
+    x = k / y
+    pyplot.plot(x, y, color=col)
+    y = numpy.arange(-10000, 0, 0.1)
+    x = k / y
+    pyplot.plot(x, y, color=col)
+    pyplot.grid(color="0.7", linestyle="--", linewidth=1)
+
+def b8():
+    e1=process(entry11.get(),0)
+    e2=process(entry12.get(),0)
+    e3=process(entry13.get(),0)
+    e4=process(entry14.get(),0)
+    e5=process(entry15.get(),0)
+    e6=process(entry16.get(),0)
+    x = numpy.arange(-10000, 10000, 0.1)
+    y = e1*x**5+e2*x**4+e3*x**3+e4*x**2+e5*x+e6
+    pyplot.xlabel('x')
+    pyplot.ylabel('y')
+    pyplot.plot(x, y)
+    pyplot.xlim(-20, 20)
+    pyplot.ylim(-20, 20)
+    pyplot.grid(color="0.7", linestyle="--", linewidth=1)
+    pyplot.show()
+
 # txt = ttk.Label(tk, text="文字").place(x=100,y=,width=200,height=30,anchor="center")
 # b = ttk.Button(tk, text="按钮", style="TButton", command=b).place(x=,y=,width=100,height=30)
 # sep = Separato3r(tk, orient=HORIZONTAL).place(x=0,y=,width=5000,height=30)
-ttk.Label(tk, text="一般式").place(x=75, y=0, width=150, height=30)
-ttk.Label(tk, text="y=").place(x=0, y=30, width=40, height=20)
+x1 = 0
+y1 = 0
+ttk.Label(tk, text="一次函数").place(x=x1 + 75, y=y1, width=150, height=30)
+ttk.Label(tk, text="y=").place(x=x1 + 50, y=y1 + 30, width=40, height=20)
+entry7 = Entry(tk)
+entry7.place(x=x1 + 70, y=y1 + 30, width=30, height=20)
+ttk.Label(tk, text="x+").place(x=x1 + 100, y=y1 + 30, width=40, height=20)
+entry8 = Entry(tk)
+entry8.place(x=x1 + 120, y=y1 + 30, width=30, height=20)
+ttk.Button(tk, text="计算", style="TButton", command=b5).place(x=x1, y=y1 + 55, width=100, height=30)
+ttk.Button(tk, text="绘制", style="TButton", command=b6).place(x=x1 + 100, y=y1 + 55, width=100, height=30)
+x1 = 200
+y1 = 0
+ttk.Label(tk, text="反比例函数").place(x=x1 + 70, y=y1, width=150, height=30)
+ttk.Label(tk, text="y=").place(x=x1 + 70, y=y1 + 30, width=40, height=20)
+entry9 = Entry(tk)
+entry9.place(x=x1 + 90, y=y1 + 30, width=30, height=20)
+ttk.Label(tk, text="/x").place(x=x1 + 120, y=y1 + 30, width=40, height=20)
+ttk.Button(tk, text="绘制", style="TButton", command=b7).place(x=x1 + 50, y=y1 + 55, width=100, height=30)
+x1 = 0
+y1 = 95
+ttk.Label(tk, text="一般式").place(x=x1 + 75, y=y1, width=150, height=30)
+ttk.Label(tk, text="y=").place(x=x1, y=y1 + 30, width=40, height=20)
 entry1 = Entry(tk)
-entry1.place(x=20, y=30, width=30, height=20)
-ttk.Label(tk, text="x²+").place(x=50, y=30, width=40, height=20)
+entry1.place(x=x1 + 20, y=y1 + 30, width=30, height=20)
+ttk.Label(tk, text="x²+").place(x=x1 + 50, y=y1 + 30, width=40, height=20)
 entry2 = Entry(tk)
-entry2.place(x=75, y=30, width=30, height=20)
-ttk.Label(tk, text="x+").place(x=105, y=30, width=40, height=20)
+entry2.place(x=x1 + 75, y=y1 + 30, width=30, height=20)
+ttk.Label(tk, text="x+").place(x=x1 + 105, y=y1 + 30, width=40, height=20)
 entry3 = Entry(tk)
-entry3.place(x=125, y=30, width=30, height=20)
-ttk.Button(tk, text="计算", style="TButton", command=b1).place(x=0, y=55, width=100, height=30)
-ttk.Button(tk, text="绘制", style="TButton", command=b2).place(x=100, y=55, width=100, height=30)
-ttk.Label(tk, text="顶点式").place(x=75, y=90, width=150, height=30)
-ttk.Label(tk, text="y=").place(x=0, y=120, width=40, height=20)
+entry3.place(x=x1 + 125, y=y1 + 30, width=30, height=20)
+ttk.Button(tk, text="计算", style="TButton", command=b1).place(x=x1, y=y1 + 55, width=100, height=30)
+ttk.Button(tk, text="绘制", style="TButton", command=b2).place(x=x1 + 100, y=y1 + 55, width=100, height=30)
+x1 = 200
+y1 = 95
+ttk.Label(tk, text="顶点式").place(x=x1 + 75, y=y1, width=150, height=30)
+ttk.Label(tk, text="y=").place(x=x1, y=y1 + 30, width=40, height=20)
 entry4 = Entry(tk)
-entry4.place(x=20, y=120, width=30, height=20)
-ttk.Label(tk, text="(x²+").place(x=50, y=120, width=40, height=20)
+entry4.place(x=x1 + 20, y=y1 + 30, width=30, height=20)
+ttk.Label(tk, text="(x+").place(x=x1 + 50, y=y1 + 30, width=40, height=20)
 entry5 = Entry(tk)
-entry5.place(x=75, y=120, width=30, height=20)
-ttk.Label(tk, text=")+").place(x=105, y=120, width=40, height=20)
+entry5.place(x=x1 + 75, y=y1 + 30, width=30, height=20)
+ttk.Label(tk, text=")²+").place(x=x1 + 105, y=y1 + 30, width=40, height=20)
 entry6 = Entry(tk)
-entry6.place(x=125, y=120, width=30, height=20)
-ttk.Button(tk, text="计算", style="TButton", command=b3).place(x=0, y=145, width=100, height=30)
-ttk.Button(tk, text="绘制", style="TButton", command=b4).place(x=100, y=145, width=100, height=30)
-Separator(tk, orient=HORIZONTAL).place(x=0, y=0, width=200, height=2)
-Separator(tk, orient=HORIZONTAL).place(x=0, y=90, width=200, height=2)
-Separator(tk, orient=HORIZONTAL).place(x=0, y=175, width=200, height=2)
+entry6.place(x=x1 + 125, y=y1 + 30, width=30, height=20)
+ttk.Button(tk, text="计算", style="TButton", command=b3).place(x=x1, y=y1 + 55, width=100, height=30)
+ttk.Button(tk, text="绘制", style="TButton", command=b4).place(x=x1 + 100, y=y1 + 55, width=100, height=30)
+ttk.Label(tk, text="二次函数").place(x=170, y=85, width=100, height=30)
+
+ttk.Label(tk, text="自由绘制").place(x=170, y=185, width=150, height=30)
+
+ttk.Label(tk, text="y=").place(x=0, y=215, width=20, height=20)
+entry11 = Entry(tk)
+entry11.place(x=20, y=215, width=30, height=20)
+ttk.Label(tk, text="x⁵+").place(x=50, y=215, width=25, height=20)
+entry12 = Entry(tk)
+entry12.place(x=75, y=215, width=30, height=20)
+ttk.Label(tk, text="x⁴+").place(x=105, y=215, width=25, height=20)
+entry13 = Entry(tk)
+entry13.place(x=130, y=215, width=30, height=20)
+ttk.Label(tk, text="x³+").place(x=160, y=215, width=25, height=20)
+entry14 = Entry(tk)
+entry14.place(x=185, y=215, width=30, height=20)
+ttk.Label(tk, text="x²+").place(x=215, y=215, width=25, height=20)
+entry15 = Entry(tk)
+entry15.place(x=240, y=215, width=30, height=20)
+ttk.Label(tk, text="x+").place(x=270, y=215, width=20, height=20)
+entry16 = Entry(tk)
+entry16.place(x=290, y=215, width=30, height=20)
+
+ttk.Button(tk, text="绘制", style="TButton", command=b8).place(x=150, y=240, width=100, height=30)
+Separator(tk, orient=VERTICAL).place(x=200, y=0, width=1, height=85)
+Separator(tk, orient=HORIZONTAL).place(x=0, y=0, width=400, height=2)
+Separator(tk, orient=HORIZONTAL).place(x=0, y=85, width=400, height=2)
+Separator(tk, orient=HORIZONTAL).place(x=0, y=180, width=400, height=2)
+Separator(tk, orient=HORIZONTAL).place(x=0, y=270, width=400, height=2)
+
 tk.mainloop()
 # 2022-11-18：1.0.0：
 # 2022-11-20：1.1.0：添加更多信息，添加图标绘制，添加顶点式，优化代码，优化外观
 # 2022-11-22：1.2.0：添加分数和运算式处理功能
+# 2022-11-23：2.0.0：更名为zb的函数工具，添加中文括号支持，修复顶点式标注错误的bug，添加一次函数绘制、反比例函数绘制和自由绘制功能

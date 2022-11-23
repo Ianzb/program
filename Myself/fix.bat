@@ -1,10 +1,10 @@
-pip install lxml -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
-pip install pypiwin32 -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
-pip install pandas -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
-pip install numpy -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
-pip install bs4 -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
-pip install requests -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
-pip install send2trash -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
-pip install winshell -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
-pip install matplotlib -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
-pip install openpyxl -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
+pip install lxml
+pip install pypiwin32
+pip install pandas
+pip install numpy
+pip install bs4
+pip install requests
+pip install send2trash
+pip install winshell
+pip install matplotlib
+pip install openpyxl
