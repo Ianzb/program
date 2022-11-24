@@ -150,8 +150,8 @@ ttk.Button(tk, text="CCTV-13", style="TButton", command=b3).place(x=200, y=120, 
 ttk.Button(tk, text="校园电视台", style="TButton", command=b4).place(x=300, y=120, width=100, height=30)
 ttk.Separator(tk, orient=VERTICAL).place(x=200, y=0, width=1, height=180)
 ttk.Separator(tk, orient=HORIZONTAL).place(x=0, y=180, width=400, height=2)
-ttk.Label(tk, text="zb的小程序For Seewo 版本  " + v).place(x=45, y=190, width=200, height=30)
-ttk.Button(tk, text="检查并更新版本", style="TButton", command=b0).place(x=255, y=190, width=100, height=30)
+ttk.Label(tk, text="zb的小程序For Seewo 版本  " + v).place(x=55, y=190, width=200, height=30)
+ttk.Button(tk, text="检查更新", style="TButton", command=b0).place(x=265, y=190, width=80, height=30)
 ttk.Separator(tk, orient=HORIZONTAL).place(x=0, y=230, width=400, height=2)
 
 ttk.Label(tk, text="夹带私货").place(x=175, y=235, width=150, height=30)

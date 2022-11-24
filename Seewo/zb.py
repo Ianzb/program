@@ -90,51 +90,6 @@ def clear_repeat(name):
                             os.remove(y)
 
 
-#下载文件
-def download(link):
-    response1 = requests.get(link)
-    response1.encoding = "UTF-8"
-    main = response1.content
-    with open(link[link.rfind("/") + 1:], "wb") as file: file.write(main)
-
-
-# 检查更新
-def check_update(name):
-    print("检查更新")
-    import re
-    link = "https://ianzb.github.io/server.github.io/" + name + "/"
-    res = requests.get(link + name.lower() + ".html")
-    res.encoding = "UTF-8"
-    soup = bs4.BeautifulSoup(res.text, "lxml")
-    data = soup.find_all(name="div", text=re.compile("."))
-    for i in range(len(data)): data[i] = str(data[i]).replace("<div>", "").replace("</div>", "").replace(r"\r", "").replace(r"\n", "").strip()
-    for i in range(len(data)):
-        if data[i] == "main.pyw":
-            p1 = threading.Thread(target=download(link + data[i]))
-            p1.start()
-        elif data[i] == "zb.pyw":
-            p2 = threading.Thread(target=download(link + data[i]))
-            p2.start()
-        elif data[i] == "logo.ico":
-            p3 = threading.Thread(target=download(link + data[i]))
-            p3.start()
-        elif data[i] == "fix.bat":
-            p4 = threading.Thread(target=download(link + data[i]))
-            p4.start()
-        elif data[i] == "choose.pyw":
-            p5 = threading.Thread(target=download(link + data[i]))
-            p5.start()
-        elif data[i] == "function.pyw":
-            p6 = threading.Thread(target=download(link + data[i]))
-            p6.start()
-        else:
-            pr = threading.Thread(target=download(link + data[i]))
-            pr.start()
-    os.popen("main.pyw")
-    print("成功检查更新")
-    exit()
-
-
 # 整理指定目录文件到指定位置
 def move_files(old, new):
     import stat

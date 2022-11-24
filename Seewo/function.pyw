@@ -22,6 +22,15 @@ tk.resizable(False, False)
 check_ico(tk, "logo.ico")
 
 
+def xy():
+    x = numpy.arange(-10000, 10000, 1)
+    y = 0 * x
+    pyplot.plot(x, y, color="black")
+    y = numpy.arange(-10000, 10000, 1)
+    x = 0 * y
+    pyplot.plot(x, y, color="black")
+
+
 def process(a, num=1, no=None):
     a = str(a)
     if a == str(no):
@@ -64,7 +73,7 @@ def draw(a, b, c):
     if c != 0:
         normal = normal + "+" + str(c)
     normal = normal.replace("+-", "-").replace("-1x", "-x")
-
+    xy()
     x = numpy.arange(-10000, 10000, 0.1)
     y = a * x ** 2 + b * x + c
     pyplot.xlabel('x')
@@ -232,6 +241,7 @@ def b6():
     b = entry8.get()
     k = process(k, 1, 0)
     b = process(b, 0)
+    xy()
     x = numpy.arange(-10000, 10000, 0.1)
     y = k * x + b
     pyplot.xlabel('x')
@@ -248,6 +258,7 @@ def b7():
     k = process(k, 1, 0)
     if k == 0:
         return False
+    xy()
     pyplot.xlabel('x')
     pyplot.ylabel('y')
     col = (random.randint(0, 10) / 10, random.randint(0, 10) / 10, random.randint(0, 10) / 10)
@@ -267,6 +278,7 @@ def b7():
     x = k / y
     pyplot.plot(x, y, color=col)
     pyplot.grid(color="0.7", linestyle="--", linewidth=1)
+    pyplot.show()
 
 
 def b8():
@@ -276,6 +288,7 @@ def b8():
     e4 = process(entry14.get(), 0)
     e5 = process(entry15.get(), 0)
     e6 = process(entry16.get(), 0)
+    xy()
     x = numpy.arange(-10000, 10000, 0.1)
     y = e1 * x ** 5 + e2 * x ** 4 + e3 * x ** 3 + e4 * x ** 2 + e5 * x + e6
     pyplot.xlabel('x')
@@ -372,4 +385,4 @@ tk.mainloop()
 # 2022-11-20：1.1.0：添加更多信息，添加图标绘制，添加顶点式，优化代码，优化外观
 # 2022-11-22：1.2.0：添加分数和运算式处理功能
 # 2022-11-23：2.0.0：更名为zb的函数工具，添加中文括号支持，修复顶点式标注错误的bug，添加一次函数绘制、反比例函数绘制和自由绘制功能
-# 2022-11-24：2.1.0：界面完全适配系统自带风格
+# 2022-11-24：2.1.0：界面完全适配系统自带风格，添加x、y轴的绘制，修复反比例函数图像绘制异常的bug
