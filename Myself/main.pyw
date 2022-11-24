@@ -32,8 +32,9 @@ tk.wm_iconbitmap("logo.ico")
 
 
 def b0():
-    pro100 = threading.Thread(target=check_update("Myself"))
-    pro100.start()
+    os.popen("update.pyw")
+    time.sleep(0.3)
+    exit()
 
 
 def b100():
@@ -84,7 +85,7 @@ def b12():
 
 ttk.Label(tk, text="实用程序").place(x=75, y=0, width=150, height=30)
 ttk.Label(tk, text="功能列表").place(x=275, y=0, width=150, height=30)
-Separator(tk, orient=HORIZONTAL).place(x=0, y=0, width=400, height=2)
+ttk.Separator(tk, orient=HORIZONTAL).place(x=0, y=0, width=400, height=2)
 
 # 左侧
 ttk.Button(tk, text="我的网站", style="TButton", command=b100).place(x=0, y=30, width=200, height=30)
@@ -95,10 +96,10 @@ ttk.Button(tk, text="一键整理+清理", style="TButton", command=b12).place(x
 ttk.Button(tk, text="打开", style="TButton", command=b1).place(x=350, y=30, width=50, height=30)
 ttk.Button(tk, text="清理回收站", style="TButton", command=b2).place(x=200, y=60, width=100, height=30)
 ttk.Button(tk, text="重启资源管理器", style="TButton", command=b11).place(x=300, y=60, width=100, height=30)
-Separator(tk, orient=VERTICAL).place(x=200, y=0, width=1, height=120)
-Separator(tk, orient=HORIZONTAL).place(x=0, y=120, width=400, height=2)
+ttk.Separator(tk, orient=VERTICAL).place(x=200, y=0, width=1, height=120)
+ttk.Separator(tk, orient=HORIZONTAL).place(x=0, y=120, width=400, height=2)
 ttk.Label(tk, text="zb的小程序For Myself 版本  " + v).place(x=45, y=130, width=200, height=30)
 ttk.Button(tk, text="检查并更新版本", style="TButton", command=b0).place(x=255, y=130, width=100, height=30)
-Separator(tk, orient=HORIZONTAL).place(x=0, y=170, width=400, height=2)
+ttk.Separator(tk, orient=HORIZONTAL).place(x=0, y=170, width=400, height=2)
 
 tk.mainloop()
