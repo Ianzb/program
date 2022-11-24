@@ -22,6 +22,7 @@ def pj(*a):
     for i in a:
         out = os.path.join(out, i)
     out = out.replace("//", r"\ "[:-1])
+    out = out.replace(r"\\ "[:-1], r"\ "[:-1])
     out = out.replace("\/", r"\ "[:-1])
     out = out.replace("/\ "[:-1], r"\ "[:-1])
     out = out.replace("/", r"\ "[:-1])
@@ -108,7 +109,26 @@ def check_update(name):
     data = soup.find_all(name="div", text=re.compile("."))
     for i in range(len(data)): data[i] = str(data[i]).replace("<div>", "").replace("</div>", "").replace(r"\r", "").replace(r"\n", "").strip()
     for i in range(len(data)):
-        download(link + data[i])
+        if data[i] == "main.pyw":
+            p1 = threading.Thread(target=download(link + data[i]))
+            p1.start()
+        elif data[i] == "zb.pyw":
+            p2 = threading.Thread(target=download(link + data[i]))
+            p2.start()
+        elif data[i] == "logo.ico":
+            p3 = threading.Thread(target=download(link + data[i]))
+            p3.start()
+        elif data[i] == "fix.bat":
+            p4 = threading.Thread(target=download(link + data[i]))
+            p4.start()
+        elif data[i] == "choose.pyw":
+            p5 = threading.Thread(target=download(link + data[i]))
+            p5.start()
+        elif data[i] == "function.pyw":
+            p6 = threading.Thread(target=download(link + data[i]))
+            p6.start()
+        else:
+            download(link + data[i])
     os.popen("main.pyw")
     print("成功检查更新")
     exit()

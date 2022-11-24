@@ -1,10 +1,4 @@
-import threading
-import time
-import webbrowser
-from tkinter import ttk
-from tkinter.ttk import Separator
-
-v = "2.6.2"
+v = "2.7.0"
 try:
     from zb import *
 except:

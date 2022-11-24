@@ -1,11 +1,3 @@
-import os
-import random
-from tkinter import ttk
-from tkinter.ttk import Separator
-
-import numpy
-from matplotlib import pyplot
-
 v = "2.0.0"
 
 from zb import *
@@ -276,15 +268,16 @@ def b7():
     pyplot.plot(x, y, color=col)
     pyplot.grid(color="0.7", linestyle="--", linewidth=1)
 
+
 def b8():
-    e1=process(entry11.get(),0)
-    e2=process(entry12.get(),0)
-    e3=process(entry13.get(),0)
-    e4=process(entry14.get(),0)
-    e5=process(entry15.get(),0)
-    e6=process(entry16.get(),0)
+    e1 = process(entry11.get(), 0)
+    e2 = process(entry12.get(), 0)
+    e3 = process(entry13.get(), 0)
+    e4 = process(entry14.get(), 0)
+    e5 = process(entry15.get(), 0)
+    e6 = process(entry16.get(), 0)
     x = numpy.arange(-10000, 10000, 0.1)
-    y = e1*x**5+e2*x**4+e3*x**3+e4*x**2+e5*x+e6
+    y = e1 * x ** 5 + e2 * x ** 4 + e3 * x ** 3 + e4 * x ** 2 + e5 * x + e6
     pyplot.xlabel('x')
     pyplot.ylabel('y')
     pyplot.plot(x, y)
@@ -292,6 +285,7 @@ def b8():
     pyplot.ylim(-20, 20)
     pyplot.grid(color="0.7", linestyle="--", linewidth=1)
     pyplot.show()
+
 
 # txt = ttk.Label(tk, text="文字").place(x=100,y=,width=200,height=30,anchor="center")
 # b = ttk.Button(tk, text="按钮", style="TButton", command=b).place(x=,y=,width=100,height=30)

@@ -1,5 +1,7 @@
-v = "1.5.3"
+v = "1.6.0"
+import os, sys
 
+sys.path.append(os.getcwd()[:os.getcwd().rfind("\ "[:-1])] + "\Seewo")
 try:
     from zb import *
 except:

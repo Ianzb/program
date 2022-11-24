@@ -1,10 +1,3 @@
-import os
-import random
-import time
-from tkinter import ttk
-
-import pandas
-
 v = "1.4.1"
 
 from zb import *
