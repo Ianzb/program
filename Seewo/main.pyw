@@ -125,6 +125,21 @@ def b15():
     os.startfile("D:/文件")
 
 
+def b10():
+    t2 = Tk()
+    s2 = ttk.Style()
+    s2.configure("TButton")
+    t2.title(" 设置")
+    x = 400
+    y = 200
+    now_x = (t2.winfo_screenwidth() - x) / 2
+    now_y = (t2.winfo_screenheight() - y) / 2
+    t2.geometry("%dx%d+%d+%d" % (x, y, now_x, now_y))
+    t2.wm_attributes("-topmost", 1)
+    t2.resizable(False, False)
+    check_ico(t2, "logo.ico")
+
+
 # txt = ttk.Label(tk, text="文字").place(x=100,y=,width=200,height=30,anchor="center")
 # b = ttk.Button(tk, text="按钮", style="TButton", command=b).place(x=,y=,width=100,height=30)
 # sep = Separato3r(tk, orient=HORIZONTAL).place(x=0,y=,width=5000,height=30)
@@ -150,8 +165,10 @@ ttk.Button(tk, text="CCTV-13", style="TButton", command=b3).place(x=200, y=120, 
 ttk.Button(tk, text="校园电视台", style="TButton", command=b4).place(x=300, y=120, width=100, height=30)
 ttk.Separator(tk, orient=VERTICAL).place(x=200, y=0, width=1, height=180)
 ttk.Separator(tk, orient=HORIZONTAL).place(x=0, y=180, width=400, height=2)
-ttk.Label(tk, text="zb的小程序For Seewo 版本  " + v).place(x=55, y=190, width=200, height=30)
-ttk.Button(tk, text="检查更新", style="TButton", command=b0).place(x=265, y=190, width=80, height=30)
+ttk.Label(tk, text="zb的小程序For Seewo 版本  " + v).place(x=20, y=190, width=200, height=30)
+ttk.Button(tk, text="检查更新", style="TButton", command=b0).place(x=220, y=190, width=80, height=30)
+ttk.Button(tk, text="设置", style="TButton", command=b10).place(x=300, y=190, width=80, height=30)
+
 ttk.Separator(tk, orient=HORIZONTAL).place(x=0, y=230, width=400, height=2)
 
 ttk.Label(tk, text="夹带私货").place(x=175, y=235, width=150, height=30)

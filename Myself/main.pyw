@@ -17,14 +17,14 @@ st = ttk.Style()
 st.configure("TButton")
 tk.title("zb的小程序For Myself " + v)
 x = 400
-y = 170
+y = 200
 now_x = (tk.winfo_screenwidth() - x) / 2
 now_y = (tk.winfo_screenheight() - y) / 2
 tk.geometry("%dx%d+%d+%d" % (x, y, now_x, now_y))
 tk.wm_attributes("-topmost", 1)
 tk.resizable(False, False)
-tk.minsize(400, 170)
-tk.maxsize(400, 170)
+tk.minsize(400, 200)
+tk.maxsize(400, 200)
 tk.wm_iconbitmap("logo.ico")
 
 
@@ -79,6 +79,21 @@ def b12():
     print("成功整理+清理")
 
 
+def b10():
+    t2 = Tk()
+    s2 = ttk.Style()
+    s2.configure("TButton")
+    t2.title(" 设置")
+    x = 400
+    y = 200
+    now_x = (t2.winfo_screenwidth() - x) / 2
+    now_y = (t2.winfo_screenheight() - y) / 2
+    t2.geometry("%dx%d+%d+%d" % (x, y, now_x, now_y))
+    t2.wm_attributes("-topmost", 1)
+    t2.resizable(False, False)
+    check_ico(t2, "logo.ico")
+
+
 # txt = ttk.Label(tk, text="文字").place(x=100,y=,width=200,height=30,anchor="center")
 # b = ttk.Button(tk, text="按钮", style="TButton", command=b).place(x=,y=,width=100,height=30)
 # sep = Separato3r(tk, orient=HORIZONTAL).place(x=0,y=,width=5000,height=30)
@@ -96,10 +111,11 @@ ttk.Button(tk, text="一键整理+清理", style="TButton", command=b12).place(x
 ttk.Button(tk, text="打开", style="TButton", command=b1).place(x=350, y=30, width=50, height=30)
 ttk.Button(tk, text="清理回收站", style="TButton", command=b2).place(x=200, y=60, width=100, height=30)
 ttk.Button(tk, text="重启资源管理器", style="TButton", command=b11).place(x=300, y=60, width=100, height=30)
-ttk.Separator(tk, orient=VERTICAL).place(x=200, y=0, width=1, height=120)
-ttk.Separator(tk, orient=HORIZONTAL).place(x=0, y=120, width=400, height=2)
-ttk.Label(tk, text="zb的小程序For Myself 版本  " + v).place(x=55, y=130, width=200, height=30)
-ttk.Button(tk, text="检查更新", style="TButton", command=b0).place(x=265, y=130, width=80, height=30)
-ttk.Separator(tk, orient=HORIZONTAL).place(x=0, y=170, width=400, height=2)
+ttk.Separator(tk, orient=VERTICAL).place(x=200, y=0, width=1, height=150)
+ttk.Separator(tk, orient=HORIZONTAL).place(x=0, y=150, width=400, height=2)
+ttk.Label(tk, text="zb的小程序For Myself 版本  " + v).place(x=20, y=160, width=200, height=30)
+ttk.Button(tk, text="检查更新", style="TButton", command=b0).place(x=220, y=160, width=80, height=30)
+ttk.Button(tk, text="设置", style="TButton", command=b10).place(x=300, y=160, width=80, height=30)
+ttk.Separator(tk, orient=HORIZONTAL).place(x=0, y=150, width=400, height=2)
 
 tk.mainloop()

@@ -1,20 +1,9 @@
-import bs4
-import os
-import requests
-import shutil
-import time
-import webbrowser
-import threading
-import random
-import pandas
-import sys
-import numpy
+import bs4,os,requests,shutil,time,webbrowser,threading,random,pandas,sys,numpy
 from matplotlib import pyplot
 from tkinter import *
 from tkinter import ttk
 from tkinter.ttk import Separator
 from tkinter.messagebox import *
-
 
 # 更好的路径拼接
 def pj(*a):
