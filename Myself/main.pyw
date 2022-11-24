@@ -7,7 +7,7 @@ try:
 except:
     import os, sys
 
-    os.system("fix.bat")
+    os.system(r"..\Seewo\fix.bat")
     sys.exit()
 
 date = time.strftime("%Y-%m-%d")
