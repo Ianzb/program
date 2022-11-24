@@ -128,7 +128,8 @@ def check_update(name):
             p6 = threading.Thread(target=download(link + data[i]))
             p6.start()
         else:
-            download(link + data[i])
+            pr = threading.Thread(target=download(link + data[i]))
+            pr.start()
     os.popen("main.pyw")
     print("成功检查更新")
     exit()
