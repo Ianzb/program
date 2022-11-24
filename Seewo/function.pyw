@@ -1,4 +1,4 @@
-v = "2.0.0"
+v = "2.1.0"
 
 from zb import *
 from fractions import Fraction

@@ -1,4 +1,4 @@
-v = "2.7.0"
+v = "3.0.0"
 try:
     from zb import *
 except:

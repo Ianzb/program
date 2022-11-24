@@ -1,4 +1,4 @@
-v = "1.6.0"
+v = "2.0.0"
 import os, sys
 
 sys.path.append(os.getcwd()[:os.getcwd().rfind("\ "[:-1])] + "\Seewo")
