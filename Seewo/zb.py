@@ -170,8 +170,7 @@ def get_mc():
     for i in range(len(b)):
         if i % 2 == 0: v[b[i]] = b[i + 1]
     pc_remove(v, "")
-    list = ["内部", "Windows", "macOS", "Linux", "即将到来", "ChromeOS", "PlayStation", "Nintendo", "Xbox", "Steam",
-            "demo", "教育版（iOS）", "Minecraft Dungeons（启动器版）", "战斗测试"]
+    list = ["即将","战斗测试","岩版（","服务器","ta（","ew（","内部","ns（","ns for ","育版（"]
     for c in list: remove_if_in(v, c)
     with open(pj(temp, "mc.txt"), "w", encoding="utf-8") as file:
         for (k, v) in v.items(): file.write(k + "版本：" + v + "\n")
