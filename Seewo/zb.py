@@ -134,8 +134,9 @@ def move_files(old, new):
                     os.rmdir(pj(new, name1[name], file))
     list3 = list2[0][1]
     fold = []
+    not1=["软件","备份","MobileFile"]
     for i in list3:
-        if i != "软件": fold.append(i)
+            if i not in not1: fold.append(i)
     for i in range(len(fold)):
         if os.path.exists(pj(new, "文件夹", fold[i])):
             j = 1
