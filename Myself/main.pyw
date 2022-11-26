@@ -25,7 +25,7 @@ tk.wm_attributes("-topmost", 1)
 tk.resizable(False, False)
 tk.minsize(400, 200)
 tk.maxsize(400, 200)
-tk.wm_iconbitmap("logo.ico")
+check_ico(tk, "logo.ico")
 
 
 # 功能
@@ -92,7 +92,10 @@ def b10():
     t2.wm_attributes("-topmost", 1)
     t2.resizable(False, False)
     check_ico(t2, "logo.ico")
-
+def b3():
+    os.popen("manger.pyw")
+    time.sleep(0.5)
+    exit()
 
 # txt = ttk.Label(tk, text="文字").place(x=100,y=,width=200,height=30,anchor="center")
 # b = ttk.Button(tk, text="按钮", style="TButton", command=b).place(x=,y=,width=100,height=30)
@@ -103,14 +106,15 @@ ttk.Label(tk, text="功能列表").place(x=275, y=0, width=150, height=30)
 ttk.Separator(tk, orient=HORIZONTAL).place(x=0, y=0, width=400, height=2)
 
 # 左侧
-ttk.Button(tk, text="我的网站", style="TButton", command=b100).place(x=0, y=30, width=200, height=30)
-ttk.Button(tk, text="MC版本爬虫", style="TButton", command=b101).place(x=0, y=60, width=200, height=30)
+ttk.Button(tk, text="zb的小程序管理器", style="TButton", command=b3).place(x=0, y=30, width=200, height=30)
 # 右侧
 
 ttk.Button(tk, text="一键整理+清理", style="TButton", command=b12).place(x=200, y=30, width=150, height=30)
 ttk.Button(tk, text="打开", style="TButton", command=b1).place(x=350, y=30, width=50, height=30)
 ttk.Button(tk, text="清理回收站", style="TButton", command=b2).place(x=200, y=60, width=100, height=30)
 ttk.Button(tk, text="重启资源管理器", style="TButton", command=b11).place(x=300, y=60, width=100, height=30)
+ttk.Button(tk, text="我的网站", style="TButton", command=b100).place(x=200, y=90, width=100, height=30)
+ttk.Button(tk, text="MC版本爬虫", style="TButton", command=b101).place(x=300, y=90, width=100, height=30)
 ttk.Separator(tk, orient=VERTICAL).place(x=200, y=0, width=1, height=150)
 ttk.Separator(tk, orient=HORIZONTAL).place(x=0, y=150, width=400, height=2)
 ttk.Label(tk, text="zb的小程序For Myself 版本  " + v).place(x=20, y=160, width=200, height=30)
