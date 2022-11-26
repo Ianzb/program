@@ -60,5 +60,5 @@ def check_update(name):
 vari = IntVar()
 vari.set(0)
 ttk.Progressbar(tk, mode="determinate", variable=vari).place(x=0, y=0, width=200, height=30)
-ttk.Button(tk, text="立刻更新Seewo", style="TButton", command=lambda: check_update("Seewo")).place(x=0, y=30, width=200, height=30)
+ttk.Button(tk, text="立刻更新", style="TButton", command=lambda: check_update("Seewo")).place(x=0, y=30, width=200, height=30)
 tk.mainloop()

@@ -13,6 +13,7 @@ tk = Tk()
 st = ttk.Style()
 st.configure("TButton")
 # 窗口属性
+n = "Seewo"
 tk.title(" zb的小程序For Seewo " + v)
 x = 400
 y = 230
@@ -29,7 +30,7 @@ check_ico(tk, "logo.ico")
 
 
 def b0():
-    os.popen(pj(os.getcwd(),"update.pyw"))
+    os.popen(pj(os.getcwd(), "update.pyw").replace("Myself", n))
     time.sleep(0.3)
     exit()
 

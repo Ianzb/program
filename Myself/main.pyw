@@ -15,6 +15,7 @@ date = time.strftime("%Y-%m-%d")
 tk = Tk()
 st = ttk.Style()
 st.configure("TButton")
+n = "Myself"
 tk.title("zb的小程序For Myself " + v)
 x = 400
 y = 200
@@ -32,7 +33,7 @@ check_ico(tk, "logo.ico")
 
 
 def b0():
-    os.popen(pj(os.getcwd(),"update.pyw"))
+    os.popen(pj(os.getcwd(), "update.pyw").replace("Seewo", n))
     time.sleep(0.3)
     exit()
 
@@ -92,10 +93,13 @@ def b10():
     t2.wm_attributes("-topmost", 1)
     t2.resizable(False, False)
     check_ico(t2, "logo.ico")
+
+
 def b3():
     os.popen("manger.pyw")
     time.sleep(0.5)
     exit()
+
 
 # txt = ttk.Label(tk, text="文字").place(x=100,y=,width=200,height=30,anchor="center")
 # b = ttk.Button(tk, text="按钮", style="TButton", command=b).place(x=,y=,width=100,height=30)

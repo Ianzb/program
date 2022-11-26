@@ -1,9 +1,10 @@
-import bs4,os,requests,shutil,time,webbrowser,threading,random,pandas,sys,numpy
+import bs4, os, requests, shutil, time, webbrowser, threading, random, pandas, sys, numpy
 from matplotlib import pyplot
 from tkinter import *
 from tkinter import ttk
 from tkinter.ttk import Separator
 from tkinter.messagebox import *
+
 
 # 更好的路径拼接
 def pj(*a):
@@ -134,9 +135,9 @@ def move_files(old, new):
                     os.rmdir(pj(new, name1[name], file))
     list3 = list2[0][1]
     fold = []
-    not1=["软件","备份","MobileFile"]
+    not1 = ["软件", "备份", "MobileFile"]
     for i in list3:
-            if i not in not1: fold.append(i)
+        if i not in not1: fold.append(i)
     for i in range(len(fold)):
         if os.path.exists(pj(new, "文件夹", fold[i])):
             j = 1
@@ -171,7 +172,7 @@ def get_mc():
     for i in range(len(b)):
         if i % 2 == 0: v[b[i]] = b[i + 1]
     pc_remove(v, "")
-    list = ["即将","战斗测试","岩版（","服务器","ta（","ew（","内部","ns（","ns for ","育版（"]
+    list = ["即将", "战斗测试", "岩版（", "服务器", "ta（", "ew（", "内部", "ns（", "ns for ", "育版（"]
     for c in list: remove_if_in(v, c)
     with open(pj(temp, "mc.txt"), "w", encoding="utf-8") as file:
         for (k, v) in v.items(): file.write(k + "版本：" + v + "\n")
