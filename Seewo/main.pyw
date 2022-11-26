@@ -29,7 +29,7 @@ check_ico(tk, "logo.ico")
 
 
 def b0():
-    os.popen("update.pyw")
+    os.popen(pj(os.getcwd(),"update.pyw"))
     time.sleep(0.3)
     exit()
 
