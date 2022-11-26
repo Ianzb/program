@@ -1,36 +1,19 @@
-import bs4,os,requests,shutil,time,webbrowser,threading,random,pandas,sys,numpy
-from matplotlib import pyplot
-from tkinter import *
-from tkinter import ttk
-from tkinter.ttk import Separator
-from tkinter.messagebox import *
-
 # 更好的路径拼接
 def pj(*a):
+    import os
     out = ""
     for i in a:
         out = os.path.join(out, i)
-    out = out.replace("//", r"\ "[:-1])
-    out = out.replace(r"\\ "[:-1], r"\ "[:-1])
-    out = out.replace("\/", r"\ "[:-1])
-    out = out.replace("/\ "[:-1], r"\ "[:-1])
-    out = out.replace("/", r"\ "[:-1])
-
+    out = out.replace("//", r"\ "[:-1]).replace(r"\\ "[:-1], r"\ "[:-1]).replace("\/", r"\ "[:-1]).replace("/\ "[:-1], r"\ "[:-1]).replace("/", r"\ "[:-1])
     return out
 
 
 # 关闭程序
 def exit():
+    import sys, os
     sys.exit()
     os.popen("taskkill -f -im pythonw.exe")
     os.popen("taskkill -f -im python.exe")
-
-
-# 警告
-def warn():
-    if not os.path.exists("main.pyw"):
-        showinfo("提示", "请不要试图制作恶搞版本！")
-        exit()
 
 
 # 检查图标是否存在
@@ -38,25 +21,28 @@ def check_ico(tk, name):
     try:
         tk.wm_iconbitmap(name)
     except:
-        showinfo("提示", "软件图标文件缺失，请使用检查更新功能补全文件！")
+        pass
 
 
 # MC版本爬虫去除不符内容1
 def pc_remove(d, name):
-    for i in [k for (k, v) in d.items() if v == name]: del d[i]
+    for i in [k for (k, v) in d.items() if v == name]:
+        del d[i]
 
 
 # MC版本爬虫去除不符内容2
 def remove_if_in(d, name):
     a = []
     for i in d.keys():
-        if name in i: a.append(i)
-    for i in a: del d[i]
+        if name in i:
+            a.append(i)
+    for i in a:
+        del d[i]
 
 
 # 清理重复整理文件
 def clear_repeat(name):
-    import filecmp, glob
+    import filecmp, glob, os
     list = []
     list.append(pj(name, "PPT/"))
     list.append(pj(name, "表格/"))
@@ -81,7 +67,7 @@ def clear_repeat(name):
 
 # 整理指定目录文件到指定位置
 def move_files(old, new):
-    import stat
+    import stat, shutil, os
     list2 = []
     list3 = os.walk(old)
     for i in list3: list2.append(i)
@@ -101,8 +87,8 @@ def move_files(old, new):
         if name == 0: ends = ["ppt"]
         if name == 1: ends = ["doc", "txt", "pdf", "json"]
         if name == 2: ends = ["xls", "xlt", "csv"]
-        if name == 3: ends = ["png", "jpg", "jpeg", "webp", "gif", "bmp", "tif", "pcx", "tga", "exif", "fpx", "svg", "psd", "cdr", "pcd", "dxf", "ufo", "eps", "ai", "raw", "wmf", "avif"]
-        if name == 4: ends = ["mp", "wav", "ogg", "flv", "avi", "mov"]
+        if name == 3: ends = ["png", "jpg", "jpeg", "webp", "gif", "bmp"]
+        if name == 4: ends = ["mp", "wav", "ogg", "flv"]
         if name == 5: ends = ["zip", "rar", "7z"]
         for i in list3:
             for j in ends:
@@ -134,16 +120,16 @@ def move_files(old, new):
                     os.rmdir(pj(new, name1[name], file))
     list3 = list2[0][1]
     fold = []
-    not1=["软件","备份","MobileFile"]
+    not1 = ["软件", "备份", "MobileFile"]
+    if not os.path.exists(pj(new, "文件夹")): os.makedirs(pj(new, "文件夹"))
     for i in list3:
-            if i not in not1: fold.append(i)
+        if i not in not1: fold.append(i)
     for i in range(len(fold)):
         if os.path.exists(pj(new, "文件夹", fold[i])):
             j = 1
             while os.path.exists(pj(new, "文件夹", fold[i] + "(" + str(j) + ")")): j = j + 1
             fold[i] = fold[i] + "(" + str(j) + ")"
     for i in fold:
-        print(i)
         try:
             shutil.move(pj(old, i), pj(new, "文件夹", i))
         except:
@@ -156,7 +142,7 @@ def move_files(old, new):
 
 # MC版本爬虫
 def get_mc():
-    print("MC版本爬虫")
+    import bs4, lxml, requests, os
     temp = os.getenv("TEMP")
     b = []
     a = []
@@ -171,27 +157,24 @@ def get_mc():
     for i in range(len(b)):
         if i % 2 == 0: v[b[i]] = b[i + 1]
     pc_remove(v, "")
-    list = ["即将","战斗测试","岩版（","服务器","ta（","ew（","内部","ns（","ns for ","育版（"]
+    list = ["即将", "战斗测试", "岩版（", "服务器", "ta（", "ew（", "内部", "ns（", "ns for ", "育版（"]
     for c in list: remove_if_in(v, c)
     with open(pj(temp, "mc.txt"), "w", encoding="utf-8") as file:
         for (k, v) in v.items(): file.write(k + "版本：" + v + "\n")
     os.popen(pj(temp, "mc.txt"))
-    print("成功爬取MC版本")
 
 
 # 重启PPT小助手
 def ppt_restart():
-    print("重启PPT小助手")
+    import time, os
     os.popen("taskkill -f -im PPTService.exe")
     time.sleep(0.1)
     os.popen("C:/Program Files (x86)/Seewo/PPTService/Main/PPTService.exe")
-    print("成功重启PPT小助手")
 
 
 # 清理希沃视频展台文件
 def clear_seewo():
-    print("清理希沃视频展台文件")
-    import send2trash
+    import send2trash, time, os
     try:
         list = os.walk(r"D:/EasiCameraPhoto")
         list2 = []
@@ -201,12 +184,11 @@ def clear_seewo():
             if i != time.strftime("%Y-%m-%d") and os.path.exists(pj("D:/EasiCameraPhoto", i)): send2trash.send2trash(pj("D:/EasiCameraPhoto", i))
     except:
         pass
-    print("成功清理希沃视频展台文件")
 
 
 # 整理微信文件
 def clear_wechat(path, to):
-    print("整理微信文件")
+    import os
     try:
         list = []
         list2 = []
@@ -222,22 +204,19 @@ def clear_wechat(path, to):
         for i in list: move_files(i, to)
     except:
         pass
-    print("成功整理微信文件")
 
 
 # 整理桌面文件
 def clear_desk(to):
-    print("整理桌面文件")
     import winreg
     key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, "Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders")
     path = winreg.QueryValueEx(key, "Desktop")[0]
     move_files(path, to)
-    print("成功整理桌面文件")
 
 
 # 清理系统缓存
 def clear_cache():
-    print("清理系统缓存")
+    import shutil, os
     list = []
     list1 = os.walk(os.getenv("TEMP"))
     for i in list1: list.append(i)
@@ -253,37 +232,27 @@ def clear_cache():
             os.remove(pj(os.getenv("TEMP"), i))
         except:
             pass
-    print("成功清理系统缓存")
 
 
 # 清理回收站
 def clear_rubbish():
-    print("清理回收站")
     import winshell
     try:
         winshell.recycle_bin().empty(confirm=False, show_progress=False, sound=False)
     except:
         pass
-    print("成功清理回收站")
 
 
 # 重启文件资源管理器
 def restart_explorer():
-    print("重启文件资源管理器")
+    import time, os
     os.popen("taskkill /f /im explorer.exe")
-    time.sleep(0.2)
+    time.sleep(0.1)
     os.popen("start C:/windows/explorer.exe")
-    print("成功重启文件资源管理器")
 
 
 # 整理常用软件文件
 def clear_apps():
-    print("整理QQ文件")
     move_files(r"D:/Files/QQ/93322252/FileRecv", "E:/整理文件")
-    print("成功整理QQ文件")
-    print("整理钉钉文件")
     move_files(r"D:/Files/Ding Talk", "E:/整理文件")
-    print("成功整理钉钉文件")
-    print("整理百度网盘下载文件")
     move_files(r"D:/Files/百度网盘", "E:/整理文件")
-    print("成功整理百度网盘下载文件")

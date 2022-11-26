@@ -1,27 +1,29 @@
-v = "2.1.0"
+# 程序信息
+version = "2.1.1"
 
+# 导入运行库
+import numpy, random, os
 from zb import *
-from fractions import Fraction
 from math import *
-from decimal import Decimal, getcontext
+from matplotlib import pyplot
+from tkinter import *
+from tkinter import ttk
+from tkinter.messagebox import *
 
-# 初始化
+# 窗口初始化
 tk = Tk()
-# 设置风格样式
-st = ttk.Style()
-st.configure("TButton")
-# 窗口属性
-tk.title(" zb的函数工具 " + v)
+tk.title(" zb的函数工具 " + version)
 x = 400
 y = 270
-now_x = (tk.winfo_screenwidth() - x) / 2
-now_y = (tk.winfo_screenheight() - y) / 2
-tk.geometry("%dx%d+%d+%d" % (x, y, now_x, now_y))
-tk.wm_attributes("-topmost", 1)
+tk.geometry("%dx%d+%d+%d" % (x, y, (tk.winfo_screenwidth() - x) / 2, (tk.winfo_screenheight() - y) / 2))
 tk.resizable(False, False)
+tk.wm_attributes("-topmost", 1)
 check_ico(tk, "logo.ico")
+st = ttk.Style()
+st.configure("TButton")
 
 
+# 功能
 def xy():
     x = numpy.arange(-10000, 10000, 1)
     y = 0 * x
@@ -45,7 +47,6 @@ def process(a, num=1, no=None):
     except:
         try:
             a = float(a)
-            # a = Fraction(a)
         except:
             a = eval(a)
     if a == int(a):
@@ -300,9 +301,7 @@ def b8():
     pyplot.show()
 
 
-# txt = ttk.Label(tk, text="文字").place(x=100,y=,width=200,height=30,anchor="center")
-# b = ttk.Button(tk, text="按钮", style="TButton", command=b).place(x=,y=,width=100,height=30)
-# sep = Separato3r(tk, orient=HORIZONTAL).place(x=0,y=,width=5000,height=30)
+# 控件
 x1 = 0
 y1 = 0
 ttk.Label(tk, text="一次函数").place(x=x1 + 75, y=y1, width=150, height=30)
@@ -351,9 +350,7 @@ entry6.place(x=x1 + 125, y=y1 + 30, width=30, height=20)
 ttk.Button(tk, text="计算", style="TButton", command=b3).place(x=x1, y=y1 + 55, width=100, height=30)
 ttk.Button(tk, text="绘制", style="TButton", command=b4).place(x=x1 + 100, y=y1 + 55, width=100, height=30)
 ttk.Label(tk, text="二次函数").place(x=170, y=85, width=100, height=30)
-
 ttk.Label(tk, text="自由绘制").place(x=170, y=185, width=150, height=30)
-
 ttk.Label(tk, text="y=").place(x=0, y=215, width=20, height=20)
 entry11 = ttk.Entry(tk)
 entry11.place(x=20, y=215, width=30, height=20)
@@ -372,7 +369,6 @@ entry15.place(x=240, y=215, width=30, height=20)
 ttk.Label(tk, text="x+").place(x=270, y=215, width=20, height=20)
 entry16 = ttk.Entry(tk)
 entry16.place(x=290, y=215, width=30, height=20)
-
 ttk.Button(tk, text="绘制", style="TButton", command=b8).place(x=150, y=240, width=100, height=30)
 ttk.Separator(tk, orient=VERTICAL).place(x=200, y=0, width=1, height=85)
 ttk.Separator(tk, orient=HORIZONTAL).place(x=0, y=0, width=400, height=2)
@@ -381,8 +377,12 @@ ttk.Separator(tk, orient=HORIZONTAL).place(x=0, y=180, width=400, height=2)
 ttk.Separator(tk, orient=HORIZONTAL).place(x=0, y=270, width=400, height=2)
 
 tk.mainloop()
-# 2022-11-18：1.0.0：
-# 2022-11-20：1.1.0：添加更多信息，添加图标绘制，添加顶点式，优化代码，优化外观
-# 2022-11-22：1.2.0：添加分数和运算式处理功能
-# 2022-11-23：2.0.0：更名为zb的函数工具，添加中文括号支持，修复顶点式标注错误的bug，添加一次函数绘制、反比例函数绘制和自由绘制功能
-# 2022-11-24：2.1.0：界面完全适配系统自带风格，添加x、y轴的绘制，修复反比例函数图像绘制异常的bug
+
+'''
+2022-11-18：1.0.0：
+2022-11-20：1.1.0：添加更多信息，添加图标绘制，添加顶点式，优化代码，优化外观
+2022-11-22：1.2.0：添加分数和运算式处理功能
+2022-11-23：2.0.0：更名为zb的函数工具，添加中文括号支持，修复顶点式标注错误的Bug，添加一次函数绘制、反比例函数绘制和自由绘制功能
+2022-11-24：2.1.0：界面完全适配系统自带风格，添加x、y轴的绘制，修复反比例函数图像绘制异常的Bug
+2022-11-26：2.1.1：优化代码，删除图标缺失提示
+'''

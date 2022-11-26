@@ -1,34 +1,19 @@
-v = "1.0.0"
-import os, sys
+# 程序信息
+version = "1.0.0"
 
-sys.path.append(os.getcwd()[:os.getcwd().rfind("\ "[:-1])] + "\Seewo")
+# 导入运行库
+import os, sys
+from tkinter import *
+from tkinter import ttk
+from tkinter.messagebox import *
 from zb import *
 
-date = time.strftime("%Y-%m-%d")
-# 初始化
-tk = Tk()
-st = ttk.Style()
-st.configure("TButton")
-tk.title("zb的小程序管理器 " + v)
-x = 200
-y = 90
-now_x = (tk.winfo_screenwidth() - x) / 2
-now_y = (tk.winfo_screenheight() - y) / 2
-tk.geometry("%dx%d+%d+%d" % (x, y, now_x, now_y))
-tk.wm_attributes("-topmost", 1)
-tk.resizable(False, False)
-check_ico(tk, "logo.ico")
-path1 = "E:/编程/server.github.io"
-
-
-# 功能
-def b1():
-    os.startfile(path1)
-
-
+# 读取信息
+path = "E:/编程/server.github.io"
 list2 = []
-list = os.walk(path1)
-for i in list: list2.append(i)
+list = os.walk(path)
+for i in list:
+    list2.append(i)
 try:
     list = list2[0][1]
 except:
@@ -36,20 +21,39 @@ except:
 no = [".idea", "venv"]
 for i in no:
     list.remove(i)
-print(list)
+del no, list2
+
+# 窗口初始化
+tk = Tk()
+
+tk.title(" zb的小程序管理器 " + version)
+x = 200
+y = 90
+tk.geometry("%dx%d+%d+%d" % (x, y, (tk.winfo_screenwidth() - x) / 2, (tk.winfo_screenheight() - y) / 2))
+tk.resizable(False, False)
+tk.wm_attributes("-topmost", 1)
+check_ico(tk, "logo.ico")
+st = ttk.Style()
+st.configure("TButton")
+
+
+# 功能
+def b1():
+    os.startfile(path)
 
 
 def open(names):
-    os.popen(pj(path1, str(names), "main.pyw"))
+    os.popen(pj(path, str(names), "main.pyw"))
 
 
-for i in range(len(list)):
-    ttk.Button(tk, text="打开" + list[i], style="TButton", command=lambda f=list[i]: open(f)).place(x=i % 2 * 100, y=i // 2 * 30 + 60, width=100, height=30)
-# txt = ttk.Label(tk, text="文字").place(x=100,y=,width=200,height=30,anchor="center")
-# b = ttk.Button(tk, text="按钮", style="TButton", command=b).place(x=,y=,width=100,height=30)
-# sep = Separato3r(tk, orient=HORIZONTAL).place(x=0,y=,width=5000,height=30)
-
+# 控件
 ttk.Label(tk, text="管理器").place(x=78, y=0, width=150, height=30)
 ttk.Button(tk, text="打开文件夹", style="TButton", command=b1).place(x=0, y=30, width=200, height=30)
+for i in range(len(list)):
+    ttk.Button(tk, text="打开" + list[i], style="TButton", command=lambda f=list[i]: open(f)).place(x=i % 2 * 100, y=i // 2 * 30 + 60, width=100, height=30)
+
 tk.mainloop()
-# 2022-11-26：1.0.0：
+
+'''
+2022-11-26：1.0.0：
+'''
