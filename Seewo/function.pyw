@@ -8,7 +8,6 @@ from math import *
 from matplotlib import pyplot
 from tkinter import *
 from tkinter import ttk
-from tkinter.messagebox import *
 
 # 窗口初始化
 tk = Tk()

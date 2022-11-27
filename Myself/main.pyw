@@ -76,19 +76,6 @@ def b8():
     exit()
 
 
-def b9():
-    t2 = Tk()
-    t2.title(" 设置")
-    x = 400
-    y = 200
-    t2.geometry("%dx%d+%d+%d" % (x, y, (t2.winfo_screenwidth() - x) / 2, (t2.winfo_screenheight() - y) / 2))
-    t2.resizable(False, False)
-    t2.wm_attributes("-topmost", 1)
-    check_ico(t2, "logo.ico")
-    s2 = ttk.Style()
-    s2.configure("TButton")
-
-
 # 控件
 ttk.Label(tk, text="实用程序").place(x=75, y=0, width=150, height=30)
 ttk.Label(tk, text="功能列表").place(x=275, y=0, width=150, height=30)
@@ -104,9 +91,8 @@ ttk.Button(tk, text="我的网站", style="TButton", command=b6).place(x=200, y=
 ttk.Button(tk, text="MC版本爬虫", style="TButton", command=b7).place(x=300, y=90, width=100, height=30)
 ttk.Separator(tk, orient=VERTICAL).place(x=200, y=0, width=1, height=150)
 ttk.Separator(tk, orient=HORIZONTAL).place(x=0, y=150, width=400, height=2)
-ttk.Label(tk, text="zb的小程序For " + edition + " 版本  " + version).place(x=20, y=160, width=200, height=30)
-ttk.Button(tk, text="检查更新", style="TButton", command=b8).place(x=220, y=160, width=80, height=30)
-ttk.Button(tk, text="设置", style="TButton", command=b9).place(x=300, y=160, width=80, height=30)
+ttk.Label(tk, text="zb的小程序For " + edition + " 版本  " + version).place(x=60, y=160, width=200, height=30)
+ttk.Button(tk, text="检查更新", style="TButton", command=b8).place(x=260, y=160, width=80, height=30)
 ttk.Separator(tk, orient=HORIZONTAL).place(x=0, y=150, width=400, height=2)
 
 tk.mainloop()

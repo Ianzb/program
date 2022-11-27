@@ -3,10 +3,9 @@ version = "3.0.0"
 edition = "Seewo"
 
 # 导入运行库
-import threading, webbrowser,os, sys,time
+import threading, webbrowser, os, sys, time
 from tkinter import *
 from tkinter import ttk
-from tkinter.messagebox import *
 
 try:
     from zb import *
@@ -29,6 +28,8 @@ st.configure("TButton")
 
 
 # 功能
+
+
 def b1():
     os.popen("choose.pyw")
     exit()
@@ -94,19 +95,6 @@ def b11():
     exit()
 
 
-def b12():
-    t2 = Tk()
-    t2.title(" 设置")
-    x = 400
-    y = 200
-    t2.geometry("%dx%d+%d+%d" % (x, y, (t2.winfo_screenwidth() - x) / 2, (t2.winfo_screenheight() - y) / 2))
-    t2.resizable(False, False)
-    t2.wm_attributes("-topmost", 1)
-    check_ico(t2, "logo.ico")
-    s2 = ttk.Style()
-    s2.configure("TButton")
-
-
 def b13():
     print("打开zb网站")
     webbrowser.open("https://ianzb.github.io/")
@@ -140,9 +128,8 @@ ttk.Button(tk, text="CCTV-13", style="TButton", command=b9).place(x=200, y=120, 
 ttk.Button(tk, text="校园电视台", style="TButton", command=b10).place(x=300, y=120, width=100, height=30)
 ttk.Separator(tk, orient=VERTICAL).place(x=200, y=0, width=1, height=180)
 ttk.Separator(tk, orient=HORIZONTAL).place(x=0, y=180, width=400, height=2)
-ttk.Label(tk, text="zb的小程序For " + edition + " 版本  " + version).place(x=20, y=190, width=200, height=30)
-ttk.Button(tk, text="检查更新", style="TButton", command=b11).place(x=220, y=190, width=80, height=30)
-ttk.Button(tk, text="设置", style="TButton", command=b12).place(x=300, y=190, width=80, height=30)
+ttk.Label(tk, text="zb的小程序For " + edition + " 版本  " + version).place(x=60, y=190, width=200, height=30)
+ttk.Button(tk, text="检查更新", style="TButton", command=b11).place(x=260, y=190, width=80, height=30)
 ttk.Separator(tk, orient=HORIZONTAL).place(x=0, y=230, width=400, height=2)
 ttk.Label(tk, text="夹带私货").place(x=175, y=235, width=150, height=30)
 ttk.Button(tk, text="zb的网站", style="TButton", command=b13).place(x=0, y=265, width=100, height=30)
