@@ -1,5 +1,5 @@
 # 程序信息
-version = "2.1.1"
+version = "2.2.0"
 
 # 导入运行库
 import numpy, random, os
@@ -8,6 +8,11 @@ from math import *
 from matplotlib import pyplot
 from tkinter import *
 from tkinter import ttk
+
+#加载数据
+pyplot.xlim(-10, 10)
+pyplot.ylim(-10, 10)
+pyplot.subplots_adjust(left=0.1,right=0.95,top=0.95,bottom=0.1)
 
 # 窗口初始化
 tk = Tk()
@@ -76,11 +81,7 @@ def draw(a, b, c):
     xy()
     x = numpy.arange(-10000, 10000, 0.1)
     y = a * x ** 2 + b * x + c
-    pyplot.xlabel('x')
-    pyplot.ylabel('y')
     pyplot.plot(x, y)
-    pyplot.xlim(-20, 20)
-    pyplot.ylim(-20, 20)
     pyplot.grid(color="0.7", linestyle="--", linewidth=1)
     pyplot.show()
 
@@ -153,6 +154,7 @@ def get1(a, b, c):
     with open(pj(temp, "f.txt"), "w", encoding="utf-8") as file:
         file.write("该二次函数一般式为" + normal)
         file.write("\n该二次函数顶点式为" + special)
+        file.write("\n对称轴为直线x="+topx2)
         file.write("\n顶点坐标为(" + topx2 + "," + topy2 + ")")
         file.write("\n" + d)
         file.write("\n图像与y轴交点为(0," + str(c) + ")")
@@ -244,11 +246,7 @@ def b6():
     xy()
     x = numpy.arange(-10000, 10000, 0.1)
     y = k * x + b
-    pyplot.xlabel('x')
-    pyplot.ylabel('y')
     pyplot.plot(x, y)
-    pyplot.xlim(-20, 20)
-    pyplot.ylim(-20, 20)
     pyplot.grid(color="0.7", linestyle="--", linewidth=1)
     pyplot.show()
 
@@ -259,15 +257,11 @@ def b7():
     if k == 0:
         return False
     xy()
-    pyplot.xlabel('x')
-    pyplot.ylabel('y')
     col = (random.randint(0, 10) / 10, random.randint(0, 10) / 10, random.randint(0, 10) / 10)
     x = numpy.arange(-10000, 0, 0.1)
     y = k / x
     pyplot.plot(x, y, color=col)
 
-    pyplot.xlim(-20, 20)
-    pyplot.ylim(-20, 20)
     x = numpy.arange(0, 10000, 0.1)
     y = k / x
     pyplot.plot(x, y, color=col)
@@ -291,11 +285,7 @@ def b8():
     xy()
     x = numpy.arange(-10000, 10000, 0.1)
     y = e1 * x ** 5 + e2 * x ** 4 + e3 * x ** 3 + e4 * x ** 2 + e5 * x + e6
-    pyplot.xlabel('x')
-    pyplot.ylabel('y')
     pyplot.plot(x, y)
-    pyplot.xlim(-20, 20)
-    pyplot.ylim(-20, 20)
     pyplot.grid(color="0.7", linestyle="--", linewidth=1)
     pyplot.show()
 
@@ -384,4 +374,5 @@ tk.mainloop()
 2022-11-23：2.0.0：更名为zb的函数工具，添加中文括号支持，修复顶点式标注错误的Bug，添加一次函数绘制、反比例函数绘制和自由绘制功能
 2022-11-24：2.1.0：界面完全适配系统自带风格，添加x、y轴的绘制，修复反比例函数图像绘制异常的Bug
 2022-11-26：2.1.1：优化代码，删除图标缺失提示
+2022-11-29：2.2.0：添加二次函数对称轴计算，删除坐标轴标识以免歧义，增大坐标系占窗口比例
 '''
