@@ -1,5 +1,5 @@
 # 程序信息
-version = "3.0.0"
+version = "3.1.0"
 edition = "Seewo"
 
 # 导入运行库
@@ -110,6 +110,11 @@ def b15():
     pro1.start()
 
 
+def b16():
+    pro12 = threading.Thread(target=sys_info)
+    pro12.start()
+
+
 # 控件
 ttk.Label(tk, text="实用程序").place(x=75, y=0, width=150, height=30)
 ttk.Label(tk, text="功能列表").place(x=275, y=0, width=150, height=30)
@@ -126,6 +131,7 @@ ttk.Button(tk, text="清理回收站", style="TButton", command=b7).place(x=200,
 ttk.Button(tk, text="重启资源管理器", style="TButton", command=b8).place(x=300, y=90, width=100, height=30)
 ttk.Button(tk, text="CCTV-13", style="TButton", command=b9).place(x=200, y=120, width=100, height=30)
 ttk.Button(tk, text="校园电视台", style="TButton", command=b10).place(x=300, y=120, width=100, height=30)
+ttk.Button(tk, text="查看系统信息", style="TButton", command=b16).place(x=200, y=150, width=200, height=30)
 ttk.Separator(tk, orient=VERTICAL).place(x=200, y=0, width=1, height=180)
 ttk.Separator(tk, orient=HORIZONTAL).place(x=0, y=180, width=400, height=2)
 ttk.Label(tk, text="zb的小程序For " + edition + " 版本  " + version).place(x=60, y=190, width=200, height=30)

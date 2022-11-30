@@ -256,3 +256,20 @@ def clear_apps():
     move_files(r"D:/Files/QQ/93322252/FileRecv", "E:/整理文件")
     move_files(r"D:/Files/Ding Talk", "E:/整理文件")
     move_files(r"D:/Files/百度网盘", "E:/整理文件")
+
+
+#获取系统信息
+def sys_info():
+    import platform, os
+    temp = os.getenv("TEMP")
+    with open(pj(temp, "sysinfo.txt"), "w", encoding="utf-8") as file:
+        file.write("操作系统及版本信息：" + platform.platform())
+        file.write("\n系统内核版本号：" + platform.version())
+        file.write("\n系统名称：" + platform.system())
+        file.write("\n系统位数：" + platform.architecture()[0])
+        file.write("\n计算机架构：" + platform.machine())
+        file.write("\n计算机名称：" + platform.node())
+        file.write("\n处理器类型：" + platform.processor())
+        file.write("\nPython编译信息：" + str(platform.python_build()))
+        file.write("\nPython版本信息：" + platform.python_version())
+    os.popen(pj(temp, "sysinfo.txt"))

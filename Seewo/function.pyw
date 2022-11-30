@@ -9,10 +9,10 @@ from matplotlib import pyplot
 from tkinter import *
 from tkinter import ttk
 
-#加载数据
+# 加载数据
 pyplot.xlim(-10, 10)
 pyplot.ylim(-10, 10)
-pyplot.subplots_adjust(left=0.1,right=0.95,top=0.95,bottom=0.1)
+pyplot.subplots_adjust(left=0.1, right=0.95, top=0.95, bottom=0.1)
 
 # 窗口初始化
 tk = Tk()
@@ -154,7 +154,7 @@ def get1(a, b, c):
     with open(pj(temp, "f.txt"), "w", encoding="utf-8") as file:
         file.write("该二次函数一般式为" + normal)
         file.write("\n该二次函数顶点式为" + special)
-        file.write("\n对称轴为直线x="+topx2)
+        file.write("\n对称轴为直线x=" + topx2)
         file.write("\n顶点坐标为(" + topx2 + "," + topy2 + ")")
         file.write("\n" + d)
         file.write("\n图像与y轴交点为(0," + str(c) + ")")

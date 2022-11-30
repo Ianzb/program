@@ -1,5 +1,5 @@
 # 程序信息
-version = "2.0.0"
+version = "2.1.0"
 edition = "Myself"
 
 # 导入运行库
@@ -7,6 +7,7 @@ import os, sys, threading, webbrowser
 from tkinter import *
 from tkinter import ttk
 from tkinter.messagebox import *
+
 try:
     from zb import *
 except:
@@ -76,6 +77,11 @@ def b8():
     exit()
 
 
+def b9():
+    pro11 = threading.Thread(target=sys_info)
+    pro11.start()
+
+
 # 控件
 ttk.Label(tk, text="实用程序").place(x=75, y=0, width=150, height=30)
 ttk.Label(tk, text="功能列表").place(x=275, y=0, width=150, height=30)
@@ -89,6 +95,8 @@ ttk.Button(tk, text="清理回收站", style="TButton", command=b4).place(x=200,
 ttk.Button(tk, text="重启资源管理器", style="TButton", command=b5).place(x=300, y=60, width=100, height=30)
 ttk.Button(tk, text="我的网站", style="TButton", command=b6).place(x=200, y=90, width=100, height=30)
 ttk.Button(tk, text="MC版本爬虫", style="TButton", command=b7).place(x=300, y=90, width=100, height=30)
+
+ttk.Button(tk, text="查看系统信息", style="TButton", command=b9).place(x=200, y=120, width=200, height=30)
 ttk.Separator(tk, orient=VERTICAL).place(x=200, y=0, width=1, height=150)
 ttk.Separator(tk, orient=HORIZONTAL).place(x=0, y=150, width=400, height=2)
 ttk.Label(tk, text="zb的小程序For " + edition + " 版本  " + version).place(x=60, y=160, width=200, height=30)
