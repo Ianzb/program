@@ -251,14 +251,16 @@ def restart_explorer():
     os.popen("start C:/windows/explorer.exe")
 
 
-# 整理常用软件文件
+# 整理+清理常用软件文件
 def clear_apps():
+    import shutil
     move_files(r"D:/Files/QQ/93322252/FileRecv", "E:/整理文件")
     move_files(r"D:/Files/Ding Talk", "E:/整理文件")
     move_files(r"D:/Files/百度网盘", "E:/整理文件")
+    shutil.rmtree("C:/Users/93322/AppData/Roaming/Tencent/WeMeet/Global/IM")
 
 
-#获取系统信息
+# 获取系统信息
 def sys_info():
     import platform, os
     temp = os.getenv("TEMP")
