@@ -1,5 +1,5 @@
 # 程序信息
-version = "3.1.0"
+version = "3.1.1"
 edition = "Seewo"
 
 # 导入运行库

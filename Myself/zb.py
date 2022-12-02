@@ -87,7 +87,7 @@ def move_files(old, new):
         if name == 0: ends = ["ppt"]
         if name == 1: ends = ["doc", "txt", "pdf", "json"]
         if name == 2: ends = ["xls", "xlt", "csv"]
-        if name == 3: ends = ["png", "jpg", "jpeg", "webp", "gif", "bmp"]
+        if name == 3: ends = ["png", "jpg", "jpeg", "webp", "gif"]
         if name == 4: ends = ["mp", "wav", "ogg", "flv"]
         if name == 5: ends = ["zip", "rar", "7z"]
         for i in list3:
