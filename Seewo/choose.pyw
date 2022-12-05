@@ -1,8 +1,9 @@
 # 程序信息
-version = "1.4.2"
+version = "1.4.3"
 
 # 导入运行库
 import random, pandas, os, time
+from secrets import choice
 from zb import *
 from tkinter import *
 from tkinter import ttk
@@ -48,7 +49,7 @@ def btn1():
             showinfo("提示", "所有人已经被点名，点击确定重置！")
             os.popen("choose.pyw")
             exit()
-        name = random.choice(names)
+        name = choice(names)
         num = numbers[names.index(name)]
         t2.set("                       " + str(num) + "号 " + name)
         tk.update()
@@ -77,7 +78,7 @@ def btn2():
     for i in range(repeat):
         n = ""
         for i in range(5):
-            name = random.choice(names)
+            name = choice(names)
             num = numbers[names.index(name)]
             n = n + " " + name
         t2.set(n)
@@ -95,7 +96,7 @@ def btn2():
                 showinfo("提示", "所有人已经被点名，点击确定重新开始")
                 os.popen("choose.pyw")
                 exit()
-            name = random.choice(names)
+            name = choice(names)
             num = numbers[names.index(name)]
             if i == repeat - 1:
                 n = n + " " + name
@@ -128,4 +129,5 @@ tk.mainloop()
 2022-11-15：1.4.0：修复学号错位Bug，添加新同学，优化图标，优化退出方式
 2022-11-16：1.4.1：将部分功能移动至zb库中，修复退出异常Bug
 2022-11-26：1.4.2：删除阻止恶搞版本提示，优化代码，删除重启后的延迟关闭，删除图标缺失提示
+2022-12-05：1.4.3：将随机方式从伪随机（random）更改为真随机（secrets），将新同学的学号移动到正确的位置
 '''

@@ -1,5 +1,5 @@
 # 程序信息
-version = "2.2.0"
+version = "2.2.1"
 
 # 导入运行库
 import numpy, random, os
@@ -81,6 +81,8 @@ def draw(a, b, c):
     xy()
     x = numpy.arange(-10000, 10000, 0.1)
     y = a * x ** 2 + b * x + c
+    pyplot.xlim(-10, 10)
+    pyplot.ylim(-10, 10)
     pyplot.plot(x, y)
     pyplot.grid(color="0.7", linestyle="--", linewidth=1)
     pyplot.show()
@@ -246,6 +248,8 @@ def b6():
     xy()
     x = numpy.arange(-10000, 10000, 0.1)
     y = k * x + b
+    pyplot.xlim(-10, 10)
+    pyplot.ylim(-10, 10)
     pyplot.plot(x, y)
     pyplot.grid(color="0.7", linestyle="--", linewidth=1)
     pyplot.show()
@@ -257,6 +261,8 @@ def b7():
     if k == 0:
         return False
     xy()
+    pyplot.xlim(-10, 10)
+    pyplot.ylim(-10, 10)
     col = (random.randint(0, 10) / 10, random.randint(0, 10) / 10, random.randint(0, 10) / 10)
     x = numpy.arange(-10000, 0, 0.1)
     y = k / x
@@ -285,6 +291,8 @@ def b8():
     xy()
     x = numpy.arange(-10000, 10000, 0.1)
     y = e1 * x ** 5 + e2 * x ** 4 + e3 * x ** 3 + e4 * x ** 2 + e5 * x + e6
+    pyplot.xlim(-10, 10)
+    pyplot.ylim(-10, 10)
     pyplot.plot(x, y)
     pyplot.grid(color="0.7", linestyle="--", linewidth=1)
     pyplot.show()
@@ -375,4 +383,5 @@ tk.mainloop()
 2022-11-24：2.1.0：界面完全适配系统自带风格，添加x、y轴的绘制，修复反比例函数图像绘制异常的Bug
 2022-11-26：2.1.1：优化代码，删除图标缺失提示
 2022-11-29：2.2.0：添加二次函数对称轴计算，删除坐标轴标识以免歧义，增大坐标系占窗口比例
+2022-12-05：2.2.1：修复图像窗口关闭后再次绘制时图像大小异常的Bug
 '''
