@@ -1,5 +1,5 @@
 # 程序信息
-version = "2.2.1"
+version = "2.2.2"
 
 # 导入运行库
 import numpy, random, os
@@ -65,19 +65,6 @@ def draw(a, b, c):
     a = process(a, 1, 0)
     b = process(b, 1)
     c = process(c, 0)
-    if a == 1:
-        normal = "y=x²"
-    else:
-        normal = "y=" + str(a) + "x²"
-    if b == 0:
-        pass
-    elif b == 1:
-        normal = normal + "+x"
-    else:
-        normal = normal + "+" + str(b) + "x"
-    if c != 0:
-        normal = normal + "+" + str(c)
-    normal = normal.replace("+-", "-").replace("-1x", "-x")
     xy()
     x = numpy.arange(-10000, 10000, 0.1)
     y = a * x ** 2 + b * x + c
@@ -101,7 +88,7 @@ def get1(a, b, c):
         normal = normal + "+" + str(b) + "x"
     if c != 0:
         normal = normal + "+" + str(c)
-    normal = normal.replace("+-", "-").replace("-1x", "-x")
+    normal = normal.replace("+-", "-").replace("-1x", "-x").replace("0x", "01x")
 
     topx = (-1) * (b / (2 * a))
     topy = (4 * a * c - b ** 2) / (4 * a)
@@ -128,7 +115,7 @@ def get1(a, b, c):
                 special = "y=x²"
         if topy != 0:
             special = special + "+" + topy2
-        special = special.replace("+-", "-").replace("1x", "x")
+        special = special.replace("+-", "-").replace("1x", "x").replace("0x", "01x")
     der = b ** 2 - 4 * a * c
     if der == int(der):
         der = int(der)
@@ -347,25 +334,27 @@ entry6.place(x=x1 + 125, y=y1 + 30, width=30, height=20)
 ttk.Button(tk, text="计算", style="TButton", command=b3).place(x=x1, y=y1 + 55, width=100, height=30)
 ttk.Button(tk, text="绘制", style="TButton", command=b4).place(x=x1 + 100, y=y1 + 55, width=100, height=30)
 ttk.Label(tk, text="二次函数").place(x=170, y=85, width=100, height=30)
-ttk.Label(tk, text="自由绘制").place(x=170, y=185, width=150, height=30)
-ttk.Label(tk, text="y=").place(x=0, y=215, width=20, height=20)
+x1 = 0
+y1 = 185
+ttk.Label(tk, text="自由绘制").place(x=x1 + 170, y=y1, width=150, height=30)
+ttk.Label(tk, text="y=").place(x=x1, y=y1 + 30, width=20, height=20)
 entry11 = ttk.Entry(tk)
-entry11.place(x=20, y=215, width=30, height=20)
-ttk.Label(tk, text="x⁵+").place(x=50, y=215, width=25, height=20)
+entry11.place(x=x1 + 20, y=y1 + 30, width=30, height=20)
+ttk.Label(tk, text="x⁵+").place(x=x1 + 50, y=y1 + 30, width=25, height=20)
 entry12 = ttk.Entry(tk)
-entry12.place(x=75, y=215, width=30, height=20)
-ttk.Label(tk, text="x⁴+").place(x=105, y=215, width=25, height=20)
+entry12.place(x=x1 + 75, y=y1 + 30, width=30, height=20)
+ttk.Label(tk, text="x⁴+").place(x=x1 + 105, y=y1 + 30, width=25, height=20)
 entry13 = ttk.Entry(tk)
-entry13.place(x=130, y=215, width=30, height=20)
-ttk.Label(tk, text="x³+").place(x=160, y=215, width=25, height=20)
+entry13.place(x=x1 + 130, y=y1 + 30, width=30, height=20)
+ttk.Label(tk, text="x³+").place(x=x1 + 160, y=y1 + 30, width=25, height=20)
 entry14 = ttk.Entry(tk)
-entry14.place(x=185, y=215, width=30, height=20)
-ttk.Label(tk, text="x²+").place(x=215, y=215, width=25, height=20)
+entry14.place(x=x1 + 185, y=y1 + 30, width=30, height=20)
+ttk.Label(tk, text="x²+").place(x=x1 + 215, y=y1 + 30, width=25, height=20)
 entry15 = ttk.Entry(tk)
-entry15.place(x=240, y=215, width=30, height=20)
-ttk.Label(tk, text="x+").place(x=270, y=215, width=20, height=20)
+entry15.place(x=x1 + 240, y=y1 + 30, width=30, height=20)
+ttk.Label(tk, text="x+").place(x=x1 + 270, y=y1 + 30, width=20, height=20)
 entry16 = ttk.Entry(tk)
-entry16.place(x=290, y=215, width=30, height=20)
+entry16.place(x=x1 + 290, y=y1 + 30, width=30, height=20)
 ttk.Button(tk, text="绘制", style="TButton", command=b8).place(x=150, y=240, width=100, height=30)
 ttk.Separator(tk, orient=VERTICAL).place(x=200, y=0, width=1, height=85)
 ttk.Separator(tk, orient=HORIZONTAL).place(x=0, y=0, width=400, height=2)
@@ -384,4 +373,5 @@ tk.mainloop()
 2022-11-26：2.1.1：优化代码，删除图标缺失提示
 2022-11-29：2.2.0：添加二次函数对称轴计算，删除坐标轴标识以免歧义，增大坐标系占窗口比例
 2022-12-05：2.2.1：修复图像窗口关闭后再次绘制时图像大小异常的Bug
+2022-12-06：2.2.2：修复输入0.01后函数解析式显示为0.0的Bug，优化绘图部分冗余代码，优化自由绘制部分控件布局代码
 '''
