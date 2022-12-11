@@ -168,7 +168,7 @@ def get_mc():
 def ppt_restart():
     import time, os
     os.popen("taskkill -f -im PPTService.exe")
-    time.sleep(0.1)
+    time.sleep(0.2)
     os.popen("C:/Program Files (x86)/Seewo/PPTService/Main/PPTService.exe")
 
 
@@ -247,7 +247,7 @@ def clear_rubbish():
 def restart_explorer():
     import time, os
     os.popen("taskkill /f /im explorer.exe")
-    time.sleep(0.1)
+    time.sleep(0.2)
     os.popen("start C:/windows/explorer.exe")
 
 
