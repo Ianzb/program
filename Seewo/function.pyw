@@ -1,10 +1,11 @@
 # 程序信息
-version = "2.2.2"
+version = "2.3.0"
 
 # 导入运行库
 import numpy, random, os
 from zb import *
 from math import *
+from decimal import *
 from matplotlib import pyplot
 from tkinter import *
 from tkinter import ttk
@@ -37,6 +38,14 @@ def xy():
     pyplot.plot(x, y, color="black")
 
 
+def de(a):
+    return Decimal(str(a))
+
+
+def dde(a):
+    return float(a)
+
+
 def process(a, num=1, no=None):
     a = str(a)
     if a == str(no):
@@ -50,9 +59,11 @@ def process(a, num=1, no=None):
         a = int(a)
     except:
         try:
-            a = float(a)
+            if "." in str(a):
+                a = str(a).rstrip("0")
+            a = Decimal(str(a))
         except:
-            a = eval(a)
+            a = Decimal(eval(a))
     if a == int(a):
         a = int(a)
     if a == 0:
@@ -66,6 +77,9 @@ def draw(a, b, c):
     b = process(b, 1)
     c = process(c, 0)
     xy()
+    a = dde(a)
+    b = dde(b)
+    c = dde(c)
     x = numpy.arange(-10000, 10000, 0.1)
     y = a * x ** 2 + b * x + c
     pyplot.xlim(-10, 10)
@@ -89,7 +103,6 @@ def get1(a, b, c):
     if c != 0:
         normal = normal + "+" + str(c)
     normal = normal.replace("+-", "-").replace("-1x", "-x").replace("0x", "01x")
-
     topx = (-1) * (b / (2 * a))
     topy = (4 * a * c - b ** 2) / (4 * a)
     if topx == int(topx):
@@ -102,6 +115,10 @@ def get1(a, b, c):
         topy = 0
     topx2 = str(topx)
     topy2 = str(topy)
+    if "." in str(topx):
+        topx2 = str(topx).rstrip("0")
+    if "." in str(topy):
+        topy2 = str(topy).rstrip("0")
     if b != "0":
         if b != 0:
             if a != 1:
@@ -117,28 +134,38 @@ def get1(a, b, c):
             special = special + "+" + topy2
         special = special.replace("+-", "-").replace("1x", "x").replace("0x", "01x")
     der = b ** 2 - 4 * a * c
+    if "." in str(der):
+        der = float(str(der).rstrip("0"))
     if der == int(der):
         der = int(der)
     if der == 0:
         der = 0
-    der1 = ((-1 * b) + (b ** 2 - 4 * a * c) ** (1 / 2)) / (2 * a)
-    der2 = ((-1 * b) - (b ** 2 - 4 * a * c) ** (1 / 2)) / (2 * a)
-    if "j" not in str(der1) and "j" not in str(der1):
-        if der1 == int(der1):
-            der1 = int(der1)
-        if der2 == int(der2):
-            der2 = int(der2)
+    der = de(der)
+    if der > 0:
+        der1 = (de(-1 * b) + de(der ** de(0.5))) / de(2 * a)
+        der2 = (de(-1 * b) - de(der ** de(0.5))) / de(2 * a)
+    elif der == 0:
+        der1 = (de(-1 * b) + de(der ** de(0.5))) / de(2 * a)
+        der2 = None
+    else:
+        der1 = None
+        der2 = None
     if der1 == 0:
         der1 = 0
     if der2 == 0:
         der2 = 0
-    if der1 == der2:
+    if der >= 0:
+        if der1 == int(der1):
+            der1 = int(der1)
+    if der > 0:
+        if der2 == int(der2):
+            der2 = int(der2)
+    if der > 0:
+        d = "图像与x轴有2个交点，为(" + str(der1) + ",0),(" + str(der2) + ",0)"
+    elif der == 0:
         d = "图像与x轴有1个交点，为(" + str(der1) + ",0)"
-    if der1 != der2:
-        if "j" not in str(der1) and "j" not in str(der1):
-            d = "图像与x轴有2个交点，为(" + str(der1) + ",0),(" + str(der2) + ",0)"
-        else:
-            d = "图像与x轴无交点"
+    else:
+        d = "图像与x轴无交点"
     temp = os.getenv("TEMP")
     with open(pj(temp, "f.txt"), "w", encoding="utf-8") as file:
         file.write("该二次函数一般式为" + normal)
@@ -182,9 +209,9 @@ def b3():
     a = process(a, 1, 0)
     b = process(b, 0)
     c = process(c, 0)
-    a1 = a
-    c1 = a * b ** 2 + c
-    b1 = a * 2 * b
+    a1 = de(a)
+    c1 = de(a * b ** 2 + c)
+    b1 = de(a * 2 * b)
     get1(a1, b1, c1)
 
 
@@ -233,6 +260,8 @@ def b6():
     k = process(k, 1, 0)
     b = process(b, 0)
     xy()
+    k = dde(k)
+    b = dde(b)
     x = numpy.arange(-10000, 10000, 0.1)
     y = k * x + b
     pyplot.xlim(-10, 10)
@@ -247,6 +276,7 @@ def b7():
     k = process(k, 1, 0)
     if k == 0:
         return False
+    k = dde(k)
     xy()
     pyplot.xlim(-10, 10)
     pyplot.ylim(-10, 10)
@@ -254,7 +284,6 @@ def b7():
     x = numpy.arange(-10000, 0, 0.1)
     y = k / x
     pyplot.plot(x, y, color=col)
-
     x = numpy.arange(0, 10000, 0.1)
     y = k / x
     pyplot.plot(x, y, color=col)
@@ -276,6 +305,12 @@ def b8():
     e5 = process(entry15.get(), 0)
     e6 = process(entry16.get(), 0)
     xy()
+    e1 = dde(e1)
+    e2 = dde(e2)
+    e3 = dde(e3)
+    e4 = dde(e4)
+    e5 = dde(e5)
+    e6 = dde(e6)
     x = numpy.arange(-10000, 10000, 0.1)
     y = e1 * x ** 5 + e2 * x ** 4 + e3 * x ** 3 + e4 * x ** 2 + e5 * x + e6
     pyplot.xlim(-10, 10)
@@ -374,4 +409,5 @@ tk.mainloop()
 2022-11-29：2.2.0：添加二次函数对称轴计算，删除坐标轴标识以免歧义，增大坐标系占窗口比例
 2022-12-05：2.2.1：修复图像窗口关闭后再次绘制时图像大小异常的Bug
 2022-12-06：2.2.2：修复输入0.01后函数解析式显示为0.0的Bug，优化绘图部分冗余代码，优化自由绘制部分控件布局代码
+2022-12-11：2.3.0：解决Python浮点数精度丢失Bug
 '''
