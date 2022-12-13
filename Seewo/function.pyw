@@ -1,5 +1,5 @@
 # 程序信息
-version = "2.3.0"
+version = "2.3.1"
 
 # 导入运行库
 import numpy, random, os
@@ -9,11 +9,6 @@ from decimal import *
 from matplotlib import pyplot
 from tkinter import *
 from tkinter import ttk
-
-# 加载数据
-pyplot.xlim(-10, 10)
-pyplot.ylim(-10, 10)
-pyplot.subplots_adjust(left=0.1, right=0.95, top=0.95, bottom=0.1)
 
 # 窗口初始化
 tk = Tk()
@@ -30,6 +25,9 @@ st.configure("TButton")
 
 # 功能
 def xy():
+    pyplot.xlim(-10, 10)
+    pyplot.ylim(-10, 10)
+    pyplot.subplots_adjust(left=0.1, right=0.95, top=0.95, bottom=0.1)
     x = numpy.arange(-10000, 10000, 1)
     y = 0 * x
     pyplot.plot(x, y, color="black")
@@ -410,4 +408,5 @@ tk.mainloop()
 2022-12-05：2.2.1：修复图像窗口关闭后再次绘制时图像大小异常的Bug
 2022-12-06：2.2.2：修复输入0.01后函数解析式显示为0.0的Bug，优化绘图部分冗余代码，优化自由绘制部分控件布局代码
 2022-12-11：2.3.0：解决Python浮点数精度丢失Bug
+2022-12-13：2.3.1：修复图像窗口关闭后再次绘制时坐标系占窗口比例过小的Bug
 '''
