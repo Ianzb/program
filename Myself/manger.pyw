@@ -1,5 +1,5 @@
 # 程序信息
-version = "1.1.0"
+version = "1.2.0"
 
 # 导入运行库
 import os, sys
@@ -9,6 +9,7 @@ from zb import *
 
 # 读取信息
 path = "E:/编程/server.github.io"
+os.chdir(path)
 
 # 窗口初始化
 tk = Tk()
@@ -30,7 +31,9 @@ def b1():
 
 
 def open(names):
+    os.chdir(pj(path, str(names)))
     os.popen(pj(path, str(names), "main.pyw"))
+    sys.exit()
 
 
 # 控件
@@ -42,6 +45,7 @@ ttk.Button(tk, text="打开Seewo", style="TButton", command=lambda: open("Seewo"
 tk.mainloop()
 
 '''
-2022-11-26：1.0.0：
-2022-11-27：1.1.0：不再自动读取版本列表
+2022-11-26：1.0.0：最初版本。
+2022-11-27：1.1.0：不再自动读取版本列表。
+2022-12-20：1.2.0：修复打开For Seewo后工作目录错误的Bug，添加打开后退出。
 '''
