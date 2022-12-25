@@ -1,9 +1,9 @@
 # 程序信息
-version = "3.1.2"
+version = "3.1.3"
 edition = "Seewo"
 
 # 导入运行库
-import threading, webbrowser, os, sys, time
+import threading, webbrowser, os, sys
 from tkinter import *
 from tkinter import ttk
 

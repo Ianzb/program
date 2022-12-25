@@ -1,5 +1,5 @@
 # 程序信息
-version = "1.4.3"
+version = "1.4.4"
 
 # 导入运行库
 import random, pandas, os, time
@@ -38,7 +38,7 @@ t3 = StringVar()
 # 功能
 def btn1():
     global using
-    if using == True:
+    if using:
         return False
     using = True
     t3.set("")
@@ -65,7 +65,7 @@ def btn1():
 
 def btn2():
     global using
-    if using == True:
+    if using:
         return False
     using = True
     if len(names) < 2:
@@ -77,7 +77,7 @@ def btn2():
     repeat = random.randint(35, 40)
     for i in range(repeat):
         n = ""
-        for i in range(5):
+        for j in range(5):
             name = choice(names)
             num = numbers[names.index(name)]
             n = n + " " + name
@@ -91,14 +91,14 @@ def btn2():
     tk.update()
     for i in range(5):
         repeat = random.randint(25, 30)
-        for i in range(repeat):
+        for j in range(repeat):
             if len(names) < 2:
                 showinfo("提示", "所有人已经被点名，点击确定重新开始")
                 os.popen("choose.pyw")
                 exit()
             name = choice(names)
             num = numbers[names.index(name)]
-            if i == repeat - 1:
+            if j == repeat - 1:
                 n = n + " " + name
                 names.remove(name)
                 numbers.remove(num)
@@ -130,4 +130,5 @@ tk.mainloop()
 2022-11-16：1.4.1：将部分功能移动至zb库中，修复退出异常Bug
 2022-11-26：1.4.2：删除阻止恶搞版本提示，优化代码，删除重启后的延迟关闭，删除图标缺失提示
 2022-12-05：1.4.3：将随机方式从伪随机（random）更改为真随机（secrets），将新同学的学号移动到正确的位置
+2022-12-25：1.4.4：优化部分代码
 '''

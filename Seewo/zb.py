@@ -220,7 +220,7 @@ def clear_cache():
     list = []
     list1 = os.walk(os.getenv("TEMP"))
     for i in list1: list.append(i)
-    if list != []: list1 = list[0][1]
+    if list: list1 = list[0][1]
     list2 = list[0][2]
     for i in list1:
         try:
