@@ -1,12 +1,12 @@
 # 程序信息
-edition = "Myself"
+edition = "Seewo"
 
 # 导入运行库
 import requests, bs4, threading, os, re
 from tkinter import *
 from tkinter import ttk
 
-# 读取信息
+# 加载信息
 path = os.getcwd()
 using = False
 
