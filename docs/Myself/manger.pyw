@@ -1,5 +1,5 @@
 # 程序信息
-version = "1.2.1"
+version = "1.2.2"
 
 # 导入运行库
 import os, sys
@@ -8,7 +8,7 @@ from tkinter import ttk
 from zb import *
 
 # 加载信息
-path = "E:/编程/server.github.io"
+path = "E:/编程/server.github.io/docs"
 os.chdir(path)
 
 # 窗口初始化
@@ -49,4 +49,5 @@ tk.mainloop()
 2022-11-27：1.1.0：不再自动读取版本列表。
 2022-12-20：1.2.0：修复打开For Seewo后工作目录错误的Bug，添加打开后退出。
 2022-12-26：1.2.1：优化代码
+2022-12/29：1.2.2：适配新路径
 '''

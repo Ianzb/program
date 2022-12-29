@@ -1,5 +1,5 @@
 # 程序信息
-edition = "Seewo"
+edition = "Myself"
 
 # 导入运行库
 import requests, bs4, threading, os, re
