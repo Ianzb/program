@@ -92,7 +92,7 @@ def move_files(old, new):
         if name == 5: ends = ["zip", "rar", "7z"]
         for i in list3:
             for j in ends:
-                if j in i[i.rfind("."):].lower(): name2[name].append(i)
+                if j in i[i.rfind("."):].lower() and "~$" not in i: name2[name].append(i)
     for name in range(len(name1)):
         for i in range(len(name2[name])):
             if os.path.exists(pj(new, name1[name], name2[name][i])):
@@ -107,8 +107,12 @@ def move_files(old, new):
                 os.chmod(pj(old, i), stat.S_IWRITE)
                 shutil.move(pj(old, i), pj(new, name1[name], i))
             except:
-                os.chmod(pj(old, i[:i.rfind("(")]), stat.S_IWRITE)
-                shutil.move(pj(old, i[:i.rfind("(")]), pj(new, name1[name], i[:i.rfind(".")] + i[i.rfind("("):] + i[i.rfind("."):i.rfind("(")]))
+                try:
+                    os.chmod(pj(old, i[:i.rfind("(")]), stat.S_IWRITE)
+                    shutil.move(pj(old, i[:i.rfind("(")]), pj(new, name1[name], i[:i.rfind(".")] + i[i.rfind("("):] + i[i.rfind("."):i.rfind("(")]))
+                except:
+                    print("无法移动"+pj(old, i[:i.rfind("(")]))
+                    continue
     for name in range(len(name1)):
         files = os.listdir(pj(new, name1[name]))
         for file in files:
