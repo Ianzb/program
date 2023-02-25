@@ -1,5 +1,5 @@
 # 程序信息
-version = "2.1.4"
+version = "2.2.0"
 edition = "Myself"
 
 # 导入运行库

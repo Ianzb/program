@@ -111,7 +111,7 @@ def move_files(old, new):
                     os.chmod(pj(old, i[:i.rfind("(")]), stat.S_IWRITE)
                     shutil.move(pj(old, i[:i.rfind("(")]), pj(new, name1[name], i[:i.rfind(".")] + i[i.rfind("("):] + i[i.rfind("."):i.rfind("(")]))
                 except:
-                    print("无法移动"+pj(old, i[:i.rfind("(")]))
+                    print("无法移动" + pj(old, i[:i.rfind("(")]))
                     continue
     for name in range(len(name1)):
         files = os.listdir(pj(new, name1[name]))
@@ -146,25 +146,35 @@ def move_files(old, new):
 
 # MC版本爬虫
 def get_mc():
+    useful = ["{{v|java}}", "{{v|java-experimental}}", "{{v|java-snap}}", "{{v|java-combat}}", "{{v|bedrock}}", "{{v|bedrock-beta}}", "{{v|bedrock-preview}}", "{{v|dungeons}}", "{{v|launcher}}", "{{v|launcher-beta}}", "{{v|education}}", "{{v|education-beta}}", "{{v|china-win}}", "{{v|china-android}}"]
     import bs4, lxml, requests, os
     temp = os.getenv("TEMP")
-    b = []
-    a = []
+    l1 = []
+    v1 = []
+    v2 = []
+    v3 = []
     v = {}
     response = requests.get("https://minecraft.fandom.com/zh/wiki/Template:Version#table")
     response.encoding = "UTF-8"
     soup = bs4.BeautifulSoup(response.text, "lxml")
     data1 = soup.find_all(name="td")
-    for n in data1: a.append(n.text)
-    for i in range(len(a)):
-        if i % 3 != 2: b.append(a[i])
-    for i in range(len(b)):
-        if i % 2 == 0: v[b[i]] = b[i + 1]
-    pc_remove(v, "")
-    list = ["即将", "战斗测试", "岩版（", "服务器", "ta（", "ew（", "内部", "ns（", "ns for ", "育版（"]
-    for c in list: remove_if_in(v, c)
+    for n in data1: l1.append(n.text)
+    for i in range(len(l1)):
+        l1[i] = l1[i].replace("\n", "")
+        if i % 3 == 0: v1.append(l1[i])
+        if i % 3 == 1: v2.append(l1[i])
+        if i % 3 == 2: v3.append(l1[i])
     with open(pj(temp, "mc.txt"), "w", encoding="utf-8") as file:
-        for (k, v) in v.items(): file.write(k + "版本：" + v + "\n")
+        for i in range(len(v1)):
+            if v1[i][-1] == "版":
+                v1[i] = v1[i] + "正式版"
+            if v3[i] == "{{v|china-win}}":
+                v1[i] = "中国版端游"
+            if v3[i] == "{{v|china-android}}":
+                v1[i] = "中国版手游"
+            if v3[i] in useful and v2[i] != "":
+                file.write(v1[i] + "版本：" + v2[i] + "\n")
+
     os.popen(pj(temp, "mc.txt"))
 
 
@@ -266,16 +276,32 @@ def clear_apps():
 
 # 获取系统信息
 def sys_info():
-    import platform, os
+    import platform, os, psutil, wmi, pythoncom
     temp = os.getenv("TEMP")
+
+    # CPU
+    pythoncom.CoInitialize()
+    c = wmi.WMI()
+    for cpu in c.Win32_Processor():
+        name = cpu.Name
+    core = str(psutil.cpu_count(logical=False))
+    thread = str(psutil.cpu_count())
+    cpuused = str(psutil.cpu_percent(1))
+    pythoncom.CoUninitialize()
+
+    # 内存
+    total = str(psutil.virtual_memory().total / 1024 / 1024 / 1024)[:4]
+    used = str(psutil.virtual_memory().used / 1024 / 1024 / 1024)[:4]
+    percent = str(psutil.virtual_memory().percent)
+
     with open(pj(temp, "sysinfo.txt"), "w", encoding="utf-8") as file:
         file.write("操作系统及版本信息：" + platform.platform())
         file.write("\n系统内核版本号：" + platform.version())
-        file.write("\n系统名称：" + platform.system())
-        file.write("\n系统位数：" + platform.architecture()[0])
-        file.write("\n计算机架构：" + platform.machine())
+        file.write("\n系统位数：" + platform.architecture()[0].replace("bit", "位"))
         file.write("\n计算机名称：" + platform.node())
-        file.write("\n处理器类型：" + platform.processor())
+        file.write("\nCPU信息：" + name + "，" + core + "核" + thread + "线程" + "，当前占用率" + cpuused + "%")
+        file.write("\n内存信息：共" + total + "GB，已使用" + used + "GB，占用率" + percent + "%")
         file.write("\nPython编译信息：" + str(platform.python_build()))
         file.write("\nPython版本信息：" + platform.python_version())
+
     os.popen(pj(temp, "sysinfo.txt"))

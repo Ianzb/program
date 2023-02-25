@@ -13,6 +13,8 @@ pip install python-xlib -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host
 pip install pymouse -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
 pip install pyautogui -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
 pip install PyUserInput -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
+pip install psutil -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
+pip install wmi -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
 
 pip install --upgrade lxml -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
 pip install --upgrade pypiwin32 -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
@@ -29,3 +31,5 @@ pip install --upgrade python-xlib -i http://mirrors.aliyun.com/pypi/simple/ --tr
 pip install --upgrade pymouse -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
 pip install --upgrade pyautogui -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
 pip install --upgrade PyUserInput -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
+pip install --upgrade psutil -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
+pip install --upgrade wmi -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
