@@ -1,5 +1,5 @@
 # 程序信息
-version = "1.4.4"
+version = "1.5.0"
 
 # 导入运行库
 import random, pandas, os, time
@@ -37,7 +37,7 @@ t3 = StringVar()
 
 # 功能
 def btn1():
-    global using
+    global using, names, numbers
     if using:
         return False
     using = True
@@ -51,7 +51,7 @@ def btn1():
             exit()
         name = choice(names)
         num = numbers[names.index(name)]
-        t2.set("                       " + str(num) + "号 " + name)
+        t2.set("                          " + name)
         tk.update()
         if i == repeat - 1:
             names.remove(name)
@@ -64,11 +64,11 @@ def btn1():
 
 
 def btn2():
-    global using
+    global using, names, numbers
     if using:
         return False
     using = True
-    if len(names) < 2:
+    if len(names) < 5:
         showinfo("提示", "所有人已经被点名，点击确定重置！")
         os.popen("choose.pyw")
         exit()
@@ -131,4 +131,5 @@ tk.mainloop()
 2022-11-26：1.4.2：删除阻止恶搞版本提示，优化代码，删除重启后的延迟关闭，删除图标缺失提示
 2022-12-05：1.4.3：将随机方式从伪随机（random）更改为真随机（secrets），将新同学的学号移动到正确的位置
 2022-12-25：1.4.4：优化部分代码
+2022-03-04：1.5.0：删除学号显示，优化点满提示
 '''

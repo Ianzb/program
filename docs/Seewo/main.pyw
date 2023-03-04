@@ -1,5 +1,5 @@
 # 程序信息
-version = "3.2.0"
+version = "3.3.0"
 edition = "Seewo"
 
 # 导入运行库
@@ -10,7 +10,7 @@ from tkinter import ttk
 try:
     from zb import *
 except:
-    os.system("fix.bat")
+    os.popen("update.pyw")
     sys.exit()
 
 # 窗口初始化
@@ -41,78 +41,28 @@ def b2():
 
 
 def b3():
-    pro4 = threading.Thread(target=ppt_restart)
-    pro4.start()
-    pro3 = threading.Thread(target=clear_seewo)
-    pro3.start()
-    pro8 = threading.Thread(target=clear_rubbish)
-    pro8.start()
-    pro6 = threading.Thread(target=clear_desk("D:/文件"))
-    pro6.start()
-    pro5 = threading.Thread(target=clear_wechat("D:/WeChat Files/WeChat Files/", "D:/文件"))
-    pro5.start()
-    pro7 = threading.Thread(target=clear_cache)
-    pro7.start()
-    pro11 = threading.Thread(target=clear_repeat("D:/文件"))
-    pro11.start()
+    ppt_restart()
+    clear_seewo()
+    clear_rubbish()
+    clear_desk("D:/文件")
+    clear_wechat("D:/WeChat Files/WeChat Files/", "D:/文件")
+    clear_cache()
+    clear_repeat("D:/文件")
 
 
 def b4():
-    os.startfile("D:/文件")
-
-
-def b5():
-    pro2 = threading.Thread(target=ppt_restart)
-    pro2.start()
-
-
-def b6():
-    os.popen("taskkill -f -im PPTService.exe")
-
-
-def b7():
-    pro9 = threading.Thread(target=clear_rubbish)
-    pro9.start()
-
-
-def b8():
-    pro10 = threading.Thread(target=restart_explorer)
-    pro10.start()
-
-
-def b9():
     webbrowser.open("https://tv.cctv.cn/live/cctv13")
     exit()
 
 
-def b10():
+def b5():
     webbrowser.open("http://10.8.8.35:8443/live/31384275e5e0443fa4364714fcbf85fd")
     exit()
 
 
-def b11():
+def b6():
     os.popen(pj(os.getcwd(), "update.pyw"))
     exit()
-
-
-def b13():
-    print("打开zb网站")
-    webbrowser.open("https://ianzb.github.io/")
-
-
-def b14():
-    print("打开更新服务器")
-    webbrowser.open("https://ianzb.github.io/server.github.io/Seewo/seewo.html")
-
-
-def b15():
-    pro1 = threading.Thread(target=get_mc)
-    pro1.start()
-
-
-def b16():
-    pro12 = threading.Thread(target=sys_info)
-    pro12.start()
 
 
 # 控件
@@ -120,26 +70,26 @@ ttk.Label(tk, text="实用程序").place(x=75, y=0, width=150, height=30)
 ttk.Label(tk, text="功能列表").place(x=275, y=0, width=150, height=30)
 ttk.Separator(tk, orient=HORIZONTAL).place(x=0, y=0, width=400, height=2)
 # 左侧
-ttk.Button(tk, text="点名器", style="TButton", command=b1).place(x=0, y=30, width=200, height=30)
-ttk.Button(tk, text="函数工具", style="TButton", command=b2).place(x=0, y=60, width=200, height=30)
+ttk.Button(tk, text="点名器", style="TButton", command=lambda: MyThread(b1)).place(x=0, y=30, width=200, height=30)
+ttk.Button(tk, text="函数工具", style="TButton", command=lambda: MyThread(b2)).place(x=0, y=60, width=200, height=30)
 # 右侧
-ttk.Button(tk, text="一键整理+清理", style="TButton", command=b3).place(x=200, y=30, width=150, height=30)
-ttk.Button(tk, text="打开", style="TButton", command=b4).place(x=350, y=30, width=50, height=30)
-ttk.Button(tk, text="重启PPT小助手", style="TButton", command=b5).place(x=200, y=60, width=100, height=30)
-ttk.Button(tk, text="关闭PPT小助手", style="TButton", command=b6).place(x=300, y=60, width=100, height=30)
-ttk.Button(tk, text="清理回收站", style="TButton", command=b7).place(x=200, y=90, width=100, height=30)
-ttk.Button(tk, text="重启资源管理器", style="TButton", command=b8).place(x=300, y=90, width=100, height=30)
-ttk.Button(tk, text="CCTV-13", style="TButton", command=b9).place(x=200, y=120, width=100, height=30)
-ttk.Button(tk, text="校园电视台", style="TButton", command=b10).place(x=300, y=120, width=100, height=30)
-ttk.Button(tk, text="查看系统信息", style="TButton", command=b16).place(x=200, y=150, width=200, height=30)
+ttk.Button(tk, text="一键整理+清理", style="TButton", command=lambda: MyThread(b3)).place(x=200, y=30, width=150, height=30)
+ttk.Button(tk, text="打开", style="TButton", command=lambda: MyThread(os.startfile("D:/文件"))).place(x=350, y=30, width=50, height=30)
+ttk.Button(tk, text="重启PPT小助手", style="TButton", command=lambda: MyThread(ppt_restart)).place(x=200, y=60, width=100, height=30)
+ttk.Button(tk, text="关闭PPT小助手", style="TButton", command=lambda: MyThread(os.popen("taskkill -f -im PPTService.exe"))).place(x=300, y=60, width=100, height=30)
+ttk.Button(tk, text="清理回收站", style="TButton", command=lambda: MyThread(clear_rubbish)).place(x=200, y=90, width=100, height=30)
+ttk.Button(tk, text="重启资源管理器", style="TButton", command=lambda: MyThread(restart_explorer)).place(x=300, y=90, width=100, height=30)
+ttk.Button(tk, text="CCTV-13", style="TButton", command=lambda: MyThread(b4)).place(x=200, y=120, width=100, height=30)
+ttk.Button(tk, text="校园电视台", style="TButton", command=lambda: MyThread(b5)).place(x=300, y=120, width=100, height=30)
+ttk.Button(tk, text="查看系统信息", style="TButton", command=lambda: MyThread(sys_info)).place(x=200, y=150, width=200, height=30)
 ttk.Separator(tk, orient=VERTICAL).place(x=200, y=0, width=1, height=180)
 ttk.Separator(tk, orient=HORIZONTAL).place(x=0, y=180, width=400, height=2)
 ttk.Label(tk, text="zb的小程序For " + edition + " 版本  " + version).place(x=60, y=190, width=200, height=30)
-ttk.Button(tk, text="检查更新", style="TButton", command=b11).place(x=260, y=190, width=80, height=30)
+ttk.Button(tk, text="检查更新", style="TButton", command=lambda: MyThread(b6)).place(x=260, y=190, width=80, height=30)
 ttk.Separator(tk, orient=HORIZONTAL).place(x=0, y=230, width=400, height=2)
 ttk.Label(tk, text="夹带私货").place(x=175, y=235, width=150, height=30)
-ttk.Button(tk, text="zb的网站", style="TButton", command=b13).place(x=0, y=265, width=100, height=30)
-ttk.Button(tk, text="更新服务器", style="TButton", command=b14).place(x=100, y=265, width=100, height=30)
-ttk.Button(tk, text="MC版本爬虫", style="TButton", command=b15).place(x=200, y=265, width=200, height=30)
+ttk.Button(tk, text="zb的网站", style="TButton", command=lambda: MyThread(webbrowser.open("https://ianzb.github.io/"))).place(x=0, y=265, width=100, height=30)
+ttk.Button(tk, text="更新服务器", style="TButton", command=lambda: MyThread(webbrowser.open("https://ianzb.github.io/server.github.io/Seewo/seewo.html"))).place(x=100, y=265, width=100, height=30)
+ttk.Button(tk, text="MC版本爬虫", style="TButton", command=lambda: MyThread(get_mc)).place(x=200, y=265, width=200, height=30)
 
 tk.mainloop()

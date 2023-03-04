@@ -1,3 +1,21 @@
+# 多线程优化
+import threading
+
+
+class MyThread(threading.Thread):
+    def __init__(self, func, *args):
+        super().__init__()
+
+        self.func = func
+        self.args = args
+
+        self.setDaemon(True)
+        self.start()
+
+    def run(self):
+        self.func(*self.args)
+
+
 # 更好的路径拼接
 def pj(*a):
     import os
@@ -11,9 +29,8 @@ def pj(*a):
 # 关闭程序
 def exit():
     import sys, os
+    os.popen("taskkill.exe /pid:" + str(os.getpid()))
     sys.exit()
-    os.popen("taskkill -f -im pythonw.exe")
-    os.popen("taskkill -f -im python.exe")
 
 
 # 检查图标是否存在
@@ -271,7 +288,10 @@ def clear_apps():
     move_files(r"D:/Files/QQ/93322252/FileRecv", "E:/整理文件")
     move_files(r"D:/Files/Ding Talk", "E:/整理文件")
     move_files(r"D:/Files/百度网盘", "E:/整理文件")
-    shutil.rmtree("C:/Users/93322/AppData/Roaming/Tencent/WeMeet/Global/IM")
+    try:
+        shutil.rmtree("C:/Users/93322/AppData/Roaming/Tencent/WeMeet/Global/IM")
+    except:
+        pass
 
 
 # 获取系统信息
