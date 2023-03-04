@@ -46,8 +46,13 @@ class MyThread(threading.Thread):
     def run(self):
         self.func(*self.args)
 
+def reflash():
+    while True:
+        tk.update()
+
 
 def download(link):
+    MyThread(reflash)
     import requests
     response1 = requests.get(link)
     response1.encoding = "UTF-8"
@@ -81,8 +86,9 @@ def check_update(name):
     data = soup.find_all(name="div", text=re.compile("."))
     for i in range(len(data)): data[i] = str(data[i]).replace("<div>", "").replace("</div>", "").replace(r"\r", "").replace(r"\n", "").strip()
     for i in range(len(data)):
-        download(link + data[i])
+        MyThread(download(link + data[i]))
         vari.set(int(100 * i / len(data)))
+        tk.update()
     os.popen("main.pyw")
     vari.set(100)
     using = False
