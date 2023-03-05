@@ -1,6 +1,6 @@
 # 程序信息
 
-version = "2.3.2"
+version = "2.4.0"
 
 # 导入运行库
 
@@ -11,7 +11,7 @@ from decimal import *
 from matplotlib import pyplot
 from tkinter import *
 from tkinter import ttk
-
+start()
 # 窗口初始化
 
 tk = Tk()
@@ -398,7 +398,7 @@ ttk.Separator(tk, orient=HORIZONTAL).place(x=0, y=0, width=400, height=2)
 ttk.Separator(tk, orient=HORIZONTAL).place(x=0, y=85, width=400, height=2)
 ttk.Separator(tk, orient=HORIZONTAL).place(x=0, y=180, width=400, height=2)
 ttk.Separator(tk, orient=HORIZONTAL).place(x=0, y=270, width=400, height=2)
-
+close()
 tk.mainloop()
 
 '''
@@ -413,5 +413,5 @@ tk.mainloop()
 2022-12-06：2.2.2：修复输入0.01后函数解析式显示为0.0的Bug，优化绘图部分冗余代码，优化自由绘制部分控件布局代码
 2022-12-11：2.3.0：解决Python浮点数精度丢失Bug
 2022-12-13：2.3.1：修复图像窗口关闭后再次绘制时坐标系占窗口比例过小的Bug
-2022-03-05：2.3.2：优化部分代码
+2022-03-05：2.4.0：优化部分代码，添加加载界面
 '''

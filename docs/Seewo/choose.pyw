@@ -1,6 +1,6 @@
 # 程序信息
 
-version = "1.5.1"
+version = "1.6.0"
 
 # 导入运行库
 
@@ -10,6 +10,7 @@ from zb import *
 from tkinter import *
 from tkinter import ttk
 from tkinter.messagebox import *
+start()
 
 # 读取信息
 
@@ -121,7 +122,7 @@ ttk.Label(tk, font=("等线", 30), textvariable=t2).place(x=-5, y=50, width=800,
 ttk.Label(tk, font=("等线", 20), textvariable=t3).place(x=230, y=150, width=400, height=100)
 ttk.Button(tk, text="点名1人", style="TButton", command=btn1).place(x=250, y=270, width=100, height=30)
 ttk.Button(tk, text="点名5人", style="TButton", command=btn2).place(x=350, y=270, width=100, height=30)
-
+close()
 tk.mainloop()
 
 '''
@@ -138,5 +139,5 @@ tk.mainloop()
 2022-12-05：1.4.3：将随机方式从伪随机（random）更改为真随机（secrets），将新同学的学号移动到正确的位置
 2022-12-25：1.4.4：优化代码
 2022-03-04：1.5.0：删除学号显示，优化点满提示
-2022-03-05：1.5.1：优化代码
+2022-03-05：1.6.0：优化代码，添加加载界面
 '''

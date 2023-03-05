@@ -16,6 +16,27 @@ class MyThread(threading.Thread):
         self.func(*self.args)
 
 
+# 开始加载
+def start():
+    import os, time
+    os.popen("load.pyw")
+    time.sleep(0.5)
+
+
+# 取消加载
+def close():
+    import os, time
+    while True:
+        try:
+            with open(file="pid.txt", mode="r") as file:
+                pid = file.read()
+            os.remove("pid.txt")
+            os.popen("taskkill.exe /pid:" + pid)
+            break
+        except:
+            pass
+
+
 # 更好的路径拼接
 def pj(*a):
     import os

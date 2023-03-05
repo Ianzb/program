@@ -1,6 +1,6 @@
 # 程序信息
 
-version = "3.3.1"
+version = "3.4.0"
 edition = "Seewo"
 
 # 导入运行库
@@ -14,7 +14,7 @@ try:
 except:
     os.popen("update.pyw")
     sys.exit()
-
+start()
 # 窗口初始化
 
 tk = Tk()
@@ -94,5 +94,5 @@ ttk.Label(tk, text="夹带私货").place(x=175, y=235, width=150, height=30)
 ttk.Button(tk, text="zb的网站", style="TButton", command=lambda: MyThread(webbrowser.open("https://ianzb.github.io/"))).place(x=0, y=265, width=100, height=30)
 ttk.Button(tk, text="更新服务器", style="TButton", command=lambda: MyThread(webbrowser.open("https://ianzb.github.io/server.github.io/Seewo/seewo.html"))).place(x=100, y=265, width=100, height=30)
 ttk.Button(tk, text="MC版本爬虫", style="TButton", command=lambda: MyThread(get_mc)).place(x=200, y=265, width=200, height=30)
-
+close()
 tk.mainloop()

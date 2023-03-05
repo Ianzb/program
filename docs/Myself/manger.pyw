@@ -8,7 +8,6 @@ import os, sys
 from tkinter import *
 from tkinter import ttk
 from zb import *
-
 # 加载信息
 
 path = "E:/编程/server.github.io/docs"
@@ -47,7 +46,6 @@ ttk.Label(tk, text="管理器").place(x=78, y=0, width=150, height=30)
 ttk.Button(tk, text="打开文件夹", style="TButton", command=b1).place(x=0, y=30, width=200, height=30)
 ttk.Button(tk, text="打开Myself", style="TButton", command=lambda: open("Myself")).place(x=0, y=60, width=100, height=30)
 ttk.Button(tk, text="打开Seewo", style="TButton", command=lambda: open("Seewo")).place(x=100, y=60, width=100, height=30)
-
 tk.mainloop()
 
 '''

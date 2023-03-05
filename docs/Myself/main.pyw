@@ -1,11 +1,11 @@
 # 程序信息
 
-version = "2.3.1"
+version = "2.4.0"
 edition = "Myself"
 
 # 导入运行库
 
-import os, sys, webbrowser
+import os, sys, webbrowser,time
 from tkinter import *
 from tkinter import ttk
 
@@ -15,6 +15,7 @@ except:
     os.popen("update.pyw")
     sys.exit()
 
+start()
 # 窗口初始化
 
 tk = Tk()
@@ -70,5 +71,5 @@ ttk.Separator(tk, orient=HORIZONTAL).place(x=0, y=150, width=400, height=2)
 ttk.Label(tk, text="zb的小程序For " + edition + " 版本  " + version).place(x=60, y=160, width=200, height=30)
 ttk.Button(tk, text="检查更新", style="TButton", command=lambda: MyThread(b3)).place(x=260, y=160, width=80, height=30)
 ttk.Separator(tk, orient=HORIZONTAL).place(x=0, y=150, width=400, height=2)
-
+close()
 tk.mainloop()
