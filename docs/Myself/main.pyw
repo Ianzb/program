@@ -1,12 +1,13 @@
 # 程序信息
-version = "2.3.0"
+
+version = "2.3.1"
 edition = "Myself"
 
 # 导入运行库
-import os, sys, threading, webbrowser
+
+import os, sys, webbrowser
 from tkinter import *
 from tkinter import ttk
-from tkinter.messagebox import *
 
 try:
     from zb import *
@@ -15,6 +16,7 @@ except:
     sys.exit()
 
 # 窗口初始化
+
 tk = Tk()
 tk.title(" zb的小程序For " + edition + " " + version)
 x = 400

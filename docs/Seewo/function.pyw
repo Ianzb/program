@@ -1,7 +1,9 @@
 # 程序信息
-version = "2.3.1"
+
+version = "2.3.2"
 
 # 导入运行库
+
 import numpy, random, os
 from zb import *
 from math import *
@@ -11,6 +13,7 @@ from tkinter import *
 from tkinter import ttk
 
 # 窗口初始化
+
 tk = Tk()
 tk.title(" zb的函数工具 " + version)
 x = 400
@@ -24,6 +27,7 @@ st.configure("TButton")
 
 
 # 功能
+
 def xy():
     pyplot.xlim(-10, 10)
     pyplot.ylim(-10, 10)
@@ -69,7 +73,6 @@ def process(a, num=1, no=None):
     return a
 
 
-# 功能
 def draw(a, b, c):
     a = process(a, 1, 0)
     b = process(b, 1)
@@ -319,6 +322,7 @@ def b8():
 
 
 # 控件
+
 x1 = 0
 y1 = 0
 ttk.Label(tk, text="一次函数").place(x=x1 + 75, y=y1, width=150, height=30)
@@ -409,4 +413,5 @@ tk.mainloop()
 2022-12-06：2.2.2：修复输入0.01后函数解析式显示为0.0的Bug，优化绘图部分冗余代码，优化自由绘制部分控件布局代码
 2022-12-11：2.3.0：解决Python浮点数精度丢失Bug
 2022-12-13：2.3.1：修复图像窗口关闭后再次绘制时坐标系占窗口比例过小的Bug
+2022-03-05：2.3.2：优化部分代码
 '''

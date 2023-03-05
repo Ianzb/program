@@ -7,7 +7,6 @@ from tkinter import *
 from tkinter import ttk
 from tkinter.messagebox import *
 
-
 # 加载信息
 path = os.getcwd()
 using = False
@@ -32,7 +31,6 @@ except:
 
 # 功能
 
-
 class MyThread(threading.Thread):
     def __init__(self, func, *args):
         super().__init__()
@@ -45,6 +43,7 @@ class MyThread(threading.Thread):
 
     def run(self):
         self.func(*self.args)
+
 
 def reflash():
     while True:
@@ -66,14 +65,14 @@ def check_update(name):
     if using == True:
         return None
     using = True
-    try :
+    try:
         import requests, bs4
     except:
         showerror("错误", "请先安装运行库！")
         using = False
         return None
     if "E:\编程\server.github.io\docs" in os.getcwd():
-        showerror("错误","当前目录为开发者目录无法更新！")
+        showerror("错误", "当前目录为开发者目录无法更新！")
         using = False
         return None
     if askokcancel("提示", "是否更新？") == False:
@@ -115,6 +114,7 @@ def download_lib():
 
 
 # 控件
+
 vari = IntVar()
 vari.set(0)
 ttk.Progressbar(tk, mode="determinate", variable=vari).place(x=0, y=0, width=200, height=30)

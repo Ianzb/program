@@ -1,9 +1,11 @@
 # 程序信息
-version = "3.3.0"
+
+version = "3.3.1"
 edition = "Seewo"
 
 # 导入运行库
-import threading, webbrowser, os, sys
+
+import os, sys, webbrowser
 from tkinter import *
 from tkinter import ttk
 
@@ -14,6 +16,7 @@ except:
     sys.exit()
 
 # 窗口初始化
+
 tk = Tk()
 tk.title(" zb的小程序For " + edition + " " + version)
 x = 400
@@ -28,7 +31,6 @@ st.configure("TButton")
 
 
 # 功能
-
 
 def b1():
     os.popen("choose.pyw")
@@ -66,6 +68,7 @@ def b6():
 
 
 # 控件
+
 ttk.Label(tk, text="实用程序").place(x=75, y=0, width=150, height=30)
 ttk.Label(tk, text="功能列表").place(x=275, y=0, width=150, height=30)
 ttk.Separator(tk, orient=HORIZONTAL).place(x=0, y=0, width=400, height=2)

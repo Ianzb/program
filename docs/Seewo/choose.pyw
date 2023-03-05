@@ -1,7 +1,9 @@
 # 程序信息
-version = "1.5.0"
+
+version = "1.5.1"
 
 # 导入运行库
+
 import random, pandas, os, time
 from secrets import choice
 from zb import *
@@ -10,6 +12,7 @@ from tkinter import ttk
 from tkinter.messagebox import *
 
 # 读取信息
+
 df = pandas.read_excel("list.xlsx")
 names = []
 numbers = []
@@ -21,6 +24,7 @@ del df
 using = False
 
 # 窗口初始化
+
 tk = Tk()
 tk.title("zb的点名器 " + version)
 x = 700
@@ -36,6 +40,7 @@ t3 = StringVar()
 
 
 # 功能
+
 def btn1():
     global using, names, numbers
     if using:
@@ -110,6 +115,7 @@ def btn2():
 
 
 # 控件
+
 ttk.Label(tk, font=("等线", 15), text="   点名器").place(x=300, y=0, width=200, height=30)
 ttk.Label(tk, font=("等线", 30), textvariable=t2).place(x=-5, y=50, width=800, height=100)
 ttk.Label(tk, font=("等线", 20), textvariable=t3).place(x=230, y=150, width=400, height=100)
@@ -130,6 +136,7 @@ tk.mainloop()
 2022-11-16：1.4.1：将部分功能移动至zb库中，修复退出异常Bug
 2022-11-26：1.4.2：删除阻止恶搞版本提示，优化代码，删除重启后的延迟关闭，删除图标缺失提示
 2022-12-05：1.4.3：将随机方式从伪随机（random）更改为真随机（secrets），将新同学的学号移动到正确的位置
-2022-12-25：1.4.4：优化部分代码
+2022-12-25：1.4.4：优化代码
 2022-03-04：1.5.0：删除学号显示，优化点满提示
+2022-03-05：1.5.1：优化代码
 '''
