@@ -1,17 +1,19 @@
 # 程序信息
 
-version = "2.4.0"
+version = "2.4.1"
 
 # 导入运行库
 
-import numpy, random, os
 from zb import *
+
+start()
+import numpy, random, os
 from math import *
 from decimal import *
 from matplotlib import pyplot
 from tkinter import *
 from tkinter import ttk
-start()
+
 # 窗口初始化
 
 tk = Tk()
@@ -414,4 +416,5 @@ tk.mainloop()
 2022-12-11：2.3.0：解决Python浮点数精度丢失Bug
 2022-12-13：2.3.1：修复图像窗口关闭后再次绘制时坐标系占窗口比例过小的Bug
 2022-03-05：2.4.0：优化部分代码，添加加载界面
+2022-03-11：2.4.1：优化代码，提高加载界面出现速度
 '''

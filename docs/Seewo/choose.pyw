@@ -1,16 +1,16 @@
 # 程序信息
 
-version = "1.6.0"
+version = "1.6.1"
 
 # 导入运行库
+from zb import *
 
+start()
 import random, pandas, os, time
 from secrets import choice
-from zb import *
 from tkinter import *
 from tkinter import ttk
 from tkinter.messagebox import *
-start()
 
 # 读取信息
 
@@ -140,4 +140,5 @@ tk.mainloop()
 2022-12-25：1.4.4：优化代码
 2022-03-04：1.5.0：删除学号显示，优化点满提示
 2022-03-05：1.6.0：优化代码，添加加载界面
+2022-03-11：1.6.1：优化代码，提高加载界面出现速度
 '''

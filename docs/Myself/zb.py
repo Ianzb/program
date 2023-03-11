@@ -25,16 +25,20 @@ def start():
 
 # 取消加载
 def close():
-    import os, time
-    while True:
-        try:
-            with open(file="pid.txt", mode="r") as file:
-                pid = file.read()
-            os.remove("pid.txt")
-            os.popen("taskkill.exe /pid:" + pid)
-            break
-        except:
-            pass
+    import os
+    with open(file="pid.txt", mode="r") as file:
+        pid = file.read()
+    os.remove("pid.txt")
+    os.popen("taskkill.exe /F /pid:" + pid)
+
+
+# 关闭所有python程序
+def kill_py():
+    import os
+    os.popen("TASKKILL /F /IM py.exe")
+    os.popen("TASKKILL /F /IM pyw.exe")
+    os.popen("TASKKILL /F /IM python.exe")
+    os.popen("TASKKILL /F /IM cmd.exe")
 
 
 # 更好的路径拼接

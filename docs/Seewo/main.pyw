@@ -1,13 +1,11 @@
 # 程序信息
 
-version = "3.4.0"
+version = "3.5.0"
 edition = "Seewo"
 
 # 导入运行库
 
 import os, sys, webbrowser
-from tkinter import *
-from tkinter import ttk
 
 try:
     from zb import *
@@ -15,6 +13,9 @@ except:
     os.popen("update.pyw")
     sys.exit()
 start()
+from tkinter import *
+from tkinter import ttk
+
 # 窗口初始化
 
 tk = Tk()
@@ -84,7 +85,8 @@ ttk.Button(tk, text="清理回收站", style="TButton", command=lambda: MyThread
 ttk.Button(tk, text="重启资源管理器", style="TButton", command=lambda: MyThread(restart_explorer)).place(x=300, y=90, width=100, height=30)
 ttk.Button(tk, text="CCTV-13", style="TButton", command=lambda: MyThread(b4)).place(x=200, y=120, width=100, height=30)
 ttk.Button(tk, text="校园电视台", style="TButton", command=lambda: MyThread(b5)).place(x=300, y=120, width=100, height=30)
-ttk.Button(tk, text="查看系统信息", style="TButton", command=lambda: MyThread(sys_info)).place(x=200, y=150, width=200, height=30)
+ttk.Button(tk, text="查看系统信息", style="TButton", command=lambda: MyThread(sys_info)).place(x=300, y=150, width=100, height=30)
+ttk.Button(tk, text="强制关闭程序", style="TButton", command=lambda: MyThread(kill_py)).place(x=200, y=150, width=100, height=30)
 ttk.Separator(tk, orient=VERTICAL).place(x=200, y=0, width=1, height=180)
 ttk.Separator(tk, orient=HORIZONTAL).place(x=0, y=180, width=400, height=2)
 ttk.Label(tk, text="zb的小程序For " + edition + " 版本  " + version).place(x=60, y=190, width=200, height=30)

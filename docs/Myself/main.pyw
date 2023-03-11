@@ -1,13 +1,11 @@
 # 程序信息
 
-version = "2.4.0"
+version = "2.5.0"
 edition = "Myself"
 
 # 导入运行库
 
-import os, sys, webbrowser,time
-from tkinter import *
-from tkinter import ttk
+import os, sys, webbrowser, time
 
 try:
     from zb import *
@@ -16,6 +14,9 @@ except:
     sys.exit()
 
 start()
+from tkinter import *
+from tkinter import ttk
+
 # 窗口初始化
 
 tk = Tk()
@@ -62,10 +63,10 @@ ttk.Button(tk, text="一键整理+清理", style="TButton", command=lambda: MyTh
 ttk.Button(tk, text="打开", style="TButton", command=lambda: MyThread(os.startfile("E:/整理文件"))).place(x=350, y=30, width=50, height=30)
 ttk.Button(tk, text="清理回收站", style="TButton", command=lambda: MyThread(clear_rubbish())).place(x=200, y=60, width=100, height=30)
 ttk.Button(tk, text="重启资源管理器", style="TButton", command=lambda: MyThread(restart_explorer())).place(x=300, y=60, width=100, height=30)
-ttk.Button(tk, text="我的网站", style="TButton", command=lambda: MyThread(webbrowser.open("https://ianzb.github.io/"))).place(x=200, y=90, width=100, height=30)
+ttk.Button(tk, text="强制关闭程序", style="TButton", command=lambda: MyThread(kill_py)).place(x=200, y=90, width=100, height=30)
 ttk.Button(tk, text="MC版本爬虫", style="TButton", command=lambda: MyThread(get_mc)).place(x=300, y=90, width=100, height=30)
-
-ttk.Button(tk, text="查看系统信息", style="TButton", command=lambda: MyThread(sys_info)).place(x=200, y=120, width=200, height=30)
+ttk.Button(tk, text="我的网站", style="TButton", command=lambda: MyThread(webbrowser.open("https://ianzb.github.io/"))).place(x=200, y=120, width=100, height=30)
+ttk.Button(tk, text="查看系统信息", style="TButton", command=lambda: MyThread(sys_info)).place(x=300, y=120, width=100, height=30)
 ttk.Separator(tk, orient=VERTICAL).place(x=200, y=0, width=1, height=150)
 ttk.Separator(tk, orient=HORIZONTAL).place(x=0, y=150, width=400, height=2)
 ttk.Label(tk, text="zb的小程序For " + edition + " 版本  " + version).place(x=60, y=160, width=200, height=30)
