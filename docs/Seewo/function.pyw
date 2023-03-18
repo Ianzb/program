@@ -1,13 +1,16 @@
 # 程序信息
 
-version = "2.4.1"
+version = "2.5.0"
 
 # 导入运行库
 
 from zb import *
-
+import os
+if os.path.exists("function.txt"):
+    exit()
+disable("function.txt")
 start()
-import numpy, random, os
+import numpy, random
 from math import *
 from decimal import *
 from matplotlib import pyplot
@@ -26,6 +29,7 @@ tk.wm_attributes("-topmost", 1)
 check_ico(tk, "logo.ico")
 st = ttk.Style()
 st.configure("TButton")
+tk.protocol('WM_DELETE_WINDOW', lambda: hide("function.txt"))
 
 
 # 功能
@@ -415,6 +419,7 @@ tk.mainloop()
 2022-12-06：2.2.2：修复输入0.01后函数解析式显示为0.0的Bug，优化绘图部分冗余代码，优化自由绘制部分控件布局代码
 2022-12-11：2.3.0：解决Python浮点数精度丢失Bug
 2022-12-13：2.3.1：修复图像窗口关闭后再次绘制时坐标系占窗口比例过小的Bug
-2022-03-05：2.4.0：优化部分代码，添加加载界面
-2022-03-11：2.4.1：优化代码，提高加载界面出现速度
+2023-03-05：2.4.0：优化部分代码，添加加载界面
+2023-03-11：2.4.1：优化代码，提高加载界面出现速度
+2023-03-18：2.5.0：添加避免重复打开功能
 '''

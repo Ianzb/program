@@ -1,16 +1,25 @@
 # 程序信息
 
-version = "2.5.0"
+version = "2.6.0"
 edition = "Myself"
+
+# 读取信息
+import os
+
+if os.path.exists("main.txt"):
+    exit()
 
 # 导入运行库
 
-import os, sys, webbrowser, time
+import sys, webbrowser, time
 
 try:
     from zb import *
+
+    disable("main.txt")
 except:
     os.popen("update.pyw")
+    os.remove("main.txt")
     sys.exit()
 
 start()
@@ -31,10 +40,21 @@ st = ttk.Style()
 st.configure("TButton")
 
 
+def hide():
+    os.popen("hide.pyw")
+    enable("main.txt")
+    exit()
+
+
+tk.protocol('WM_DELETE_WINDOW', hide)
+
+
 # 功能
+
 
 def b1():
     os.popen("manger.pyw")
+    enable("main.txt")
     exit()
 
 
@@ -49,6 +69,7 @@ def b2():
 
 def b3():
     os.popen(pj(os.getcwd(), "update.pyw"))
+    enable("main.txt")
     exit()
 
 

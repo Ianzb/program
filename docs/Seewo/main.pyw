@@ -1,7 +1,13 @@
 # 程序信息
 
-version = "3.5.0"
+version = "3.6.0"
 edition = "Seewo"
+
+# 读取信息
+import os
+
+if os.path.exists("main.txt"):
+    exit()
 
 # 导入运行库
 
@@ -9,8 +15,11 @@ import os, sys, webbrowser
 
 try:
     from zb import *
+
+    disable("main.txt")
 except:
     os.popen("update.pyw")
+    os.remove("main.txt")
     sys.exit()
 start()
 from tkinter import *
@@ -31,15 +40,27 @@ st = ttk.Style()
 st.configure("TButton")
 
 
+def hide():
+    os.popen("hide.pyw")
+    enable("main.txt")
+    exit()
+
+
+tk.protocol('WM_DELETE_WINDOW', hide)
+
+
 # 功能
+
 
 def b1():
     os.popen("choose.pyw")
+    enable("main.txt")
     exit()
 
 
 def b2():
     os.popen("function.pyw")
+    enable("main.txt")
     exit()
 
 
@@ -55,16 +76,19 @@ def b3():
 
 def b4():
     webbrowser.open("https://tv.cctv.cn/live/cctv13")
+    enable("main.txt")
     exit()
 
 
 def b5():
     webbrowser.open("http://10.8.8.35:8443/live/31384275e5e0443fa4364714fcbf85fd")
+    enable("main.txt")
     exit()
 
 
 def b6():
     os.popen(pj(os.getcwd(), "update.pyw"))
+    enable("main.txt")
     exit()
 
 

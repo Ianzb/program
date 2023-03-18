@@ -6,6 +6,10 @@ import threading, os, re, time
 from tkinter import *
 from tkinter import ttk
 from tkinter.messagebox import *
+if os.path.exists("update.txt"):
+    exit()
+with open(file="update.txt", mode="w") as file:
+    file.write("勿删")
 
 # 加载信息
 path = os.getcwd()
@@ -27,7 +31,13 @@ try:
     tk.wm_iconbitmap("logo.ico")
 except:
     pass
-
+def hide():
+    try:
+        os.remove("update.txt")
+    except:
+        pass
+    tk.destroy()
+tk.protocol('WM_DELETE_WINDOW', hide)
 
 # 功能
 
@@ -91,6 +101,10 @@ def check_update(name):
     os.popen("main.pyw")
     vari.set(100)
     using = False
+    try:
+        os.remove("update.txt")
+    except:
+        pass
     exit()
 
 

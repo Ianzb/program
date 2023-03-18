@@ -32,13 +32,62 @@ def close():
     os.popen("taskkill.exe /F /pid:" + pid)
 
 
+# 关闭程序
+def exit():
+    import sys, os
+    os.popen("taskkill.exe /pid:" + str(os.getpid()))
+    sys.exit()
+
+
+# 不可以打开就关闭程序
+def check(name):
+    import os
+    if os.path.exists(name):
+        exit()
+
+
+# 不可以打开程序
+def disable(name):
+    with open(file=name, mode="w") as file:
+        file.write("勿删")
+
+
+# 可以打开程序
+def enable(name):
+    import os
+    try:
+        os.remove(name)
+    except:
+        pass
+
+#关闭程序后
+def hide(name):
+    import os
+    enable(name)
+    exit()
+
 # 关闭所有python程序
 def kill_py():
     import os
-    os.popen("TASKKILL /F /IM py.exe")
-    os.popen("TASKKILL /F /IM pyw.exe")
-    os.popen("TASKKILL /F /IM python.exe")
-    os.popen("TASKKILL /F /IM cmd.exe")
+    enable("../Myself/main.txt")
+    enable("../Myself/hide.txt")
+    enable("../Myself/manger.txt")
+    enable("../Myself/update.txt")
+    enable("../Seewo/hide.txt")
+    enable("../Seewo/main.txt")
+    enable("../Seewo/function.txt")
+    enable("../Seewo/choose.txt")
+    enable("../Seewo/update.txt")
+    enable("main.txt")
+    enable("hide.txt")
+    enable("manger.txt")
+    enable("function.txt")
+    enable("choose.txt")
+    enable("update.txt")
+    os.popen("taskkill.exe /F /IM py.exe")
+    os.popen("taskkill.exe /F /IM pyw.exe")
+    os.popen("taskkill.exe /F /IM python.exe")
+    os.popen("taskkill.exe /F /IM pythonw.exe")
 
 
 # 更好的路径拼接
@@ -49,13 +98,6 @@ def pj(*a):
         out = os.path.join(out, i)
     out = out.replace("//", r"\ "[:-1]).replace(r"\\ "[:-1], r"\ "[:-1]).replace("\/", r"\ "[:-1]).replace("/\ "[:-1], r"\ "[:-1]).replace("/", r"\ "[:-1])
     return out
-
-
-# 关闭程序
-def exit():
-    import sys, os
-    os.popen("taskkill.exe /pid:" + str(os.getpid()))
-    sys.exit()
 
 
 # 检查图标是否存在

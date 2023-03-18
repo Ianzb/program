@@ -3,20 +3,21 @@
 edition = "Seewo"
 
 # 导入运行库
-
 import threading, os, re, time
 from tkinter import *
 from tkinter import ttk
 from tkinter.messagebox import *
+if os.path.exists("update.txt"):
+    exit()
+with open(file="update.txt", mode="w") as file:
+    file.write("勿删")
 
 # 加载信息
-
 path = os.getcwd()
 using = False
 lib_list = ["lxml", "pypiwin32", "pandas", "numpy", "bs4", "requests", "send2trash", "winshell", "matplotlib", "openpyxl", "PyAudio", "python-xlib", "pymouse", "pyautogui", "PyUserInput", "psutil", "wmi"]
 
 # 窗口初始化
-
 tk = Tk()
 tk.title(" zb小程序安装模块")
 x = 200
@@ -31,7 +32,13 @@ try:
     tk.wm_iconbitmap("logo.ico")
 except:
     pass
-
+def hide():
+    try:
+        os.remove("update.txt")
+    except:
+        pass
+    tk.destroy()
+tk.protocol('WM_DELETE_WINDOW', hide)
 
 # 功能
 
@@ -95,6 +102,10 @@ def check_update(name):
     os.popen("main.pyw")
     vari.set(100)
     using = False
+    try:
+        os.remove("update.txt")
+    except:
+        pass
     exit()
 
 

@@ -1,6 +1,6 @@
 # 程序信息
 
-version = "1.2.3"
+version = "1.3.0"
 
 # 导入运行库
 
@@ -8,10 +8,14 @@ import os, sys
 from tkinter import *
 from tkinter import ttk
 from zb import *
+
 # 加载信息
 
 path = "E:/编程/server.github.io/docs"
 os.chdir(path)
+if os.path.exists("E:/编程/server.github.io/docs/Myself/manger.txt"):
+    exit()
+disable("E:/编程/server.github.io/docs/Myself/manger.txt")
 
 # 窗口初始化
 
@@ -26,6 +30,7 @@ tk.wm_attributes("-topmost", 1)
 check_ico(tk, "logo.ico")
 st = ttk.Style()
 st.configure("TButton")
+tk.protocol('WM_DELETE_WINDOW', lambda: hide("E:/编程/server.github.io/docs/Myself/manger.txt"))
 
 
 # 功能
@@ -37,6 +42,7 @@ def b1():
 def open(names):
     os.chdir(pj(path, str(names)))
     os.popen(pj(path, str(names), "main.pyw"))
+    enable("E:/编程/server.github.io/docs/Myself/manger.txt")
     sys.exit()
 
 
@@ -54,5 +60,6 @@ tk.mainloop()
 2022-12-20：1.2.0：修复打开For Seewo后工作目录错误的Bug，添加打开后退出。
 2022-12-26：1.2.1：优化代码
 2022-12-29：1.2.2：适配新路径
-2022-03-05：1.2.3：优化代码
+2023-03-05：1.2.3：优化代码
+2023-03-18：1.3.0：添加避免重复打开功能
 '''
