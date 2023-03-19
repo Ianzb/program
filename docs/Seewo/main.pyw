@@ -1,13 +1,7 @@
 # 程序信息
 
-version = "3.6.0"
+version = "3.7.0"
 edition = "Seewo"
-
-# 读取信息
-import os
-
-if os.path.exists("main.txt"):
-    exit()
 
 # 导入运行库
 
@@ -15,7 +9,7 @@ import os, sys, webbrowser
 
 try:
     from zb import *
-
+    check()
     disable("main.txt")
 except:
     os.popen("update.pyw")

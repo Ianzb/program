@@ -1,21 +1,15 @@
 # 程序信息
 
-version = "2.6.0"
+version = "2.7.0"
 edition = "Myself"
 
-# 读取信息
-import os
-
-if os.path.exists("main.txt"):
-    exit()
-
 # 导入运行库
-
-import sys, webbrowser, time
+import sys, webbrowser, time, os
 
 try:
     from zb import *
 
+    check()
     disable("main.txt")
 except:
     os.popen("update.pyw")

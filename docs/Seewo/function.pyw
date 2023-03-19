@@ -1,13 +1,12 @@
 # 程序信息
 
-version = "2.5.0"
+version = "2.5.1"
 
 # 导入运行库
 
 from zb import *
 import os
-if os.path.exists("function.txt"):
-    exit()
+check()
 disable("function.txt")
 start()
 import numpy, random
@@ -422,4 +421,5 @@ tk.mainloop()
 2023-03-05：2.4.0：优化部分代码，添加加载界面
 2023-03-11：2.4.1：优化代码，提高加载界面出现速度
 2023-03-18：2.5.0：添加避免重复打开功能
+2023-03-19：2.5.1：优化避免重复打开功能
 '''

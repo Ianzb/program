@@ -26,6 +26,8 @@ def start():
 # 取消加载
 def close():
     import os
+    if not os.path.exists("pid.txt"):
+        return
     with open(file="pid.txt", mode="r") as file:
         pid = file.read()
     os.remove("pid.txt")
@@ -40,16 +42,24 @@ def exit():
 
 
 # 不可以打开就关闭程序
-def check(name):
-    import os
-    if os.path.exists(name):
+def check():
+    import os,sys
+    if os.path.exists(sys.argv[0].replace(".pyw",".txt")):
+        with open(file=sys.argv[0].replace(".pyw",".txt"), mode="r") as file:
+            pid=file.read()
+        try:
+            os.kill(int(pid), 0)
+        except:
+            os.remove(sys.argv[0].replace(".pyw", ".txt"))
+            return None
         exit()
 
 
 # 不可以打开程序
 def disable(name):
+    import os
     with open(file=name, mode="w") as file:
-        file.write("")
+        file.write(str(os.getpid()))
 
 
 # 可以打开程序
@@ -62,7 +72,6 @@ def enable(name):
 
 #关闭程序后
 def hide(name):
-    import os
     enable(name)
     exit()
 

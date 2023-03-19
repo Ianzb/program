@@ -1,6 +1,6 @@
 # 程序信息
 
-version = "1.3.0"
+version = "1.3.1"
 
 # 导入运行库
 
@@ -13,8 +13,7 @@ from zb import *
 
 path = "E:/编程/server.github.io/docs"
 os.chdir(path)
-if os.path.exists("E:/编程/server.github.io/docs/Myself/manger.txt"):
-    exit()
+check()
 disable("E:/编程/server.github.io/docs/Myself/manger.txt")
 
 # 窗口初始化
@@ -62,4 +61,5 @@ tk.mainloop()
 2022-12-29：1.2.2：适配新路径
 2023-03-05：1.2.3：优化代码
 2023-03-18：1.3.0：添加避免重复打开功能
+2023-03-19：1.3.1：优化避免重复打开功能
 '''

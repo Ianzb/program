@@ -6,8 +6,7 @@ from tkinter import *
 from tkinter import ttk
 
 # 读取信息
-if os.path.exists("hide.txt"):
-    exit()
+check()
 disable("hide.txt")
 
 # 窗口初始化
