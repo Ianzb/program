@@ -1,6 +1,6 @@
 # 多线程优化
-import threading
-
+import threading,sys,os
+os.chdir(sys.argv[0][:sys.argv[0].rfind(r"\ "[:-1])])
 
 class MyThread(threading.Thread):
     def __init__(self, func, *args):
@@ -49,10 +49,10 @@ def check():
             pid=file.read()
         try:
             os.kill(int(pid), 0)
+            exit()
         except:
             os.remove(sys.argv[0].replace(".pyw", ".txt"))
             return None
-        exit()
 
 
 # 不可以打开程序
