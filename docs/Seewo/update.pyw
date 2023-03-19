@@ -99,7 +99,8 @@ def check_update(name):
     res.encoding = "UTF-8"
     soup = bs4.BeautifulSoup(res.text, "lxml")
     data = soup.find_all(name="div",class_="download", text=re.compile("."))
-    for i in range(len(data)): data[i] = str(data[i]).replace("<div>", "").replace("</div>", "").replace(r"\r", "").replace(r"\n", "").strip()
+    for i in range(len(data)): data[i] = str(data[i]).replace(r'<div class="download">', "").replace("</div>","").strip()
+    print(data)
     for i in range(len(data)):
         MyThread(download(link + data[i]))
         vari.set(int(100 * i / len(data)))
