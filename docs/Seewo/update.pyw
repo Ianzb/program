@@ -138,7 +138,6 @@ def download_lib():
 try:
     import win32api, win32con, winreg, os
 
-
     """判断键是否存在"""
 
 
@@ -191,6 +190,10 @@ try:
         :param abspath: 当前文件路径
         :return:
         """
+        global using
+        if using == True:
+            return None
+        using = True
         print(zdynames)
 
         path = abspath + '\\' + zdynames  # 要添加的exe完整路径如：
@@ -225,6 +228,7 @@ try:
                     print("出现错误")
             except:
                 print('删除失败')
+        using = False
 except:
     pass
 
