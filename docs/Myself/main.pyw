@@ -1,6 +1,6 @@
 # 程序信息
 
-version = "2.7.0"
+version = "2.7.1"
 edition = "Myself"
 
 # 导入运行库

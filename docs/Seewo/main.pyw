@@ -1,6 +1,6 @@
 # 程序信息
 
-version = "3.7.0"
+version = "3.7.1"
 edition = "Seewo"
 
 # 导入运行库
@@ -112,7 +112,7 @@ ttk.Button(tk, text="检查更新", style="TButton", command=lambda: MyThread(b6
 ttk.Separator(tk, orient=HORIZONTAL).place(x=0, y=230, width=400, height=2)
 ttk.Label(tk, text="夹带私货").place(x=175, y=235, width=150, height=30)
 ttk.Button(tk, text="zb的网站", style="TButton", command=lambda: MyThread(webbrowser.open("https://ianzb.github.io/"))).place(x=0, y=265, width=100, height=30)
-ttk.Button(tk, text="更新服务器", style="TButton", command=lambda: MyThread(webbrowser.open("https://ianzb.github.io/server.github.io/Seewo/seewo.html"))).place(x=100, y=265, width=100, height=30)
+ttk.Button(tk, text="更新服务器", style="TButton", command=lambda: MyThread(webbrowser.open("https://ianzb.github.io/server.github.io"))).place(x=100, y=265, width=100, height=30)
 ttk.Button(tk, text="MC版本爬虫", style="TButton", command=lambda: MyThread(get_mc)).place(x=200, y=265, width=200, height=30)
 close()
 tk.mainloop()
