@@ -1,19 +1,13 @@
 # 程序信息
 
-version = "1.7.1"
+version = "1.8.0"
 
 # 导入运行库
 from zb import *
-import os
 
 check()
 disable("choose.txt")
-start()
-import random, pandas, time
 from secrets import choice
-from tkinter import *
-from tkinter import ttk
-from tkinter.messagebox import *
 
 # 读取信息
 
@@ -41,7 +35,6 @@ st = ttk.Style()
 st.configure("TButton")
 t2 = StringVar()
 t3 = StringVar()
-tk.protocol('WM_DELETE_WINDOW', lambda: hide("choose.txt"))
 
 
 # 功能
@@ -58,7 +51,6 @@ def btn1():
         if len(names) < 1:
             showinfo("提示", "所有人已经被点名，点击确定重置！")
             os.popen("choose.pyw")
-            enable("choose.txt")
             exit()
         name = choice(names)
         num = numbers[names.index(name)]
@@ -82,7 +74,6 @@ def btn2():
     if len(names) < 5:
         showinfo("提示", "所有人已经被点名，点击确定重置！")
         os.popen("choose.pyw")
-        enable("choose.txt")
         exit()
     t3.set("")
     wait = 0
@@ -107,7 +98,6 @@ def btn2():
             if len(names) < 2:
                 showinfo("提示", "所有人已经被点名，点击确定重新开始")
                 os.popen("choose.pyw")
-                enable("choose.txt")
                 exit()
             name = choice(names)
             num = numbers[names.index(name)]
@@ -150,4 +140,5 @@ tk.mainloop()
 2023-03-11：1.6.1：优化代码，提高加载界面出现速度
 2023-03-18：1.7.0：添加避免重复打开功能
 2023-03-19：1.7.1：优化避免重复打开功能
+2023-03-25：1.8.0：优化代码，提高加载速度
 '''

@@ -1,12 +1,8 @@
 # 程序信息
 
-version = "1.3.1"
+version = "1.4.0"
 
 # 导入运行库
-
-import os, sys
-from tkinter import *
-from tkinter import ttk
 from zb import *
 
 # 加载信息
@@ -29,7 +25,6 @@ tk.wm_attributes("-topmost", 1)
 check_ico(tk, "logo.ico")
 st = ttk.Style()
 st.configure("TButton")
-tk.protocol('WM_DELETE_WINDOW', lambda: hide("E:/编程/server.github.io/docs/Myself/manger.txt"))
 
 
 # 功能
@@ -41,7 +36,6 @@ def b1():
 def open(names):
     os.chdir(pj(path, str(names)))
     os.popen(pj(path, str(names), "main.pyw"))
-    enable("E:/编程/server.github.io/docs/Myself/manger.txt")
     sys.exit()
 
 
@@ -51,6 +45,7 @@ ttk.Label(tk, text="管理器").place(x=78, y=0, width=150, height=30)
 ttk.Button(tk, text="打开文件夹", style="TButton", command=b1).place(x=0, y=30, width=200, height=30)
 ttk.Button(tk, text="打开Myself", style="TButton", command=lambda: open("Myself")).place(x=0, y=60, width=100, height=30)
 ttk.Button(tk, text="打开Seewo", style="TButton", command=lambda: open("Seewo")).place(x=100, y=60, width=100, height=30)
+close()
 tk.mainloop()
 
 '''
@@ -62,4 +57,5 @@ tk.mainloop()
 2023-03-05：1.2.3：优化代码
 2023-03-18：1.3.0：添加避免重复打开功能
 2023-03-19：1.3.1：优化避免重复打开功能
+2023-03-25：1.4.0：添加加载界面，优化代码
 '''

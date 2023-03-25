@@ -1,9 +1,5 @@
 # 导入运行库
-
-import os
 from zb import *
-from tkinter import *
-from tkinter import ttk
 
 # 读取信息
 check()
@@ -22,19 +18,16 @@ tk.wm_attributes("-topmost", 1)
 tk.overrideredirect(True)
 st = ttk.Style()
 st.configure("TButton")
-tk.protocol('WM_DELETE_WINDOW', lambda: hide("hide.txt"))
 
 
 # 功能
 
 def start():
     os.popen("main.pyw")
-    enable("hide.txt")
     tk.destroy()
 
 
 def close():
-    enable("hide.txt")
     tk.destroy()
 
 

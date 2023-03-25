@@ -1,24 +1,17 @@
 # 程序信息
 
-version = "3.7.1"
+version = "4.0.0"
 edition = "Seewo"
 
 # 导入运行库
+from zb import *
 
-import os, sys, webbrowser
+check()
+disable("main.txt")
 
-try:
-    from zb import *
-    check()
-    disable("main.txt")
-except:
-    os.popen("update.pyw")
-    os.remove("main.txt")
-    sys.exit()
-start()
-from tkinter import *
-from tkinter import ttk
-
+settings = read_setting()
+settings[0]=edition
+save_setting(settings)
 # 窗口初始化
 
 tk = Tk()
@@ -36,7 +29,6 @@ st.configure("TButton")
 
 def hide():
     os.popen("hide.pyw")
-    enable("main.txt")
     exit()
 
 
@@ -48,13 +40,11 @@ tk.protocol('WM_DELETE_WINDOW', hide)
 
 def b1():
     os.popen("choose.pyw")
-    enable("main.txt")
     exit()
 
 
 def b2():
     os.popen("function.pyw")
-    enable("main.txt")
     exit()
 
 
@@ -70,21 +60,20 @@ def b3():
 
 def b4():
     webbrowser.open("https://tv.cctv.cn/live/cctv13")
-    enable("main.txt")
     exit()
 
 
 def b5():
     webbrowser.open("http://10.8.8.35:8443/live/31384275e5e0443fa4364714fcbf85fd")
-    enable("main.txt")
     exit()
 
 
 def b6():
     os.popen(pj(os.getcwd(), "update.pyw"))
-    enable("main.txt")
     exit()
-
+def b7():
+    os.popen(pj(os.getcwd(), "setting.pyw"))
+    exit()
 
 # 控件
 
@@ -107,8 +96,9 @@ ttk.Button(tk, text="查看系统信息", style="TButton", command=lambda: MyThr
 ttk.Button(tk, text="强制关闭程序", style="TButton", command=lambda: MyThread(kill_py)).place(x=200, y=150, width=100, height=30)
 ttk.Separator(tk, orient=VERTICAL).place(x=200, y=0, width=1, height=180)
 ttk.Separator(tk, orient=HORIZONTAL).place(x=0, y=180, width=400, height=2)
-ttk.Label(tk, text="zb的小程序For " + edition + " 版本  " + version).place(x=60, y=190, width=200, height=30)
-ttk.Button(tk, text="检查更新", style="TButton", command=lambda: MyThread(b6)).place(x=260, y=190, width=80, height=30)
+ttk.Label(tk, text="zb的小程序For " + edition + " 版本  " + version).place(x=30, y=190, width=200, height=30)
+ttk.Button(tk, text="设置", style="TButton", command=lambda: MyThread(b7)).place(x=230, y=190, width=80, height=30)
+ttk.Button(tk, text="检查更新", style="TButton", command=lambda: MyThread(b6)).place(x=310, y=190, width=80, height=30)
 ttk.Separator(tk, orient=HORIZONTAL).place(x=0, y=230, width=400, height=2)
 ttk.Label(tk, text="夹带私货").place(x=175, y=235, width=150, height=30)
 ttk.Button(tk, text="zb的网站", style="TButton", command=lambda: MyThread(webbrowser.open("https://ianzb.github.io/"))).place(x=0, y=265, width=100, height=30)

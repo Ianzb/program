@@ -1,7 +1,35 @@
-# 多线程优化
-import threading,sys,os
+import os, time, sys, shutil
+
 os.chdir(sys.argv[0][:sys.argv[0].rfind(r"\ "[:-1])])
 
+
+# 开始加载
+def start():
+    os.popen("load.pyw")
+
+
+# 取消加载
+def close():
+    path = sys.argv[0][:sys.argv[0].rfind(r"\ "[:-1]) + 1] + "pid.txt"
+    try:
+        with open(file=path, mode="r") as file:
+            pid = file.read()
+    except:
+        pass
+    os.popen("taskkill.exe /F /pid:" + pid)
+    os.remove(path)
+
+
+if sys.argv[0][sys.argv[0].rfind(r"\ "[:-1]) + 1:] not in ["hide.pyw", "load.pyw"]:
+    start()
+
+from tkinter import *
+from tkinter import ttk
+from tkinter.messagebox import *
+import threading, pickle, filecmp, glob, stat, bs4, lxml, requests, winreg, send2trash, winshell, platform, psutil, wmi, pythoncom, webbrowser, win32api, win32con,random,pandas,numpy
+
+
+# 多线程优化
 class MyThread(threading.Thread):
     def __init__(self, func, *args):
         super().__init__()
@@ -16,37 +44,33 @@ class MyThread(threading.Thread):
         self.func(*self.args)
 
 
-# 开始加载
-def start():
-    import os, time
-    os.popen("load.pyw")
-    time.sleep(0.5)
+# 保存设置
+def save_setting(data):
+    with open("setting.zb", 'wb') as file:
+        pickle.dump(data, file)
 
 
-# 取消加载
-def close():
-    import os
-    if not os.path.exists("pid.txt"):
-        return
-    with open(file="pid.txt", mode="r") as file:
-        pid = file.read()
-    os.remove("pid.txt")
-    os.popen("taskkill.exe /F /pid:" + pid)
+# 读取设置
+def read_setting():
+    if os.path.exists("setting.zb"):
+        with open("setting.zb", 'rb') as file:
+            settings = pickle.load(file)
+    else:
+        settings = [None for i in range(100)]
+    return settings
 
 
 # 关闭程序
 def exit():
-    import sys, os
     os.popen("taskkill.exe /pid:" + str(os.getpid()))
     sys.exit()
 
 
 # 不可以打开就关闭程序
 def check():
-    import os,sys
-    if os.path.exists(sys.argv[0].replace(".pyw",".txt")):
-        with open(file=sys.argv[0].replace(".pyw",".txt"), mode="r") as file:
-            pid=file.read()
+    if os.path.exists(sys.argv[0].replace(".pyw", ".txt")):
+        with open(file=sys.argv[0].replace(".pyw", ".txt"), mode="r") as file:
+            pid = file.read()
         try:
             os.kill(int(pid), 0)
             exit()
@@ -57,42 +81,31 @@ def check():
 
 # 不可以打开程序
 def disable(name):
-    import os
     with open(file=name, mode="w") as file:
         file.write(str(os.getpid()))
 
 
-# 可以打开程序
-def enable(name):
-    import os
-    try:
-        os.remove(name)
-    except:
-        pass
-
-#关闭程序后
-def hide(name):
-    enable(name)
-    exit()
+#桌面路径
+def desktop():
+    key = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
+                         r'Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders')
+    return winreg.QueryValueEx(key, "Desktop")[0]
 
 # 关闭所有python程序
 def kill_py():
-    import os
-    enable("../Myself/main.txt")
-    enable("../Myself/hide.txt")
-    enable("../Myself/manger.txt")
-    enable("../Myself/update.txt")
-    enable("../Seewo/hide.txt")
-    enable("../Seewo/main.txt")
-    enable("../Seewo/function.txt")
-    enable("../Seewo/choose.txt")
-    enable("../Seewo/update.txt")
-    enable("main.txt")
-    enable("hide.txt")
-    enable("manger.txt")
-    enable("function.txt")
-    enable("choose.txt")
-    enable("update.txt")
+    for root, dirs, files in os.walk("../Myself/"):
+        for name in files:
+            if name.endswith(".txt"):
+                os.remove(os.path.join(root, name))
+    for root, dirs, files in os.walk("../Seewo/"):
+        for name in files:
+            if name.endswith(".txt"):
+                os.remove(os.path.join(root, name))
+    for root, dirs, files in os.walk("./"):
+        for name in files:
+            if name.endswith(".txt"):
+                os.remove(os.path.join(root, name))
+
     os.popen("taskkill.exe /F /IM py.exe")
     os.popen("taskkill.exe /F /IM pyw.exe")
     os.popen("taskkill.exe /F /IM python.exe")
@@ -101,7 +114,6 @@ def kill_py():
 
 # 更好的路径拼接
 def pj(*a):
-    import os
     out = ""
     for i in a:
         out = os.path.join(out, i)
@@ -135,7 +147,6 @@ def remove_if_in(d, name):
 
 # 清理重复整理文件
 def clear_repeat(name):
-    import filecmp, glob, os
     list = []
     list.append(pj(name, "PPT/"))
     list.append(pj(name, "表格/"))
@@ -160,7 +171,6 @@ def clear_repeat(name):
 
 # 整理指定目录文件到指定位置
 def move_files(old, new):
-    import stat, shutil, os
     list2 = []
     list3 = os.walk(old)
     for i in list3: list2.append(i)
@@ -240,7 +250,6 @@ def move_files(old, new):
 # MC版本爬虫
 def get_mc():
     useful = ["{{v|java}}", "{{v|java-experimental}}", "{{v|java-snap}}", "{{v|java-combat}}", "{{v|bedrock}}", "{{v|bedrock-beta}}", "{{v|bedrock-preview}}", "{{v|dungeons}}", "{{v|launcher}}", "{{v|launcher-beta}}", "{{v|education}}", "{{v|education-beta}}", "{{v|china-win}}", "{{v|china-android}}"]
-    import bs4, lxml, requests, os
     temp = os.getenv("TEMP")
     l1 = []
     v1 = []
@@ -273,7 +282,6 @@ def get_mc():
 
 # 重启PPT小助手
 def ppt_restart():
-    import time, os
     os.popen("taskkill -f -im PPTService.exe")
     time.sleep(0.2)
     os.popen("C:/Program Files (x86)/Seewo/PPTService/Main/PPTService.exe")
@@ -281,7 +289,6 @@ def ppt_restart():
 
 # 清理希沃视频展台文件
 def clear_seewo():
-    import send2trash, time, os
     try:
         list = os.walk(r"D:/EasiCameraPhoto")
         list2 = []
@@ -295,7 +302,6 @@ def clear_seewo():
 
 # 整理微信文件
 def clear_wechat(path, to):
-    import os
     try:
         list = []
         list2 = []
@@ -315,15 +321,11 @@ def clear_wechat(path, to):
 
 # 整理桌面文件
 def clear_desk(to):
-    import winreg
-    key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, "Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders")
-    path = winreg.QueryValueEx(key, "Desktop")[0]
-    move_files(path, to)
+    move_files(desktop(), to)
 
 
 # 清理系统缓存
 def clear_cache():
-    import shutil, os
     list = []
     list1 = os.walk(os.getenv("TEMP"))
     for i in list1: list.append(i)
@@ -343,7 +345,6 @@ def clear_cache():
 
 # 清理回收站
 def clear_rubbish():
-    import winshell
     try:
         winshell.recycle_bin().empty(confirm=False, show_progress=False, sound=False)
     except:
@@ -352,7 +353,6 @@ def clear_rubbish():
 
 # 重启文件资源管理器
 def restart_explorer():
-    import time, os
     os.popen("taskkill /f /im explorer.exe")
     time.sleep(0.2)
     os.popen("start C:/windows/explorer.exe")
@@ -360,7 +360,6 @@ def restart_explorer():
 
 # 整理+清理常用软件文件
 def clear_apps():
-    import shutil
     move_files(r"D:/Files/QQ/93322252/FileRecv", "E:/整理文件")
     move_files(r"D:/Files/Ding Talk", "E:/整理文件")
     move_files(r"D:/Files/百度网盘", "E:/整理文件")
@@ -372,7 +371,6 @@ def clear_apps():
 
 # 获取系统信息
 def sys_info():
-    import platform, os, psutil, wmi, pythoncom
     temp = os.getenv("TEMP")
 
     # CPU
@@ -401,3 +399,91 @@ def sys_info():
         file.write("\nPython版本信息：" + platform.python_version())
 
     os.popen(pj(temp, "sysinfo.txt"))
+
+
+# 开机自启动
+# AutoRun(switch="open", zdynames=os.path.basename(os.path.join(path, "hide.pyw"))
+# AutoRun(switch="close", zdynames=os.path.basename(os.path.join(path, "hide.pyw"))
+# 判断键是否存在
+def Judge_Key(key_name,
+              reg_root=win32con.HKEY_CURRENT_USER,  # 根节点  其中的值可以有：HKEY_CLASSES_ROOT、HKEY_CURRENT_USER、HKEY_LOCAL_MACHINE、HKEY_USERS、HKEY_CURRENT_CONFIG
+              reg_path=r"SOFTWARE\Microsoft\Windows\CurrentVersion\Run",  # 键的路径
+              ):
+    # print(key_name)
+    """
+    :param key_name: #  要查询的键名
+    :param reg_root: # 根节点
+    #win32con.HKEY_CURRENT_USER
+    #win32con.HKEY_CLASSES_ROOT
+    #win32con.HKEY_CURRENT_USER
+    #win32con.HKEY_LOCAL_MACHINE
+    #win32con.HKEY_USERS
+    #win32con.HKEY_CURRENT_CONFIG
+    :param reg_path: #  键的路径
+    :return:feedback是（0/1/2/3：存在/不存在/权限不足/报错）
+    """
+    reg_flags = win32con.WRITE_OWNER | win32con.KEY_WOW64_64KEY | win32con.KEY_ALL_ACCESS
+    try:
+        key = winreg.OpenKey(reg_root, reg_path, 0, reg_flags)
+        location, type = winreg.QueryValueEx(key, key_name)
+        print("键存在", "location（数据）:", location, "type:", type)
+        feedback = 0
+    except FileNotFoundError as e:
+        print("键不存在", e)
+        feedback = 1
+    except PermissionError as e:
+        print("权限不足", e)
+        feedback = 2
+    except:
+        print("Error")
+        feedback = 3
+    return feedback
+
+
+def AutoRun(switch="open",  # 开：open # 关：close
+            zdynames=None,
+            current_file=None,
+            abspath=os.path.abspath(os.path.dirname(__file__))):
+    """
+    :param switch: 注册表开启、关闭自启动
+    :param zdynames: 当前文件名
+    :param current_file: 获得文件名的前部分
+    :param abspath: 当前文件路径
+    :return:
+    """
+    print(zdynames)
+
+    path = abspath + '\\' + zdynames  # 要添加的exe完整路径如：
+    judge_key = Judge_Key(reg_root=win32con.HKEY_CURRENT_USER,
+                          reg_path=r"Software\Microsoft\Windows\CurrentVersion\Run",  # 键的路径
+                          key_name=current_file)
+    # 注册表项名
+    KeyName = r'Software\Microsoft\Windows\CurrentVersion\Run'
+    key = win32api.RegOpenKey(win32con.HKEY_CURRENT_USER, KeyName, 0, win32con.KEY_ALL_ACCESS)
+    if switch == "open":
+        # 异常处理
+        try:
+            if judge_key == 0:
+                print("已经开启了，无需再开启")
+            elif judge_key == 1:
+                win32api.RegSetValueEx(key, current_file, 0, win32con.REG_SZ, path)
+                win32api.RegCloseKey(key)
+                print('开机自启动添加成功！')
+        except:
+            print('添加失败')
+    elif switch == "close":
+        try:
+            if judge_key == 0:
+                win32api.RegDeleteValue(key, current_file)  # 删除值
+                win32api.RegCloseKey(key)
+                print('成功删除键！')
+            elif judge_key == 1:
+                print("键不存在")
+            elif judge_key == 2:
+                print("权限不足")
+            else:
+                print("出现错误")
+        except:
+            print('删除失败')
+
+

@@ -1,15 +1,12 @@
 # 程序信息
 
-version = "2.5.1"
+version = "2.6.0"
 
 # 导入运行库
 
 from zb import *
-import os
 check()
 disable("function.txt")
-start()
-import numpy, random
 from math import *
 from decimal import *
 from matplotlib import pyplot
@@ -28,7 +25,6 @@ tk.wm_attributes("-topmost", 1)
 check_ico(tk, "logo.ico")
 st = ttk.Style()
 st.configure("TButton")
-tk.protocol('WM_DELETE_WINDOW', lambda: hide("function.txt"))
 
 
 # 功能
@@ -422,4 +418,5 @@ tk.mainloop()
 2023-03-11：2.4.1：优化代码，提高加载界面出现速度
 2023-03-18：2.5.0：添加避免重复打开功能
 2023-03-19：2.5.1：优化避免重复打开功能
+2023-03-25：2.6.0：优化代码，提高加载速度
 '''
