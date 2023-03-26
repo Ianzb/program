@@ -43,6 +43,12 @@ def b4():
 
 
 def b2():
+    if settings[0] == "Myself" and "Ian" not in platform.node():
+        showerror("错误", "zb小程序 Myself 暂未适配你的电脑，暂时无法使用")
+        return
+    if settings[0] == "Seewo" and "seewo" not in platform.node().lower():
+        showerror("错误", "zb小程序 Seewo 暂未适配你的电脑，暂时无法使用")
+        return
     clear_rubbish()
     clear_cache()
     clear_desk(settings[3])
@@ -147,7 +153,6 @@ if settings[0] == "Seewo":
 
 Button(tab2, text="点名器", style="TButton", command=lambda: MyThread(b1)).place(x=0, y=0, width=196, height=30)
 Button(tab2, text="函数工具", style="TButton", command=lambda: MyThread(b4)).place(x=0, y=30, width=196, height=30)
-
 
 OptionMenu(tab3, val2, *listforval2).place(x=0, y=0, width=90, height=30)
 Label(tab3, text="当前为 " + settings[0]).place(x=98, y=0, width=98, height=30)
