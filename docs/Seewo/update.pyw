@@ -1,12 +1,17 @@
-# 程序信息
-edition = "Seewo"
-
 # 导入运行库
-import threading, os, re
+import threading, os, re,pickle
 from tkinter import *
-from tkinter import ttk
+from tkinter.ttk import *
 from tkinter.messagebox import *
-
+def read_setting():
+    if os.path.exists("setting.zb"):
+        with open("setting.zb", "rb") as file:
+            settings = pickle.load(file)
+    else:
+        settings = ["Myself",0,None,"E:/整理文件","D:/Files/Wechat/WeChat Files"]+[None for i in range(100)]
+    return settings
+settings=read_setting()
+edition=settings[0]
 # 加载信息
 using = False
 path = "C:\zb"
@@ -21,7 +26,7 @@ y = 90
 tk.geometry("%dx%d+%d+%d" % (x, y, (tk.winfo_screenwidth() - x) / 2, (tk.winfo_screenheight() - y) / 2))
 tk.resizable(False, False)
 tk.wm_attributes("-topmost", 1)
-st = ttk.Style()
+st = Style()
 st.configure("TButton")
 
 try:
@@ -44,6 +49,7 @@ class MyThread(threading.Thread):
 
     def run(self):
         self.func(*self.args)
+
 
 
 def download(link):
@@ -73,12 +79,12 @@ def check_update(name):
     if not askokcancel("提示", "是否安装zb小程序？"):
         using = False
         return None
-    link = "https://ianzb.github.io/server.github.io/" + name + "/"
-    res = requests.get(link + "index.html")
+    link = "https://ianzb.github.io/server.github.io/files/"
+    res = requests.get(link + edition.lower()+".html")
     res.encoding = "UTF-8"
     soup = bs4.BeautifulSoup(res.text, "lxml")
     data = soup.find_all(name="div", class_="download", text=re.compile("."))
-    for i in range(len(data)): data[i] = str(data[i]).replace(r'<div class="download">', "").replace("</div>", "").strip()
+    for i in range(len(data)): data[i] = str(data[i]).replace('<div class="download">', "").replace("</div>", "").strip()
     print(data)
     for i in range(len(data)):
         MyThread(download(link + data[i]))
@@ -106,7 +112,6 @@ def download_lib():
         vari.set(int(100 * i / len(lib_list)))
     vari.set(100)
     showinfo("提示", "运行库安装完毕，重启安装器生效！")
-    vari.set(100)
     using = False
     exit()
 
@@ -115,8 +120,8 @@ def download_lib():
 
 vari = IntVar()
 vari.set(0)
-ttk.Progressbar(tk, mode="determinate", variable=vari).place(x=0, y=0, width=200, height=30)
-ttk.Button(tk, text="立刻安装 zb小程序 for " + edition, style="TButton", command=lambda: MyThread(check_update(edition))).place(x=0, y=30, width=200, height=30)
-ttk.Button(tk, text="安装 zb小程序 运行库", style="TButton", command=lambda: MyThread(download_lib)).place(x=0, y=60, width=200, height=30)
+Progressbar(tk, mode="determinate", variable=vari).place(x=0, y=0, width=200, height=30)
+Button(tk, text="立刻安装 zb小程序 " + edition, style="TButton", command=lambda: MyThread(check_update(edition))).place(x=0, y=30, width=200, height=30)
+Button(tk, text="安装 zb小程序 运行库", style="TButton", command=lambda: MyThread(download_lib)).place(x=0, y=60, width=200, height=30)
 
 tk.mainloop()

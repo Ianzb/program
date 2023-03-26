@@ -24,9 +24,10 @@ if sys.argv[0][sys.argv[0].rfind(r"\ "[:-1]) + 1:] not in ["hide.pyw", "load.pyw
     start()
 
 from tkinter import *
-from tkinter import ttk
+from tkinter.ttk import *
 from tkinter.messagebox import *
-import threading, pickle, filecmp, glob, stat, bs4, lxml, requests, winreg, send2trash, winshell, platform, psutil, wmi, pythoncom, webbrowser, win32api, win32con,random,pandas,numpy
+from tkinter.filedialog import *
+import threading, pickle, filecmp, glob, stat, bs4, lxml, requests, winreg, send2trash, winshell, platform, psutil, wmi, pythoncom, webbrowser, win32api, win32con, random, pandas, numpy
 
 
 # 多线程优化
@@ -46,17 +47,17 @@ class MyThread(threading.Thread):
 
 # 保存设置
 def save_setting(data):
-    with open("setting.zb", 'wb') as file:
+    with open("setting.zb", "wb") as file:
         pickle.dump(data, file)
 
 
 # 读取设置
 def read_setting():
     if os.path.exists("setting.zb"):
-        with open("setting.zb", 'rb') as file:
+        with open("setting.zb", "rb") as file:
             settings = pickle.load(file)
     else:
-        settings = [None for i in range(100)]
+        settings = ["Myself", 0] + [None for i in range(100)]
     return settings
 
 
@@ -85,22 +86,15 @@ def disable(name):
         file.write(str(os.getpid()))
 
 
-#桌面路径
+# 桌面路径
 def desktop():
     key = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
-                         r'Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders')
+                         r"Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders")
     return winreg.QueryValueEx(key, "Desktop")[0]
+
 
 # 关闭所有python程序
 def kill_py():
-    for root, dirs, files in os.walk("../Myself/"):
-        for name in files:
-            if name.endswith(".txt"):
-                os.remove(os.path.join(root, name))
-    for root, dirs, files in os.walk("../Seewo/"):
-        for name in files:
-            if name.endswith(".txt"):
-                os.remove(os.path.join(root, name))
     for root, dirs, files in os.walk("./"):
         for name in files:
             if name.endswith(".txt"):
@@ -453,12 +447,12 @@ def AutoRun(switch="open",  # 开：open # 关：close
     """
     print(zdynames)
 
-    path = abspath + '\\' + zdynames  # 要添加的exe完整路径如：
+    path = abspath + "\\" + zdynames  # 要添加的exe完整路径如：
     judge_key = Judge_Key(reg_root=win32con.HKEY_CURRENT_USER,
                           reg_path=r"Software\Microsoft\Windows\CurrentVersion\Run",  # 键的路径
                           key_name=current_file)
     # 注册表项名
-    KeyName = r'Software\Microsoft\Windows\CurrentVersion\Run'
+    KeyName = r"Software\Microsoft\Windows\CurrentVersion\Run"
     key = win32api.RegOpenKey(win32con.HKEY_CURRENT_USER, KeyName, 0, win32con.KEY_ALL_ACCESS)
     if switch == "open":
         # 异常处理
@@ -468,15 +462,15 @@ def AutoRun(switch="open",  # 开：open # 关：close
             elif judge_key == 1:
                 win32api.RegSetValueEx(key, current_file, 0, win32con.REG_SZ, path)
                 win32api.RegCloseKey(key)
-                print('开机自启动添加成功！')
+                print("开机自启动添加成功！")
         except:
-            print('添加失败')
+            print("添加失败")
     elif switch == "close":
         try:
             if judge_key == 0:
                 win32api.RegDeleteValue(key, current_file)  # 删除值
                 win32api.RegCloseKey(key)
-                print('成功删除键！')
+                print("成功删除键！")
             elif judge_key == 1:
                 print("键不存在")
             elif judge_key == 2:
@@ -484,6 +478,4 @@ def AutoRun(switch="open",  # 开：open # 关：close
             else:
                 print("出现错误")
         except:
-            print('删除失败')
-
-
+            print("删除失败")
