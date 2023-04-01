@@ -40,7 +40,12 @@ except:
 
 
 # 功能
-
+def pj(*a):
+    out = ""
+    for i in a:
+        out = os.path.join(out, i)
+    out = out.replace("//", r"\ "[:-1]).replace(r"\\ "[:-1], r"\ "[:-1]).replace("\/", r"\ "[:-1]).replace("/\ "[:-1], r"\ "[:-1]).replace("/", r"\ "[:-1])
+    return out
 class MyThread(threading.Thread):
     def __init__(self, func, *args):
         super().__init__()
@@ -60,15 +65,9 @@ def download(link):
     response1 = requests.get(link)
     response1.encoding = "UTF-8"
     main = response1.content
-    try:
-        os.makedirs(os.path.join(path, link[link.rfind("/") + 1:]).replace("//",r"\ "[:-1]))
-    except:
-        pass
-    try:
-        os.mkdir(os.path.join(path, link[link.rfind("/") + 1:]).replace("//",r"\ "[:-1]))
-    except:
-        pass
-    with open(os.path.join(path, link[link.rfind("/") + 1:]), "wb") as file:
+    print(path,link[link.rfind("/") + 1:])
+    print(pj(path, link[link.rfind("/") + 1:]))
+    with open(pj(path, link[link.rfind("/") + 1:]), "wb") as file:
         file.write(main)
 
 
@@ -102,7 +101,7 @@ def check_update(name):
         vari.set(int(100 * i / len(data)))
         tk.update()
     showinfo("提示", "zb小程序安装完毕！")
-    os.popen(os.path.join(path, "main.pyw"))
+    os.popen(pj(path, "main.pyw"))
     vari.set(100)
     using = False
     exit()
