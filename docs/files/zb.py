@@ -24,6 +24,7 @@ if sys.argv[0][sys.argv[0].rfind(r"\ "[:-1]) + 1:] not in ["hide.pyw", "load.pyw
     start()
 
 from tkinter import *
+from tkinter import ttk
 from tkinter.ttk import *
 from tkinter.messagebox import *
 from tkinter.filedialog import *

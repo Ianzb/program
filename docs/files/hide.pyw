@@ -32,6 +32,6 @@ def close():
 
 
 # 控件
-Button(tk, text="", style="TButton", command=lambda: MyThread(start())).place(x=0, y=0, width=15, height=20)
-Button(tk, text="", style="TButton", command=lambda: MyThread(close())).place(x=0, y=20, width=15, height=20)
+ttk.Button(tk, text="", style="TButton", command=lambda: MyThread(start())).place(x=0, y=0, width=15, height=20)
+ttk.Button(tk, text="", style="TButton", command=lambda: MyThread(close())).place(x=0, y=20, width=15, height=20)
 tk.mainloop()

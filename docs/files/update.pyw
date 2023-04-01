@@ -1,6 +1,7 @@
 # 导入运行库
 import threading, os, re, pickle
 from tkinter import *
+from tkinter import ttk
 from tkinter.ttk import *
 from tkinter.messagebox import *
 
@@ -131,8 +132,8 @@ def download_lib():
 
 vari = IntVar()
 vari.set(0)
-Progressbar(tk, mode="determinate", variable=vari).place(x=0, y=0, width=200, height=30)
-Button(tk, text="立刻安装 zb小程序 " + edition, style="TButton", command=lambda: MyThread(check_update(edition))).place(x=0, y=30, width=200, height=30)
-Button(tk, text="安装 zb小程序 运行库", style="TButton", command=lambda: MyThread(download_lib)).place(x=0, y=60, width=200, height=30)
+ttk.Progressbar(tk, mode="determinate", variable=vari).place(x=0, y=0, width=200, height=30)
+ttk.Button(tk, text="立刻安装 zb小程序 " + edition, style="TButton", command=lambda: MyThread(check_update(edition))).place(x=0, y=30, width=200, height=30)
+ttk.Button(tk, text="安装 zb小程序 运行库", style="TButton", command=lambda: MyThread(download_lib)).place(x=0, y=60, width=200, height=30)
 
 tk.mainloop()
