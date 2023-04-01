@@ -21,9 +21,6 @@ settings = read_setting()
 edition = settings[0]
 # 加载信息
 using = False
-path = "C:\zb"
-if os.path.exists("main.pyw"):
-    path = ""
 lib_list = ["lxml", "pypiwin32", "pandas", "numpy", "bs4", "requests", "send2trash", "winshell", "matplotlib", "openpyxl", "PyAudio", "python-xlib", "pymouse", "pyautogui", "PyUserInput", "psutil", "wmi"]
 # 窗口初始化
 tk = Tk()
@@ -70,7 +67,7 @@ def download(link):
     response1 = requests.get(link)
     response1.encoding = "UTF-8"
     main = response1.content
-    with open(pj(path, link[link.rfind("/") + 1:]), "wb") as file:
+    with open(link[link.rfind("/") + 1:], "wb") as file:
         file.write(main)
 
 
@@ -103,7 +100,7 @@ def check_update(name):
         vari.set(int(100 * i / len(data)))
         tk.update()
     showinfo("提示", "zb小程序安装完毕！")
-    os.popen(pj(path, "main.pyw"))
+    os.popen("main.pyw")
     vari.set(100)
     using = False
     exit()
