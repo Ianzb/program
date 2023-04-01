@@ -104,8 +104,8 @@ def btn2():
 Label(tk, font=("等线", 15), text="   点名器").place(x=300, y=0, width=200, height=30)
 Label(tk, font=("等线", 30), textvariable=t2).place(x=-5, y=50, width=800, height=100)
 Label(tk, font=("等线", 20), textvariable=t3).place(x=230, y=150, width=400, height=100)
-Button(tk, text="点名1人", style="TButton", command=btn1).place(x=250, y=270, width=100, height=30)
-Button(tk, text="点名5人", style="TButton", command=btn2).place(x=350, y=270, width=100, height=30)
+Button(tk, text="点名1人", command=btn1).place(x=250, y=270, width=100, height=30)
+Button(tk, text="点名5人", command=btn2).place(x=350, y=270, width=100, height=30)
 close()
 tk.mainloop()
 
