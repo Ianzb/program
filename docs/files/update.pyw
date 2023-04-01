@@ -61,11 +61,11 @@ def download(link):
     response1.encoding = "UTF-8"
     main = response1.content
     try:
-        os.makedirs(os.path.join(path, link[link.rfind("/") + 1:]))
+        os.makedirs(os.path.join(path, link[link.rfind("/") + 1:]).replace("//",r"\ "[:-1]))
     except:
         pass
     try:
-        os.mkdir(os.path.join(path, link[link.rfind("/") + 1:]))
+        os.mkdir(os.path.join(path, link[link.rfind("/") + 1:]).replace("//",r"\ "[:-1]))
     except:
         pass
     with open(os.path.join(path, link[link.rfind("/") + 1:]), "wb") as file:
