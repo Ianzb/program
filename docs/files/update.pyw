@@ -1,9 +1,11 @@
 # 导入运行库
-import threading, os, re, pickle
+import threading, os, re, pickle, sys
 from tkinter import *
 from tkinter import ttk
 from tkinter.ttk import *
 from tkinter.messagebox import *
+
+os.chdir(sys.argv[0][:sys.argv[0].rfind(r"\ "[:-1])])
 
 
 def read_setting():
@@ -47,6 +49,8 @@ def pj(*a):
         out = os.path.join(out, i)
     out = out.replace("//", r"\ "[:-1]).replace(r"\\ "[:-1], r"\ "[:-1]).replace("\/", r"\ "[:-1]).replace("/\ "[:-1], r"\ "[:-1]).replace("/", r"\ "[:-1])
     return out
+
+
 class MyThread(threading.Thread):
     def __init__(self, func, *args):
         super().__init__()
@@ -66,9 +70,6 @@ def download(link):
     response1 = requests.get(link)
     response1.encoding = "UTF-8"
     main = response1.content
-    print(path,link[link.rfind("/") + 1:])
-    print(pj(path, link[link.rfind("/") + 1:]))
-
     with open(pj(path, link[link.rfind("/") + 1:]), "wb") as file:
         file.write(main)
 
@@ -98,8 +99,7 @@ def check_update(name):
     data = soup.find_all(name="div", class_="download", text=re.compile("."))
     for i in range(len(data)): data[i] = str(data[i]).replace('<div class="download">', "").replace("</div>", "").strip()
     for i in range(len(data)):
-        print(data[i])
-        MyThread(download(link + data[i]))
+        download(link + data[i])
         vari.set(int(100 * i / len(data)))
         tk.update()
     showinfo("提示", "zb小程序安装完毕！")
