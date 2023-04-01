@@ -1,17 +1,21 @@
 # 导入运行库
-import threading, os, re,pickle
+import threading, os, re, pickle
 from tkinter import *
 from tkinter.ttk import *
 from tkinter.messagebox import *
+
+
 def read_setting():
     if os.path.exists("setting.zb"):
         with open("setting.zb", "rb") as file:
             settings = pickle.load(file)
     else:
-        settings = ["Myself",0,None,"E:/整理文件","D:/Files/Wechat/WeChat Files"]+[None for i in range(100)]
+        settings = ["Myself", 0, None, "E:/整理文件", "D:/Files/Wechat/WeChat Files"] + [None for i in range(100)]
     return settings
-settings=read_setting()
-edition=settings[0]
+
+
+settings = read_setting()
+edition = settings[0]
 # 加载信息
 using = False
 path = "C:\zb"
@@ -51,12 +55,19 @@ class MyThread(threading.Thread):
         self.func(*self.args)
 
 
-
 def download(link):
     import requests
     response1 = requests.get(link)
     response1.encoding = "UTF-8"
     main = response1.content
+    try:
+        os.makedirs(os.path.join(path, link[link.rfind("/") + 1:]))
+    except:
+        pass
+    try:
+        os.mkdir(os.path.join(path, link[link.rfind("/") + 1:]))
+    except:
+        pass
     with open(os.path.join(path, link[link.rfind("/") + 1:]), "wb") as file:
         file.write(main)
 
@@ -80,13 +91,13 @@ def check_update(name):
         using = False
         return None
     link = "https://ianzb.github.io/server.github.io/files/"
-    res = requests.get(link + edition.lower()+".html")
+    res = requests.get(link + "index.html")
     res.encoding = "UTF-8"
     soup = bs4.BeautifulSoup(res.text, "lxml")
     data = soup.find_all(name="div", class_="download", text=re.compile("."))
     for i in range(len(data)): data[i] = str(data[i]).replace('<div class="download">', "").replace("</div>", "").strip()
-    print(data)
     for i in range(len(data)):
+        print(data[i])
         MyThread(download(link + data[i]))
         vari.set(int(100 * i / len(data)))
         tk.update()
@@ -109,7 +120,7 @@ def download_lib():
     using = True
     for i in range(len(lib_list)):
         pip_install(lib_list[i])
-        vari.set(int(100 * i / len(lib_list)))
+        vari.set(int(100 * (i + 1) / len(lib_list)))
     vari.set(100)
     showinfo("提示", "运行库安装完毕，重启安装器生效！")
     using = False
