@@ -1,6 +1,6 @@
 # 程序信息
 
-version = "1.8.0"
+version = "1.9.0"
 
 # 导入运行库
 from zb import *
@@ -11,10 +11,10 @@ from secrets import choice
 
 # 读取信息
 
-with open("names.zb","r",encoding="utf-8") as file:
-    names=file.readlines()
+with open("names.zb", "r", encoding="utf-8") as file:
+    names = file.readlines()
 for i in range(len(names)):
-    names[i]=names[i].strip()
+    names[i] = names[i].strip()
 using = False
 
 # 窗口初始化
@@ -29,6 +29,7 @@ tk.wm_attributes("-topmost", 1)
 check_ico(tk, "logo.ico")
 st = Style()
 st.configure("TButton")
+sv_ttk.use_light_theme()
 t2 = StringVar()
 t3 = StringVar()
 
@@ -104,8 +105,8 @@ def btn2():
 ttk.Label(tk, font=("等线", 15), text="   点名器").place(x=300, y=0, width=200, height=30)
 ttk.Label(tk, font=("等线", 30), textvariable=t2).place(x=-5, y=50, width=800, height=100)
 ttk.Label(tk, font=("等线", 20), textvariable=t3).place(x=230, y=150, width=400, height=100)
-ttk.Button(tk, text="点名1人", style="TButton", command=btn1).place(x=250, y=270, width=100, height=30)
-ttk.Button(tk, text="点名5人", style="TButton", command=btn2).place(x=350, y=270, width=100, height=30)
+ttk.Button(tk, text="点名1人", style="TButton", command=btn1).place(x=250, y=265, width=100, height=35)
+ttk.Button(tk, text="点名5人", style="TButton", command=btn2).place(x=350, y=265, width=100, height=35)
 close()
 tk.mainloop()
 
@@ -128,4 +129,5 @@ tk.mainloop()
 2023-03-18：1.7.0：添加避免重复打开功能
 2023-03-19：1.7.1：优化避免重复打开功能
 2023-03-26：1.8.0：优化代码，提高加载速度，修改表格为加密文档
+2023-04-02：1.9.0：采用新UI，模仿Windows11风格
 '''

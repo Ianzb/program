@@ -1,10 +1,11 @@
 # 程序信息
 
-version = "2.6.0"
+version = "2.7.0"
 
 # 导入运行库
 
 from zb import *
+
 check()
 disable("function.txt")
 from math import *
@@ -23,6 +24,7 @@ tk.wm_attributes("-topmost", 1)
 check_ico(tk, "logo.ico")
 st = Style()
 st.configure("TButton")
+sv_ttk.use_light_theme()
 
 
 # 功能
@@ -417,4 +419,5 @@ tk.mainloop()
 2023-03-18：2.5.0：添加避免重复打开功能
 2023-03-19：2.5.1：优化避免重复打开功能
 2023-03-26：2.6.0：优化代码，提高加载速度
+2023-04-02：2.7.0：采用新UI，模仿Windows11风格
 '''

@@ -18,6 +18,7 @@ tk.wm_attributes("-topmost", 1)
 tk.overrideredirect(True)
 st = Style()
 st.configure("TButton")
+sv_ttk.use_light_theme()
 
 
 # 功能

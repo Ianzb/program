@@ -1,6 +1,6 @@
 # 程序信息
 
-version = "4.1.0"
+version = "4.2.0"
 
 # 导入运行库
 from zb import *
@@ -13,14 +13,15 @@ settings = read_setting()
 
 tk = Tk()
 tk.title(" zb的小程序 " + settings[0] + " " + version)
-x = 200
-y = 210
+x = 400
+y = 190
 tk.geometry("%dx%d+%d+%d" % (x, y, (tk.winfo_screenwidth() - x) / 2, (tk.winfo_screenheight() - y) / 2))
 tk.resizable(False, False)
 tk.wm_attributes("-topmost", 1)
 check_ico(tk, "logo.ico")
 st = Style()
 st.configure("TButton")
+sv_ttk.use_light_theme()
 
 
 def hide():
@@ -131,47 +132,47 @@ tab2 = ttk.Frame()
 tab3 = ttk.Frame()
 tab4 = ttk.Frame()
 
-# Button(tab2, text="zb的小程序管理器", style="TButton", command=lambda: MyThread(b1)).place(x=0, y=0, width=196, height=30)
+# Button(tab2, text="zb的小程序管理器", style="TButton", command=lambda: MyThread(b1)).place(x=0, y=0, width=196, height=35)
 # 右侧
-ttk.Button(tab1, text="一键整理+清理", style="TButton", command=lambda: MyThread(b2)).place(x=0, y=0, width=150, height=30)
-ttk.Button(tab1, text="打开", style="TButton", command=lambda: MyThread(os.startfile(settings[3]))).place(x=150, y=0, width=46, height=30)
+ttk.Button(tab1, text="一键整理+清理", style="TButton", command=lambda: MyThread(b2)).place(x=0, y=0, width=140, height=35)
+ttk.Button(tab1, text="打开", style="TButton", command=lambda: MyThread(os.startfile(settings[3]))).place(x=140, y=0, width=58, height=35)
 if settings[0] == "Myself":
-    ttk.Button(tab1, text="清理回收站", style="TButton", command=lambda: MyThread(clear_rubbish())).place(x=0, y=30, width=98, height=30)
-    ttk.Button(tab1, text="重启资源管理器", style="TButton", command=lambda: MyThread(restart_explorer())).place(x=98, y=30, width=98, height=30)
-    ttk.Button(tab1, text="强制关闭程序", style="TButton", command=lambda: MyThread(kill_py)).place(x=98, y=60, width=98, height=30)
-    ttk.Button(tab1, text="MC版本爬虫", style="TButton", command=lambda: MyThread(get_mc)).place(x=0, y=60, width=98, height=30)
-    ttk.Button(tab1, text="查看系统信息", style="TButton", command=lambda: MyThread(sys_info)).place(x=0, y=90, width=98, height=30)
+    ttk.Button(tab1, text="清理回收站", style="TButton", command=lambda: MyThread(clear_rubbish())).place(x=0, y=35, width=99, height=35)
+    ttk.Button(tab1, text="重启资源管理器", style="TButton", command=lambda: MyThread(restart_explorer())).place(x=99, y=35, width=99, height=35)
+    ttk.Button(tab1, text="强制关闭程序", style="TButton", command=lambda: MyThread(kill_py)).place(x=99, y=70, width=99, height=35)
+    ttk.Button(tab1, text="MC版本爬虫", style="TButton", command=lambda: MyThread(get_mc)).place(x=0, y=70, width=99, height=35)
+    ttk.Button(tab1, text="查看系统信息", style="TButton", command=lambda: MyThread(sys_info)).place(x=0, y=105, width=99, height=35)
 if settings[0] == "Seewo":
-    ttk.Button(tab1, text="清理回收站", style="TButton", command=lambda: MyThread(clear_rubbish())).place(x=0, y=30, width=98, height=30)
-    ttk.Button(tab1, text="重启资源管理器", style="TButton", command=lambda: MyThread(restart_explorer())).place(x=98, y=30, width=98, height=30)
-    ttk.Button(tab1, text="重启PPT小助手", style="TButton", command=lambda: MyThread(ppt_restart)).place(x=0, y=60, width=98, height=30)
-    ttk.Button(tab1, text="关闭PPT小助手", style="TButton", command=lambda: MyThread(os.popen("taskkill -f -im PPTService.exe"))).place(x=98, y=60, width=98, height=30)
-    ttk.Button(tab1, text="CCTV-13", style="TButton", command=lambda: MyThread(b5)).place(x=0, y=90, width=98, height=30)
-    ttk.Button(tab1, text="校园电视台", style="TButton", command=lambda: MyThread(b6)).place(x=98, y=90, width=98, height=30)
-    ttk.Button(tab1, text="强制关闭程序", style="TButton", command=lambda: MyThread(kill_py)).place(x=0, y=120, width=98, height=30)
-    ttk.Button(tab1, text="查看系统信息", style="TButton", command=lambda: MyThread(sys_info)).place(x=98, y=120, width=98, height=30)
+    ttk.Button(tab1, text="清理回收站", style="TButton", command=lambda: MyThread(clear_rubbish())).place(x=0, y=35, width=99, height=35)
+    ttk.Button(tab1, text="重启资源管理器", style="TButton", command=lambda: MyThread(restart_explorer())).place(x=99, y=35, width=99, height=35)
+    ttk.Button(tab1, text="重启PPT小助手", style="TButton", command=lambda: MyThread(ppt_restart)).place(x=0, y=70, width=99, height=35)
+    ttk.Button(tab1, text="关闭PPT小助手", style="TButton", command=lambda: MyThread(os.popen("taskkill -f -im PPTService.exe"))).place(x=99, y=70, width=99, height=35)
+    ttk.Button(tab1, text="CCTV-13", style="TButton", command=lambda: MyThread(b5)).place(x=0, y=105, width=99, height=35)
+    ttk.Button(tab1, text="校园电视台", style="TButton", command=lambda: MyThread(b6)).place(x=99, y=105, width=99, height=35)
+    ttk.Button(tab1, text="强制关闭程序", style="TButton", command=lambda: MyThread(kill_py)).place(x=200, y=0, width=99, height=35)
+    ttk.Button(tab1, text="查看系统信息", style="TButton", command=lambda: MyThread(sys_info)).place(x=299, y=0, width=99, height=35)
 
-ttk.Button(tab2, text="点名器", style="TButton", command=lambda: MyThread(b1)).place(x=0, y=0, width=196, height=30)
-ttk.Button(tab2, text="函数工具", style="TButton", command=lambda: MyThread(b4)).place(x=0, y=30, width=196, height=30)
+ttk.Button(tab2, text="点名器", style="TButton", command=lambda: MyThread(b1)).place(x=0, y=0, width=198, height=35)
+ttk.Button(tab2, text="函数工具", style="TButton", command=lambda: MyThread(b4)).place(x=200, y=0, width=198, height=35)
 
-ttk.OptionMenu(tab3, val2, *listforval2).place(x=0, y=0, width=90, height=30)
-ttk.Label(tab3, text="当前为 " + settings[0]).place(x=98, y=0, width=98, height=30)
-ttk.Checkbutton(tab3, variable=val1, text="开机自启动").place(x=0, y=30, width=196, height=30)
-ttk.Label(tab3, text="整理文件目录").place(x=0, y=60, width=98, height=30)
+ttk.OptionMenu(tab3, val2, *listforval2).place(x=0, y=0, width=99, height=35)
+ttk.Label(tab3, text=" 当前为 " + settings[0]).place(x=99, y=0, width=99, height=35)
+ttk.Checkbutton(tab3, variable=val1, text="开机自启动").place(x=0, y=35, width=196, height=35)
+ttk.Label(tab3, text="整理文件目录").place(x=0, y=70, width=99, height=35)
 entry1 = ttk.Entry(tab3, textvariable=val3)
-entry1.place(x=88, y=60, width=108, height=30)
-ttk.Label(tab3, text="微信文件目录").place(x=0, y=90, width=98, height=30)
+entry1.place(x=88, y=70, width=108, height=35)
+ttk.Label(tab3, text="微信文件目录").place(x=0, y=105, width=99, height=35)
 entry2 = Entry(tab3, textvariable=val4)
-entry2.place(x=88, y=90, width=108, height=30)
-ttk.Button(tab3, text="取消", style="TButton", command=lambda: not_save()).place(x=0, y=150, width=98, height=30)
-ttk.Button(tab3, text="保存", style="TButton", command=lambda: save()).place(x=98, y=150, width=98, height=30)
+entry2.place(x=88, y=105, width=108, height=35)
+ttk.Button(tab3, text="取消", style="TButton", command=lambda: not_save()).place(x=200, y=105, width=99, height=35)
+ttk.Button(tab3, text="保存", style="TButton", command=lambda: save()).place(x=299, y=105, width=99, height=35)
 
-ttk.Label(tab4, text="zb的小程序 " + settings[0]).place(x=0, y=0, width=196, height=30)
-ttk.Label(tab4, text="版本  " + version).place(x=0, y=25, width=196, height=30)
-ttk.Label(tab4, text="作者：Ianzb").place(x=0, y=50, width=200, height=30)
-ttk.Button(tab4, text="程序官网", style="TButton", command=lambda: MyThread(webbrowser.open("https://ianzb.github.io/server.github.io/"))).place(x=0, y=120, width=98, height=30)
-ttk.Button(tab4, text="检查更新", style="TButton", command=lambda: MyThread(b3)).place(x=98, y=120, width=98, height=30)
-ttk.Button(tab4, text="安装目录", style="TButton", command=lambda: MyThread(os.startfile(sys.argv[0][:sys.argv[0].rfind(r"\ "[:-1])]))).place(x=0, y=150, width=196, height=30)
+ttk.Label(tab4, text="zb的小程序 " + settings[0]).place(x=15, y=0, width=196, height=35)
+ttk.Label(tab4, text="版本  " + version).place(x=15, y=25, width=196, height=35)
+ttk.Label(tab4, text="作者：Ianzb").place(x=15, y=50, width=200, height=35)
+ttk.Button(tab4, text="程序官网", style="TButton", command=lambda: MyThread(webbrowser.open("https://ianzb.github.io/server.github.io/"))).place(x=200, y=0, width=99, height=35)
+ttk.Button(tab4, text="检查更新", style="TButton", command=lambda: MyThread(b3)).place(x=299, y=0, width=99, height=35)
+ttk.Button(tab4, text="安装目录", style="TButton", command=lambda: MyThread(os.startfile(sys.argv[0][:sys.argv[0].rfind(r"\ "[:-1])]))).place(x=200, y=35, width=198, height=35)
 
 tab.add(tab1, text="便携功能")
 tab.add(tab2, text="实用程序")

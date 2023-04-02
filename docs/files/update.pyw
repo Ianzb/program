@@ -21,18 +21,23 @@ settings = read_setting()
 edition = settings[0]
 # 加载信息
 using = False
-lib_list = ["lxml", "pypiwin32", "pandas", "numpy", "bs4", "requests", "send2trash", "winshell", "matplotlib", "openpyxl", "PyAudio", "python-xlib", "pymouse", "pyautogui", "PyUserInput", "psutil", "wmi"]
+lib_list = ["sv-ttk", "lxml", "pypiwin32", "pandas", "numpy", "bs4", "requests", "send2trash", "winshell", "matplotlib", "openpyxl", "PyAudio", "python-xlib", "pymouse", "pyautogui", "PyUserInput", "psutil", "wmi"]
 # 窗口初始化
 tk = Tk()
 tk.title(" zb小程序安装器")
 x = 200
-y = 90
+y = 80
 tk.geometry("%dx%d+%d+%d" % (x, y, (tk.winfo_screenwidth() - x) / 2, (tk.winfo_screenheight() - y) / 2))
 tk.resizable(False, False)
 tk.wm_attributes("-topmost", 1)
 st = Style()
 st.configure("TButton")
+try:
+    import sv_ttk
 
+    sv_ttk.use_light_theme()
+except:
+    pass
 try:
     tk.wm_iconbitmap("logo.ico")
 except:
@@ -121,6 +126,7 @@ def download_lib():
         vari.set(int(100 * (i + 1) / len(lib_list)))
     vari.set(100)
     showinfo("提示", "运行库安装完毕，重启安装器生效！")
+    vari.set(0)
     using = False
     exit()
 
@@ -129,8 +135,8 @@ def download_lib():
 
 vari = IntVar()
 vari.set(0)
-ttk.Progressbar(tk, mode="determinate", variable=vari).place(x=0, y=0, width=200, height=30)
-ttk.Button(tk, text="立刻安装 zb小程序 " + edition, style="TButton", command=lambda: MyThread(check_update(edition))).place(x=0, y=30, width=200, height=30)
-ttk.Button(tk, text="安装 zb小程序 运行库", style="TButton", command=lambda: MyThread(download_lib)).place(x=0, y=60, width=200, height=30)
+ttk.Progressbar(tk, mode="determinate", variable=vari).place(x=0, y=0, width=200, height=10)
+ttk.Button(tk, text="立刻安装 zb小程序 " + edition, style="TButton", command=lambda: MyThread(check_update(edition))).place(x=0, y=10, width=200, height=35)
+ttk.Button(tk, text="安装 zb小程序 运行库", style="TButton", command=lambda: MyThread(download_lib)).place(x=0, y=45, width=200, height=35)
 
 tk.mainloop()
