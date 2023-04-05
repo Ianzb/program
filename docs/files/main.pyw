@@ -1,6 +1,6 @@
 # 程序信息
 
-version = "4.2.0"
+version = "4.3.0"
 
 # 导入运行库
 from zb import *
@@ -8,7 +8,6 @@ from zb import *
 check()
 disable("main.txt")
 
-settings = read_setting()
 # 窗口初始化
 
 tk = Tk()
@@ -21,7 +20,11 @@ tk.wm_attributes("-topmost", 1)
 check_ico(tk, "logo.ico")
 st = Style()
 st.configure("TButton")
-sv_ttk.use_light_theme()
+
+if settings[5] == "Light":
+    sv_ttk.use_light_theme()
+elif settings[5] == "Dark":
+    sv_ttk.use_dark_theme()
 
 
 def hide():
@@ -56,6 +59,8 @@ def b2():
     clear_wechat(settings[4], settings[3])
     if settings[0] == "Myself":
         clear_apps()
+    if settings[0] == "Seewo":
+        clear_seewo()
     clear_repeat(settings[3])
 
 
@@ -78,10 +83,8 @@ def save():
     showinfo("提示", "即将重启zb小程序！")
     # 保存设置
     settings[1] = val1.get()
-    if os.path.exists(entry1.get()):
-        settings[3] = entry1.get()
-    if os.path.exists(entry2.get()):
-        settings[4] = entry2.get()
+    settings[2] = int(float(val3.get()))
+    settings[5] = val4.get()
     if val2.get() != "选择版本":
         settings[0] = val2.get()
         if val2.get() == "Myself":
@@ -108,6 +111,19 @@ def not_save():
     tk.destroy()
 
 
+def ask_save():
+    settings[3] = askdirectory(title="请选择zb小程序整理文件的目标文件夹，当前为：" + str(settings[3]))
+
+
+def ask_wechat():
+    settings[4] = askdirectory(title="请选择zb小程序整理微信文件时需要的微信文件夹，当前为：" + str(settings[4]))
+
+
+def change(a=None):
+    sval1.set("贴靠位置 " + str(int(float(val3.get()))) + "%")
+    tk.update()
+
+
 # 控件处理
 val1 = IntVar()
 if settings[1] == 1:
@@ -115,15 +131,23 @@ if settings[1] == 1:
 if settings[1] == 0:
     val1.set(0)
 val2 = StringVar()
-listforval2 = ["选择版本", "Myself", "Seewo"]
-if settings[0] == "Myself":
-    val2.set("Myself")
-if settings[0] == "Seewo":
-    val2.set("Seewo")
-val3 = StringVar()
-val3.set(settings[3])
+listforval2 = [settings[0], "Myself", "Seewo"]
+if settings[0] == None:
+    settings[0] = "Myself"
+val2.set(settings[0])
+
+val3 = IntVar()
+if settings[2] == "None":
+    settings[2] = 30
+val3.set(settings[2])
+sval1 = StringVar()
+sval1.set("贴靠位置 " + str(int(float(val3.get()))) + "%")
+
+listforval4 = [settings[5], "Light", "Dark", "Classic"]
 val4 = StringVar()
-val4.set(settings[4])
+if settings[5] == None:
+    settings[5] = "Light"
+val4.set(settings[5])
 # 控件
 # 左侧
 tab = ttk.Notebook(tk, width=400, height=200)
@@ -155,15 +179,16 @@ if settings[0] == "Seewo":
 ttk.Button(tab2, text="点名器", style="TButton", command=lambda: MyThread(b1)).place(x=0, y=0, width=198, height=35)
 ttk.Button(tab2, text="函数工具", style="TButton", command=lambda: MyThread(b4)).place(x=200, y=0, width=198, height=35)
 
-ttk.OptionMenu(tab3, val2, *listforval2).place(x=0, y=0, width=99, height=35)
-ttk.Label(tab3, text=" 当前为 " + settings[0]).place(x=99, y=0, width=99, height=35)
+ttk.Label(tab3, text="修改版本").place(x=0, y=0, width=99, height=35)
+ttk.OptionMenu(tab3, val2, *listforval2).place(x=59, y=0, width=99, height=35)
 ttk.Checkbutton(tab3, variable=val1, text="开机自启动").place(x=0, y=35, width=196, height=35)
-ttk.Label(tab3, text="整理文件目录").place(x=0, y=70, width=99, height=35)
-entry1 = ttk.Entry(tab3, textvariable=val3)
-entry1.place(x=88, y=70, width=108, height=35)
-ttk.Label(tab3, text="微信文件目录").place(x=0, y=105, width=99, height=35)
-entry2 = Entry(tab3, textvariable=val4)
-entry2.place(x=88, y=105, width=108, height=35)
+ttk.Button(tab3, text="整理文件目录", style="TButton", command=lambda: MyThread(ask_save)).place(x=0, y=70, width=99, height=35)
+ttk.Button(tab3, text="微信文件目录", style="TButton", command=lambda: MyThread(ask_wechat)).place(x=99, y=70, width=99, height=35)
+ttk.Label(tab3, textvariable=sval1).place(x=0, y=105, width=99, height=35)
+scale1 = ttk.Scale(tab3, from_=0, to=100, orient=HORIZONTAL, variable=val3, command=change)
+scale1.place(x=90, y=105, width=108, height=35)
+ttk.Label(tab3, text="修改风格").place(x=200, y=0, width=99, height=35)
+ttk.OptionMenu(tab3, val4, *listforval4).place(x=259, y=0, width=99, height=35)
 ttk.Button(tab3, text="取消", style="TButton", command=lambda: not_save()).place(x=200, y=105, width=99, height=35)
 ttk.Button(tab3, text="保存", style="TButton", command=lambda: save()).place(x=299, y=105, width=99, height=35)
 
@@ -178,6 +203,6 @@ tab.add(tab1, text="便携功能")
 tab.add(tab2, text="实用程序")
 tab.add(tab3, text="设置")
 tab.add(tab4, text="关于")
-tab.pack(padx=0, pady=0)
+tab.pack()
 close()
 tk.mainloop()

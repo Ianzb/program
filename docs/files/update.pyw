@@ -35,7 +35,10 @@ st.configure("TButton")
 try:
     import sv_ttk
 
-    sv_ttk.use_light_theme()
+    if settings[5] == "Light":
+        sv_ttk.use_light_theme()
+    elif settings[5] == "Dark":
+        sv_ttk.use_dark_theme()
 except:
     pass
 try:

@@ -1,6 +1,6 @@
 # 程序信息
 
-version = "1.9.0"
+version = "1.9.1"
 
 # 导入运行库
 from zb import *
@@ -29,7 +29,10 @@ tk.wm_attributes("-topmost", 1)
 check_ico(tk, "logo.ico")
 st = Style()
 st.configure("TButton")
-sv_ttk.use_light_theme()
+if settings[5]=="Light":
+    sv_ttk.use_light_theme()
+elif settings[5]=="Dark":
+    sv_ttk.use_dark_theme()
 t2 = StringVar()
 t3 = StringVar()
 
@@ -130,4 +133,5 @@ tk.mainloop()
 2023-03-19：1.7.1：优化避免重复打开功能
 2023-03-26：1.8.0：优化代码，提高加载速度，修改表格为加密文档
 2023-04-02：1.9.0：采用新UI，模仿Windows11风格
+2023-04-05：1.9.1：添加修改风格功能，添加新同学
 '''

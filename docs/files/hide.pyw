@@ -11,14 +11,17 @@ tk = Tk()
 tk.title(" zb的小程序-贴边停靠窗口")
 x = 10
 y = 40
-tk.geometry("%dx%d+%d+%d" % (x, y, (tk.winfo_screenwidth() - 10), (tk.winfo_screenheight() - y) * 0.25))
+tk.geometry("%dx%d+%d+%d" % (x, y, (tk.winfo_screenwidth() - 10), (tk.winfo_screenheight() - y) * settings[2]*0.01))
 tk.resizable(False, False)
 tk.attributes("-alpha", 0.4)
 tk.wm_attributes("-topmost", 1)
 tk.overrideredirect(True)
 st = Style()
 st.configure("TButton")
-sv_ttk.use_light_theme()
+if settings[5]=="Light":
+    sv_ttk.use_light_theme()
+elif settings[5]=="Dark":
+    sv_ttk.use_dark_theme()
 
 
 # 功能

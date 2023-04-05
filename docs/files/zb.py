@@ -30,7 +30,22 @@ from tkinter.messagebox import *
 from tkinter.filedialog import *
 import threading, pickle, filecmp, glob, stat, bs4, lxml, requests, winreg, send2trash, winshell, platform, psutil, wmi, pythoncom, webbrowser, win32api, win32con, random, pandas, numpy, sv_ttk
 
+# 保存设置
+def save_setting(data):
+    with open("setting.zb", "wb") as file:
+        pickle.dump(data, file)
 
+
+# 读取设置
+def read_setting():
+    if os.path.exists("setting.zb"):
+        with open("setting.zb", "rb") as file:
+            settings = pickle.load(file)
+    else:
+        settings = ["Myself", 0,30,"E:/整理文件","D:/Files/Wechat/WeChat Files"] + [None for i in range(100)]
+    return settings
+
+settings = read_setting()
 # 多线程优化
 class MyThread(threading.Thread):
     def __init__(self, func, *args):
@@ -45,21 +60,6 @@ class MyThread(threading.Thread):
     def run(self):
         self.func(*self.args)
 
-
-# 保存设置
-def save_setting(data):
-    with open("setting.zb", "wb") as file:
-        pickle.dump(data, file)
-
-
-# 读取设置
-def read_setting():
-    if os.path.exists("setting.zb"):
-        with open("setting.zb", "rb") as file:
-            settings = pickle.load(file)
-    else:
-        settings = ["Myself", 0] + [None for i in range(100)]
-    return settings
 
 
 # 关闭程序
