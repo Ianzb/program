@@ -31,11 +31,8 @@ def start():
     tk.destroy()
 
 
-def close():
-    tk.destroy()
-
 
 # 控件
 ttk.Button(tk, text="", style="TButton", command=lambda: MyThread(start())).place(x=0, y=0, width=15, height=20)
-ttk.Button(tk, text="", style="TButton", command=lambda: MyThread(close())).place(x=0, y=20, width=15, height=20)
+ttk.Button(tk, text="", style="TButton", command=lambda: MyThread(tk.destroy())).place(x=0, y=20, width=15, height=20)
 tk.mainloop()

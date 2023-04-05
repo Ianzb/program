@@ -3,7 +3,7 @@ import os
 with open(file="pid.txt", mode="w") as file:
     file.write(str(os.getpid()))
 from tkinter import *
-import sv_ttk
+import sv_ttk, pickle
 
 tk = Tk()
 x = 100
@@ -13,7 +13,6 @@ tk.resizable(False, False)
 tk.wm_attributes("-topmost", 1)
 tk.overrideredirect(True)
 tk.after(5000, tk.destroy)
-import sv_ttk, pickle
 
 
 def read_setting():
