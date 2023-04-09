@@ -1,6 +1,6 @@
 # 程序信息
 
-version = "2.7.1"
+version = "2.7.2"
 
 # 导入运行库
 
@@ -15,7 +15,7 @@ from matplotlib import pyplot
 # 窗口初始化
 
 tk = Tk()
-tk.title(" zb的函数工具 " + version)
+tk.title("zb的函数工具 " + version)
 x = 400
 y = 270
 tk.geometry("%dx%d+%d+%d" % (x, y, (tk.winfo_screenwidth() - x) / 2, (tk.winfo_screenheight() - y) / 2))
@@ -24,9 +24,9 @@ tk.wm_attributes("-topmost", 1)
 check_ico(tk, "logo.ico")
 st = Style()
 st.configure("TButton")
-if settings[5] == "Light":
+if settings[5] == "Win11浅色模式":
     sv_ttk.use_light_theme()
-elif settings[5] == "Dark":
+elif settings[5] == "Win11深色模式":
     sv_ttk.use_dark_theme()
 
 
@@ -404,24 +404,3 @@ ttk.Separator(tk, orient=HORIZONTAL).place(x=0, y=180, width=400, height=2)
 ttk.Separator(tk, orient=HORIZONTAL).place(x=0, y=270, width=400, height=2)
 close()
 tk.mainloop()
-
-'''
-2022-11-18：1.0.0：
-2022-11-20：1.1.0：添加更多信息，添加图标绘制，添加顶点式，优化代码，优化外观
-2022-11-22：1.2.0：添加分数和运算式处理功能
-2022-11-23：2.0.0：更名为zb的函数工具，添加中文括号支持，修复顶点式标注错误的Bug，添加一次函数绘制、反比例函数绘制和自由绘制功能
-2022-11-24：2.1.0：界面完全适配系统自带风格，添加x、y轴的绘制，修复反比例函数图像绘制异常的Bug
-2022-11-26：2.1.1：优化代码，删除图标缺失提示
-2022-11-29：2.2.0：添加二次函数对称轴计算，删除坐标轴标识以免歧义，增大坐标系占窗口比例
-2022-12-05：2.2.1：修复图像窗口关闭后再次绘制时图像大小异常的Bug
-2022-12-06：2.2.2：修复输入0.01后函数解析式显示为0.0的Bug，优化绘图部分冗余代码，优化自由绘制部分控件布局代码
-2022-12-11：2.3.0：解决Python浮点数精度丢失Bug
-2022-12-13：2.3.1：修复图像窗口关闭后再次绘制时坐标系占窗口比例过小的Bug
-2023-03-05：2.4.0：优化部分代码，添加加载界面
-2023-03-11：2.4.1：优化代码，提高加载界面出现速度
-2023-03-18：2.5.0：添加避免重复打开功能
-2023-03-19：2.5.1：优化避免重复打开功能
-2023-03-26：2.6.0：优化代码，提高加载速度
-2023-04-02：2.7.0：采用新UI，模仿Windows11风格
-2023-04-05：2.7.1：添加修改风格功能
-'''

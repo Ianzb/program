@@ -1,9 +1,9 @@
-import os
+from os import getpid
 
 with open(file="pid.txt", mode="w") as file:
-    file.write(str(os.getpid()))
+    file.write(str(getpid()))
 from tkinter import *
-import sv_ttk, pickle
+import sv_ttk, pickle,os
 
 tk = Tk()
 x = 100
@@ -20,15 +20,15 @@ def read_setting():
         with open("setting.zb", "rb") as file:
             settings = pickle.load(file)
     else:
-        settings = ["Myself", 0, None, "E:/整理文件", "D:/Files/Wechat/WeChat Files"] + [None for i in range(100)]
+        settings = ["作者个人版", 0, None, "E:/整理文件", "D:/Files/Wechat/WeChat Files"] + [None for i in range(100)]
     return settings
 
 
 settings = read_setting()
 
-if settings[5] == "Light":
+if settings[5] == "Win11浅色模式":
     sv_ttk.use_light_theme()
-elif settings[5] == "Dark":
+elif settings[5] == "Win11深色模式":
     sv_ttk.use_dark_theme()
 # 控件
 Label(tk, text="加载中", font=("等线", 15)).place(x=0, y=0, width=100, height=50)

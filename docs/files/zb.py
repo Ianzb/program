@@ -1,6 +1,11 @@
 import os, time, sys, shutil
 
-os.chdir(sys.argv[0][:sys.argv[0].rfind(r"\ "[:-1])])
+# 通用变量
+abs_path = sys.argv[0][:sys.argv[0].rfind(r"\ "[:-1])]
+abs_name = sys.argv[0][sys.argv[0].rfind(r"\ "[:-1]) + 1:]
+abs_cache = sys.argv[0].replace(".pyw", ".txt")
+
+os.chdir(abs_path)
 
 
 # 开始加载
@@ -10,17 +15,16 @@ def start():
 
 # 取消加载
 def close():
-    path = sys.argv[0][:sys.argv[0].rfind(r"\ "[:-1]) + 1] + "pid.txt"
+    path = os.path.join(abs_path, "pid.txt")
     try:
         with open(file=path, mode="r") as file:
             pid = file.read()
     except:
         pass
     os.popen("taskkill.exe /F /pid:" + pid)
-    os.remove(path)
 
 
-if sys.argv[0][sys.argv[0].rfind(r"\ "[:-1]) + 1:] not in ["hide.pyw", "load.pyw"]:
+if abs_name not in ["hide.pyw", "load.pyw"]:
     start()
 
 from tkinter import *
@@ -29,6 +33,11 @@ from tkinter.ttk import *
 from tkinter.messagebox import *
 from tkinter.filedialog import *
 import threading, pickle, filecmp, glob, stat, bs4, lxml, requests, winreg, send2trash, winshell, platform, psutil, wmi, pythoncom, webbrowser, win32api, win32con, random, pandas, numpy, sv_ttk
+
+# 通用变量
+abs_pid = os.getpid()
+abs_desktop = key = winreg.QueryValueEx(winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders"), "Desktop")[0]
+
 
 # 保存设置
 def save_setting(data):
@@ -40,12 +49,15 @@ def save_setting(data):
 def read_setting():
     if os.path.exists("setting.zb"):
         with open("setting.zb", "rb") as file:
-            settings = pickle.load(file)
+            data = pickle.load(file)
     else:
-        settings = ["Myself", 0,30,"E:/整理文件","D:/Files/Wechat/WeChat Files"] + [None for i in range(100)]
-    return settings
+        data = ["作者个人版", 0, 30, "E:/整理文件", "D:/Files/Wechat/WeChat Files"] + [None for i in range(100)]
+    return data
+
 
 settings = read_setting()
+
+
 # 多线程优化
 class MyThread(threading.Thread):
     def __init__(self, func, *args):
@@ -61,6 +73,14 @@ class MyThread(threading.Thread):
         self.func(*self.args)
 
 
+# 更好的路径拼接
+def pj(*a):
+    out = ""
+    for i in a:
+        out = os.path.join(out, i)
+    out = out.replace("//", r"\ "[:-1]).replace(r"\\ "[:-1], r"\ "[:-1]).replace("\/", r"\ "[:-1]).replace("/\ "[:-1], r"\ "[:-1]).replace("/", r"\ "[:-1])
+    return out
+
 
 # 关闭程序
 def exit():
@@ -70,14 +90,14 @@ def exit():
 
 # 不可以打开就关闭程序
 def check():
-    if os.path.exists(sys.argv[0].replace(".pyw", ".txt")):
-        with open(file=sys.argv[0].replace(".pyw", ".txt"), mode="r") as file:
+    if os.path.exists(abs_cache):
+        with open(file=abs_cache, mode="r") as file:
             pid = file.read()
         try:
             os.kill(int(pid), 0)
             exit()
         except:
-            os.remove(sys.argv[0].replace(".pyw", ".txt"))
+            os.remove(abs_cache)
             return None
 
 
@@ -87,33 +107,17 @@ def disable(name):
         file.write(str(os.getpid()))
 
 
-# 桌面路径
-def desktop():
-    key = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
-                         r"Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders")
-    return winreg.QueryValueEx(key, "Desktop")[0]
-
-
 # 关闭所有python程序
 def kill_py():
     for root, dirs, files in os.walk("./"):
         for name in files:
             if name.endswith(".txt"):
-                os.remove(os.path.join(root, name))
+                os.remove(pj(root, name))
 
     os.popen("taskkill.exe /F /IM py.exe")
     os.popen("taskkill.exe /F /IM pyw.exe")
     os.popen("taskkill.exe /F /IM python.exe")
     os.popen("taskkill.exe /F /IM pythonw.exe")
-
-
-# 更好的路径拼接
-def pj(*a):
-    out = ""
-    for i in a:
-        out = os.path.join(out, i)
-    out = out.replace("//", r"\ "[:-1]).replace(r"\\ "[:-1], r"\ "[:-1]).replace("\/", r"\ "[:-1]).replace("/\ "[:-1], r"\ "[:-1]).replace("/", r"\ "[:-1])
-    return out
 
 
 # 检查图标是否存在
@@ -278,7 +282,7 @@ def get_mc():
 # 重启PPT小助手
 def ppt_restart():
     os.popen("taskkill -f -im PPTService.exe")
-    time.sleep(0.2)
+    time.sleep(0.5)
     os.popen("C:/Program Files (x86)/Seewo/PPTService/Main/PPTService.exe")
 
 
@@ -316,7 +320,7 @@ def clear_wechat(path, to):
 
 # 整理桌面文件
 def clear_desk(to):
-    move_files(desktop(), to)
+    move_files(abs_desktop, to)
 
 
 # 清理系统缓存
@@ -349,7 +353,7 @@ def clear_rubbish():
 # 重启文件资源管理器
 def restart_explorer():
     os.popen("taskkill /f /im explorer.exe")
-    time.sleep(0.2)
+    time.sleep(0.5)
     os.popen("start C:/windows/explorer.exe")
 
 

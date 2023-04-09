@@ -8,19 +8,19 @@ disable("hide.txt")
 # 窗口初始化
 
 tk = Tk()
-tk.title(" zb的小程序-贴边停靠窗口")
+tk.title("zb的小程序-贴边停靠窗口")
 x = 10
 y = 40
-tk.geometry("%dx%d+%d+%d" % (x, y, (tk.winfo_screenwidth() - 10), (tk.winfo_screenheight() - y) * settings[2]*0.01))
+tk.geometry("%dx%d+%d+%d" % (x, y, (tk.winfo_screenwidth() - 10), (tk.winfo_screenheight() - y) * settings[2] * 0.01))
 tk.resizable(False, False)
 tk.attributes("-alpha", 0.4)
 tk.wm_attributes("-topmost", 1)
 tk.overrideredirect(True)
 st = Style()
 st.configure("TButton")
-if settings[5]=="Light":
+if settings[5] == "Win11浅色模式":
     sv_ttk.use_light_theme()
-elif settings[5]=="Dark":
+elif settings[5] == "Win11深色模式":
     sv_ttk.use_dark_theme()
 
 
@@ -29,7 +29,6 @@ elif settings[5]=="Dark":
 def start():
     os.popen("main.pyw")
     tk.destroy()
-
 
 
 # 控件

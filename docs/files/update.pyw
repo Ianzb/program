@@ -13,18 +13,17 @@ def read_setting():
         with open("setting.zb", "rb") as file:
             settings = pickle.load(file)
     else:
-        settings = ["Myself", 0, None, "E:/整理文件", "D:/Files/Wechat/WeChat Files"] + [None for i in range(100)]
+        settings = ["作者个人版", 0, 30, "E:/整理文件", "D:/Files/Wechat/WeChat Files"] + [None for i in range(100)]
     return settings
 
 
 settings = read_setting()
-edition = settings[0]
 # 加载信息
 using = False
 lib_list = ["sv-ttk", "lxml", "pypiwin32", "pandas", "numpy", "bs4", "requests", "send2trash", "winshell", "matplotlib", "openpyxl", "PyAudio", "python-xlib", "pymouse", "pyautogui", "PyUserInput", "psutil", "wmi"]
 # 窗口初始化
 tk = Tk()
-tk.title(" zb小程序安装器")
+tk.title("zb小程序安装器")
 x = 200
 y = 80
 tk.geometry("%dx%d+%d+%d" % (x, y, (tk.winfo_screenwidth() - x) / 2, (tk.winfo_screenheight() - y) / 2))
@@ -35,9 +34,9 @@ st.configure("TButton")
 try:
     import sv_ttk
 
-    if settings[5] == "Light":
+    if settings[5] == "Win11浅色模式":
         sv_ttk.use_light_theme()
-    elif settings[5] == "Dark":
+    elif settings[5] == "Win11深色模式":
         sv_ttk.use_dark_theme()
 except:
     pass
@@ -139,7 +138,7 @@ def download_lib():
 vari = IntVar()
 vari.set(0)
 ttk.Progressbar(tk, mode="determinate", variable=vari).place(x=0, y=0, width=200, height=10)
-ttk.Button(tk, text="立刻安装 zb小程序 " + edition, style="TButton", command=lambda: MyThread(check_update(edition))).place(x=0, y=10, width=200, height=35)
+ttk.Button(tk, text="安装 zb小程序 " + settings[0], style="TButton", command=lambda: MyThread(check_update(settings[0]))).place(x=0, y=10, width=200, height=35)
 ttk.Button(tk, text="安装 zb小程序 运行库", style="TButton", command=lambda: MyThread(download_lib)).place(x=0, y=45, width=200, height=35)
 
 tk.mainloop()
