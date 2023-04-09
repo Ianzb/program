@@ -32,7 +32,7 @@ from tkinter import ttk
 from tkinter.ttk import *
 from tkinter.messagebox import *
 from tkinter.filedialog import *
-import threading, pickle, filecmp, glob, stat, bs4, lxml, requests, winreg, send2trash, winshell, platform, psutil, wmi, pythoncom, webbrowser, win32api, win32con, random, pandas, numpy, sv_ttk
+import threading, re, pickle, filecmp, glob, stat, bs4, lxml, requests, winreg, send2trash, winshell, platform, psutil, wmi, pythoncom, webbrowser, win32api, win32con, random, pandas, numpy, sv_ttk
 
 # 通用变量
 abs_pid = os.getpid()
@@ -366,6 +366,22 @@ def clear_apps():
         shutil.rmtree("C:/Users/93322/AppData/Roaming/Tencent/WeMeet/Global/IM")
     except:
         pass
+
+
+# 更新模块下载文件
+def download(link):
+    import requests
+    response1 = requests.get(link)
+    response1.encoding = "UTF-8"
+    main = response1.content
+    with open(link[link.rfind("/") + 1:], "wb") as file:
+        file.write(main)
+
+
+# pip安装模块
+def pip_install(name):
+    os.system("pip install " + name + " -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com")
+    os.system("pip install --upgrade " + name + " -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com")
 
 
 # 获取系统信息
