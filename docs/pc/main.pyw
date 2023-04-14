@@ -1,6 +1,6 @@
 # 程序信息
 
-version = "4.4.1"
+version = "4.4.2"
 
 # 导入运行库
 from zb import *
@@ -77,7 +77,7 @@ def b2():
     clear_desk(settings[3])
     clear_wechat(settings[4], settings[3])
     if settings[0] == "作者个人版":
-        clear_apps()
+        clear_apps(settings[3])
     if settings[0] == "希沃定制版":
         clear_seewo()
     clear_repeat(settings[3])
@@ -108,7 +108,7 @@ def save():
     settings[5] = val4.get()
     if settings[0] != val1.get() or settings[3] == "" or settings[4] == "":
         if val1.get() == "作者个人版":
-            settings[3] = "E:/整理文件"
+            settings[3] = "E:/文件/整理"
             settings[4] = "D:/Files/Wechat/WeChat Files"
         if val1.get() == "希沃定制版":
             settings[3] = "D:/文件"

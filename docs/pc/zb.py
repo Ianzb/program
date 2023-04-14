@@ -51,7 +51,7 @@ def read_setting():
         with open("setting.zb", "rb") as file:
             data = pickle.load(file)
     else:
-        data = ["作者个人版", 0, 30, "E:/整理文件", "D:/Files/Wechat/WeChat Files"] + [None for i in range(100)]
+        data = ["作者个人版", 0, 30, "E:/文件/整理", "D:/Files/Wechat/WeChat Files"] + [None for i in range(100)]
     return data
 
 
@@ -358,10 +358,10 @@ def restart_explorer():
 
 
 # 整理+清理常用软件文件
-def clear_apps():
-    move_files(r"D:/Files/QQ/93322252/FileRecv", "E:/整理文件")
-    move_files(r"D:/Files/Ding Talk", "E:/整理文件")
-    move_files(r"D:/Files/百度网盘", "E:/整理文件")
+def clear_apps(path):
+    move_files(r"D:/Files/QQ/93322252/FileRecv", path)
+    move_files(r"D:/Files/Ding Talk", path)
+    move_files(r"D:/Files/百度网盘", path)
     try:
         shutil.rmtree("C:/Users/93322/AppData/Roaming/Tencent/WeMeet/Global/IM")
     except:
