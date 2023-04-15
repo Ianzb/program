@@ -1,5 +1,7 @@
-import os, time, sys, shutil
+import os, time, sys, shutil, logging
 
+logging.basicConfig(level=logging.INFO, filename="zb.log", format="[%(asctime)s %(filename)s %(process)d] %(levelname)s:%(message)s")
+logging.info("程序开始运行")
 # 通用变量
 abs_path = sys.argv[0][:sys.argv[0].rfind(r"\ "[:-1])]
 abs_name = sys.argv[0][sys.argv[0].rfind(r"\ "[:-1]) + 1:]
@@ -11,6 +13,7 @@ os.chdir(abs_path)
 # 开始加载
 def start():
     os.popen("load.pyw")
+    logging.info("打开加载窗口")
 
 
 # 取消加载
@@ -22,6 +25,7 @@ def close():
     except:
         pass
     os.popen("taskkill.exe /F /pid:" + pid)
+    logging.info("关闭加载窗口")
 
 
 if abs_name not in ["hide.pyw", "load.pyw"]:
@@ -32,8 +36,13 @@ from tkinter import ttk
 from tkinter.ttk import *
 from tkinter.messagebox import *
 from tkinter.filedialog import *
-import threading, re, pickle, filecmp, glob, stat, bs4, lxml, requests, winreg, send2trash, winshell, platform, psutil, wmi, pythoncom, webbrowser, win32api, win32con, random, pandas, numpy, sv_ttk
 
+try:
+    import threading, re, pickle, filecmp, glob, stat, bs4, lxml, requests, winreg, send2trash, winshell, platform, psutil, wmi, pythoncom, webbrowser, win32api, win32con, random, pandas, numpy, sv_ttk
+except:
+    logging.info("未找到运行库")
+    showerror("错误", "未找到运行库，请重新安装运行库！")
+    sys.exit()
 # 通用变量
 abs_pid = os.getpid()
 abs_desktop = key = winreg.QueryValueEx(winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders"), "Desktop")[0]
@@ -43,6 +52,7 @@ abs_desktop = key = winreg.QueryValueEx(winreg.OpenKey(winreg.HKEY_CURRENT_USER,
 def save_setting(data):
     with open("setting.zb", "wb") as file:
         pickle.dump(data, file)
+        logging.info("设置已保存")
 
 
 # 读取设置
@@ -52,6 +62,7 @@ def read_setting():
             data = pickle.load(file)
     else:
         data = ["作者个人版", 0, 30, "E:/文件/整理", "D:/Files/Wechat/WeChat Files"] + [None for i in range(100)]
+    logging.info("设置已读取")
     return data
 
 
@@ -84,6 +95,7 @@ def pj(*a):
 
 # 关闭程序
 def exit():
+    logging.info("关闭程序")
     os.popen("taskkill.exe /pid:" + str(os.getpid()))
     sys.exit()
 
@@ -95,6 +107,7 @@ def check():
             pid = file.read()
         try:
             os.kill(int(pid), 0)
+            logging.info("检查是否已打开")
             exit()
         except:
             os.remove(abs_cache)
@@ -105,6 +118,7 @@ def check():
 def disable(name):
     with open(file=name, mode="w") as file:
         file.write(str(os.getpid()))
+        logging.info("标记该程序已打开")
 
 
 # 关闭所有python程序
@@ -113,7 +127,7 @@ def kill_py():
         for name in files:
             if name.endswith(".txt"):
                 os.remove(pj(root, name))
-
+    logging.info("强制关闭Python程序")
     os.popen("taskkill.exe /F /IM py.exe")
     os.popen("taskkill.exe /F /IM pyw.exe")
     os.popen("taskkill.exe /F /IM python.exe")
@@ -170,6 +184,7 @@ def clear_repeat(name):
 
 # 整理指定目录文件到指定位置
 def move_files(old, new):
+    logging.info("开始整理文件" + old + "至" + new)
     list2 = []
     list3 = os.walk(old)
     for i in list3: list2.append(i)
@@ -244,10 +259,12 @@ def move_files(old, new):
         if os.path.isdir(pj(new, "文件夹", file)):
             if not os.listdir(pj(new, "文件夹", file)):
                 os.rmdir(pj(new, "文件夹", file))
+    logging.info("成功整理" + old + "至" + new)
 
 
 # MC版本爬虫
 def get_mc():
+    logging.info("开始获取我的世界最新版本")
     useful = ["{{v|java}}", "{{v|java-experimental}}", "{{v|java-snap}}", "{{v|java-combat}}", "{{v|bedrock}}", "{{v|bedrock-beta}}", "{{v|bedrock-preview}}", "{{v|dungeons}}", "{{v|launcher}}", "{{v|launcher-beta}}", "{{v|education}}", "{{v|education-beta}}", "{{v|china-win}}", "{{v|china-android}}"]
     temp = os.getenv("TEMP")
     l1 = []
@@ -277,10 +294,12 @@ def get_mc():
                 file.write(v1[i] + "版本：" + v2[i] + "\n")
 
     os.popen(pj(temp, "mc.txt"))
+    logging.info("我的世界最新版本获取成功")
 
 
 # 重启PPT小助手
 def ppt_restart():
+    logging.info("重新运行PPT小助手")
     os.popen("taskkill -f -im PPTService.exe")
     time.sleep(0.5)
     os.popen("C:/Program Files (x86)/Seewo/PPTService/Main/PPTService.exe")
@@ -288,6 +307,7 @@ def ppt_restart():
 
 # 清理希沃视频展台文件
 def clear_seewo():
+    logging.info("开始清理希沃视频展台文件")
     try:
         list = os.walk(r"D:/EasiCameraPhoto")
         list2 = []
@@ -295,27 +315,35 @@ def clear_seewo():
         list = list2[0][1]
         for i in list:
             if i != time.strftime("%Y-%m-%d") and os.path.exists(pj("D:/EasiCameraPhoto", i)): send2trash.send2trash(pj("D:/EasiCameraPhoto", i))
+        logging.info("成功清理希沃视频展台文件")
     except:
         pass
 
 
 # 整理微信文件
-def clear_wechat(path, to):
-    try:
-        list = []
-        list2 = []
-        for i in os.walk(path): list.append(i)
-        for i in list[0][1]:
-            if os.path.exists(pj(path, i, "FileStorage/File")): list2.append(pj(path, i, "FileStorage/File"))
-        list = []
-        list3 = []
-        for i in range(len(list2)):
-            for j in os.walk(list2[i]): list.append(j)
-            for k in list[0][1]: list3.append(pj(list2[i], k))
-        list = list3
-        for i in list: move_files(i, to)
-    except:
-        pass
+def clear_wechat(old, new):
+    logging.info("开始整理微信文件")
+    list = []
+    list2 = []
+    for i in os.walk(old): list.append(i)
+    for i in list[0][1]:
+        if os.path.exists(pj(old, i, "FileStorage/File")): list2.append(pj(old, i, "FileStorage/File"))
+    logging.info("获取到的微信用户文件目录为" + str(list2))
+    list = []
+    list3 = []
+    for i in range(len(list2)):
+        for j in os.walk(list2[i]): list.append(j)
+        for k in list[0][1]: list3.append(pj(list2[i], k))
+    list = list3
+    for i in list:
+        move_files(i, new)
+        try:
+            shutil.rmtree(i)
+        except:
+            pass
+    for i in list2:
+        move_files(i, new)
+    logging.info("成功整理微信文件")
 
 
 # 整理桌面文件
@@ -325,6 +353,7 @@ def clear_desk(to):
 
 # 清理系统缓存
 def clear_cache():
+    logging.info("开始清理系统缓存")
     list = []
     list1 = os.walk(os.getenv("TEMP"))
     for i in list1: list.append(i)
@@ -340,18 +369,22 @@ def clear_cache():
             os.remove(pj(os.getenv("TEMP"), i))
         except:
             pass
+    logging.info("成功清理系统缓存")
 
 
 # 清理回收站
 def clear_rubbish():
+    logging.info("开始清理回收站")
     try:
         winshell.recycle_bin().empty(confirm=False, show_progress=False, sound=False)
     except:
         pass
+    logging.info("成功清理回收站")
 
 
 # 重启文件资源管理器
 def restart_explorer():
+    logging.info("重启文件资源管理器")
     os.popen("taskkill /f /im explorer.exe")
     time.sleep(0.5)
     os.popen("start C:/windows/explorer.exe")
@@ -359,6 +392,7 @@ def restart_explorer():
 
 # 整理+清理常用软件文件
 def clear_apps(path):
+    logging.info("开始整理常用软件文件")
     move_files(r"D:/Files/QQ/93322252/FileRecv", path)
     move_files(r"D:/Files/Ding Talk", path)
     move_files(r"D:/Files/百度网盘", path)
@@ -366,6 +400,7 @@ def clear_apps(path):
         shutil.rmtree("C:/Users/93322/AppData/Roaming/Tencent/WeMeet/Global/IM")
     except:
         pass
+    logging.info("成功整理常用软件文件")
 
 
 # 更新模块下载文件
@@ -380,12 +415,14 @@ def download(link):
 
 # pip安装模块
 def pip_install(name):
+    logging.info("开始安装" + name + "运行库")
     os.system("pip install " + name + " -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com")
     os.system("pip install --upgrade " + name + " -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com")
 
 
 # 获取系统信息
 def sys_info():
+    logging.info("开始获取系统信息")
     temp = os.getenv("TEMP")
 
     # CPU
@@ -414,6 +451,7 @@ def sys_info():
         file.write("\nPython版本信息：" + platform.python_version())
 
     os.popen(pj(temp, "sysinfo.txt"))
+    logging.info("成功获取系统信息")
 
 
 # 开机自启动

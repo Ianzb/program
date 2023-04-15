@@ -1,6 +1,6 @@
 # 程序信息
 
-version = "4.4.2"
+version = "4.5.0"
 
 # 导入运行库
 from zb import *

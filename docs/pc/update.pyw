@@ -30,6 +30,7 @@ elif settings[5] == "Win11深色模式":
 
 
 def check_update(name):
+    logging.info("开始更新")
     global using
     if using:
         return None
@@ -55,10 +56,12 @@ def check_update(name):
     os.popen("main.pyw")
     vari.set(100)
     using = False
+    logging.info("更新完毕")
     exit()
 
 
 def download_lib(list):
+    logging.info("开始安装运行库")
     global using
     if using:
         return False
@@ -66,10 +69,12 @@ def download_lib(list):
     for i in range(len(list)):
         pip_install(list[i])
         vari.set(int(100 * (i + 1) / len(list)))
+        tk.update()
     vari.set(100)
     showinfo("提示", "运行库安装完毕，重启检查更新模块生效！")
     vari.set(0)
     using = False
+    logging.info("成功安装运行库")
     exit()
 
 
