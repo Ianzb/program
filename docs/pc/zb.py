@@ -61,7 +61,7 @@ def read_setting():
         with open("setting.zb", "rb") as file:
             data = pickle.load(file)
     else:
-        data = ["作者个人版", 0, 30, "E:/文件/整理", "D:/Files/Wechat/WeChat Files"] + [None for i in range(100)]
+        data = ["作者个人版", 0, 30, "D:/文件/整理", "D:/文件/应用/微信/WeChat Files"] + [None for i in range(100)]
     logging.info("设置已读取")
     return data
 
@@ -183,7 +183,7 @@ def clear_repeat(name):
 
 
 # 整理指定目录文件到指定位置
-def move_files(old, new):
+def move_files(old, new, mode=True):
     logging.info("开始整理文件" + old + "至" + new)
     list2 = []
     list3 = os.walk(old)
@@ -239,6 +239,9 @@ def move_files(old, new):
             if os.path.isdir(pj(new, name1[name], file)):
                 if not os.listdir(pj(new, name1[name], file)):
                     os.rmdir(pj(new, name1[name], file))
+    if mode == False:
+        logging.info("成功整理" + old + "至" + new + "，不整理文件夹")
+        return
     list3 = list2[0][1]
     fold = []
     not1 = ["软件", "备份", "MobileFile"]
@@ -342,7 +345,7 @@ def clear_wechat(old, new):
         except:
             pass
     for i in list2:
-        move_files(i, new)
+        move_files(i, new, False)
     logging.info("成功整理微信文件")
 
 
@@ -393,13 +396,9 @@ def restart_explorer():
 # 整理+清理常用软件文件
 def clear_apps(path):
     logging.info("开始整理常用软件文件")
-    move_files(r"D:/Files/QQ/93322252/FileRecv", path)
-    move_files(r"D:/Files/Ding Talk", path)
-    move_files(r"D:/Files/百度网盘", path)
-    try:
-        shutil.rmtree("C:/Users/93322/AppData/Roaming/Tencent/WeMeet/Global/IM")
-    except:
-        pass
+    move_files(r"D:/文件/应用/QQ/93322252/FileRecv", path)
+    move_files(r"D:/文件/应用/钉钉", path)
+    move_files(r"D:/文件/应用/百度网盘", path)
     logging.info("成功整理常用软件文件")
 
 

@@ -13,7 +13,7 @@ def read_setting():
         with open("setting.zb", "rb") as file:
             settings = pickle.load(file)
     else:
-        settings = ["作者个人版", 0, 30, "E:/文件/整理", "D:/Files/Wechat/WeChat Files"] + [None for i in range(100)]
+        settings = ["作者个人版", 0, 30, "D:/文件/整理", "D:/文件/应用/微信/WeChat Files"] + [None for i in range(100)]
     return settings
 
 

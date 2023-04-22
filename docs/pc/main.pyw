@@ -1,6 +1,6 @@
 # 程序信息
 
-version = "4.5.1"
+version = "4.5.2"
 
 # 导入运行库
 from zb import *
@@ -108,8 +108,8 @@ def save():
     settings[5] = val4.get()
     if settings[0] != val1.get() or settings[3] == "" or settings[4] == "":
         if val1.get() == "作者个人版":
-            settings[3] = "E:/文件/整理"
-            settings[4] = "D:/Files/Wechat/WeChat Files"
+            settings[3] = "D:/文件/整理"
+            settings[4] = "D:/文件/应用/微信/WeChat Files"
         if val1.get() == "希沃定制版":
             settings[3] = "D:/文件"
             settings[4] = "D:/WeChat Files/WeChat Files"
