@@ -35,7 +35,7 @@ def check_update(name):
     if using:
         return None
     using = True
-    if "E:\编程\server.github.io\docs" in os.getcwd():
+    if "D:\编程\server.github.io\docs" in os.getcwd():
         showerror("错误", "当前目录为开发者目录无法更新！")
         using = False
         return None
@@ -82,7 +82,7 @@ def download_lib(list=lib_list):
 vari = IntVar()
 vari.set(0)
 ttk.Progressbar(tk, mode="determinate", variable=vari).place(x=0, y=0, width=200, height=10)
-ttk.Button(tk, text="更新 zb小程序 至最新版本", style="TButton", command=lambda: MyThread(check_update(settings[0]))).place(x=0, y=10, width=200, height=35)
-ttk.Button(tk, text="安装 zb小程序 运行库", style="TButton", command=lambda: MyThread(download_lib(lib_list))).place(x=0, y=45, width=200, height=35)
+ttk.Button(tk, text="更新 zb小程序 至最新版本", style="TButton", command=lambda: MyThread(lambda: check_update(settings[0]))).place(x=0, y=10, width=200, height=35)
+ttk.Button(tk, text="安装 zb小程序 运行库", style="TButton", command=lambda: MyThread(lambda: download_lib(lib_list))).place(x=0, y=45, width=200, height=35)
 close()
 tk.mainloop()

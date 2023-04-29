@@ -76,7 +76,7 @@ class MyThread(threading.Thread):
         self.func = func
         self.args = args
 
-        self.setDaemon(True)
+        self.daemon=True
         self.start()
 
     def run(self):

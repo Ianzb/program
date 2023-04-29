@@ -89,7 +89,7 @@ def check_update(name):
         showerror("错误", "请先安装运行库！")
         using = False
         return None
-    if "E:\编程\server.github.io\docs" in os.getcwd():
+    if "D:\编程\server.github.io\docs" in os.getcwd():
         showerror("错误", "当前目录为开发者目录无法安装！")
         using = False
         return None
@@ -138,7 +138,7 @@ def download_lib():
 vari = IntVar()
 vari.set(0)
 ttk.Progressbar(tk, mode="determinate", variable=vari).place(x=0, y=0, width=200, height=10)
-ttk.Button(tk, text="安装 zb小程序 " + settings[0], style="TButton", command=lambda: MyThread(check_update(settings[0]))).place(x=0, y=10, width=200, height=35)
-ttk.Button(tk, text="安装 zb小程序 运行库", style="TButton", command=lambda: MyThread(download_lib)).place(x=0, y=45, width=200, height=35)
+ttk.Button(tk, text="安装 zb小程序 " + settings[0], style="TButton", command=lambda: MyThread(lambda: check_update(settings[0]))).place(x=0, y=10, width=200, height=35)
+ttk.Button(tk, text="安装 zb小程序 运行库", style="TButton", command=lambda: MyThread(lambda: download_lib)).place(x=0, y=45, width=200, height=35)
 
 tk.mainloop()

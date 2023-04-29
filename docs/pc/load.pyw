@@ -3,7 +3,7 @@ from os import getpid
 with open(file="pid.txt", mode="w") as file:
     file.write(str(getpid()))
 from tkinter import *
-import sv_ttk, pickle,os
+import sv_ttk, pickle, os
 
 tk = Tk()
 x = 100
