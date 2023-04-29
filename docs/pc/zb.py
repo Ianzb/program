@@ -6,7 +6,6 @@ logging.info("程序开始运行")
 abs_path = sys.argv[0][:sys.argv[0].rfind(r"\ "[:-1])]
 abs_name = sys.argv[0][sys.argv[0].rfind(r"\ "[:-1]) + 1:]
 abs_cache = sys.argv[0].replace(".pyw", ".txt")
-
 os.chdir(abs_path)
 
 
@@ -67,7 +66,6 @@ def read_setting():
 
 
 settings = read_setting()
-
 
 # 多线程优化
 class MyThread(threading.Thread):
@@ -340,10 +338,6 @@ def clear_wechat(old, new):
     list = list3
     for i in list:
         move_files(i, new)
-        try:
-            shutil.rmtree(i)
-        except:
-            pass
     for i in list2:
         move_files(i, new, False)
     logging.info("成功整理微信文件")
@@ -491,11 +485,10 @@ def Judge_Key(key_name,
         feedback = 3
     return feedback
 
-
 def AutoRun(switch="open",  # 开：open # 关：close
             zdynames=None,
             current_file=None,
-            abspath=os.path.abspath(os.path.dirname(__file__))):
+            abspath=abs_path):
     """
     :param switch: 注册表开启、关闭自启动
     :param zdynames: 当前文件名

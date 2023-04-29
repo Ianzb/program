@@ -1,6 +1,6 @@
 # 程序信息
 
-version = "4.5.2"
+version = "4.6.0"
 
 # 导入运行库
 from zb import *
@@ -28,7 +28,7 @@ disable("main.txt")
 # 窗口初始化
 
 tk = Tk()
-tk.title("zb的小程序 " + settings[0] + " " + version)
+tk.title("zb小程序 " + settings[0] + " " + version)
 x = 400
 y = 185
 if settings[5] == "经典风格":
@@ -108,17 +108,22 @@ def save():
     settings[5] = val4.get()
     if settings[0] != val1.get() or settings[3] == "" or settings[4] == "":
         if val1.get() == "作者个人版":
-            settings[3] = "D:/文件/整理"
-            settings[4] = "D:/文件/应用/微信/WeChat Files"
+            if settings[3]=="D:/文件":
+                settings[3] = "D:/文件/整理"
+            if settings[3] == "D:/WeChat Files/WeChat Files":
+                settings[4] = "D:/文件/应用/微信/WeChat Files"
         if val1.get() == "希沃定制版":
-            settings[3] = "D:/文件"
-            settings[4] = "D:/WeChat Files/WeChat Files"
+            if settings[3] == "D:/文件/整理":
+                settings[3] = "D:/文件"
+            if settings[3] == "D:/文件/应用/微信/WeChat Files":
+                settings[4] = "D:/WeChat Files/WeChat Files"
     settings[0] = val1.get()
     # 应用设置
     if settings[1] == 1:
-        AutoRun(switch="open", zdynames=os.path.basename(os.path.join(abs_path, "hide.pyw")))
+        AutoRun(switch="open", zdynames=os.path.basename(os.path.join(abs_path, "hide.pyw")),current_file="zb小程序")
     else:
         AutoRun(switch="close", zdynames=os.path.basename(os.path.join(abs_path, "hide.pyw")))
+        AutoRun(switch="close", zdynames=os.path.basename(os.path.join(abs_path, "hide.pyw")),current_file="zb小程序")
     # 结束
     save_setting(settings)
     print(settings)
@@ -204,13 +209,13 @@ ttk.OptionMenu(tab3, val4, *listforval2).place(x=259, y=0, width=99, height=35)
 ttk.Button(tab3, text="取消", style="TButton", command=lambda: not_save()).place(x=200, y=105, width=99, height=35)
 ttk.Button(tab3, text="保存", style="TButton", command=lambda: save()).place(x=299, y=105, width=99, height=35)
 
-ttk.Label(tab4, text="zb的小程序 " + settings[0]).place(x=15, y=0, width=196, height=35)
+ttk.Label(tab4, text="zb小程序 " + settings[0]).place(x=15, y=0, width=196, height=35)
 ttk.Label(tab4, text="版本 " + version).place(x=15, y=25, width=196, height=35)
 ttk.Label(tab4, text="作者：Ianzb").place(x=15, y=50, width=200, height=35)
 ttk.Button(tab4, text="程序官网", style="TButton", command=lambda: MyThread(webbrowser.open("https://ianzb.github.io/server.github.io/"))).place(x=200, y=0, width=99, height=35)
 ttk.Button(tab4, text="检查更新", style="TButton", command=lambda: MyThread(b3)).place(x=299, y=0, width=99, height=35)
-ttk.Button(tab4, text="安装目录", style="TButton", command=lambda: MyThread(os.startfile(sys.argv[0][:sys.argv[0].rfind(r"\ "[:-1])]))).place(x=200, y=35, width=198, height=35)
-
+ttk.Button(tab4, text="安装目录", style="TButton", command=lambda: MyThread(os.startfile(sys.argv[0][:sys.argv[0].rfind(r"\ "[:-1])]))).place(x=200, y=35, width=99, height=35)
+ttk.Button(tab4, text="查看日志", style="TButton", command=lambda: os.popen("start NotePad.exe zb.log")).place(x=299, y=35, width=99, height=35)
 tab.add(tab1, text="便携功能")
 tab.add(tab2, text="实用程序")
 tab.add(tab3, text="设置")

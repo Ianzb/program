@@ -8,7 +8,7 @@ disable("hide.txt")
 # 窗口初始化
 
 tk = Tk()
-tk.title("zb的小程序-贴边停靠窗口")
+tk.title("zb小程序-贴边停靠窗口")
 x = 10
 y = 40
 tk.geometry("%dx%d+%d+%d" % (x, y, (tk.winfo_screenwidth() - 10), (tk.winfo_screenheight() - y) * settings[2] * 0.01))

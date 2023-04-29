@@ -60,7 +60,7 @@ def check_update(name):
     exit()
 
 
-def download_lib(list):
+def download_lib(list=lib_list):
     logging.info("开始安装运行库")
     global using
     if using:
