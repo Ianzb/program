@@ -79,7 +79,6 @@ def download_lib(list=lib_list):
 
 
 # 控件
-
 vari = IntVar()
 vari.set(0)
 ttk.Progressbar(tk, mode="determinate", variable=vari).place(x=0, y=0, width=200, height=10)

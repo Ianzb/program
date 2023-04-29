@@ -1,12 +1,12 @@
 import os, time, sys, shutil, logging
 
-logging.basicConfig(level=logging.INFO, filename="zb.log", format="[%(asctime)s %(filename)s %(process)d] %(levelname)s:%(message)s")
-logging.info("程序开始运行")
 # 通用变量
 abs_path = sys.argv[0][:sys.argv[0].rfind(r"\ "[:-1])]
 abs_name = sys.argv[0][sys.argv[0].rfind(r"\ "[:-1]) + 1:]
 abs_cache = sys.argv[0].replace(".pyw", ".txt")
 os.chdir(abs_path)
+logging.basicConfig(level=logging.INFO, filename="zb.log", format="[%(asctime)s %(filename)s %(process)d] %(levelname)s:%(message)s")
+logging.info("程序开始运行")
 
 
 # 开始加载
@@ -37,7 +37,7 @@ from tkinter.messagebox import *
 from tkinter.filedialog import *
 
 try:
-    import threading, re, pickle, filecmp, glob, stat, bs4, lxml, requests, winreg, send2trash, winshell, platform, psutil, wmi, pythoncom, webbrowser, win32api, win32con, random, pandas, numpy, sv_ttk
+    import threading, re, pickle, filecmp, glob, stat, bs4, lxml, requests, winreg, send2trash, winshell, platform, psutil, wmi, pythoncom, webbrowser, win32api, win32con, random, pandas, numpy, sv_ttk, win32com.client
 except:
     logging.info("未找到运行库")
     showerror("错误", "未找到运行库，请重新安装运行库！")
@@ -66,6 +66,7 @@ def read_setting():
 
 
 settings = read_setting()
+
 
 # 多线程优化
 class MyThread(threading.Thread):
@@ -413,6 +414,16 @@ def pip_install(name):
     os.system("pip install --upgrade " + name + " -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com")
 
 
+# 创建快捷方式
+def create_link(name="快捷方式", path="", to=abs_desktop, icon=""):
+    to = pj(to, name + ".lnk")
+    shell = win32com.client.Dispatch("WScript.Shell")
+    shortcut = shell.CreateShortCut(to)
+    shortcut.Targetpath = path
+    shortcut.IconLocation = icon
+    shortcut.save()
+
+
 # 获取系统信息
 def sys_info():
     logging.info("开始获取系统信息")
@@ -484,6 +495,7 @@ def Judge_Key(key_name,
         print("Error")
         feedback = 3
     return feedback
+
 
 def AutoRun(switch="open",  # 开：open # 关：close
             zdynames=None,
