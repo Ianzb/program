@@ -29,10 +29,11 @@ disable("main.txt")
 
 tk = Tk()
 tk.title("zb小程序 " + settings[0] + " " + version)
-x = 400
-y = 185
+x = 402
+y = 184
 if settings[5] == "经典风格":
-    y -= 15
+    x += 2
+    y -= 16
 tk.geometry("%dx%d+%d+%d" % (x, y, (tk.winfo_screenwidth() - x) / 2, (tk.winfo_screenheight() - y) / 2))
 tk.resizable(False, False)
 tk.wm_attributes("-topmost", 1)
@@ -108,7 +109,7 @@ def save():
     settings[5] = val4.get()
     if settings[0] != val1.get() or settings[3] == "" or settings[4] == "":
         if val1.get() == "作者个人版":
-            if settings[3]=="D:/文件":
+            if settings[3] == "D:/文件":
                 settings[3] = "D:/文件/整理"
             if settings[3] == "D:/WeChat Files/WeChat Files":
                 settings[4] = "D:/文件/应用/微信/WeChat Files"
@@ -120,10 +121,10 @@ def save():
     settings[0] = val1.get()
     # 应用设置
     if settings[1] == 1:
-        AutoRun(switch="open", zdynames=os.path.basename(os.path.join(abs_path, "hide.pyw")),current_file="zb小程序")
+        AutoRun(switch="open", zdynames=os.path.basename(os.path.join(abs_path, "hide.pyw")), current_file="zb小程序")
     else:
         AutoRun(switch="close", zdynames=os.path.basename(os.path.join(abs_path, "hide.pyw")))
-        AutoRun(switch="close", zdynames=os.path.basename(os.path.join(abs_path, "hide.pyw")),current_file="zb小程序")
+        AutoRun(switch="close", zdynames=os.path.basename(os.path.join(abs_path, "hide.pyw")), current_file="zb小程序")
     # 结束
     save_setting(settings)
     print(settings)
@@ -176,46 +177,47 @@ tab3 = ttk.Frame()
 tab4 = ttk.Frame()
 
 ttk.Button(tab1, text="一键整理+清理", style="TButton", command=lambda: MyThread(b2)).place(x=0, y=0, width=140, height=35)
-ttk.Button(tab1, text="打开", style="TButton", command=lambda: MyThread(os.startfile(settings[3]))).place(x=140, y=0, width=58, height=35)
+ttk.Button(tab1, text="打开", style="TButton", command=lambda: MyThread(os.startfile(settings[3]))).place(x=140, y=0, width=60, height=35)
 if settings[0] == "作者个人版":
-    ttk.Button(tab1, text="清理回收站", style="TButton", command=lambda: MyThread(clear_rubbish())).place(x=0, y=35, width=99, height=35)
-    ttk.Button(tab1, text="重启资源管理器", style="TButton", command=lambda: MyThread(restart_explorer())).place(x=99, y=35, width=99, height=35)
-    ttk.Button(tab1, text="强制关闭程序", style="TButton", command=lambda: MyThread(kill_py)).place(x=99, y=70, width=99, height=35)
-    ttk.Button(tab1, text="MC版本爬虫", style="TButton", command=lambda: MyThread(get_mc)).place(x=0, y=70, width=99, height=35)
-    ttk.Button(tab1, text="查看系统信息", style="TButton", command=lambda: MyThread(sys_info)).place(x=0, y=105, width=99, height=35)
+    ttk.Button(tab1, text="清理回收站", style="TButton", command=lambda: MyThread(clear_rubbish())).place(x=0, y=35, width=100, height=35)
+    ttk.Button(tab1, text="重启资源管理器", style="TButton", command=lambda: MyThread(restart_explorer())).place(x=100, y=35, width=100, height=35)
+    ttk.Button(tab1, text="强制关闭程序", style="TButton", command=lambda: MyThread(kill_py)).place(x=100, y=70, width=100, height=35)
+    ttk.Button(tab1, text="MC版本爬虫", style="TButton", command=lambda: MyThread(get_mc)).place(x=0, y=70, width=100, height=35)
+    ttk.Button(tab1, text="查看系统信息", style="TButton", command=lambda: MyThread(sys_info)).place(x=0, y=105, width=100, height=35)
 if settings[0] == "希沃定制版":
-    ttk.Button(tab1, text="清理回收站", style="TButton", command=lambda: MyThread(clear_rubbish())).place(x=0, y=35, width=99, height=35)
-    ttk.Button(tab1, text="重启资源管理器", style="TButton", command=lambda: MyThread(restart_explorer())).place(x=99, y=35, width=99, height=35)
-    ttk.Button(tab1, text="重启PPT小助手", style="TButton", command=lambda: MyThread(ppt_restart)).place(x=0, y=70, width=99, height=35)
-    ttk.Button(tab1, text="关闭PPT小助手", style="TButton", command=lambda: MyThread(os.popen("taskkill -f -im PPTService.exe"))).place(x=99, y=70, width=99, height=35)
-    ttk.Button(tab1, text="CCTV-13", style="TButton", command=lambda: MyThread(b5)).place(x=0, y=105, width=99, height=35)
-    ttk.Button(tab1, text="校园电视台", style="TButton", command=lambda: MyThread(b6)).place(x=99, y=105, width=99, height=35)
-    ttk.Button(tab1, text="强制关闭程序", style="TButton", command=lambda: MyThread(kill_py)).place(x=200, y=0, width=99, height=35)
-    ttk.Button(tab1, text="查看系统信息", style="TButton", command=lambda: MyThread(sys_info)).place(x=299, y=0, width=99, height=35)
+    ttk.Button(tab1, text="清理回收站", style="TButton", command=lambda: MyThread(clear_rubbish())).place(x=0, y=35, width=100, height=35)
+    ttk.Button(tab1, text="重启资源管理器", style="TButton", command=lambda: MyThread(restart_explorer())).place(x=100, y=35, width=100, height=35)
+    ttk.Button(tab1, text="重启PPT小助手", style="TButton", command=lambda: MyThread(ppt_restart)).place(x=0, y=70, width=100, height=35)
+    ttk.Button(tab1, text="关闭PPT小助手", style="TButton", command=lambda: MyThread(os.popen("taskkill -f -im PPTService.exe"))).place(x=100, y=70, width=100, height=35)
+    ttk.Button(tab1, text="CCTV-13", style="TButton", command=lambda: MyThread(b5)).place(x=0, y=105, width=100, height=35)
+    ttk.Button(tab1, text="校园电视台", style="TButton", command=lambda: MyThread(b6)).place(x=100, y=105, width=100, height=35)
+    ttk.Button(tab1, text="强制关闭程序", style="TButton", command=lambda: MyThread(kill_py)).place(x=200, y=0, width=100, height=35)
+    ttk.Button(tab1, text="查看系统信息", style="TButton", command=lambda: MyThread(sys_info)).place(x=300, y=0, width=100, height=35)
 
-ttk.Button(tab2, text="点名器", style="TButton", command=lambda: MyThread(b1)).place(x=0, y=0, width=198, height=35)
-ttk.Button(tab2, text="函数工具", style="TButton", command=lambda: MyThread(b4)).place(x=200, y=0, width=198, height=35)
+ttk.Button(tab2, text="点名器", style="TButton", command=lambda: MyThread(b1)).place(x=0, y=0, width=200, height=35)
+ttk.Button(tab2, text="函数工具", style="TButton", command=lambda: MyThread(b4)).place(x=200, y=0, width=200, height=35)
 
-ttk.Label(tab3, text="修改版本").place(x=0, y=0, width=99, height=35)
-ttk.OptionMenu(tab3, val1, *listforval1).place(x=59, y=0, width=99, height=35)
-ttk.Checkbutton(tab3, variable=val2, text="开机自启动").place(x=0, y=35, width=196, height=35)
-ttk.Button(tab3, text="整理文件目录", style="TButton", command=lambda: MyThread(ask_save)).place(x=0, y=70, width=99, height=35)
-ttk.Button(tab3, text="微信文件目录", style="TButton", command=lambda: MyThread(ask_wechat)).place(x=99, y=70, width=99, height=35)
-ttk.Label(tab3, textvariable=sval1).place(x=0, y=105, width=99, height=35)
+ttk.Label(tab3, text="修改版本").place(x=0, y=0, width=100, height=35)
+ttk.OptionMenu(tab3, val1, *listforval1).place(x=60, y=0, width=140, height=35)
+ttk.Label(tab3, text="修改风格").place(x=0, y=35, width=100, height=35)
+ttk.OptionMenu(tab3, val4, *listforval2).place(x=60, y=35, width=140, height=35)
+ttk.Button(tab3, text="整理文件目录", style="TButton", command=lambda: MyThread(ask_save)).place(x=0, y=70, width=100, height=35)
+ttk.Button(tab3, text="微信文件目录", style="TButton", command=lambda: MyThread(ask_wechat)).place(x=100, y=70, width=100, height=35)
+ttk.Button(tab3, text="添加桌面快捷方式", style="TButton", command=lambda: MyThread(create_link(name="zb小程序", path=pj(abs_path + "main.pyw"), to=abs_desktop, icon=pj(abs_path + "logo.ico")))).place(x=0, y=105, width=200, height=35)
+ttk.Label(tab3, textvariable=sval1).place(x=200, y=0, width=100, height=35)
 scale1 = ttk.Scale(tab3, from_=0, to=100, orient=HORIZONTAL, variable=val3, command=change)
-scale1.place(x=90, y=105, width=108, height=35)
-ttk.Label(tab3, text="修改风格").place(x=200, y=0, width=99, height=35)
-ttk.OptionMenu(tab3, val4, *listforval2).place(x=259, y=0, width=99, height=35)
-ttk.Button(tab3, text="取消", style="TButton", command=lambda: not_save()).place(x=200, y=105, width=99, height=35)
-ttk.Button(tab3, text="保存", style="TButton", command=lambda: save()).place(x=299, y=105, width=99, height=35)
+scale1.place(x=290, y=0, width=100, height=35)
+ttk.Checkbutton(tab3, variable=val2, text="开机自启动").place(x=200, y=35, width=200, height=35)
+ttk.Button(tab3, text="取消", style="TButton", command=lambda: not_save()).place(x=200, y=105, width=100, height=35)
+ttk.Button(tab3, text="保存", style="TButton", command=lambda: save()).place(x=300, y=105, width=100, height=35)
 
-ttk.Label(tab4, text="zb小程序 " + settings[0]).place(x=15, y=0, width=196, height=35)
-ttk.Label(tab4, text="版本 " + version).place(x=15, y=25, width=196, height=35)
-ttk.Label(tab4, text="作者：Ianzb").place(x=15, y=50, width=200, height=35)
-ttk.Button(tab4, text="程序官网", style="TButton", command=lambda: MyThread(webbrowser.open("https://ianzb.github.io/server.github.io/"))).place(x=200, y=0, width=99, height=35)
-ttk.Button(tab4, text="检查更新", style="TButton", command=lambda: MyThread(b3)).place(x=299, y=0, width=99, height=35)
-ttk.Button(tab4, text="安装目录", style="TButton", command=lambda: MyThread(os.startfile(sys.argv[0][:sys.argv[0].rfind(r"\ "[:-1])]))).place(x=200, y=35, width=99, height=35)
-ttk.Button(tab4, text="查看日志", style="TButton", command=lambda: os.popen("start NotePad.exe zb.log")).place(x=299, y=35, width=99, height=35)
+ttk.Label(tab4, text="zb小程序 " + settings[0]).place(x=10, y=0, width=200, height=35)
+ttk.Label(tab4, text="版本 " + version).place(x=10, y=25, width=200, height=35)
+ttk.Label(tab4, text="作者：Ianzb").place(x=10, y=50, width=200, height=35)
+ttk.Button(tab4, text="程序官网", style="TButton", command=lambda: MyThread(webbrowser.open("https://ianzb.github.io/server.github.io/"))).place(x=200, y=0, width=100, height=35)
+ttk.Button(tab4, text="检查更新", style="TButton", command=lambda: MyThread(b3)).place(x=300, y=0, width=100, height=35)
+ttk.Button(tab4, text="安装目录", style="TButton", command=lambda: MyThread(os.startfile(sys.argv[0][:sys.argv[0].rfind(r"\ "[:-1])]))).place(x=200, y=35, width=100, height=35)
+ttk.Button(tab4, text="查看日志", style="TButton", command=lambda: os.popen("start NotePad.exe zb.log")).place(x=300, y=35, width=100, height=35)
 tab.add(tab1, text="便携功能")
 tab.add(tab2, text="实用程序")
 tab.add(tab3, text="设置")
