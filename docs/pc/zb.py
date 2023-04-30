@@ -4,6 +4,7 @@ import os, time, sys, shutil, logging
 abs_path = sys.argv[0][:sys.argv[0].rfind(r"\ "[:-1])]
 abs_name = sys.argv[0][sys.argv[0].rfind(r"\ "[:-1]) + 1:]
 abs_cache = sys.argv[0].replace(".pyw", ".txt")
+user_path = os.path.expanduser('~')
 os.chdir(abs_path)
 logging.basicConfig(level=logging.INFO, filename="zb.log", format="[%(asctime)s %(filename)s %(process)d] %(levelname)s:%(message)s")
 logging.info("程序开始运行")
@@ -44,7 +45,7 @@ except:
     sys.exit()
 # 通用变量
 abs_pid = os.getpid()
-abs_desktop = key = winreg.QueryValueEx(winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders"), "Desktop")[0]
+abs_desktop = winreg.QueryValueEx(winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders"), "Desktop")[0]
 
 
 # 保存设置
@@ -76,7 +77,7 @@ class MyThread(threading.Thread):
         self.func = func
         self.args = args
 
-        self.daemon=True
+        self.daemon = True
         self.start()
 
     def run(self):
@@ -227,7 +228,7 @@ def move_files(old, new, mode=True):
                     os.chmod(pj(old, i[:i.rfind("(")]), stat.S_IWRITE)
                     shutil.move(pj(old, i[:i.rfind("(")]), pj(new, name1[name], i[:i.rfind(".")] + i[i.rfind("("):] + i[i.rfind("."):i.rfind("(")]))
                 except:
-                    print("无法移动" + pj(old, i[:i.rfind("(")]))
+                    logging.info("无法移动" + pj(old, i[:i.rfind("(")]))
                     continue
     for name in range(len(name1)):
         files = os.listdir(pj(new, name1[name]))
@@ -424,6 +425,12 @@ def create_link(name="快捷方式", path="", to=abs_desktop, icon=""):
     shortcut.save()
 
 
+# 添加至开始菜单
+def add_to_start_menu():
+    path = pj(user_path, "AppData\Roaming\Microsoft\Windows\Start Menu\Programs")
+    create_link(name="zb小程序", path=pj(abs_path, "main.pyw"), to=path, icon=pj(abs_path, "logo.ico"))
+
+
 # 获取系统信息
 def sys_info():
     logging.info("开始获取系统信息")
@@ -466,7 +473,7 @@ def Judge_Key(key_name,
               reg_root=win32con.HKEY_CURRENT_USER,  # 根节点  其中的值可以有：HKEY_CLASSES_ROOT、HKEY_CURRENT_USER、HKEY_LOCAL_MACHINE、HKEY_USERS、HKEY_CURRENT_CONFIG
               reg_path=r"SOFTWARE\Microsoft\Windows\CurrentVersion\Run",  # 键的路径
               ):
-    # print(key_name)
+    # logging.info(key_name)
     """
     :param key_name: #  要查询的键名
     :param reg_root: # 根节点
@@ -483,16 +490,16 @@ def Judge_Key(key_name,
     try:
         key = winreg.OpenKey(reg_root, reg_path, 0, reg_flags)
         location, type = winreg.QueryValueEx(key, key_name)
-        print("键存在", "location（数据）:", location, "type:", type)
+        logging.info("键存在", "location（数据）:", location, "type:", type)
         feedback = 0
     except FileNotFoundError as e:
-        print("键不存在", e)
+        logging.info("键不存在", e)
         feedback = 1
     except PermissionError as e:
-        print("权限不足", e)
+        logging.info("权限不足", e)
         feedback = 2
     except:
-        print("Error")
+        logging.info("Error")
         feedback = 3
     return feedback
 
@@ -508,7 +515,7 @@ def AutoRun(switch="open",  # 开：open # 关：close
     :param abspath: 当前文件路径
     :return:
     """
-    print(zdynames)
+    logging.info(zdynames)
 
     path = abspath + "\\" + zdynames  # 要添加的exe完整路径如：
     judge_key = Judge_Key(reg_root=win32con.HKEY_CURRENT_USER,
@@ -521,24 +528,24 @@ def AutoRun(switch="open",  # 开：open # 关：close
         # 异常处理
         try:
             if judge_key == 0:
-                print("已经开启了，无需再开启")
+                logging.info("已经开启了，无需再开启")
             elif judge_key == 1:
                 win32api.RegSetValueEx(key, current_file, 0, win32con.REG_SZ, path)
                 win32api.RegCloseKey(key)
-                print("开机自启动添加成功！")
+                logging.info("开机自启动添加成功！")
         except:
-            print("添加失败")
+            logging.info("添加失败")
     elif switch == "close":
         try:
             if judge_key == 0:
                 win32api.RegDeleteValue(key, current_file)  # 删除值
                 win32api.RegCloseKey(key)
-                print("成功删除键！")
+                logging.info("成功删除键！")
             elif judge_key == 1:
-                print("键不存在")
+                logging.info("键不存在")
             elif judge_key == 2:
-                print("权限不足")
+                logging.info("权限不足")
             else:
-                print("出现错误")
+                logging.info("出现错误")
         except:
-            print("删除失败")
+            logging.info("删除失败")

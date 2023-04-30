@@ -1,6 +1,6 @@
 # 程序信息
 
-version = "2.7.2"
+version = "2.7.3"
 
 # 导入运行库
 
@@ -55,7 +55,7 @@ def dde(a):
 def process(a, num=1, no=None):
     a = str(a)
     if a == str(no):
-        print(1 / 0)
+        logging.info(1 / 0)
     if a == "":
         a = str(num)
     if a == "-":

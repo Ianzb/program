@@ -1,11 +1,16 @@
 # 导入运行库
-import threading, os, re, pickle, sys
+import threading, os, re, pickle, sys, winreg
 from tkinter import *
 from tkinter import ttk
 from tkinter.ttk import *
 from tkinter.messagebox import *
 
-os.chdir(sys.argv[0][:sys.argv[0].rfind(r"\ "[:-1])])
+abs_path = sys.argv[0][:sys.argv[0].rfind(r"\ "[:-1])]
+abs_name = sys.argv[0][sys.argv[0].rfind(r"\ "[:-1]) + 1:]
+abs_cache = sys.argv[0].replace(".pyw", ".txt")
+user_path = os.path.expanduser('~')
+abs_desktop = winreg.QueryValueEx(winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders"), "Desktop")[0]
+os.chdir(abs_path)
 
 
 def read_setting():
@@ -69,6 +74,21 @@ class MyThread(threading.Thread):
         self.func(*self.args)
 
 
+def create_link(name="快捷方式", path="", to=abs_desktop, icon=""):
+    to = pj(to, name + ".lnk")
+    shell = win32com.client.Dispatch("WScript.Shell")
+    shortcut = shell.CreateShortCut(to)
+    shortcut.Targetpath = path
+    shortcut.IconLocation = icon
+    shortcut.save()
+
+
+# 添加至开始菜单
+def add_to_start_menu():
+    path = pj(user_path, "AppData\Roaming\Microsoft\Windows\Start Menu\Programs")
+    create_link(name="zb小程序", path=pj(abs_path, "main.pyw"), to=path, icon=pj(abs_path, "logo.ico"))
+
+
 def download(link):
     import requests
     response1 = requests.get(link)
@@ -84,7 +104,7 @@ def check_update(name):
         return None
     using = True
     try:
-        import requests, bs4
+        import requests, bs4, win32com
     except:
         showerror("错误", "请先安装运行库！")
         using = False
@@ -106,6 +126,8 @@ def check_update(name):
         download(link + data[i])
         vari.set(int(100 * i / len(data)))
         tk.update()
+    add_to_start_menu()
+    create_link(name="zb小程序", path=pj(abs_path, "main.pyw"), to=abs_desktop, icon=pj(abs_path, "logo.ico"))
     showinfo("提示", "zb小程序安装完毕！")
     os.popen("main.pyw")
     vari.set(100)

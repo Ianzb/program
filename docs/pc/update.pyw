@@ -11,7 +11,7 @@ lib_list = ["sv-ttk", "lxml", "pypiwin32", "pandas", "numpy", "bs4", "requests",
 # 窗口初始化
 
 tk = Tk()
-tk.title("检查更新模块")
+tk.title("更新程序")
 x = 200
 y = 80
 tk.geometry("%dx%d+%d+%d" % (x, y, (tk.winfo_screenwidth() - x) / 2, (tk.winfo_screenheight() - y) / 2))
