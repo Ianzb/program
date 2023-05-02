@@ -38,11 +38,14 @@ from tkinter.messagebox import *
 from tkinter.filedialog import *
 
 try:
-    import threading, re, pickle, filecmp, glob, stat, bs4, lxml, requests, winreg, send2trash, winshell, platform, psutil, wmi, pythoncom, webbrowser, win32api, win32con, random, pandas, numpy, sv_ttk, win32com.client
+    import threading, ctypes, re, pickle, filecmp, glob, stat, bs4, lxml, requests, winreg, send2trash, winshell, platform, psutil, wmi, pythoncom, webbrowser, win32api, win32con, random, pandas, numpy, sv_ttk, win32com.client
 except:
     logging.info("未找到运行库")
     showerror("错误", "未找到运行库，请重新安装运行库！")
     sys.exit()
+
+# 任务栏图标加载
+ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("zb")
 # 通用变量
 abs_pid = os.getpid()
 abs_desktop = winreg.QueryValueEx(winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders"), "Desktop")[0]
@@ -268,13 +271,14 @@ def move_files(old, new, mode=True):
 # MC版本爬虫
 def get_mc():
     logging.info("开始获取我的世界最新版本")
-    useful = ["{{v|java}}", "{{v|java-experimental}}", "{{v|java-snap}}", "{{v|java-combat}}", "{{v|bedrock}}", "{{v|bedrock-beta}}", "{{v|bedrock-preview}}", "{{v|dungeons}}", "{{v|launcher}}", "{{v|launcher-beta}}", "{{v|education}}", "{{v|education-beta}}", "{{v|china-win}}", "{{v|china-android}}"]
+    useful = ["{{v|java}}", "{{v|java-experimental}}", "{{v|java-snap}}", "{{v|java-combat}}", "{{v|bedrock}}", "{{v|bedrock-beta}}", "{{v|bedrock-preview}}", "{{v|dungeons}}", "{{v|legends}}", "{{v|launcher}}", "{{v|launcher-beta}}", "{{v|education}}", "{{v|education-beta}}", "{{v|china-win}}", "{{v|china-android}}"]
     temp = os.getenv("TEMP")
     l1 = []
     v1 = []
     v2 = []
     v3 = []
     v = {}
+    str1=""
     response = requests.get("https://minecraft.fandom.com/zh/wiki/Template:Version#table")
     response.encoding = "UTF-8"
     soup = bs4.BeautifulSoup(response.text, "lxml")
@@ -285,18 +289,16 @@ def get_mc():
         if i % 3 == 0: v1.append(l1[i])
         if i % 3 == 1: v2.append(l1[i])
         if i % 3 == 2: v3.append(l1[i])
-    with open(pj(temp, "mc.txt"), "w", encoding="utf-8") as file:
-        for i in range(len(v1)):
-            if v1[i][-1] == "版":
-                v1[i] = v1[i] + "正式版"
-            if v3[i] == "{{v|china-win}}":
-                v1[i] = "中国版端游"
-            if v3[i] == "{{v|china-android}}":
-                v1[i] = "中国版手游"
-            if v3[i] in useful and v2[i] != "":
-                file.write(v1[i] + "版本：" + v2[i] + "\n")
-
-    os.popen(pj(temp, "mc.txt"))
+    for i in range(len(v1)):
+        if v1[i][-1] == "版":
+            v1[i] = v1[i] + "正式版"
+        if v3[i] == "{{v|china-win}}":
+            v1[i] = "中国版端游"
+        if v3[i] == "{{v|china-android}}":
+            v1[i] = "中国版手游"
+        if v3[i] in useful and v2[i] != "":
+            str1=str1+v1[i] + "版本：" + v2[i]+"\n"
+    showinfo("MC最新版本", str1)
     logging.info("我的世界最新版本获取成功")
 
 
@@ -435,7 +437,7 @@ def add_to_start_menu():
 def sys_info():
     logging.info("开始获取系统信息")
     temp = os.getenv("TEMP")
-
+    str1=""
     # CPU
     pythoncom.CoInitialize()
     c = wmi.WMI()
@@ -451,17 +453,16 @@ def sys_info():
     used = str(psutil.virtual_memory().used / 1024 / 1024 / 1024)[:4]
     percent = str(psutil.virtual_memory().percent)
 
-    with open(pj(temp, "sysinfo.txt"), "w", encoding="utf-8") as file:
-        file.write("操作系统及版本信息：" + platform.platform())
-        file.write("\n系统内核版本号：" + platform.version())
-        file.write("\n系统位数：" + platform.architecture()[0].replace("bit", "位"))
-        file.write("\n计算机名称：" + platform.node())
-        file.write("\nCPU信息：" + name + "，" + core + "核" + thread + "线程" + "，当前占用率" + cpuused + "%")
-        file.write("\n内存信息：共" + total + "GB，已使用" + used + "GB，占用率" + percent + "%")
-        file.write("\nPython编译信息：" + str(platform.python_build()))
-        file.write("\nPython版本信息：" + platform.python_version())
+    str1=str1+"操作系统及版本信息：" + platform.platform()
+    str1=str1+"\n系统内核版本号：" + platform.version()
+    str1=str1+"\n系统位数：" + platform.architecture()[0].replace("bit", "位")
+    str1=str1+"\n计算机名称：" + platform.node()
+    str1=str1+"\nCPU信息：" + name + "，" + core + "核" + thread + "线程" + "，当前占用率" + cpuused + "%"
+    str1=str1+"\n内存信息：共" + total + "GB，已使用" + used + "GB，占用率" + percent + "%"
+    str1=str1+"\nPython编译信息：" + str(platform.python_build())
+    str1=str1+"\nPython版本信息：" + platform.python_version()
 
-    os.popen(pj(temp, "sysinfo.txt"))
+    showinfo("系统信息", str1)
     logging.info("成功获取系统信息")
 
 

@@ -1,7 +1,6 @@
 # 程序信息
 
-version = "4.7.0"
-
+version = "4.8.0"
 # 导入运行库
 from zb import *
 
@@ -170,7 +169,7 @@ listforval1 = [settings[0], "作者个人版", "希沃定制版"]  # 版本选�
 listforval2 = [settings[5], "Win11浅色模式", "Win11深色模式", "经典风格"]  # 风格选择列表
 
 # 控件
-tab = ttk.Notebook(tk, width=400, height=200)
+tab = ttk.Notebook(tk, width=402, height=184)
 tab1 = ttk.Frame()
 tab2 = ttk.Frame()
 tab3 = ttk.Frame()

@@ -61,6 +61,7 @@ def btn1():
         time.sleep(wait)
         wait += 0.002
     t3.set("恭喜这位同学(ง •_•)ง")
+    t12["text"] = "不可点"
     tk.update()
     using = False
 

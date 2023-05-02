@@ -1,6 +1,6 @@
 # 程序信息
 
-version = "2.7.3"
+version = "3.0.0"
 
 # 导入运行库
 
@@ -16,8 +16,11 @@ from matplotlib import pyplot
 
 tk = Tk()
 tk.title("zb的函数工具 " + version)
-x = 400
-y = 270
+x = 402
+y = 184
+if settings[5] == "经典风格":
+    x += 2
+    y -= 16
 tk.geometry("%dx%d+%d+%d" % (x, y, (tk.winfo_screenwidth() - x) / 2, (tk.winfo_screenheight() - y) / 2))
 tk.resizable(False, False)
 tk.wm_attributes("-topmost", 1)
@@ -325,82 +328,79 @@ def b8():
     pyplot.show()
 
 
+tab = ttk.Notebook(tk, width=400, height=200)
+tab1 = ttk.Frame()
+tab2 = ttk.Frame()
+tab3 = ttk.Frame()
+tab4 = ttk.Frame()
 # 控件
 
-x1 = 0
-y1 = 0
-ttk.Label(tk, text="一次函数").place(x=x1 + 75, y=y1, width=150, height=30)
-ttk.Label(tk, text="y=").place(x=x1 + 50, y=y1 + 30, width=40, height=20)
-entry7 = ttk.Entry(tk)
-entry7.place(x=x1 + 70, y=y1 + 30, width=30, height=20)
-ttk.Label(tk, text="x+").place(x=x1 + 100, y=y1 + 30, width=40, height=20)
-entry8 = ttk.Entry(tk)
-entry8.place(x=x1 + 120, y=y1 + 30, width=30, height=20)
-ttk.Button(tk, text="计算", style="TButton", command=b5).place(x=x1, y=y1 + 55, width=100, height=30)
-ttk.Button(tk, text="绘制", style="TButton", command=b6).place(x=x1 + 100, y=y1 + 55, width=100, height=30)
-x1 = 200
-y1 = 0
-ttk.Label(tk, text="反比例函数").place(x=x1 + 70, y=y1, width=150, height=30)
-ttk.Label(tk, text="y=").place(x=x1 + 70, y=y1 + 30, width=40, height=20)
-entry9 = ttk.Entry(tk)
-entry9.place(x=x1 + 90, y=y1 + 30, width=30, height=20)
-ttk.Label(tk, text="/x").place(x=x1 + 120, y=y1 + 30, width=40, height=20)
-ttk.Button(tk, text="绘制", style="TButton", command=b7).place(x=x1 + 50, y=y1 + 55, width=100, height=30)
-x1 = 0
-y1 = 95
-ttk.Label(tk, text="一般式").place(x=x1 + 75, y=y1, width=150, height=30)
-ttk.Label(tk, text="y=").place(x=x1, y=y1 + 30, width=40, height=20)
-entry1 = ttk.Entry(tk)
-entry1.place(x=x1 + 20, y=y1 + 30, width=30, height=20)
-ttk.Label(tk, text="x²+").place(x=x1 + 50, y=y1 + 30, width=40, height=20)
-entry2 = ttk.Entry(tk)
-entry2.place(x=x1 + 75, y=y1 + 30, width=30, height=20)
-ttk.Label(tk, text="x+").place(x=x1 + 105, y=y1 + 30, width=40, height=20)
-entry3 = ttk.Entry(tk)
-entry3.place(x=x1 + 125, y=y1 + 30, width=30, height=20)
-ttk.Button(tk, text="计算", style="TButton", command=b1).place(x=x1, y=y1 + 55, width=100, height=30)
-ttk.Button(tk, text="绘制", style="TButton", command=b2).place(x=x1 + 100, y=y1 + 55, width=100, height=30)
-x1 = 200
-y1 = 95
-ttk.Label(tk, text="顶点式").place(x=x1 + 75, y=y1, width=150, height=30)
-ttk.Label(tk, text="y=").place(x=x1, y=y1 + 30, width=40, height=20)
-entry4 = ttk.Entry(tk)
-entry4.place(x=x1 + 20, y=y1 + 30, width=30, height=20)
-ttk.Label(tk, text="(x+").place(x=x1 + 50, y=y1 + 30, width=40, height=20)
-entry5 = ttk.Entry(tk)
-entry5.place(x=x1 + 75, y=y1 + 30, width=30, height=20)
-ttk.Label(tk, text=")²+").place(x=x1 + 105, y=y1 + 30, width=40, height=20)
-entry6 = ttk.Entry(tk)
-entry6.place(x=x1 + 125, y=y1 + 30, width=30, height=20)
-ttk.Button(tk, text="计算", style="TButton", command=b3).place(x=x1, y=y1 + 55, width=100, height=30)
-ttk.Button(tk, text="绘制", style="TButton", command=b4).place(x=x1 + 100, y=y1 + 55, width=100, height=30)
-ttk.Label(tk, text="二次函数").place(x=170, y=85, width=100, height=30)
+
+ttk.Label(tab1, text="y=").place(x=70, y=35, width=100, height=35)
+entry7 = ttk.Entry(tab1)
+entry7.place(x=90, y=35, width=100, height=35)
+ttk.Label(tab1, text="x+").place(x=195, y=35, width=100, height=35)
+entry8 = ttk.Entry(tab1)
+entry8.place(x=215, y=35, width=100, height=35)
+ttk.Button(tab1, text="计算", style="TButton", command=b5).place(x=0, y=105, width=200, height=35)
+ttk.Button(tab1, text="绘制", style="TButton", command=b6).place(x=200, y=105, width=200, height=35)
+
+ttk.Label(tab2, text="y=").place(x=130, y=35, width=100, height=35)
+entry9 = ttk.Entry(tab2)
+entry9.place(x=150, y=35, width=100, height=35)
+ttk.Label(tab2, text="/x").place(x=255, y=35, width=100, height=35)
+ttk.Button(tab2, text="绘制", style="TButton", command=b7).place(x=100, y=105, width=200, height=35)
+
+ttk.Label(tab3, text="y=").place(x=10, y=0, width=100, height=35)
+entry1 = ttk.Entry(tab3)
+entry1.place(x=30, y=0, width=100, height=35)
+ttk.Label(tab3, text="x²+").place(x=135, y=0, width=100, height=35)
+entry2 = ttk.Entry(tab3)
+entry2.place(x=160, y=0, width=100, height=35)
+ttk.Label(tab3, text="x+").place(x=265, y=0, width=100, height=35)
+entry3 = ttk.Entry(tab3)
+entry3.place(x=285, y=0, width=100, height=35)
+ttk.Button(tab3, text="计算", style="TButton", command=b1).place(x=0, y=35, width=200, height=35)
+ttk.Button(tab3, text="绘制", style="TButton", command=b2).place(x=200, y=35, width=200, height=35)
+
+ttk.Label(tab3, text="y=").place(x=10, y=70, width=100, height=35)
+entry4 = ttk.Entry(tab3)
+entry4.place(x=30, y=70, width=100, height=35)
+ttk.Label(tab3, text="(x+").place(x=135, y=70, width=100, height=35)
+entry5 = ttk.Entry(tab3)
+entry5.place(x=160, y=70, width=100, height=35)
+ttk.Label(tab3, text=")²+").place(x=265, y=70, width=100, height=35)
+entry6 = ttk.Entry(tab3)
+entry6.place(x=285, y=70, width=100, height=35)
+ttk.Button(tab3, text="计算", style="TButton", command=b3).place(x=0, y=105, width=200, height=35)
+ttk.Button(tab3, text="绘制", style="TButton", command=b4).place(x=200, y=105, width=200, height=35)
+
 x1 = 0
 y1 = 185
-ttk.Label(tk, text="自由绘制").place(x=x1 + 170, y=y1, width=150, height=30)
-ttk.Label(tk, text="y=").place(x=x1, y=y1 + 30, width=20, height=20)
-entry11 = ttk.Entry(tk)
-entry11.place(x=x1 + 20, y=y1 + 30, width=30, height=20)
-ttk.Label(tk, text="x⁵+").place(x=x1 + 50, y=y1 + 30, width=25, height=20)
-entry12 = ttk.Entry(tk)
-entry12.place(x=x1 + 75, y=y1 + 30, width=30, height=20)
-ttk.Label(tk, text="x⁴+").place(x=x1 + 105, y=y1 + 30, width=25, height=20)
-entry13 = ttk.Entry(tk)
-entry13.place(x=x1 + 130, y=y1 + 30, width=30, height=20)
-ttk.Label(tk, text="x³+").place(x=x1 + 160, y=y1 + 30, width=25, height=20)
-entry14 = ttk.Entry(tk)
-entry14.place(x=x1 + 185, y=y1 + 30, width=30, height=20)
-ttk.Label(tk, text="x²+").place(x=x1 + 215, y=y1 + 30, width=25, height=20)
-entry15 = ttk.Entry(tk)
-entry15.place(x=x1 + 240, y=y1 + 30, width=30, height=20)
-ttk.Label(tk, text="x+").place(x=x1 + 270, y=y1 + 30, width=20, height=20)
-entry16 = ttk.Entry(tk)
-entry16.place(x=x1 + 290, y=y1 + 30, width=30, height=20)
-ttk.Button(tk, text="绘制", style="TButton", command=b8).place(x=150, y=240, width=100, height=30)
-ttk.Separator(tk, orient=VERTICAL).place(x=200, y=0, width=1, height=85)
-ttk.Separator(tk, orient=HORIZONTAL).place(x=0, y=0, width=400, height=2)
-ttk.Separator(tk, orient=HORIZONTAL).place(x=0, y=85, width=400, height=2)
-ttk.Separator(tk, orient=HORIZONTAL).place(x=0, y=180, width=400, height=2)
-ttk.Separator(tk, orient=HORIZONTAL).place(x=0, y=270, width=400, height=2)
+ttk.Label(tab4, text="y=").place(x=10, y=0, width=100, height=35)
+entry11 = ttk.Entry(tab4)
+entry11.place(x=30, y=0, width=100, height=35)
+ttk.Label(tab4, text="x⁵+").place(x=135, y=0, width=100, height=35)
+entry12 = ttk.Entry(tab4)
+entry12.place(x=160, y=0, width=100, height=35)
+ttk.Label(tab4, text="x⁴+").place(x=265, y=0, width=100, height=35)
+entry13 = ttk.Entry(tab4)
+entry13.place(x=290, y=0, width=100, height=35)
+ttk.Label(tab4, text="x³+").place(x=10, y=35, width=100, height=35)
+entry14 = ttk.Entry(tab4)
+entry14.place(x=35, y=35, width=100, height=35)
+ttk.Label(tab4, text="x²+").place(x=140, y=35, width=100, height=35)
+entry15 = ttk.Entry(tab4)
+entry15.place(x=165, y=35, width=100, height=35)
+ttk.Label(tab4, text="x+").place(x=270, y=35, width=100, height=35)
+entry16 = ttk.Entry(tab4)
+entry16.place(x=290, y=35, width=100, height=35)
+ttk.Button(tab4, text="绘制", style="TButton", command=b8).place(x=100, y=105, width=200, height=35)
+
+tab.add(tab1, text="一次函数")
+tab.add(tab2, text="反比例函数")
+tab.add(tab3, text="二次函数")
+tab.add(tab4, text="自由绘制")
+tab.pack()
 close()
 tk.mainloop()
