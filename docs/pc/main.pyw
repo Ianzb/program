@@ -1,6 +1,6 @@
 # 程序信息
 
-version = "4.8.0"
+version = "4.8.1"
 # 导入运行库
 from zb import *
 
@@ -80,7 +80,8 @@ def b2():
         clear_apps(settings[3])
     if settings[0] == "希沃定制版":
         clear_seewo()
-    clear_repeat(settings[3])
+    clear_useless_files(settings[3])
+    showinfo("提示","整理完毕")
 
 
 def b3():
@@ -129,6 +130,7 @@ def save():
     logging.info(settings)
     os.popen("main.pyw")
     tk.destroy()
+
 
 
 def not_save():

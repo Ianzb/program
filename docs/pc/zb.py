@@ -38,7 +38,7 @@ from tkinter.messagebox import *
 from tkinter.filedialog import *
 
 try:
-    import threading, ctypes, re, pickle, filecmp, glob, stat, bs4, lxml, requests, winreg, send2trash, winshell, platform, psutil, wmi, pythoncom, webbrowser, win32api, win32con, random, pandas, numpy, sv_ttk, win32com.client
+    import hashlib,threading, ctypes, re, pickle, filecmp, glob, stat, bs4, lxml, requests, winreg, send2trash, winshell, platform, psutil, wmi, pythoncom, webbrowser, win32api, win32con, random, pandas, numpy, sv_ttk, win32com.client
 except:
     logging.info("未找到运行库")
     showerror("错误", "未找到运行库，请重新安装运行库！")
@@ -159,30 +159,50 @@ def remove_if_in(d, name):
             a.append(i)
     for i in a:
         del d[i]
+#获取文件md5
+def getmd5(file):
+    with open(file, 'rb') as file:
+        data=file.read()
+    return hashlib.md5(data).hexdigest()
+# 清理空文件
+def clear_empty(path):
+    logging.info("开始清理" + path + "下的空文件")
+    dir_list = []
+    for root, dirs, files in os.walk(path):
+        dir_list.append(root)
+    for root in dir_list[::-1]:
+        if not os.listdir(root):
+            os.rmdir(root)
+    for root, dirs, files in os.walk(path):
+        for file in files:
+            src_file = os.path.join(root, file)
+            if os.path.getsize(src_file) == 0:
+                os.remove(src_file)
 
 
 # 清理重复整理文件
-def clear_repeat(name):
-    list = []
-    list.append(pj(name, "PPT/"))
-    list.append(pj(name, "表格/"))
-    list.append(pj(name, "图片/"))
-    list.append(pj(name, "文档/"))
-    list.append(pj(name, "文件夹/"))
-    list.append(pj(name, "压缩包/"))
-    list.append(pj(name, "音视频/"))
-    for path in list:
-        file_lst = []
-        for i in glob.glob(path + "/**/*", recursive=True):
-            if os.path.isfile(i): file_lst.append(i)
-        for x in file_lst:
-            for y in file_lst:
-                if x != y and os.path.exists(x) and os.path.exists(y):
-                    if filecmp.cmp(x, y):
-                        if len(x) > len(y):
-                            os.remove(x)
-                        else:
-                            os.remove(y)
+def clear_repeat(path):
+    logging.info("开始清理" + path + "下的重复文件")
+    all_size = {}
+    total_file = 0
+    total_delete = 0
+    for file in os.listdir(path):
+        total_file += 1
+        real_path = os.path.join(path, file)
+        if os.path.isfile(real_path) == True:
+            size = os.stat(real_path).st_size
+            size_and_md5 = [""]
+            if size in all_size.keys():
+                new_md5 = getmd5(real_path)
+                if all_size[size][0] == "":
+                    all_size[size][0] = new_md5
+                if new_md5 in all_size[size]:
+                    os.remove(real_path)
+                    total_delete += 1
+                else:
+                    all_size[size].append(new_md5)
+            else:
+                all_size[size] = size_and_md5
 
 
 # 整理指定目录文件到指定位置
@@ -230,42 +250,39 @@ def move_files(old, new, mode=True):
                 try:
                     os.chmod(pj(old, i[:i.rfind("(")]), stat.S_IWRITE)
                     shutil.move(pj(old, i[:i.rfind("(")]), pj(new, name1[name], i[:i.rfind(".")] + i[i.rfind("("):] + i[i.rfind("."):i.rfind("(")]))
-                except:
-                    logging.info("无法移动" + pj(old, i[:i.rfind("(")]))
+                except Exception as e:
+                    logging.info("无法移动" + pj(old, i[:i.rfind("(")]) + "异常类型：" + e)
                     continue
-    for name in range(len(name1)):
-        files = os.listdir(pj(new, name1[name]))
-        for file in files:
-            if os.path.isfile(pj(new, name1[name], file)):
-                if os.path.getsize(pj(new, name1[name], file)) == 0:
-                    os.remove(pj(new, name1[name], file))
-            if os.path.isdir(pj(new, name1[name], file)):
-                if not os.listdir(pj(new, name1[name], file)):
-                    os.rmdir(pj(new, name1[name], file))
-    if mode == False:
-        logging.info("成功整理" + old + "至" + new + "，不整理文件夹")
-        return
-    list3 = list2[0][1]
-    fold = []
-    not1 = ["软件", "备份", "MobileFile"]
-    if not os.path.exists(pj(new, "文件夹")): os.makedirs(pj(new, "文件夹"))
-    for i in list3:
-        if i not in not1: fold.append(i)
-    for i in range(len(fold)):
-        if os.path.exists(pj(new, "文件夹", fold[i])):
-            j = 1
-            while os.path.exists(pj(new, "文件夹", fold[i] + "(" + str(j) + ")")): j = j + 1
-            fold[i] = fold[i] + "(" + str(j) + ")"
-    for i in fold:
-        try:
-            shutil.move(pj(old, i), pj(new, "文件夹", i))
-        except:
-            shutil.move(pj(old, i[:i.rfind("(")]), pj(new, "文件夹", i))
-    for file in os.listdir(pj(new, "文件夹")):
-        if os.path.isdir(pj(new, "文件夹", file)):
-            if not os.listdir(pj(new, "文件夹", file)):
-                os.rmdir(pj(new, "文件夹", file))
+    # 以下为文件夹整理部分
+    if mode == True:
+        list3 = list2[0][1]
+        fold = []
+        not1 = ["软件", "备份", "MobileFile"]
+        if not os.path.exists(pj(new, "文件夹")): os.makedirs(pj(new, "文件夹"))
+        for i in list3:
+            if i not in not1: fold.append(i)
+        for i in range(len(fold)):
+            if os.path.exists(pj(new, "文件夹", fold[i])):
+                j = 1
+                while os.path.exists(pj(new, "文件夹", fold[i] + "(" + str(j) + ")")): j = j + 1
+                fold[i] = fold[i] + "(" + str(j) + ")"
+        for i in fold:
+            try:
+                shutil.move(pj(old, i), pj(new, "文件夹", i))
+            except:
+                shutil.move(pj(old, i[:i.rfind("(")]), pj(new, "文件夹", i))
     logging.info("成功整理" + old + "至" + new)
+
+
+# 清理整理目录下的无效文件
+def clear_useless_files(path):
+    new_list = []
+    name1 = ["PPT", "文档", "表格", "图片", "音视频", "压缩包", "文件夹"]
+    for i in name1:
+        new_list.append(pj(path, i))
+    for i in new_list:
+        clear_empty(i)
+        clear_repeat(i)
 
 
 # MC版本爬虫
@@ -278,7 +295,7 @@ def get_mc():
     v2 = []
     v3 = []
     v = {}
-    str1=""
+    str1 = ""
     response = requests.get("https://minecraft.fandom.com/zh/wiki/Template:Version#table")
     response.encoding = "UTF-8"
     soup = bs4.BeautifulSoup(response.text, "lxml")
@@ -297,7 +314,7 @@ def get_mc():
         if v3[i] == "{{v|china-android}}":
             v1[i] = "中国版手游"
         if v3[i] in useful and v2[i] != "":
-            str1=str1+v1[i] + "版本：" + v2[i]+"\n"
+            str1 = str1 + v1[i] + "版本：" + v2[i] + "\n"
     showinfo("MC最新版本", str1)
     logging.info("我的世界最新版本获取成功")
 
@@ -335,11 +352,12 @@ def clear_wechat(old, new):
         if os.path.exists(pj(old, i, "FileStorage/File")): list2.append(pj(old, i, "FileStorage/File"))
     logging.info("获取到的微信用户文件目录为" + str(list2))
     list = []
-    list3 = []
     for i in range(len(list2)):
-        for j in os.walk(list2[i]): list.append(j)
-        for k in list[0][1]: list3.append(pj(list2[i], k))
-    list = list3
+        list3 = []
+        for j in os.walk(list2[i]):
+            list3.append(j)
+        for k in list3[0][1]:
+            list.append(pj(list2[i], k))
     for i in list:
         move_files(i, new)
     for i in list2:
@@ -437,7 +455,7 @@ def add_to_start_menu():
 def sys_info():
     logging.info("开始获取系统信息")
     temp = os.getenv("TEMP")
-    str1=""
+    str1 = ""
     # CPU
     pythoncom.CoInitialize()
     c = wmi.WMI()
@@ -453,14 +471,14 @@ def sys_info():
     used = str(psutil.virtual_memory().used / 1024 / 1024 / 1024)[:4]
     percent = str(psutil.virtual_memory().percent)
 
-    str1=str1+"操作系统及版本信息：" + platform.platform()
-    str1=str1+"\n系统内核版本号：" + platform.version()
-    str1=str1+"\n系统位数：" + platform.architecture()[0].replace("bit", "位")
-    str1=str1+"\n计算机名称：" + platform.node()
-    str1=str1+"\nCPU信息：" + name + "，" + core + "核" + thread + "线程" + "，当前占用率" + cpuused + "%"
-    str1=str1+"\n内存信息：共" + total + "GB，已使用" + used + "GB，占用率" + percent + "%"
-    str1=str1+"\nPython编译信息：" + str(platform.python_build())
-    str1=str1+"\nPython版本信息：" + platform.python_version()
+    str1 = str1 + "操作系统及版本信息：" + platform.platform()
+    str1 = str1 + "\n系统内核版本号：" + platform.version()
+    str1 = str1 + "\n系统位数：" + platform.architecture()[0].replace("bit", "位")
+    str1 = str1 + "\n计算机名称：" + platform.node()
+    str1 = str1 + "\nCPU信息：" + name + "，" + core + "核" + thread + "线程" + "，当前占用率" + cpuused + "%"
+    str1 = str1 + "\n内存信息：共" + total + "GB，已使用" + used + "GB，占用率" + percent + "%"
+    str1 = str1 + "\nPython编译信息：" + str(platform.python_build())
+    str1 = str1 + "\nPython版本信息：" + platform.python_version()
 
     showinfo("系统信息", str1)
     logging.info("成功获取系统信息")
