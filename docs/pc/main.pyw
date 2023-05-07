@@ -1,25 +1,9 @@
 # 程序信息
 
-version = "4.8.1"
+version = "4.8.2"
 # 导入运行库
 from zb import *
 
-if settings[0] == "Myself":
-    settings[0] = "作者个人版"
-if settings[0] == "Seewo":
-    settings[0] = "希沃定制版"
-if settings[5] == "Classic":
-    settings[5] = "经典风格"
-if settings[5] == "Light":
-    settings[5] = "Win11浅色模式"
-if settings[5] == "Dark":
-    settings[5] = "Win11深色模式"
-if settings[0] == None:
-    settings[0] = "作者个人版"
-if settings[2] == None:
-    settings[2] = 30
-if settings[5] == None:
-    settings[5] = "经典风格"
 save_setting(settings)
 check()
 disable("main.txt")
@@ -81,7 +65,7 @@ def b2():
     if settings[0] == "希沃定制版":
         clear_seewo()
     clear_useless_files(settings[3])
-    showinfo("提示","整理完毕")
+    showinfo("提示", "整理完毕")
 
 
 def b3():
@@ -131,8 +115,9 @@ def save():
     os.popen("main.pyw")
     tk.destroy()
 
-
-
+def new_version():
+    os.popen("test.pyw")
+    tk.destroy()
 def not_save():
     os.popen("main.pyw")
     tk.destroy()
@@ -220,6 +205,8 @@ ttk.Button(tab4, text="安装目录", style="TButton", command=lambda: MyThread(
 ttk.Button(tab4, text="查看日志", style="TButton", command=lambda: os.popen("start NotePad.exe zb.log")).place(x=300, y=35, width=100, height=35)
 ttk.Button(tab4, text="添加桌面快捷方式", style="TButton", command=lambda: create_link(name="zb小程序", path=pj(abs_path, "main.pyw"), to=abs_desktop, icon=pj(abs_path, "logo.ico"))).place(x=0, y=70, width=200, height=35)
 ttk.Button(tab4, text="添加至开始菜单", style="TButton", command=add_to_start_menu).place(x=0, y=105, width=200, height=35)
+ttk.Button(tab4, text="体验内测新版本", style="TButton", command=new_version).place(x=200, y=70, width=200, height=35)
+
 tab.add(tab1, text="便携功能")
 tab.add(tab2, text="实用程序")
 tab.add(tab3, text="设置")

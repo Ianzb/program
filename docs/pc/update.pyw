@@ -6,7 +6,7 @@ disable("update.txt")
 # 读取信息
 
 using = False
-lib_list = ["sv-ttk", "lxml", "pypiwin32", "pandas", "numpy", "bs4", "requests", "send2trash", "winshell", "matplotlib", "openpyxl", "PyAudio", "python-xlib", "pymouse", "pyautogui", "PyUserInput", "psutil", "wmi"]
+lib_list = ["PyQt5-sip","pyqt5-tools","PyQt5","PyQt5Designer","PyQt-Fluent-Widgets[full]","sv-ttk", "lxml", "pypiwin32", "pandas", "numpy", "bs4", "requests", "send2trash", "winshell", "matplotlib", "openpyxl", "PyAudio", "python-xlib", "pymouse", "pyautogui", "PyUserInput", "psutil", "wmi"]
 
 # 窗口初始化
 

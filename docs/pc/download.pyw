@@ -25,8 +25,8 @@ def read_setting():
 settings = read_setting()
 # 加载信息
 using = False
-lib_list = ["sv-ttk", "lxml", "pypiwin32", "pandas", "numpy", "bs4", "requests", "send2trash", "winshell", "matplotlib", "openpyxl", "PyAudio", "python-xlib", "pymouse", "pyautogui", "PyUserInput", "psutil", "wmi"]
-# 窗口初始化
+lib_list = ["PyQt5-sip","pyqt5-tools","PyQt5","PyQt5Designer","PyQt-Fluent-Widgets[full]","sv-ttk", "lxml", "pypiwin32", "pandas", "numpy", "bs4", "requests", "send2trash", "winshell", "matplotlib", "openpyxl", "PyAudio", "python-xlib", "pymouse", "pyautogui", "PyUserInput", "psutil", "wmi"]
+  # 窗口初始化
 tk = Tk()
 tk.title("zb小程序安装器")
 x = 200
