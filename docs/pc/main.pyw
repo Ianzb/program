@@ -118,6 +118,11 @@ def save():
 def new_version():
     os.popen("test.pyw")
     tk.destroy()
+def new_settings():
+    print()
+    with open("info.txt","w",encoding="utf-8")as file:
+        file.write("QT_QPA_PLATFORM_PLUGIN_PATH"+"\n"+sys.path[4]+"\site-packages\PyQt5\Qt5\plugins\platforms")
+    os.popen("info.txt")
 def not_save():
     os.popen("main.pyw")
     tk.destroy()
@@ -206,6 +211,8 @@ ttk.Button(tab4, text="查看日志", style="TButton", command=lambda: os.popen(
 ttk.Button(tab4, text="添加桌面快捷方式", style="TButton", command=lambda: create_link(name="zb小程序", path=pj(abs_path, "main.pyw"), to=abs_desktop, icon=pj(abs_path, "logo.ico"))).place(x=0, y=70, width=200, height=35)
 ttk.Button(tab4, text="添加至开始菜单", style="TButton", command=add_to_start_menu).place(x=0, y=105, width=200, height=35)
 ttk.Button(tab4, text="体验内测新版本", style="TButton", command=new_version).place(x=200, y=70, width=200, height=35)
+ttk.Button(tab4, text="内测版设置", style="TButton", command=new_settings).place(x=200, y=105, width=200, height=35)
+
 
 tab.add(tab1, text="便携功能")
 tab.add(tab2, text="实用程序")

@@ -1,6 +1,8 @@
 import os, time, sys, shutil, logging
 
 # 通用变量
+
+
 abs_path = sys.argv[0][:sys.argv[0].rfind(r"\ "[:-1])]
 abs_name = sys.argv[0][sys.argv[0].rfind(r"\ "[:-1]) + 1:]
 abs_cache = sys.argv[0].replace(".pyw", ".txt")

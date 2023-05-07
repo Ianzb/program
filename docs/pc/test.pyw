@@ -1,4 +1,6 @@
+import PyQt5
 version = "0.0.1"
+from PyQt5 import *
 from PyQt5 import QtCore
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -8,6 +10,7 @@ from qfluentwidgets import FluentIcon as FIF
 from qframelesswindow import *
 
 from zb import *
+
 check()
 disable("test.txt")
 
@@ -93,7 +96,7 @@ class AvatarWidget(NavigationWidget):
 
     def __init__(self, parent=None):
         super().__init__(isSelectable=False, parent=parent)
-        self.avatar = QImage("logo.ico").scaled(
+        self.avatar = QImage("logo.png").scaled(
             24, 24, Qt.KeepAspectRatio, Qt.SmoothTransformation)
 
     def paintEvent(self, e):
@@ -173,7 +176,7 @@ class Window(FramelessWindow):
 
     def initWindow(self):
         self.resize(250, 200)
-        self.setWindowIcon(QIcon("logo.ico"))
+        self.setWindowIcon(QIcon("logo.png"))
         self.setWindowTitle("zb小程序")
         self.titleBar.setAttribute(Qt.WA_StyledBackground)
         self.windowEffect.setMicaEffect(self.winId())
