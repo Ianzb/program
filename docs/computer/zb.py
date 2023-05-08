@@ -1,77 +1,79 @@
-import os, time, sys, shutil, logging
+import os, sys, winreg, logging
 
 # 通用变量
-
-
 abs_path = sys.argv[0][:sys.argv[0].rfind(r"\ "[:-1])]
 abs_name = sys.argv[0][sys.argv[0].rfind(r"\ "[:-1]) + 1:]
 abs_cache = sys.argv[0].replace(".pyw", ".txt")
+abs_pid = os.getpid()
 user_path = os.path.expanduser('~')
+abs_desktop = winreg.QueryValueEx(winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders"), "Desktop")[0]
+
+# 切换工作路径
 os.chdir(abs_path)
+
+# 日志功能配置
 logging.basicConfig(level=logging.INFO, filename="zb.log", format="[%(asctime)s %(filename)s %(process)d] %(levelname)s:%(message)s")
 logging.info("程序开始运行")
 
-
-# 开始加载
-def start():
+# 打开加载窗口
+if abs_name not in ["hide.pyw", "load.pyw"]:
     os.popen("load.pyw")
-    logging.info("打开加载窗口")
+    logging.info("打开加载界面")
+
+import shutil, time, hashlib, threading, ctypes, re, pickle, filecmp, glob, stat, bs4, lxml, requests, send2trash, winshell, platform, psutil, wmi, pythoncom, webbrowser, win32api, win32con, win32com.client
+
+# 任务栏图标加载
+ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("zb小程序 PyQt版")
 
 
-# 取消加载
-def close():
-    path = os.path.join(abs_path, "pid.txt")
+# 检测重复运行
+def checkIsOpen():
+    if os.path.exists(abs_cache):
+        with open(file=abs_cache, mode="r") as file:
+            pid = file.read()
+        try:
+            os.kill(int(pid), 0)
+        except:
+            pass
+    with open(file=abs_cache, mode="w") as file:
+        file.write(str(os.getpid()))
+
+
+checkIsOpen()
+
+
+# 保存设置
+def saveSettings(data):
+    with open("settings.zb", "wb") as file:
+        pickle.dump(data, file)
+    logging.info("保存设置")
+
+
+# 读取设置
+def readSettings():
+    if os.path.exists("settings.zb"):
+        with open("settings.zb", "rb") as file:
+            data = pickle.load(file)
+    else:
+        data = ["作者个人版", 0, 30, "D:/文件/整理", "D:/文件/应用/微信/WeChat Files"] + [None for i in range(100)]
+    logging.info("读取设置")
+    return data
+
+
+settings = readSettings()
+
+
+# 自定义功能
+# 关闭加载界面
+def stopLoading():
+    path = os.path.join(abs_path, "load.txt")
     try:
         with open(file=path, mode="r") as file:
             pid = file.read()
     except:
         pass
     os.popen("taskkill.exe /F /pid:" + pid)
-    logging.info("关闭加载窗口")
-
-
-if abs_name not in ["hide.pyw", "load.pyw"]:
-    start()
-
-from tkinter import *
-from tkinter import ttk
-from tkinter.ttk import *
-from tkinter.messagebox import *
-from tkinter.filedialog import *
-
-try:
-    import hashlib, threading, ctypes, re, pickle, filecmp, glob, stat, bs4, lxml, requests, winreg, send2trash, winshell, platform, psutil, wmi, pythoncom, webbrowser, win32api, win32con, random, pandas, numpy, sv_ttk, win32com.client
-except:
-    logging.info("未找到运行库")
-    showerror("错误", "未找到运行库，请重新安装运行库！")
-    sys.exit()
-
-# 任务栏图标加载
-ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("zb小程序 tkinter版")
-# 通用变量
-abs_pid = os.getpid()
-abs_desktop = winreg.QueryValueEx(winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders"), "Desktop")[0]
-
-
-# 保存设置
-def save_setting(data):
-    with open("setting.zb", "wb") as file:
-        pickle.dump(data, file)
-        logging.info("设置已保存")
-
-
-# 读取设置
-def read_setting():
-    if os.path.exists("setting.zb"):
-        with open("setting.zb", "rb") as file:
-            data = pickle.load(file)
-    else:
-        data = ["作者个人版", 0, 30, "D:/文件/整理", "D:/文件/应用/微信/WeChat Files"] + [None for i in range(100)]
-    logging.info("设置已读取")
-    return data
-
-
-settings = read_setting()
+    logging.info("关闭加载界面")
 
 
 # 多线程优化
@@ -90,88 +92,42 @@ class MyThread(threading.Thread):
 
 
 # 更好的路径拼接
-def pj(*a):
-    out = ""
-    for i in a:
-        out = os.path.join(out, i)
-    out = out.replace("//", r"\ "[:-1]).replace(r"\\ "[:-1], r"\ "[:-1]).replace("\/", r"\ "[:-1]).replace("/\ "[:-1], r"\ "[:-1]).replace("/", r"\ "[:-1])
-    return out
+def pj(*data):
+    path = ""
+    for i in data:
+        path = os.path.join(path, i)
+    path = path.replace("//", r"\ "[:-1]).replace(r"\\ "[:-1], r"\ "[:-1]).replace("\/", r"\ "[:-1]).replace("/\ "[:-1], r"\ "[:-1]).replace("/", r"\ "[:-1])
+    return path
 
 
 # 关闭程序
 def exit():
     logging.info("关闭程序")
-    os.popen("taskkill.exe /pid:" + str(os.getpid()))
     sys.exit()
 
 
-# 不可以打开就关闭程序
-def check():
-    if os.path.exists(abs_cache):
-        with open(file=abs_cache, mode="r") as file:
-            pid = file.read()
-        try:
-            os.kill(int(pid), 0)
-            logging.info("检查是否已打开")
-            exit()
-        except:
-            os.remove(abs_cache)
-            return None
-
-
-# 不可以打开程序
-def disable(name):
-    with open(file=name, mode="w") as file:
-        file.write(str(os.getpid()))
-        logging.info("标记该程序已打开")
-
-
 # 关闭所有python程序
-def kill_py():
+def killAllPython():
+    logging.info("强制关闭Python程序")
     for root, dirs, files in os.walk("./"):
         for name in files:
             if name.endswith(".txt"):
                 os.remove(pj(root, name))
-    logging.info("强制关闭Python程序")
     os.popen("taskkill.exe /F /IM py.exe")
     os.popen("taskkill.exe /F /IM pyw.exe")
     os.popen("taskkill.exe /F /IM python.exe")
     os.popen("taskkill.exe /F /IM pythonw.exe")
 
 
-# 检查图标是否存在
-def check_ico(tk, name):
-    try:
-        tk.wm_iconbitmap(name)
-    except:
-        pass
-
-
-# MC版本爬虫去除不符内容1
-def pc_remove(d, name):
-    for i in [k for (k, v) in d.items() if v == name]:
-        del d[i]
-
-
-# MC版本爬虫去除不符内容2
-def remove_if_in(d, name):
-    a = []
-    for i in d.keys():
-        if name in i:
-            a.append(i)
-    for i in a:
-        del d[i]
-
-
 # 获取文件md5
-def getmd5(file):
+def getMd5(file):
     with open(file, 'rb') as file:
         data = file.read()
     return hashlib.md5(data).hexdigest()
 
 
 # 清理空文件
-def clear_empty(path):
+def clearEmpty(path):
     logging.info("开始清理" + path + "下的空文件")
     dir_list = []
     for root, dirs, files in os.walk(path):
@@ -187,7 +143,7 @@ def clear_empty(path):
 
 
 # 清理重复整理文件
-def clear_repeat(path):
+def clearRepeat(path):
     logging.info("开始清理" + path + "下的重复文件")
     all_size = {}
     total_file = 0
@@ -199,7 +155,7 @@ def clear_repeat(path):
             size = os.stat(real_path).st_size
             size_and_md5 = [""]
             if size in all_size.keys():
-                new_md5 = getmd5(real_path)
+                new_md5 = getMd5(real_path)
                 if all_size[size][0] == "":
                     all_size[size][0] = new_md5
                 if new_md5 in all_size[size]:
@@ -212,7 +168,7 @@ def clear_repeat(path):
 
 
 # 整理指定目录文件到指定位置
-def move_files(old, new, mode=True):
+def moveFiles(old, new, mode=True):
     logging.info("开始整理文件" + old + "至" + new)
     list2 = []
     list3 = os.walk(old)
@@ -281,18 +237,18 @@ def move_files(old, new, mode=True):
 
 
 # 清理整理目录下的无效文件
-def clear_useless_files(path):
+def clearUselessFiles(path):
     new_list = []
     name1 = ["PPT", "文档", "表格", "图片", "音视频", "压缩包", "文件夹"]
     for i in name1:
         new_list.append(pj(path, i))
     for i in new_list:
-        clear_empty(i)
-        clear_repeat(i)
+        clearEmpty(i)
+        clearRepeat(i)
 
 
 # MC版本爬虫
-def get_mc():
+def getMc():
     logging.info("开始获取我的世界最新版本")
     useful = ["{{v|java}}", "{{v|java-experimental}}", "{{v|java-snap}}", "{{v|java-combat}}", "{{v|bedrock}}", "{{v|bedrock-beta}}", "{{v|bedrock-preview}}", "{{v|dungeons}}", "{{v|legends}}", "{{v|launcher}}", "{{v|launcher-beta}}", "{{v|education}}", "{{v|education-beta}}", "{{v|china-win}}", "{{v|china-android}}"]
     temp = os.getenv("TEMP")
@@ -321,12 +277,12 @@ def get_mc():
             v1[i] = "中国版手游"
         if v3[i] in useful and v2[i] != "":
             str1 = str1 + v1[i] + "版本：" + v2[i] + "\n"
-    showinfo("MC最新版本", str1)
+    return str1
     logging.info("我的世界最新版本获取成功")
 
 
 # 重启PPT小助手
-def ppt_restart():
+def pptRestart():
     logging.info("重新运行PPT小助手")
     os.popen("taskkill -f -im PPTService.exe")
     time.sleep(0.5)
@@ -334,7 +290,7 @@ def ppt_restart():
 
 
 # 清理希沃视频展台文件
-def clear_seewo():
+def clearSeewo():
     logging.info("开始清理希沃视频展台文件")
     try:
         list = os.walk(r"D:/EasiCameraPhoto")
@@ -349,7 +305,7 @@ def clear_seewo():
 
 
 # 整理微信文件
-def clear_wechat(old, new):
+def clearWechat(old, new):
     logging.info("开始整理微信文件")
     list = []
     list2 = []
@@ -365,19 +321,19 @@ def clear_wechat(old, new):
         for k in list3[0][1]:
             list.append(pj(list2[i], k))
     for i in list:
-        move_files(i, new)
+        moveFiles(i, new)
     for i in list2:
-        move_files(i, new, False)
+        moveFiles(i, new, False)
     logging.info("成功整理微信文件")
 
 
 # 整理桌面文件
-def clear_desk(to):
-    move_files(abs_desktop, to)
+def clearDesk(to):
+    moveFiles(abs_desktop, to)
 
 
 # 清理系统缓存
-def clear_cache():
+def clearCache():
     logging.info("开始清理系统缓存")
     list = []
     list1 = os.walk(os.getenv("TEMP"))
@@ -398,7 +354,7 @@ def clear_cache():
 
 
 # 清理回收站
-def clear_rubbish():
+def clearRubbish():
     logging.info("开始清理回收站")
     try:
         winshell.recycle_bin().empty(confirm=False, show_progress=False, sound=False)
@@ -408,7 +364,7 @@ def clear_rubbish():
 
 
 # 重启文件资源管理器
-def restart_explorer():
+def restartExplorer():
     logging.info("重启文件资源管理器")
     os.popen("taskkill /f /im explorer.exe")
     time.sleep(0.5)
@@ -416,11 +372,11 @@ def restart_explorer():
 
 
 # 整理+清理常用软件文件
-def clear_apps(path):
+def clearApps(path):
     logging.info("开始整理常用软件文件")
-    move_files(r"D:/文件/应用/QQ/93322252/FileRecv", path)
-    move_files(r"D:/文件/应用/钉钉", path)
-    move_files(r"D:/文件/应用/百度网盘", path)
+    moveFiles(r"D:/文件/应用/QQ/93322252/FileRecv", path)
+    moveFiles(r"D:/文件/应用/钉钉", path)
+    moveFiles(r"D:/文件/应用/百度网盘", path)
     logging.info("成功整理常用软件文件")
 
 
@@ -435,16 +391,16 @@ def download(link):
 
 
 # pip安装模块
-def pip_install(name):
+def pipInstall(name):
     logging.info("开始安装" + name + "运行库")
     p = os.popen("pip install " + name + " -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com")
-    p=p.read()
+    p = p.read()
     p = os.popen("pip install --upgrade " + name + " -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com")
-    p=p.read()
+    p = p.read()
 
 
 # 创建快捷方式
-def create_link(name="快捷方式", path="", to=abs_desktop, icon=""):
+def createLink(name="快捷方式", path="", to=abs_desktop, icon=""):
     to = pj(to, name + ".lnk")
     shell = win32com.client.Dispatch("WScript.Shell")
     shortcut = shell.CreateShortCut(to)
@@ -454,53 +410,31 @@ def create_link(name="快捷方式", path="", to=abs_desktop, icon=""):
 
 
 # 添加至开始菜单
-def add_to_start_menu():
+def addToStartMenu():
     path = pj(user_path, "AppData\Roaming\Microsoft\Windows\Start Menu\Programs")
-    create_link(name="zb小程序", path=pj(abs_path, "main.pyw"), to=path, icon=pj(abs_path, "logo.ico"))
+    createLink(name="zb小程序", path=pj(abs_path, "main.pyw"), to=path, icon=pj(abs_path, "logo.ico"))
 
 
-# 获取系统信息
-def sys_info():
-    logging.info("开始获取系统信息")
-    temp = os.getenv("TEMP")
-    str1 = ""
-    # CPU
-    pythoncom.CoInitialize()
-    c = wmi.WMI()
-    for cpu in c.Win32_Processor():
-        name = cpu.Name
-    core = str(psutil.cpu_count(logical=False))
-    thread = str(psutil.cpu_count())
-    cpuused = str(psutil.cpu_percent(1))
-    pythoncom.CoUninitialize()
-
-    # 内存
-    total = str(psutil.virtual_memory().total / 1024 / 1024 / 1024)[:4]
-    used = str(psutil.virtual_memory().used / 1024 / 1024 / 1024)[:4]
-    percent = str(psutil.virtual_memory().percent)
-
-    str1 = str1 + "操作系统及版本信息：" + platform.platform()
-    str1 = str1 + "\n系统内核版本号：" + platform.version()
-    str1 = str1 + "\n系统位数：" + platform.architecture()[0].replace("bit", "位")
-    str1 = str1 + "\n计算机名称：" + platform.node()
-    str1 = str1 + "\nCPU信息：" + name + "，" + core + "核" + thread + "线程" + "，当前占用率" + cpuused + "%"
-    str1 = str1 + "\n内存信息：共" + total + "GB，已使用" + used + "GB，占用率" + percent + "%"
-    str1 = str1 + "\nPython编译信息：" + str(platform.python_build())
-    str1 = str1 + "\nPython版本信息：" + platform.python_version()
-
-    showinfo("系统信息", str1)
-    logging.info("成功获取系统信息")
+def autoClean():
+    clearRubbish()
+    clearCache()
+    clearDesk(settings[3])
+    clearWechat(settings[4], settings[3])
+    if settings[0] == "作者个人版":
+        clearApps(settings[3])
+    if settings[0] == "希沃定制版":
+        clearSeewo()
+    clearUselessFiles(settings[3])
 
 
 # 开机自启动
-# AutoRun(switch="open", zdynames=os.path.basename(os.path.join(path, "hide.pyw"))
-# AutoRun(switch="close", zdynames=os.path.basename(os.path.join(path, "hide.pyw"))
+# autoRun(switch="open", zdynames=os.path.basename(os.path.join(path, "hide.pyw"))
+# autoRun(switch="close", zdynames=os.path.basename(os.path.join(path, "hide.pyw"))
 # 判断键是否存在
-def Judge_Key(key_name,
-              reg_root=win32con.HKEY_CURRENT_USER,  # 根节点  其中的值可以有：HKEY_CLASSES_ROOT、HKEY_CURRENT_USER、HKEY_LOCAL_MACHINE、HKEY_USERS、HKEY_CURRENT_CONFIG
-              reg_path=r"SOFTWARE\Microsoft\Windows\CurrentVersion\Run",  # 键的路径
-              ):
-    # logging.info(key_name)
+def audgeKey(key_name,
+             reg_root=win32con.HKEY_CURRENT_USER,  # 根节点  其中的值可以有：HKEY_CLASSES_ROOT、HKEY_CURRENT_USER、HKEY_LOCAL_MACHINE、HKEY_USERS、HKEY_CURRENT_CONFIG
+             reg_path=r"SOFTWARE\Microsoft\Windows\CurrentVersion\Run",  # 键的路径
+             ):
     """
     :param key_name: #  要查询的键名
     :param reg_root: # 根节点
@@ -517,21 +451,21 @@ def Judge_Key(key_name,
     try:
         key = winreg.OpenKey(reg_root, reg_path, 0, reg_flags)
         location, type = winreg.QueryValueEx(key, key_name)
-        logging.info("键存在", "location（数据）:", location, "type:", type)
+        logging.info("注册表键存在", "location（数据）:", location, "type:", type)
         feedback = 0
     except FileNotFoundError as e:
-        logging.info("键不存在", e)
+        logging.info("注册表键不存在", e)
         feedback = 1
     except PermissionError as e:
-        logging.info("权限不足", e)
+        logging.info("注册表权限不足", e)
         feedback = 2
     except:
-        logging.info("Error")
+        logging.info("注册表键查看失败")
         feedback = 3
     return feedback
 
 
-def AutoRun(switch="open",  # 开：open # 关：close
+def autoRun(switch="open",  # 开：open # 关：close
             zdynames=None,
             current_file=None,
             abspath=abs_path):
@@ -545,9 +479,9 @@ def AutoRun(switch="open",  # 开：open # 关：close
     logging.info(zdynames)
 
     path = abspath + "\\" + zdynames  # 要添加的exe完整路径如：
-    judge_key = Judge_Key(reg_root=win32con.HKEY_CURRENT_USER,
-                          reg_path=r"Software\Microsoft\Windows\CurrentVersion\Run",  # 键的路径
-                          key_name=current_file)
+    judge_key = judgeKey(reg_root=win32con.HKEY_CURRENT_USER,
+                         reg_path=r"Software\Microsoft\Windows\CurrentVersion\Run",  # 键的路径
+                         key_name=current_file)
     # 注册表项名
     KeyName = r"Software\Microsoft\Windows\CurrentVersion\Run"
     key = win32api.RegOpenKey(win32con.HKEY_CURRENT_USER, KeyName, 0, win32con.KEY_ALL_ACCESS)
@@ -555,7 +489,7 @@ def AutoRun(switch="open",  # 开：open # 关：close
         # 异常处理
         try:
             if judge_key == 0:
-                logging.info("已经开启了，无需再开启")
+                logging.info("已经开启开机自启动")
             elif judge_key == 1:
                 win32api.RegSetValueEx(key, current_file, 0, win32con.REG_SZ, path)
                 win32api.RegCloseKey(key)

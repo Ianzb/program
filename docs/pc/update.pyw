@@ -30,34 +30,7 @@ elif settings[5] == "Win11深色模式":
 
 
 def check_update(name):
-    logging.info("开始更新")
-    global using
-    if using:
-        return None
-    using = True
-    if "D:\编程\server.github.io\docs" in os.getcwd():
-        showerror("错误", "当前目录为开发者目录无法更新！")
-        using = False
-        return None
-    if not askokcancel("提示", "是否更新zb小程序？"):
-        using = False
-        return None
-    link = "https://ianzb.github.io/server.github.io/pc/"
-    res = requests.get(link + "index.html")
-    res.encoding = "UTF-8"
-    soup = bs4.BeautifulSoup(res.text, "lxml")
-    data = soup.find_all(name="div", class_="download", text=re.compile("."))
-    for i in range(len(data)): data[i] = str(data[i]).replace('<div class="download">', "").replace("</div>", "").strip()
-    for i in range(len(data)):
-        download(link + data[i])
-        vari.set(int(100 * i / len(data)))
-        tk.update()
-    showinfo("提示", "zb小程序更新完毕！")
-    os.popen("main.pyw")
-    vari.set(100)
-    using = False
-    logging.info("更新完毕")
-    exit()
+    showerror("错误", "tkinter版已停更，4.8.3版本为最终版本！")
 
 
 def download_lib(list=lib_list):
@@ -75,7 +48,6 @@ def download_lib(list=lib_list):
     vari.set(0)
     using = False
     logging.info("成功安装运行库")
-    exit()
 
 
 # 控件

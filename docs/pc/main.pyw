@@ -1,6 +1,6 @@
 # 程序信息
 
-version = "4.8.2"
+version = "4.8.3"
 # 导入运行库
 from zb import *
 
@@ -11,7 +11,7 @@ disable("main.txt")
 # 窗口初始化
 
 tk = Tk()
-tk.title("zb小程序 " + settings[0] + " " + version)
+tk.title("zb小程序 tkinter版 " + settings[0] + " " + version)
 x = 402
 y = 184
 if settings[5] == "经典风格":
@@ -115,14 +115,7 @@ def save():
     os.popen("main.pyw")
     tk.destroy()
 
-def new_version():
-    os.popen("test.pyw")
-    tk.destroy()
-def new_settings():
-    print()
-    with open("info.txt","w",encoding="utf-8")as file:
-        file.write("QT_QPA_PLATFORM_PLUGIN_PATH"+"\n"+sys.path[4]+"\site-packages\PyQt5\Qt5\plugins\platforms")
-    os.popen("info.txt")
+
 def not_save():
     os.popen("main.pyw")
     tk.destroy()
@@ -204,15 +197,15 @@ ttk.Button(tab3, text="保存", style="TButton", command=save).place(x=300, y=10
 
 ttk.Label(tab4, text="zb小程序 " + settings[0]).place(x=0, y=0, width=200, height=35)
 ttk.Label(tab4, text="作者 Ianzb 版本 " + version).place(x=0, y=35, width=200, height=35)
+ttk.Label(tab4, text="公告：tkinter版已停更").place(x=0, y=70, width=200, height=35)
+ttk.Label(tab4, text="现集中精力开发PyQt版").place(x=0, y=105, width=200, height=35)
+
 ttk.Button(tab4, text="程序官网", style="TButton", command=lambda: MyThread(lambda: webbrowser.open("https://ianzb.github.io/server.github.io/"))).place(x=200, y=0, width=100, height=35)
 ttk.Button(tab4, text="检查更新", style="TButton", command=lambda: MyThread(b3)).place(x=300, y=0, width=100, height=35)
 ttk.Button(tab4, text="安装目录", style="TButton", command=lambda: MyThread(lambda: os.startfile(sys.argv[0][:sys.argv[0].rfind(r"\ "[:-1])]))).place(x=200, y=35, width=100, height=35)
 ttk.Button(tab4, text="查看日志", style="TButton", command=lambda: os.popen("start NotePad.exe zb.log")).place(x=300, y=35, width=100, height=35)
-ttk.Button(tab4, text="添加桌面快捷方式", style="TButton", command=lambda: create_link(name="zb小程序", path=pj(abs_path, "main.pyw"), to=abs_desktop, icon=pj(abs_path, "logo.ico"))).place(x=0, y=70, width=200, height=35)
-ttk.Button(tab4, text="添加至开始菜单", style="TButton", command=add_to_start_menu).place(x=0, y=105, width=200, height=35)
-ttk.Button(tab4, text="体验内测新版本", style="TButton", command=new_version).place(x=200, y=70, width=200, height=35)
-ttk.Button(tab4, text="内测版设置", style="TButton", command=new_settings).place(x=200, y=105, width=200, height=35)
-
+ttk.Button(tab4, text="添加桌面快捷方式", style="TButton", command=lambda: create_link(name="zb小程序", path=pj(abs_path, "main.pyw"), to=abs_desktop, icon=pj(abs_path, "logo.ico"))).place(x=200, y=70, width=200, height=35)
+ttk.Button(tab4, text="添加至开始菜单", style="TButton", command=add_to_start_menu).place(x=200, y=105, width=200, height=35)
 
 tab.add(tab1, text="便携功能")
 tab.add(tab2, text="实用程序")
