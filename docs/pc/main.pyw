@@ -1,6 +1,6 @@
 # 程序信息
 
-version = "4.8.3"
+version = "4.8.4"
 # 导入运行库
 from zb import *
 
@@ -11,7 +11,7 @@ disable("main.txt")
 # 窗口初始化
 
 tk = Tk()
-tk.title("zb小程序 tkinter版 " + settings[0] + " " + version)
+tk.title("zb小程序 Tk版 " + settings[0] + " " + version)
 x = 402
 y = 184
 if settings[5] == "经典风格":
@@ -81,7 +81,9 @@ def b5():
 def b6():
     webbrowser.open("http://10.8.8.35:8443/live/31384275e5e0443fa4364714fcbf85fd")
     exit()
-
+def use_new():
+    os.popen("start ./new/main.pyw")
+    tk.destroy()
 
 # 设置功能
 def save():
@@ -197,8 +199,8 @@ ttk.Button(tab3, text="保存", style="TButton", command=save).place(x=300, y=10
 
 ttk.Label(tab4, text="zb小程序 " + settings[0]).place(x=0, y=0, width=200, height=35)
 ttk.Label(tab4, text="作者 Ianzb 版本 " + version).place(x=0, y=35, width=200, height=35)
-ttk.Label(tab4, text="公告：tkinter版已停更").place(x=0, y=70, width=200, height=35)
-ttk.Label(tab4, text="现集中精力开发PyQt版").place(x=0, y=105, width=200, height=35)
+ttk.Button(tab4, text="体验PyQt版", style="TButton", command=use_new).place(x=0, y=105, width=200, height=35)
+
 
 ttk.Button(tab4, text="程序官网", style="TButton", command=lambda: MyThread(lambda: webbrowser.open("https://ianzb.github.io/server.github.io/"))).place(x=200, y=0, width=100, height=35)
 ttk.Button(tab4, text="检查更新", style="TButton", command=lambda: MyThread(b3)).place(x=300, y=0, width=100, height=35)
