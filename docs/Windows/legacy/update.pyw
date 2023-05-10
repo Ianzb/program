@@ -13,7 +13,7 @@ lib_list = ["PyQt5-sip", "pyqt5-tools", "PyQt5", "PyQt5Designer", "PyQt-Fluent-W
 tk = Tk()
 tk.title("更新程序")
 x = 200
-y = 115
+y = 80
 tk.geometry("%dx%d+%d+%d" % (x, y, (tk.winfo_screenwidth() - x) / 2, (tk.winfo_screenheight() - y) / 2))
 tk.resizable(False, False)
 tk.wm_attributes("-topmost", 1)
@@ -65,14 +65,6 @@ def check_update(name, link):
     exit()
 
 
-def upgrade_Qt():
-    if "legacy" in abs_path:
-        showinfo("提示","您已安装Qt版")
-        return
-    logging.shutdown()
-    shutil.move(abs_path, pj(abs_path, "legacy"))
-    check_update(settings[0], "https://ianzb.github.io/server.github.io/Windows/")
-
 
 def download_lib(list=lib_list):
     logging.info("开始安装运行库")
@@ -96,7 +88,6 @@ vari = IntVar()
 vari.set(0)
 ttk.Progressbar(tk, mode="determinate", variable=vari).place(x=0, y=0, width=200, height=10)
 ttk.Button(tk, text="更新 zb小程序 Tk版", style="TButton", command=lambda: MyThread(lambda: check_update(settings[0], "https://ianzb.github.io/server.github.io/Windows/legacy/"))).place(x=0, y=10, width=200, height=35)
-ttk.Button(tk, text="升级 zb小程序 Qt版", style="TButton", command=lambda: MyThread(upgrade_Qt)).place(x=0, y=45, width=200, height=35)
-ttk.Button(tk, text="安装 zb小程序 运行库", style="TButton", command=lambda: MyThread(lambda: download_lib(lib_list))).place(x=0, y=80, width=200, height=35)
+ttk.Button(tk, text="安装 zb小程序 运行库", style="TButton", command=lambda: MyThread(lambda: download_lib(lib_list))).place(x=0, y=45, width=200, height=35)
 close()
 tk.mainloop()

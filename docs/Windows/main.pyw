@@ -120,7 +120,7 @@ class AvatarWidget(NavigationWidget):
 
     def __init__(self, parent=None):
         super().__init__(isSelectable=False, parent=parent)
-        self.avatar = QImage("logo.png").scaled(
+        self.avatar = QImage("zb.png").scaled(
             24, 24, Qt.KeepAspectRatio, Qt.SmoothTransformation)
 
     def paintEvent(self, e):

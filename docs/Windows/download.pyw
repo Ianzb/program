@@ -157,7 +157,7 @@ def download_lib():
 vari = IntVar()
 vari.set(0)
 ttk.Progressbar(tk, mode="determinate", variable=vari).place(x=0, y=0, width=200, height=10)
-ttk.Button(tk, text="安装 zb小程序 Tk版", style="TButton", command=lambda: MyThread(lambda: check_update(settings[0],"https://ianzb.github.io/server.github.io/Windows/legacy/"))).place(x=0, y=10, width=200, height=35)
+ttk.Button(tk, text="安装 zb小程序 Qt版", style="TButton", command=lambda: MyThread(lambda: check_update(settings[0],"https://ianzb.github.io/server.github.io/Windows/"))).place(x=0, y=10, width=200, height=35)
 ttk.Button(tk, text="安装 zb小程序 运行库", style="TButton", command=lambda: MyThread(lambda: download_lib(lib_list))).place(x=0, y=45, width=200, height=35)
 
 tk.mainloop()
