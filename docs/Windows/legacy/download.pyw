@@ -132,13 +132,13 @@ def check_update(name,link):
     exit()
 
 def pip_install(name):
-    p = os.popen("pip install " + name + " -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com")
+    p = os.popen("pip install " + name + " -i https://pypi.mirrors.ustc.edu.cn/simple/")
     p = p.read()
-    p = os.popen("pip install --upgrade " + name + " -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com")
+    p = os.popen("pip install --upgrade " + name + " -i https://pypi.mirrors.ustc.edu.cn/simple/")
     p = p.read()
 
 
-def download_lib():
+def download_lib(lib_list):
     global using
     if using:
         return False
