@@ -3,7 +3,7 @@ import os, sys, winreg, logging
 # 通用变量
 abs_path = sys.argv[0][:sys.argv[0].rfind(r"\ "[:-1])]
 abs_name = sys.argv[0][sys.argv[0].rfind(r"\ "[:-1]) + 1:]
-abs_cache = sys.argv[0].replace(".pyw", ".txt")
+abs_cache = sys.argv[0].replace(".pyw", ".txt").replace(".py", ".txt")
 abs_pid = os.getpid()
 user_path = os.path.expanduser('~')
 abs_desktop = winreg.QueryValueEx(winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders"), "Desktop")[0]
@@ -16,11 +16,8 @@ logging.basicConfig(level=logging.INFO, filename="zb.log", format="[%(asctime)s 
 logging.info("程序开始运行")
 
 # 打开加载窗口
-if abs_name not in ["hide.pyw", "load.pyw"]:
-    os.popen("load.pyw")
-    logging.info("打开加载界面")
 
-import shutil, time, hashlib, threading, ctypes, re, pickle, filecmp, glob, stat, bs4, lxml, requests, send2trash, winshell, platform, psutil, wmi, pythoncom, webbrowser, win32api, win32con, win32com.client,random
+import shutil, time, hashlib, threading, ctypes, pickle, stat, bs4, lxml, requests, send2trash, winshell, platform, webbrowser, win32api, win32con, win32com.client, random
 
 # 任务栏图标加载
 ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("zb小程序 PyQt版")
@@ -29,51 +26,53 @@ ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("zb小程序 PyQt�
 # 检测重复运行
 def checkIsOpen():
     if os.path.exists(abs_cache):
-        with open(file=abs_cache, mode="r") as file:
+        with open(file=abs_cache, mode="r", encoding="utf-8") as file:
             pid = file.read()
         try:
             os.kill(int(pid), 0)
         except:
             pass
-    with open(file=abs_cache, mode="w") as file:
+    with open(file=abs_cache, mode="w", encoding="utf-8") as file:
         file.write(str(os.getpid()))
 
 
 checkIsOpen()
 
 
+# 更好的路径拼接
+def pj(*data):
+    path = ""
+    for i in data:
+        path = os.path.join(path, i)
+    path = path.replace("//", r"\ "[:-1]).replace(r"\\ "[:-1], r"\ "[:-1]).replace("\/", r"\ "[:-1]).replace("/\ "[:-1], r"\ "[:-1]).replace("/", r"\ "[:-1])
+    return path
+
+
 # 保存设置
 def saveSettings(data):
-    with open("settings.zb", "wb") as file:
+    if not os.path.exists(pj(user_path, "zb")):
+        os.makedirs(pj(user_path, "zb"))
+    with open(pj(user_path, "zb/settings.zb"), "wb") as file:
         pickle.dump(data, file)
     logging.info("保存设置")
 
 
 # 读取设置
 def readSettings():
-    if os.path.exists("../setting.zb"):
-        with open("../setting.zb", "rb") as file:
+    if os.path.exists(pj(user_path, "zb/settings.zb")):
+        with open(pj(user_path, "zb/settings.zb"), "rb") as file:
             data = pickle.load(file)
     else:
-        data = ["作者个人版", 0, 30, "D:/文件/整理", "D:/文件/应用/微信/WeChat Files"] + [0]+[None for i in range(100)]
+        data = ["作者个人版", 0, 30, "D:/文件/整理", "D:/文件/应用/微信/WeChat Files"] + [0] + [None for i in range(100)]
+        saveSettings(data)
     logging.info("读取设置")
     return data
 
 
 settings = readSettings()
 
-# 自定义功能
-# 关闭加载界面
-def stopLoading():
-    path = os.path.join(abs_path, "load.txt")
-    try:
-        with open(file=path, mode="r") as file:
-            pid = file.read()
-        os.popen("taskkill.exe /F /pid:" + pid)
-    except:
-        pass
-    logging.info("关闭加载界面")
 
+# 自定义功能
 
 # 多线程优化
 class MyThread(threading.Thread):
@@ -88,15 +87,6 @@ class MyThread(threading.Thread):
 
     def run(self):
         self.func(*self.args)
-
-
-# 更好的路径拼接
-def pj(*data):
-    path = ""
-    for i in data:
-        path = os.path.join(path, i)
-    path = path.replace("//", r"\ "[:-1]).replace(r"\\ "[:-1], r"\ "[:-1]).replace("\/", r"\ "[:-1]).replace("/\ "[:-1], r"\ "[:-1]).replace("/", r"\ "[:-1])
-    return path
 
 
 # 关闭程序
@@ -399,10 +389,10 @@ def download(link):
 # pip安装模块
 def pipInstall(name):
     logging.info("开始安装" + name + "运行库")
-    p = os.popen("pip install " + name + " -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com")
-    p = p.read()
-    p = os.popen("pip install --upgrade " + name + " -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com")
-    p = p.read()
+    p = os.popen("pip install " + name + " -i  https://pypi.mirrors.ustc.edu.cn/simple/")
+    print(p.read())
+    p = os.popen("pip install --upgrade " + name + " -i  https://pypi.mirrors.ustc.edu.cn/simple/")
+    print(p.read())
 
 
 # 创建快捷方式
@@ -421,6 +411,7 @@ def addToStartMenu():
     createLink(name="zb小程序", path=pj(abs_path, "main.pyw"), to=path, icon=pj(abs_path, "logo.ico"))
 
 
+# 一键整理+清理
 def autoClean():
     clearRubbish()
     clearCache()

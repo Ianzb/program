@@ -1,5 +1,5 @@
 # 导入运行库
-import threading, os, re, pickle, sys, winreg,shutil
+import threading, os, re, pickle, sys, winreg, shutil
 from tkinter import *
 from tkinter import ttk
 from tkinter.ttk import *
@@ -25,8 +25,8 @@ def read_setting():
 settings = read_setting()
 # 加载信息
 using = False
-lib_list = ["PyQt5-sip","pyqt5-tools","PyQt5","PyQt5Designer","PyQt-Fluent-Widgets[full]","sv-ttk", "lxml", "pypiwin32", "pandas", "numpy", "bs4", "requests", "send2trash", "winshell", "matplotlib", "openpyxl", "PyAudio", "python-xlib", "pymouse", "pyautogui", "PyUserInput", "psutil", "wmi"]
-  # 窗口初始化
+lib_list = ["PyQt5-sip", "pyqt5-tools", "PyQt5", "PyQt5Designer", "PyQt-Fluent-Widgets[full]", "sv-ttk", "lxml", "pypiwin32", "pandas", "numpy", "bs4", "requests", "send2trash", "winshell", "matplotlib", "openpyxl", "PyAudio", "python-xlib", "pymouse", "pyautogui", "PyUserInput", "psutil", "wmi"]
+# 窗口初始化
 tk = Tk()
 tk.title("zb小程序安装器")
 x = 200
@@ -98,7 +98,7 @@ def download(link):
         file.write(main)
 
 
-def check_update(name,link):
+def check_update(name, link):
     global using
     if using:
         return None
@@ -131,21 +131,22 @@ def check_update(name,link):
     using = False
     exit()
 
+
 def pip_install(name):
-    p = os.popen("pip install " + name + " -i https://pypi.mirrors.ustc.edu.cn/simple/")
-    p = p.read()
-    p = os.popen("pip install --upgrade " + name + " -i https://pypi.mirrors.ustc.edu.cn/simple/")
-    p = p.read()
+    p = os.popen("pip install " + name + " -i  https://pypi.mirrors.ustc.edu.cn/simple/")
+    print(p.read())
+    p = os.popen("pip install --upgrade " + name + " -i  https://pypi.mirrors.ustc.edu.cn/simple/")
+    print(p.read())
 
 
-def download_lib(lib_list):
+def download_lib(list):
     global using
     if using:
         return False
     using = True
-    for i in range(len(lib_list)):
-        pip_install(lib_list[i])
-        vari.set(int(100 * (i + 1) / len(lib_list)))
+    for i in range(len(list)):
+        pip_install(list[i])
+        vari.set(int(100 * (i + 1) / len(list)))
     vari.set(100)
     showinfo("提示", "运行库安装完毕，重启安装器生效！")
     vari.set(0)
@@ -157,7 +158,7 @@ def download_lib(lib_list):
 vari = IntVar()
 vari.set(0)
 ttk.Progressbar(tk, mode="determinate", variable=vari).place(x=0, y=0, width=200, height=10)
-ttk.Button(tk, text="安装 zb小程序 Qt版", style="TButton", command=lambda: MyThread(lambda: check_update(settings[0],"https://ianzb.github.io/server.github.io/Windows/"))).place(x=0, y=10, width=200, height=35)
+ttk.Button(tk, text="安装 zb小程序 Qt版", style="TButton", command=lambda: MyThread(lambda: check_update(settings[0], "https://ianzb.github.io/server.github.io/Windows/"))).place(x=0, y=10, width=200, height=35)
 ttk.Button(tk, text="安装 zb小程序 运行库", style="TButton", command=lambda: MyThread(lambda: download_lib(lib_list))).place(x=0, y=45, width=200, height=35)
 
 tk.mainloop()

@@ -437,10 +437,10 @@ def download(link):
 # pip安装模块
 def pip_install(name):
     logging.info("开始安装" + name + "运行库")
-    p = os.popen("pip install " + name + " -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com")
-    p=p.read()
-    p = os.popen("pip install --upgrade " + name + " -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com")
-    p=p.read()
+    p = os.popen("pip install " + name + " -i  https://pypi.mirrors.ustc.edu.cn/simple/")
+    print(p.read())
+    p = os.popen("pip install --upgrade " + name + " -i  https://pypi.mirrors.ustc.edu.cn/simple/")
+    print(p.read())
 
 
 # 创建快捷方式

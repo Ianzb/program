@@ -1,6 +1,6 @@
 # 程序信息
 
-version = "4.8.4"
+version = "4.8.5"
 # 导入运行库
 from zb import *
 
@@ -97,23 +97,23 @@ def save():
         if val1.get() == "作者个人版":
             if settings[3] == "D:/文件":
                 settings[3] = "D:/文件/整理"
-            if settings[3] == "D:/WeChat Files/WeChat Files":
+            if settings[4] == pj(user_path,"Documents/WeChat Files"):
                 settings[4] = "D:/文件/应用/微信/WeChat Files"
         if val1.get() == "希沃定制版":
             if settings[3] == "D:/文件/整理":
                 settings[3] = "D:/文件"
-            if settings[3] == "D:/文件/应用/微信/WeChat Files":
-                settings[4] = "D:/WeChat Files/WeChat Files"
+            if settings[4] == "D:/文件/应用/微信/WeChat Files":
+                settings[4] = pj(user_path,"Documents/WeChat Files")
     settings[0] = val1.get()
+    save_setting(settings)
     # 应用设置
     if settings[1] == 1:
-        AutoRun(switch="open", zdynames=os.path.basename(os.path.join(abs_path, "hide.pyw")), current_file="zb小程序")
+        AutoRun(switch="open", zdynames=os.path.basename(pj(abs_path, "hide.pyw")), current_file="zb小程序")
     else:
-        AutoRun(switch="close", zdynames=os.path.basename(os.path.join(abs_path, "hide.pyw")))
-        AutoRun(switch="close", zdynames=os.path.basename(os.path.join(abs_path, "hide.pyw")), current_file="zb小程序")
+        AutoRun(switch="close", zdynames=os.path.basename(pj(abs_path, "hide.pyw")))
+        AutoRun(switch="close", zdynames=os.path.basename(pj(abs_path, "hide.pyw")), current_file="zb小程序")
     # 结束
-    save_setting(settings)
-    logging.info(settings)
+    logging.info(str(settings))
     os.popen("main.pyw")
     tk.destroy()
 

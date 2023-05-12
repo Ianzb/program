@@ -257,6 +257,5 @@ if __name__ == "__main__":
     translator = FluentTranslator(QLocale())
     app.installTranslator(translator)
     w = Window()
-    stopLoading()
     w.show()
     app.exec_()
