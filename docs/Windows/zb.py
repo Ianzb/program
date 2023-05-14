@@ -5,19 +5,24 @@ abs_path = sys.argv[0][:sys.argv[0].rfind(r"\ "[:-1])]
 abs_name = sys.argv[0][sys.argv[0].rfind(r"\ "[:-1]) + 1:]
 abs_cache = sys.argv[0].replace(".pyw", ".txt").replace(".py", ".txt")
 abs_pid = os.getpid()
-user_path = os.path.expanduser('~')
+user_path = os.path.expanduser("~")
 abs_desktop = winreg.QueryValueEx(winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders"), "Desktop")[0]
+lib_list = ["PyQt5-sip", "pyqt5-tools", "PyQt5", "PyQt5Designer", "PyQt-Fluent-Widgets[full]", "sv-ttk", "lxml", "pypiwin32", "pandas", "numpy", "bs4", "requests", "send2trash", "winshell", "matplotlib", "openpyxl", "PyAudio", "python-xlib", "pymouse", "pyautogui", "PyUserInput", "psutil", "wmi"]
 
 # 切换工作路径
 os.chdir(abs_path)
 
 # 日志功能配置
-logging.basicConfig(level=logging.INFO, filename="zb.log", format="[%(asctime)s %(filename)s %(process)d] %(levelname)s:%(message)s")
+try:
+    os.makedirs(os.path.join(user_path,"zb"))
+except:
+    pass
+logging.basicConfig(level=logging.INFO, filename=os.path.join(user_path,"zb/zb.log"), format="[%(asctime)s %(filename)s %(process)d] %(levelname)s:%(message)s")
 logging.info("程序开始运行")
 
 # 打开加载窗口
 
-import shutil, time, hashlib, threading, ctypes, pickle, stat, bs4, lxml, requests, send2trash, winshell, platform, webbrowser, win32api, win32con, win32com.client, random
+import shutil,re, time, hashlib, threading, ctypes, pickle, stat, bs4, lxml, requests, send2trash, winshell, platform, webbrowser, win32api, win32con, win32com.client, random
 
 # 任务栏图标加载
 ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("zb小程序 PyQt版")
@@ -48,28 +53,58 @@ def pj(*data):
     return path
 
 
-# 保存设置
-def saveSettings(data):
+# 初始化设置
+from configparser import ConfigParser
+
+conf = ConfigParser()
+if os.path.exists(pj(user_path, "zb/settings.ini")):
+    conf.read(pj(user_path, "zb/settings.ini"), encoding="utf-8")
+    print("成功读取设置文件，路径：" + pj(user_path, "zb/settings.ini"))
+    logging.info("成功读取设置文件，路径：" + pj(user_path, "zb/settings.ini"))
+else:
     if not os.path.exists(pj(user_path, "zb")):
         os.makedirs(pj(user_path, "zb"))
-    with open(pj(user_path, "zb/settings.zb"), "wb") as file:
-        pickle.dump(data, file)
-    logging.info("保存设置")
+    with open(pj(user_path, "zb/settings.ini"), "w+", encoding="utf-8") as file:
+        print("成功创建设置文件，路径：" + pj(user_path, "zb/settings.ini"))
+        logging.info("成功读取设置文件，路径：" + pj(user_path, "zb/settings.ini"))
 
 
 # 读取设置
-def readSettings():
-    if os.path.exists(pj(user_path, "zb/settings.zb")):
-        with open(pj(user_path, "zb/settings.zb"), "rb") as file:
-            data = pickle.load(file)
-    else:
-        data = ["作者个人版", 0, 30, "D:/文件/整理", "D:/文件/应用/微信/WeChat Files"] + [0] + [None for i in range(100)]
-        saveSettings(data)
-    logging.info("读取设置")
+def readSetting(name):
+    try:
+        conf.add_section("data")
+    except:
+        pass
+    try:
+        data = conf["data"][str(name)]
+    except:
+        print("项 " + str(name) + " 不存在")
+        logging.info("项 " + str(name) + " 不存在")
+        return "当前未设置"
+    print("项 " + str(name) + " 的内容为 " + data)
+    logging.info("项 " + str(name) + " 的内容为 " + data)
+    if data in ["", None, " "]:
+        return "当前未设置"
     return data
 
 
-settings = readSettings()
+# 保存设置
+def saveSetting(name, data):
+    try:
+        conf.add_section("data")
+    except:
+        pass
+    try:
+        old = conf["data"][str(name)]
+        conf.set("data", str(name), str(data))
+        print("项 " + str(name) + "的内容从 " + old + " 修改为 " + str(data))
+        logging.info("项 " + str(name) + "的内容从 " + old + " 修改为 " + str(data))
+    except:
+        conf.set("data", str(name), str(data))
+        print("项 " + str(name) + " 的内容设置为 " + str(data))
+        logging.info("项 " + str(name) + " 的内容设置为 " + str(data))
+    with open(pj(user_path, "zb/settings.ini"), "w", encoding="utf-8") as file:
+        conf.write(file)
 
 
 # 自定义功能
@@ -110,7 +145,7 @@ def killAllPython():
 
 # 获取文件md5
 def getMd5(file):
-    with open(file, 'rb') as file:
+    with open(file, "rb") as file:
         data = file.read()
     return hashlib.md5(data).hexdigest()
 
@@ -287,7 +322,7 @@ def pptRestart():
 def clearSeewo():
     logging.info("开始清理希沃视频展台文件")
     try:
-        list = os.walk(r"D:/EasiCameraPhoto")
+        list = os.walk(r"C:/EasiCameraPhoto")
         list2 = []
         for i in list: list2.append(i)
         list = list2[0][1]
@@ -413,15 +448,14 @@ def addToStartMenu():
 
 # 一键整理+清理
 def autoClean():
+    if readSetting("sort") == "当前未设置" or readSetting("wechat") == "当前未设置":
+        return
     clearRubbish()
     clearCache()
-    clearDesk(settings[3])
-    clearWechat(settings[4], settings[3])
-    if settings[0] == "作者个人版":
-        clearApps(settings[3])
-    if settings[0] == "希沃定制版":
-        clearSeewo()
-    clearUselessFiles(settings[3])
+    clearDesk(readSetting("sort"))
+    clearWechat(readSetting("wechat"), readSetting("sort"))
+    clearSeewo()
+    clearUselessFiles(readSetting("sort"))
 
 
 # 开机自启动

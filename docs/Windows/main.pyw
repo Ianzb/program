@@ -1,10 +1,11 @@
-version = "0.2.0"
+version = "0.3.0"
 from PyQt5 import *
 from PyQt5 import QtCore
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from qfluentwidgets import *
+from qfluentwidgets import ScrollArea
 from qfluentwidgets import FluentIcon as FIF
 from qframelesswindow import *
 
@@ -14,106 +15,15 @@ mode = None
 weight = 450
 height = 350
 
-
-class Widget(QFrame):
-    def __init__(self, text: str, parent=None):
-        super().__init__(parent=parent)
-        self.label = QLabel(text, self)
-        self.label.setAlignment(Qt.AlignCenter)
-        self.hBoxLayout = QHBoxLayout(self)
-        self.hBoxLayout.addWidget(self.label, 1, Qt.AlignCenter)
-        self.setObjectName(text.replace(" ", "-"))
+settings = QtCore.QSettings(pj(user_path, "zb/settings.ini"), QtCore.QSettings.IniFormat)
 
 
-class newthread(QThread):
-    signal = pyqtSignal(str)
+class TitleBar(StandardTitleBar):
 
-    def __init__(self):
-        super().__init__()
-
-    def run(self):
-        global mode
-        if mode == 1:
-            autoClean()
-            self.signal.emit("完成")
-        if mode == 2 or mode == 3:
-            with open("names.zb", "r", encoding="utf-8") as file:
-                names = file.readlines()
-            for i in range(len(names)):
-                names[i] = names[i].strip()
-        if mode == 2:
-            wait = 0
-            for i in range(40):
-                wait += 0.002
-                self.signal.emit(random.choice(names))
-                time.sleep(wait)
-            self.signal.emit("完成")
-
-
-class tab1(QFrame, QWidget):
     def __init__(self, parent=None):
-        super().__init__(parent=parent)
-        self.setObjectName("功能")
-        self.pushButton1 = PushButton("一键整理+清理", self)
-        self.pushButton1.clicked.connect(self.btn12)
-        self.pushButton1.setGeometry(QtCore.QRect(0, 0, 150, 35))
-        self.toolButton1 = ToolButton(FIF.FOLDER, self)
-        self.toolButton1.clicked.connect(lambda: os.startfile(settings[3]))
-        self.toolButton1.setGeometry(QtCore.QRect(150, 0, 50, 35))
-
-    def btn11(self, title="zb小程序", content="提示内容"):
-        self.stateTooltip.setContent(content)
-        self.stateTooltip.setState(True)
-        self.stateTooltip = None
-        w.show()
-        self.pushButton1.setEnabled(True)
-
-    def btn12(self):
-        global mode
-        mode = 1
-        self.pushButton1.setEnabled(False)
-        self.stateTooltip = StateToolTip("正在整理文件", "请耐心等待", self)
-        self.stateTooltip.move(143, 264)
-        self.stateTooltip.show()
-        self.thread = newthread()
-        self.thread.signal.connect(lambda: self.btn11("提示", "整理完毕"))
-        self.thread.start()
-
-
-class tab2(QFrame, QWidget):
-    def __init__(self, parent=None):
-        super().__init__(parent=parent)
-
-        self.setObjectName("模块")
-        self.pushButton1 = PushButton("点名", self)
-        self.pushButton1.clicked.connect(self.btn12)
-        self.pushButton1.setGeometry(QtCore.QRect(0, 0, 400, 35))
-        self.pushButton2 = PushButton("函数工具", self)
-        self.pushButton2.clicked.connect(self.b2)
-        self.pushButton2.setGeometry(QtCore.QRect(0, 280, 400, 35))
-
-        self.label = QLabel("", self)
-        self.label.setAlignment(Qt.AlignCenter)
-        self.label.setFont(QFont("等线", 60))
-        self.label.setGeometry(QtCore.QRect(0, 60, 400, 100))
-
-    def btn11(self, msg):
-        if msg == "完成":
-            self.pushButton1.setEnabled(True)
-            return
-        self.label.setText(str(msg))
-
-    def btn12(self):
-        global mode
-        mode = 2
-        self.pushButton1.setEnabled(False)
-        self.thread = newthread()
-        self.thread.signal.connect(self.btn11)
-        self.thread.start()
-
-    def b2(self):
-        os.popen("function.pyw")
-        exit()
+        super().__init__(parent)
+        self.maxBtn.setParent(None)
+        self._isDoubleClickEnabled = False
 
 
 class AvatarWidget(NavigationWidget):
@@ -153,12 +63,227 @@ class AvatarWidget(NavigationWidget):
             painter.drawText(QRect(44, 0, 255, 36), Qt.AlignVCenter, "Ianzb")
 
 
-class TitleBar(StandardTitleBar):
+class newThread(QThread):
+    signal = pyqtSignal(str)
+
+    def __init__(self):
+        super().__init__()
+
+    def run(self):
+        global mode
+        if mode == 1:
+            autoClean()
+            self.signal.emit("完成")
+        if mode == 2 or mode == 3:
+            with open("names.zb", "r", encoding="utf-8") as file:
+                names = file.readlines()
+            for i in range(len(names)):
+                names[i] = names[i].strip()
+        if mode == 2:
+            wait = 0
+            for i in range(40):
+                wait += 0.002
+                self.signal.emit(random.choice(names))
+                time.sleep(wait)
+            self.signal.emit("完成")
+        if mode == 3:
+            link="https://ianzb.github.io/server.github.io/Windows/"
+            if "D:\编程\server.github.io\docs" in os.getcwd():
+                self.signal.emit("开发者")
+                return
+            res = requests.get(link + "index.html")
+            res.encoding = "UTF-8"
+            soup = bs4.BeautifulSoup(res.text, "lxml")
+            data = soup.find_all(name="div", class_="download", text=re.compile("."))
+            for i in range(len(data)): data[i] = data[i].text.strip()
+            self.signal.emit("总共"+str(len(data)))
+            for i in range(len(data)):
+                download(link + data[i])
+                self.signal.emit(data[i])
+        if mode == 4:
+            self.signal.emit("开始")
+            for i in range(len(lib_list)):
+                pipInstall(lib_list[i])
+                self.signal.emit(lib_list[i])
+
+
+class tab1(QFrame, QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent=parent)
+        self.setObjectName("功能")
+        self.pushButton1 = PrimaryPushButton("一键整理+清理", self)
+        self.pushButton1.clicked.connect(self.btn12)
+        self.pushButton1.move(0, 0)
+        self.pushButton1.resize(150, 35)
+        self.toolButton1 = ToolButton(FIF.FOLDER, self)
+        self.toolButton1.clicked.connect(self.btn21)
+        self.toolButton1.move(150, 0)
+        self.toolButton1.resize(50, 35)
+
+    def btn11(self, title="zb小程序", content="提示内容"):
+        self.stateTooltip.setContent(content)
+        self.stateTooltip.setState(True)
+        self.stateTooltip = None
+        w.show()
+        self.pushButton1.setEnabled(True)
+
+    def btn12(self):
+        global mode
+        mode = 1
+        self.pushButton1.setEnabled(False)
+        self.stateTooltip = StateToolTip("正在整理文件", "请耐心等待", self)
+        self.stateTooltip.move(143, 264)
+        self.stateTooltip.show()
+        self.thread = newThread()
+        self.thread.signal.connect(lambda: self.btn11("提示", "整理完毕"))
+        self.thread.start()
+
+    def btn21(self):
+        if readSetting("sort") == "当前未设置" or readSetting("wechat") == "当前未设置":
+            return
+        os.startfile(readSetting("sort"))
+
+
+class tab2(QFrame, QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent=parent)
+
+        self.setObjectName("模块")
+        self.pushButton1 = PrimaryPushButton("点名", self)
+        self.pushButton1.clicked.connect(self.btn12)
+        self.pushButton1.move(0, 0)
+        self.pushButton1.resize(400, 35)
+
+        self.label = QLabel("", self)
+        self.label.setAlignment(Qt.AlignCenter)
+        self.label.setFont(QFont("等线", 60))
+        self.label.setGeometry(QtCore.QRect(0, 60, 400, 100))
+
+    def btn11(self, msg):
+        if msg == "完成":
+            self.pushButton1.setEnabled(True)
+            return
+        self.label.setText(str(msg))
+
+    def btn12(self):
+        global mode
+        mode = 2
+        self.pushButton1.setEnabled(False)
+        self.thread = newThread()
+        self.thread.signal.connect(self.btn11)
+        self.thread.start()
+
+
+class tab3(QFrame, QWidget):
 
     def __init__(self, parent=None):
-        super().__init__(parent)
-        self.maxBtn.setParent(None)
-        self._isDoubleClickEnabled = False
+        super().__init__(parent=parent)
+        self.setObjectName("设置")
+        self.pushButton1 = PushButton("选择整理文件目录", self, FIF.FOLDER_ADD)
+        self.pushButton1.clicked.connect(self.btn10)
+        self.pushButton1.move(0, 0)
+        self.pushButton1.resize(200, 35)
+        self.pushButton2 = PushButton("选择微信文件目录", self, FIF.FOLDER_ADD)
+        self.pushButton2.clicked.connect(self.btn11)
+        self.pushButton2.move(200, 0)
+        self.pushButton2.resize(200, 35)
+        self.pushButton3 = PushButton("创建桌面快捷方式", self, FIF.ADD)
+        self.pushButton3.clicked.connect(self.btn20)
+        self.pushButton3.move(0, 35)
+        self.pushButton3.resize(200, 35)
+        self.pushButton4 = PushButton("添加至开始菜单列表", self, FIF.ADD)
+        self.pushButton4.clicked.connect(self.btn21)
+        self.pushButton4.move(200, 35)
+        self.pushButton4.resize(200, 35)
+        self.pushButton5 = PushButton("打开程序安装目录", self, FIF.LINK)
+        self.pushButton5.clicked.connect(self.btn30)
+        self.pushButton5.move(0, 70)
+        self.pushButton5.resize(200, 35)
+        self.pushButton6 = PushButton("查看程序运行日志", self, FIF.LINK)
+        self.pushButton6.clicked.connect(self.btn31)
+        self.pushButton6.move(200, 70)
+        self.pushButton6.resize(200, 35)
+        self.pushButton7 = PushButton("安装运行库", self, FIF.DOWNLOAD)
+        self.pushButton7.clicked.connect(self.btn40)
+        self.pushButton7.move(0, 280)
+        self.pushButton7.resize(200, 35)
+        self.pushButton8 = PrimaryPushButton("检查更新", self, FIF.DOWNLOAD)
+        self.pushButton8.clicked.connect(self.btn42)
+        self.pushButton8.move(200, 280)
+        self.pushButton8.resize(200, 35)
+        self.progressBar = ProgressBar(self)
+        self.progressBar.move(0, 245)
+        self.progressBar.setGeometry(0, 245, 400, 20)
+        self.progressBar.setMinimum(0)
+        self.progressBar.setMaximum(400)
+        self.progressBar.setValue(0)
+        self.progressBar.setHidden(True)
+
+
+    def btn10(self):
+        path = readSetting("sort")
+        get = QFileDialog.getExistingDirectory(self, "选择整理文件目录", path)
+        if not os.path.exists(get):
+            return
+        saveSetting("sort", str(get))
+
+    def btn11(self):
+        path = readSetting("wechat")
+        get = QFileDialog.getExistingDirectory(self, "选择微信WeChat Files文件目录", path)
+        if not os.path.exists(get):
+            return
+        saveSetting("wechat", str(get))
+
+    def btn20(self):
+        createLink(name="zb小程序", path=pj(abs_path, "main.pyw"), to=abs_desktop, icon=pj(abs_path, "logo.ico"))
+
+    def btn21(self):
+        addToStartMenu()
+
+    def btn30(self):
+        os.startfile(abs_path)
+
+    def btn31(self):
+        os.popen("start NotePad.exe " + pj(user_path, "zb/zb.log"))
+
+    def btn40(self):
+        global mode
+        mode = 4
+        self.progressBar.setHidden(False)
+        self.progressBar.setValue(0)
+        self.thread = newThread()
+        self.thread.signal.connect(self.btn41)
+        self.thread.start()
+    def btn41(self,msg):
+        self.number=len(lib_list)
+        if "开始" in msg:
+            self.count=0
+        self.count+=1
+        self.progressBar.setValue(int(400 / self.number * self.count))
+        if self.count==self.number:
+            self.progressBar.setHidden(True)
+            QMessageBox.information(self, "提示", "zb小程序 运行库安装完毕")
+    def btn42(self):
+        global mode
+        mode=3
+        self.progressBar.setHidden(False)
+        self.progressBar.setValue(0)
+        self.thread = newThread()
+        self.thread.signal.connect(self.btn43)
+        self.thread.start()
+    def btn43(self,msg):
+        if "开发者" in msg:
+            QMessageBox.critical(self, "错误", "当前目录为开发者目录无法安装！")
+            self.progressBar.setHidden(True)
+            return
+        if "总共" in msg:
+            self.count=0
+            self.number=int(msg[2:])+1
+        self.count+=1
+        self.progressBar.setValue(int(400/self.number*self.count))
+        if self.count==self.number:
+            self.progressBar.setHidden(True)
+            QMessageBox.information(self, "提示", "zb小程序 更新完毕")
 
 
 class Window(FramelessWindow):
@@ -169,11 +294,11 @@ class Window(FramelessWindow):
         self.setTitleBar(TitleBar(self))
         self.titleBar.raise_()
         self.hBoxLayout = QHBoxLayout(self)
-        self.navigationInterface = NavigationInterface(self, showMenuButton=True)
+        self.navigationInterface = NavigationInterface(self, True)
         self.stackWidget = QStackedWidget(self)
         self.tab1 = tab1()
         self.tab2 = tab2()
-        self.settingtab = Widget("版本" + version + "\n设置即将到来", self)
+        self.settingtab = tab3(self)
         self.initLayout()
         self.initNavigation()
         self.initWindow()
@@ -203,7 +328,8 @@ class Window(FramelessWindow):
 
     def initWindow(self):
         self.resize(weight, height)
-
+        self.setFixedSize(weight, height)
+        self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
         self.setWindowIcon(QIcon("logo.png"))
         self.setWindowTitle("zb小程序 Qt版 " + version)
         self.titleBar.setAttribute(Qt.WA_StyledBackground)
@@ -236,9 +362,9 @@ class Window(FramelessWindow):
         self.navigationInterface.setCurrentItem(widget.objectName())
 
     def showMessageBox(self):
-        message = MessageBox("zb小程序", "是否打开作者网站？", self)
+        message = MessageBox("zb小程序", "是否打开 zb小程序 官网？", self)
         if message.exec():
-            webbrowser.open("https://ianzb.github.io/")
+            webbrowser.open("https://ianzb.github.io/server.github.io/")
         else:
             message = None
 
