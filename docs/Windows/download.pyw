@@ -12,17 +12,6 @@ user_path = os.path.expanduser('~')
 abs_desktop = winreg.QueryValueEx(winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders"), "Desktop")[0]
 os.chdir(abs_path)
 
-
-def read_setting():
-    if os.path.exists("setting.zb"):
-        with open("setting.zb", "rb") as file:
-            settings = pickle.load(file)
-    else:
-        settings = ["作者个人版", 0, 30, "D:/文件/整理", "D:/文件/应用/微信/WeChat Files"] + [None for i in range(100)]
-    return settings
-
-
-settings = read_setting()
 # 加载信息
 using = False
 lib_list = ["PyQt5-sip", "pyqt5-tools", "PyQt5", "PyQt5Designer", "PyQt-Fluent-Widgets[full]", "sv-ttk", "lxml", "pypiwin32", "pandas", "numpy", "bs4", "requests", "send2trash", "winshell", "matplotlib", "openpyxl", "PyAudio", "python-xlib", "pymouse", "pyautogui", "PyUserInput", "psutil", "wmi"]
@@ -36,19 +25,6 @@ tk.resizable(False, False)
 tk.wm_attributes("-topmost", 1)
 st = Style()
 st.configure("TButton")
-try:
-    import sv_ttk
-
-    if settings[5] == "Win11浅色模式":
-        sv_ttk.use_light_theme()
-    elif settings[5] == "Win11深色模式":
-        sv_ttk.use_dark_theme()
-except:
-    pass
-try:
-    tk.wm_iconbitmap("logo.ico")
-except:
-    pass
 
 
 # 功能
@@ -60,6 +36,12 @@ def pj(*a):
     return out
 
 
+try:
+    os.makedirs(pj(user_path, "zb"))
+except:
+    pass
+
+
 class MyThread(threading.Thread):
     def __init__(self, func, *args):
         super().__init__()
@@ -67,26 +49,11 @@ class MyThread(threading.Thread):
         self.func = func
         self.args = args
 
-        self.setDaemon(True)
+        self.daemon = True
         self.start()
 
     def run(self):
         self.func(*self.args)
-
-
-def create_link(name="快捷方式", path="", to=abs_desktop, icon=""):
-    to = pj(to, name + ".lnk")
-    shell = win32com.client.Dispatch("WScript.Shell")
-    shortcut = shell.CreateShortCut(to)
-    shortcut.Targetpath = path
-    shortcut.IconLocation = icon
-    shortcut.save()
-
-
-# 添加至开始菜单
-def add_to_start_menu():
-    path = pj(user_path, "AppData\Roaming\Microsoft\Windows\Start Menu\Programs")
-    create_link(name="zb小程序", path=pj(abs_path, "main.pyw"), to=path, icon=pj(abs_path, "logo.ico"))
 
 
 def download(link):
@@ -94,17 +61,17 @@ def download(link):
     response1 = requests.get(link)
     response1.encoding = "UTF-8"
     main = response1.content
-    with open(link[link.rfind("/") + 1:], "wb") as file:
+    with open(pj(user_path, "zb", link[link.rfind("/") + 1:]), "wb") as file:
         file.write(main)
 
 
-def check_update(name, link):
+def check_update(link):
     global using
     if using:
         return None
     using = True
     try:
-        import requests, bs4, win32com
+        import requests, bs4
     except:
         showerror("错误", "请先安装运行库！")
         using = False
@@ -126,7 +93,7 @@ def check_update(name, link):
         vari.set(int(100 * i / len(data)))
         tk.update()
     showinfo("提示", "zb小程序安装完毕！")
-    os.popen("main.pyw")
+    os.popen(pj(user_path, "zb/main.pyw"))
     vari.set(100)
     using = False
     exit()
@@ -158,7 +125,7 @@ def download_lib(list):
 vari = IntVar()
 vari.set(0)
 ttk.Progressbar(tk, mode="determinate", variable=vari).place(x=0, y=0, width=200, height=10)
-ttk.Button(tk, text="安装 zb小程序 Qt版", style="TButton", command=lambda: MyThread(lambda: check_update(settings[0], "https://ianzb.github.io/server.github.io/Windows/"))).place(x=0, y=10, width=200, height=35)
+ttk.Button(tk, text="安装 zb小程序 Qt版", style="TButton", command=lambda: MyThread(lambda: check_update("https://ianzb.github.io/server.github.io/Windows/"))).place(x=0, y=10, width=200, height=35)
 ttk.Button(tk, text="安装 zb小程序 运行库", style="TButton", command=lambda: MyThread(lambda: download_lib(lib_list))).place(x=0, y=45, width=200, height=35)
 
 tk.mainloop()

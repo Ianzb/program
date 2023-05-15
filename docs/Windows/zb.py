@@ -3,45 +3,14 @@ import os, sys, winreg, logging
 # 通用变量
 abs_path = sys.argv[0][:sys.argv[0].rfind(r"\ "[:-1])]
 abs_name = sys.argv[0][sys.argv[0].rfind(r"\ "[:-1]) + 1:]
-abs_cache = sys.argv[0].replace(".pyw", ".txt").replace(".py", ".txt")
+abs_cache = abs_name[:abs_name.rfind(".")]
 abs_pid = os.getpid()
 user_path = os.path.expanduser("~")
 abs_desktop = winreg.QueryValueEx(winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders"), "Desktop")[0]
-lib_list = ["PyQt5-sip", "pyqt5-tools", "PyQt5", "PyQt5Designer", "PyQt-Fluent-Widgets[full]", "sv-ttk", "lxml", "pypiwin32", "pandas", "numpy", "bs4", "requests", "send2trash", "winshell", "matplotlib", "openpyxl", "PyAudio", "python-xlib", "pymouse", "pyautogui", "PyUserInput", "psutil", "wmi"]
+lib_list = ["PyQt5-sip", "pyqt5-tools", "PyQt5", "PyQt5Designer", "PyQt-Fluent-Widgets[full]", "lxml", "pypiwin32", "pandas", "numpy", "bs4", "requests", "send2trash", "winshell", "matplotlib", "openpyxl", "PyAudio", "python-xlib", "pymouse", "pyautogui", "PyUserInput", "psutil", "wmi"]
 
-# 切换工作路径
+# 切换工作路
 os.chdir(abs_path)
-
-# 日志功能配置
-try:
-    os.makedirs(os.path.join(user_path,"zb"))
-except:
-    pass
-logging.basicConfig(level=logging.INFO, filename=os.path.join(user_path,"zb/zb.log"), format="[%(asctime)s %(filename)s %(process)d] %(levelname)s:%(message)s")
-logging.info("程序开始运行")
-
-# 打开加载窗口
-
-import shutil,re, time, hashlib, threading, ctypes, pickle, stat, bs4, lxml, requests, send2trash, winshell, platform, webbrowser, win32api, win32con, win32com.client, random
-
-# 任务栏图标加载
-ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("zb小程序 PyQt版")
-
-
-# 检测重复运行
-def checkIsOpen():
-    if os.path.exists(abs_cache):
-        with open(file=abs_cache, mode="r", encoding="utf-8") as file:
-            pid = file.read()
-        try:
-            os.kill(int(pid), 0)
-        except:
-            pass
-    with open(file=abs_cache, mode="w", encoding="utf-8") as file:
-        file.write(str(os.getpid()))
-
-
-checkIsOpen()
 
 
 # 更好的路径拼接
@@ -53,19 +22,24 @@ def pj(*data):
     return path
 
 
+# 日志功能配置
+try:
+    os.makedirs(pj(user_path, "zb"))
+except:
+    pass
+logging.basicConfig(level=logging.INFO, filename=pj(user_path, "zb/zb.log"), filemode="w", format="[%(asctime)s %(filename)s %(process)d] %(levelname)s:%(message)s")
+logging.info("程序开始运行")
 # 初始化设置
 from configparser import ConfigParser
 
 conf = ConfigParser()
 if os.path.exists(pj(user_path, "zb/settings.ini")):
     conf.read(pj(user_path, "zb/settings.ini"), encoding="utf-8")
-    print("成功读取设置文件，路径：" + pj(user_path, "zb/settings.ini"))
     logging.info("成功读取设置文件，路径：" + pj(user_path, "zb/settings.ini"))
 else:
     if not os.path.exists(pj(user_path, "zb")):
         os.makedirs(pj(user_path, "zb"))
     with open(pj(user_path, "zb/settings.ini"), "w+", encoding="utf-8") as file:
-        print("成功创建设置文件，路径：" + pj(user_path, "zb/settings.ini"))
         logging.info("成功读取设置文件，路径：" + pj(user_path, "zb/settings.ini"))
 
 
@@ -78,10 +52,8 @@ def readSetting(name):
     try:
         data = conf["data"][str(name)]
     except:
-        print("项 " + str(name) + " 不存在")
         logging.info("项 " + str(name) + " 不存在")
         return "当前未设置"
-    print("项 " + str(name) + " 的内容为 " + data)
     logging.info("项 " + str(name) + " 的内容为 " + data)
     if data in ["", None, " "]:
         return "当前未设置"
@@ -97,14 +69,33 @@ def saveSetting(name, data):
     try:
         old = conf["data"][str(name)]
         conf.set("data", str(name), str(data))
-        print("项 " + str(name) + "的内容从 " + old + " 修改为 " + str(data))
         logging.info("项 " + str(name) + "的内容从 " + old + " 修改为 " + str(data))
     except:
         conf.set("data", str(name), str(data))
-        print("项 " + str(name) + " 的内容设置为 " + str(data))
         logging.info("项 " + str(name) + " 的内容设置为 " + str(data))
     with open(pj(user_path, "zb/settings.ini"), "w", encoding="utf-8") as file:
         conf.write(file)
+
+
+import shutil, re, time, hashlib, threading, ctypes, pickle, stat, bs4, lxml, requests, send2trash, winshell, platform, webbrowser, win32api, win32con, win32com.client, random
+
+# 任务栏图标加载
+ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("zb小程序 PyQt版")
+
+
+# 检测重复运行
+def checkIsOpen():
+    if abs_cache in ["zb"]:
+        return
+    try:
+        pid = readSetting(abs_cache)
+        os.kill(int(pid), 0)
+    except:
+        pass
+    saveSetting(abs_cache,os.getpid())
+
+
+checkIsOpen()
 
 
 # 自定义功能
@@ -122,25 +113,6 @@ class MyThread(threading.Thread):
 
     def run(self):
         self.func(*self.args)
-
-
-# 关闭程序
-def exit():
-    logging.info("关闭程序")
-    sys.exit()
-
-
-# 关闭所有python程序
-def killAllPython():
-    logging.info("强制关闭Python程序")
-    for root, dirs, files in os.walk("./"):
-        for name in files:
-            if name.endswith(".txt"):
-                os.remove(pj(root, name))
-    os.popen("taskkill.exe /F /IM py.exe")
-    os.popen("taskkill.exe /F /IM pyw.exe")
-    os.popen("taskkill.exe /F /IM python.exe")
-    os.popen("taskkill.exe /F /IM pythonw.exe")
 
 
 # 获取文件md5
@@ -166,7 +138,7 @@ def clearEmpty(path):
                 pass
     for root, dirs, files in os.walk(path):
         for file in files:
-            src_file = os.path.join(root, file)
+            src_file = pj(root, file)
             if os.path.getsize(src_file) == 0:
                 try:
                     os.remove(src_file)
@@ -181,7 +153,7 @@ def clearRepeat(path):
     logging.info("开始清理" + path + "下的重复文件")
     all_size = {}
     for file in os.listdir(path):
-        real_path = os.path.join(path, file)
+        real_path = pj(path, file)
         if os.path.isfile(real_path) == True:
             size = os.stat(real_path).st_size
             size_and_md5 = [""]
@@ -322,12 +294,15 @@ def pptRestart():
 def clearSeewo():
     logging.info("开始清理希沃视频展台文件")
     try:
-        list = os.walk(r"C:/EasiCameraPhoto")
-        list2 = []
-        for i in list: list2.append(i)
-        list = list2[0][1]
-        for i in list:
-            if i != time.strftime("%Y-%m-%d") and os.path.exists(pj("D:/EasiCameraPhoto", i)): send2trash.send2trash(pj("D:/EasiCameraPhoto", i))
+        for j in [chr(i) for i in range(65, 91)]:
+            if os.path.exists(j + ":/EasiCameraPhoto"):
+                list = os.walk(j + ":/EasiCameraPhoto")
+                list2 = []
+                for i in list: list2.append(i)
+                list = list2[0][1]
+                for i in list:
+                    if i != time.strftime("%Y-%m-%d"):
+                        send2trash.send2trash(pj(j + ":/EasiCameraPhoto", i))
         logging.info("成功清理希沃视频展台文件")
     except:
         pass
@@ -446,21 +421,9 @@ def addToStartMenu():
     createLink(name="zb小程序", path=pj(abs_path, "main.pyw"), to=path, icon=pj(abs_path, "logo.ico"))
 
 
-# 一键整理+清理
-def autoClean():
-    if readSetting("sort") == "当前未设置" or readSetting("wechat") == "当前未设置":
-        return
-    clearRubbish()
-    clearCache()
-    clearDesk(readSetting("sort"))
-    clearWechat(readSetting("wechat"), readSetting("sort"))
-    clearSeewo()
-    clearUselessFiles(readSetting("sort"))
-
-
 # 开机自启动
-# autoRun(switch="open", zdynames=os.path.basename(os.path.join(path, "hide.pyw"))
-# autoRun(switch="close", zdynames=os.path.basename(os.path.join(path, "hide.pyw"))
+# autoRun(switch="open", zdynames=os.path.basename(pj(path, "hide.pyw"))
+# autoRun(switch="close", zdynames=os.path.basename(pj(path, "hide.pyw"))
 # 判断键是否存在
 def judgeKey(key_name,
              reg_root=win32con.HKEY_CURRENT_USER,  # 根节点  其中的值可以有：HKEY_CLASSES_ROOT、HKEY_CURRENT_USER、HKEY_LOCAL_MACHINE、HKEY_USERS、HKEY_CURRENT_CONFIG

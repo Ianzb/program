@@ -1,4 +1,4 @@
-version = "0.3.0"
+version = "0.4.0"
 from PyQt5 import *
 from PyQt5 import QtCore
 from PyQt5.QtCore import *
@@ -72,7 +72,14 @@ class newThread(QThread):
     def run(self):
         global mode
         if mode == 1:
-            autoClean()
+            if readSetting("sort") == "当前未设置" or readSetting("wechat") == "当前未设置":
+                return
+            clearRubbish()
+            clearCache()
+            clearDesk(readSetting("sort"))
+            clearWechat(readSetting("wechat"), readSetting("sort"))
+            clearSeewo()
+            clearUselessFiles(readSetting("sort"))
             self.signal.emit("完成")
         if mode == 2 or mode == 3:
             with open("names.zb", "r", encoding="utf-8") as file:
@@ -87,16 +94,14 @@ class newThread(QThread):
                 time.sleep(wait)
             self.signal.emit("完成")
         if mode == 3:
-            link="https://ianzb.github.io/server.github.io/Windows/"
-            if "D:\编程\server.github.io\docs" in os.getcwd():
-                self.signal.emit("开发者")
-                return
+            link = "https://ianzb.github.io/server.github.io/Windows/"
+
             res = requests.get(link + "index.html")
             res.encoding = "UTF-8"
             soup = bs4.BeautifulSoup(res.text, "lxml")
             data = soup.find_all(name="div", class_="download", text=re.compile("."))
             for i in range(len(data)): data[i] = data[i].text.strip()
-            self.signal.emit("总共"+str(len(data)))
+            self.signal.emit("总共" + str(len(data)))
             for i in range(len(data)):
                 download(link + data[i])
                 self.signal.emit(data[i])
@@ -105,6 +110,10 @@ class newThread(QThread):
             for i in range(len(lib_list)):
                 pipInstall(lib_list[i])
                 self.signal.emit(lib_list[i])
+        if mode == 5:
+            str1 = getMc()
+            self.signal.emit(str1)
+
 
 
 class tab1(QFrame, QWidget):
@@ -112,22 +121,26 @@ class tab1(QFrame, QWidget):
         super().__init__(parent=parent)
         self.setObjectName("功能")
         self.pushButton1 = PrimaryPushButton("一键整理+清理", self)
-        self.pushButton1.clicked.connect(self.btn12)
+        self.pushButton1.clicked.connect(self.btn11)
         self.pushButton1.move(0, 0)
         self.pushButton1.resize(150, 35)
         self.toolButton1 = ToolButton(FIF.FOLDER, self)
-        self.toolButton1.clicked.connect(self.btn21)
+        self.toolButton1.clicked.connect(self.btn12)
         self.toolButton1.move(150, 0)
         self.toolButton1.resize(50, 35)
+        self.pushButton2 = PushButton("重启文件资源管理器", self, FIF.SYNC)
+        self.pushButton2.clicked.connect(self.btn20)
+        self.pushButton2.move(0, 35)
+        self.pushButton2.resize(200, 35)
 
-    def btn11(self, title="zb小程序", content="提示内容"):
+    def btn10(self, title="zb小程序", content="提示内容"):
         self.stateTooltip.setContent(content)
         self.stateTooltip.setState(True)
         self.stateTooltip = None
         w.show()
         self.pushButton1.setEnabled(True)
 
-    def btn12(self):
+    def btn11(self):
         global mode
         mode = 1
         self.pushButton1.setEnabled(False)
@@ -135,13 +148,16 @@ class tab1(QFrame, QWidget):
         self.stateTooltip.move(143, 264)
         self.stateTooltip.show()
         self.thread = newThread()
-        self.thread.signal.connect(lambda: self.btn11("提示", "整理完毕"))
+        self.thread.signal.connect(lambda: self.btn10("提示", "整理完毕"))
         self.thread.start()
 
-    def btn21(self):
+    def btn12(self):
         if readSetting("sort") == "当前未设置" or readSetting("wechat") == "当前未设置":
             return
         os.startfile(readSetting("sort"))
+
+    def btn20(self):
+        MyThread(restartExplorer)
 
 
 class tab2(QFrame, QWidget):
@@ -215,10 +231,20 @@ class tab3(QFrame, QWidget):
         self.progressBar.move(0, 245)
         self.progressBar.setGeometry(0, 245, 400, 20)
         self.progressBar.setMinimum(0)
-        self.progressBar.setMaximum(400)
+        self.progressBar.setMaximum(100)
         self.progressBar.setValue(0)
         self.progressBar.setHidden(True)
-
+        self.label = QLabel(self)
+        self.label.move(0, 245)
+        self.label.resize(400, 35)
+        self.label.setAlignment(Qt.AlignCenter)
+        self.label.setFont(QFont("等线", 10))
+        self.label.setHidden(True)
+        self.label.setText("")
+        self.pushButton9 = PushButton("查看我的世界最新版本", self, FIF.CHECKBOX)
+        self.pushButton9.clicked.connect(self.btn50)
+        self.pushButton9.move(0, 105)
+        self.pushButton9.resize(200, 35)
 
     def btn10(self):
         path = readSetting("sort")
@@ -249,41 +275,76 @@ class tab3(QFrame, QWidget):
     def btn40(self):
         global mode
         mode = 4
+        self.label.setHidden(False)
+        self.pushButton7.setEnabled(False)
+        self.pushButton8.setEnabled(False)
         self.progressBar.setHidden(False)
         self.progressBar.setValue(0)
         self.thread = newThread()
         self.thread.signal.connect(self.btn41)
         self.thread.start()
-    def btn41(self,msg):
-        self.number=len(lib_list)
+
+    def btn41(self, msg):
+        self.number = len(lib_list)
         if "开始" in msg:
-            self.count=0
-        self.count+=1
-        self.progressBar.setValue(int(400 / self.number * self.count))
-        if self.count==self.number:
+            self.count = 0
+            self.label.setText("正在初始化")
+        self.count += 1
+        if self.count != 1:
+            self.label.setText("正在安装 " + msg + " " + str(int(100 / self.number * self.count)) + "%")
+        self.progressBar.setValue(int(100 / self.number * self.count))
+        if self.count == self.number:
+            self.progressBar.setValue(0)
             self.progressBar.setHidden(True)
+            self.label.setText("")
+            self.label.setHidden(True)
             QMessageBox.information(self, "提示", "zb小程序 运行库安装完毕")
+            self.pushButton7.setEnabled(True)
+            self.pushButton8.setEnabled(True)
+
     def btn42(self):
         global mode
-        mode=3
+        mode = 3
+        if "D:\编程\server.github.io\docs" in abs_path:
+            QMessageBox.critical(self, "错误", "当前目录为开发者目录无法安装！")
+            return
+        self.label.setHidden(False)
+        self.label.setText("正在连接至服务器")
+        self.pushButton7.setEnabled(False)
+        self.pushButton8.setEnabled(False)
         self.progressBar.setHidden(False)
         self.progressBar.setValue(0)
         self.thread = newThread()
         self.thread.signal.connect(self.btn43)
         self.thread.start()
-    def btn43(self,msg):
-        if "开发者" in msg:
-            QMessageBox.critical(self, "错误", "当前目录为开发者目录无法安装！")
-            self.progressBar.setHidden(True)
-            return
+
+    def btn43(self, msg):
         if "总共" in msg:
-            self.count=0
-            self.number=int(msg[2:])+1
-        self.count+=1
-        self.progressBar.setValue(int(400/self.number*self.count))
-        if self.count==self.number:
+            self.count = 0
+            self.number = int(msg[2:]) + 1
+        self.count += 1
+        if self.count != 1:
+            self.label.setText("正在更新 " + msg + " " + str(int(100 / self.number * self.count)) + "%")
+        self.progressBar.setValue(int(100 / self.number * self.count))
+        if self.count == self.number:
+            self.progressBar.setValue(0)
             self.progressBar.setHidden(True)
+            self.label.setText("")
+            self.label.setHidden(True)
             QMessageBox.information(self, "提示", "zb小程序 更新完毕")
+            self.pushButton7.setEnabled(True)
+            self.pushButton8.setEnabled(True)
+
+    def btn50(self):
+        global mode
+        mode = 5
+        self.pushButton9.setEnabled(False)
+        self.thread = newThread()
+        self.thread.signal.connect(self.btn51)
+        self.thread.start()
+    def btn51(self,msg):
+        QMessageBox.information(self, "提示", msg)
+        self.pushButton9.setEnabled(True)
 
 
 class Window(FramelessWindow):
