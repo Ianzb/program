@@ -6,7 +6,7 @@ disable("update.txt")
 # 读取信息
 
 using = False
-lib_list = ["PyQt5-sip", "pyqt5-tools", "PyQt5", "PyQt5Designer", "PyQt-Fluent-Widgets[full]", "sv-ttk", "lxml", "pypiwin32", "pandas", "numpy", "bs4", "requests", "send2trash", "winshell", "matplotlib", "openpyxl", "PyAudio", "python-xlib", "pymouse", "pyautogui", "PyUserInput", "psutil", "wmi"]
+lib_list = ["PyQt5-sip", "pyqt5-tools", "PyQt5", "PyQt5Designer", "PyQt-Fluent-Widgets[full]", "lxml", "pypiwin32", "pandas", "numpy", "bs4", "requests", "send2trash", "winshell", "matplotlib", "openpyxl", "PyAudio", "python-xlib", "pymouse", "pyautogui", "PyUserInput", "psutil", "wmi"]
 
 # 窗口初始化
 
@@ -87,7 +87,7 @@ def download_lib(list):
 vari = IntVar()
 vari.set(0)
 ttk.Progressbar(tk, mode="determinate", variable=vari).place(x=0, y=0, width=200, height=10)
-ttk.Button(tk, text="更新 zb小程序 Tk版", style="TButton", command=lambda: MyThread(lambda: check_update(settings[0], "https://ianzb.github.io/server.github.io/Windows/legacy/"))).place(x=0, y=10, width=200, height=35)
+ttk.Button(tk, text="升级至 zb小程序 Qt版", style="TButton", command=lambda: MyThread(lambda: check_update(settings[0], "https://ianzb.github.io/server.github.io/Windows/"))).place(x=0, y=10, width=200, height=35)
 ttk.Button(tk, text="安装 zb小程序 运行库", style="TButton", command=lambda: MyThread(lambda: download_lib(lib_list))).place(x=0, y=45, width=200, height=35)
 close()
 tk.mainloop()

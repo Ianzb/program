@@ -1,6 +1,6 @@
 # 程序信息
 
-version = "4.8.5"
+version = "4.8.6"
 # 导入运行库
 from zb import *
 
@@ -11,7 +11,7 @@ disable("main.txt")
 # 窗口初始化
 
 tk = Tk()
-tk.title("zb小程序 Tk版 " + settings[0] + " " + version)
+tk.title("zb小程序 Tk版 "+ version+" 已停更")
 x = 402
 y = 184
 if settings[5] == "经典风格":
@@ -30,14 +30,9 @@ elif settings[5] == "Win11深色模式":
     sv_ttk.use_dark_theme()
 
 
-def hide():
-    os.popen("hide.pyw")
-    exit()
-
-
-tk.protocol("WM_DELETE_WINDOW", hide)
-
-
+showinfo("提示","zb小程序Tk版已停止支持，请打开更新模块，安装运行库并升级至Qt版以享受新功能")
+AutoRun(switch="close", zdynames=os.path.basename(pj(abs_path, "hide.pyw")))
+AutoRun(switch="close", zdynames=os.path.basename(pj(abs_path, "hide.pyw")), current_file="zb小程序")
 # 功能
 def b1():
     os.popen("choose.pyw")
@@ -197,21 +192,23 @@ ttk.Checkbutton(tab3, variable=val2, text="开机自启动").place(x=200, y=35, 
 ttk.Button(tab3, text="取消", style="TButton", command=not_save).place(x=200, y=105, width=100, height=35)
 ttk.Button(tab3, text="保存", style="TButton", command=save).place(x=300, y=105, width=100, height=35)
 
-ttk.Label(tab4, text="zb小程序 " + settings[0]).place(x=0, y=0, width=200, height=35)
-ttk.Label(tab4, text="作者 Ianzb 版本 " + version).place(x=0, y=35, width=200, height=35)
-ttk.Button(tab4, text="体验Qt版", style="TButton", command=use_new).place(x=0, y=105, width=200, height=35)
+ttk.Label(tab4, text="zb小程序 Tk版").place(x=0, y=0, width=200, height=35)
+ttk.Label(tab4, text="作者 Ianzb 版本 " + version).place(x=0, y=25, width=200, height=35)
+ttk.Label(tab4, text="Tk版已停更").place(x=0, y=50, width=200, height=35)
+
+#ttk.Button(tab4, text="体验Qt版", style="TButton", command=use_new).place(x=0, y=105, width=200, height=35)
 
 
 ttk.Button(tab4, text="程序官网", style="TButton", command=lambda: MyThread(lambda: webbrowser.open("https://ianzb.github.io/server.github.io/"))).place(x=200, y=0, width=100, height=35)
 ttk.Button(tab4, text="检查更新", style="TButton", command=lambda: MyThread(b3)).place(x=300, y=0, width=100, height=35)
 ttk.Button(tab4, text="安装目录", style="TButton", command=lambda: MyThread(lambda: os.startfile(sys.argv[0][:sys.argv[0].rfind(r"\ "[:-1])]))).place(x=200, y=35, width=100, height=35)
 ttk.Button(tab4, text="查看日志", style="TButton", command=lambda: os.popen("start NotePad.exe zb.log")).place(x=300, y=35, width=100, height=35)
-ttk.Button(tab4, text="添加桌面快捷方式", style="TButton", command=lambda: create_link(name="zb小程序", path=pj(abs_path, "main.pyw"), to=abs_desktop, icon=pj(abs_path, "logo.ico"))).place(x=200, y=70, width=200, height=35)
-ttk.Button(tab4, text="添加至开始菜单", style="TButton", command=add_to_start_menu).place(x=200, y=105, width=200, height=35)
+#ttk.Button(tab4, text="添加桌面快捷方式", style="TButton", command=lambda: create_link(name="zb小程序", path=pj(abs_path, "main.pyw"), to=abs_desktop, icon=pj(abs_path, "logo.ico"))).place(x=200, y=70, width=200, height=35)
+#ttk.Button(tab4, text="添加至开始菜单", style="TButton", command=add_to_start_menu).place(x=200, y=105, width=200, height=35)
 
-tab.add(tab1, text="便携功能")
-tab.add(tab2, text="实用程序")
-tab.add(tab3, text="设置")
+#tab.add(tab1, text="便携功能")
+#tab.add(tab2, text="实用程序")
+#tab.add(tab3, text="设置")
 tab.add(tab4, text="关于")
 tab.pack()
 close()

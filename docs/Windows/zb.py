@@ -27,7 +27,7 @@ try:
     os.makedirs(pj(user_path, "zb"))
 except:
     pass
-logging.basicConfig(level=logging.INFO, filename=pj(user_path, "zb/zb.log"), filemode="w", format="[%(asctime)s %(filename)s %(process)d] %(levelname)s:%(message)s")
+logging.basicConfig(level=logging.INFO, filename=pj(user_path, "zb/zb.log"), format="[%(asctime)s %(filename)s %(process)d] %(levelname)s:%(message)s")
 logging.info("程序开始运行")
 # 初始化设置
 from configparser import ConfigParser
@@ -92,7 +92,7 @@ def checkIsOpen():
         os.kill(int(pid), 0)
     except:
         pass
-    saveSetting(abs_cache,os.getpid())
+    saveSetting(abs_cache, os.getpid())
 
 
 checkIsOpen()
@@ -283,8 +283,8 @@ def getMc():
 
 
 # 重启PPT小助手
-def pptRestart():
-    logging.info("重新运行PPT小助手")
+def RestartPPT():
+    logging.info("重启PPT小助手")
     os.popen("taskkill -f -im PPTService.exe")
     time.sleep(0.5)
     os.popen("C:/Program Files (x86)/Seewo/PPTService/Main/PPTService.exe")
@@ -445,13 +445,13 @@ def judgeKey(key_name,
     try:
         key = winreg.OpenKey(reg_root, reg_path, 0, reg_flags)
         location, type = winreg.QueryValueEx(key, key_name)
-        logging.info("注册表键存在", "location（数据）:", location, "type:", type)
+        logging.info("注册表键存在", "location（数据）:" + str(location) + "type:" + str(type))
         feedback = 0
     except FileNotFoundError as e:
-        logging.info("注册表键不存在", e)
+        logging.info("注册表键不存在" + str(e))
         feedback = 1
     except PermissionError as e:
-        logging.info("注册表权限不足", e)
+        logging.info("注册表权限不足" + str(e))
         feedback = 2
     except:
         logging.info("注册表键查看失败")
