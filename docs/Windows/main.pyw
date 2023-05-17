@@ -1,13 +1,12 @@
 import sys
 
-version = "0.5.0"
+version = "0.6.0"
 from PyQt5 import *
 from PyQt5 import QtCore
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from qfluentwidgets import *
-from qfluentwidgets import ScrollArea
 from qfluentwidgets import FluentIcon as FIF
 from qframelesswindow import *
 
@@ -105,7 +104,6 @@ class newThread(QThread):
             for i in range(len(data)):
                 self.signal.emit(data[i])
                 download(link + data[i])
-
             self.signal.emit("完成")
         if mode == 4:
             for i in range(len(lib_list)):
@@ -116,6 +114,12 @@ class newThread(QThread):
         if mode == 5:
             str1 = getMc()
             self.signal.emit(str1)
+        if mode == 6:
+            restartExplorer()
+            self.signal.emit("完成")
+        if mode == 7:
+            restartPPT()
+            self.signal.emit("完成")
 
 
 class tab1(QFrame, QWidget):
@@ -135,15 +139,15 @@ class tab1(QFrame, QWidget):
         self.pushButton2.move(0, 35)
         self.pushButton2.resize(200, 35)
         self.pushButton3 = PushButton("重启PPT小助手", self, FIF.SYNC)
-        self.pushButton3.clicked.connect(self.btn21)
+        self.pushButton3.clicked.connect(self.btn22)
         self.pushButton3.move(200, 35)
         self.pushButton3.resize(200, 35)
         self.pushButton4 = PushButton("打开CCTV-13", self, FIF.LINK)
-        self.pushButton4.clicked.connect(self.btn22)
+        self.pushButton4.clicked.connect(self.btn24)
         self.pushButton4.move(0, 70)
         self.pushButton4.resize(200, 35)
         self.pushButton5 = PushButton("打开校园电视台", self, FIF.LINK)
-        self.pushButton5.clicked.connect(self.btn23)
+        self.pushButton5.clicked.connect(self.btn25)
         self.pushButton5.move(200, 70)
         self.pushButton5.resize(200, 35)
 
@@ -171,16 +175,34 @@ class tab1(QFrame, QWidget):
         os.startfile(readSetting("sort"))
 
     def btn20(self):
-        MyThread(restartExplorer)
+        global mode
+        mode = 6
+        self.pushButton2.setEnabled(False)
+        self.thread = newThread()
+        self.thread.signal.connect(self.btn21)
+        self.thread.start()
 
-    def btn21(self):
-        MyThread(RestartPPT)
+    def btn21(self, msg):
+        if msg == "完成":
+            self.pushButton2.setEnabled(True)
 
     def btn22(self):
+        global mode
+        mode = 7
+        self.pushButton3.setEnabled(False)
+        self.thread = newThread()
+        self.thread.signal.connect(self.btn23)
+        self.thread.start()
+
+    def btn23(self, msg):
+        if msg == "完成":
+            self.pushButton3.setEnabled(True)
+
+    def btn24(self):
         webbrowser.open("https://tv.cctv.cn/live/cctv13")
 
-    def btn23(self):
-        webbrowser.open("http://10.8.8.35:8443/live/31384275e5e0443fa4364714fcbf85fd")
+    def btn25(self):
+        webbrowser.open("http://10.8.8.35:8443/live")
 
 
 class tab2(QFrame, QWidget):
@@ -272,7 +294,7 @@ class tab3(QFrame, QWidget):
         self.checkBox.clicked.connect(self.btn60)
         self.checkBox.move(0, 140)
         self.checkBox.resize(200, 35)
-        if readSetting("start") == "1":
+        if readSetting("startupdate") == "1":
             self.checkBox.setChecked(True)
         else:
             self.checkBox.setChecked(False)
@@ -321,7 +343,15 @@ class tab3(QFrame, QWidget):
             self.progressBar.setValue(0)
             self.progressBar.setHidden(True)
             self.label.setHidden(True)
-            QMessageBox.information(self, "提示", "zb小程序 运行库安装完毕")
+            InfoBar.success(
+                title="提示",
+                content="运行库安装成功！",
+                orient=Qt.Horizontal,
+                isClosable=True,
+                position=InfoBarPosition.TOP,
+                duration=2000,
+                parent=self
+            )
             self.pushButton7.setEnabled(True)
             self.pushButton8.setEnabled(True)
             return
@@ -334,8 +364,16 @@ class tab3(QFrame, QWidget):
     def btn42(self):
         global mode
         mode = 3
-        if "D:\编程\server.github.io\docs" in abs_path:
-            QMessageBox.critical(self, "错误", "当前目录为开发者目录无法更新！")
+        if ":\编程\server.github.io\docs" in abs_path:
+            InfoBar.warning(
+                title="警告",
+                content="开发者目录禁止更新！",
+                orient=Qt.Horizontal,
+                isClosable=False,
+                position=InfoBarPosition.TOP_LEFT,
+                duration=2000,
+                parent=self
+            )
             return
         self.label.setHidden(False)
         self.label.setText("正在连接至服务器")
@@ -349,14 +387,27 @@ class tab3(QFrame, QWidget):
 
     def btn43(self, msg):
         if msg == "开始":
-            self.label.setText("正在初始化")
+            self.label.setText("正在连接至服务器")
             self.count = 0
             self.number = 20
         if msg == "完成":
             self.progressBar.setValue(0)
             self.progressBar.setHidden(True)
             self.label.setHidden(True)
-            QMessageBox.information(self, "提示", "zb小程序 更新完毕")
+            self.pushButton10 = PrimaryPushButton("重新运行", self, FIF.SYNC)
+            self.pushButton10.clicked.connect(self.btn70)
+            self.infoBar = InfoBar(
+                icon=InfoBarIcon.SUCCESS,
+                title="提示",
+                content="更新成功，重新运行后生效！",
+                orient=Qt.Vertical,
+                isClosable=True,
+                position=InfoBarPosition.TOP_RIGHT,
+                duration=5000,
+                parent=self
+            )
+            self.infoBar.addWidget(self.pushButton10)
+            self.infoBar.show()
             self.pushButton7.setEnabled(True)
             self.pushButton8.setEnabled(True)
             return
@@ -381,11 +432,15 @@ class tab3(QFrame, QWidget):
 
     def btn60(self):
         if self.checkBox.isChecked():
-            saveSetting("start", "1")
+            saveSetting("startupdate", "1")
             autoRun(switch="open", zdynames=os.path.basename(pj(abs_path, "start.pyw")), current_file="zb小程序Qt")
         else:
-            saveSetting("start", "0")
+            saveSetting("startupdate", "0")
             autoRun(switch="close", zdynames=os.path.basename(pj(abs_path, "start.pyw")), current_file="zb小程序Qt")
+
+    def btn70(self):
+        os.popen("main.pyw")
+        sys.exit()
 
 
 class Window(FramelessWindow):
@@ -404,6 +459,7 @@ class Window(FramelessWindow):
         self.initLayout()
         self.initNavigation()
         self.initWindow()
+        self.initTray()
 
     def initLayout(self):
         self.hBoxLayout.setSpacing(0)
@@ -433,12 +489,21 @@ class Window(FramelessWindow):
         self.setFixedSize(weight, height)
         self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
         self.setWindowIcon(QIcon("logo.png"))
-        self.setWindowTitle("zb小程序 Qt版 " + version)
+        self.setWindowTitle("zb小程序 " + version)
         self.titleBar.setAttribute(Qt.WA_StyledBackground)
         self.windowEffect.setMicaEffect(self.winId())
         desktop = QApplication.desktop().availableGeometry()
         w, h = desktop.width(), desktop.height()
         self.move(w // 2 - weight // 2, h // 2 - height // 2)
+
+    def initTray(self):
+        menu = QMenu(self)
+        menu.addAction(QAction("打开", self, triggered=lambda: self.show()))
+        menu.addAction(QAction("关闭", self, triggered=lambda: sys.exit()))
+        self.tray = QSystemTrayIcon()
+        self.tray.setIcon(QIcon("logo.ico"))
+        self.tray.setContextMenu(menu)
+        self.tray.show()
 
     def addSubInterface(self, interface, icon, text: str, position=NavigationItemPosition.TOP):
         self.stackWidget.addWidget(interface)
@@ -465,9 +530,9 @@ class Window(FramelessWindow):
         else:
             message = None
 
-    def closeEvent(self, event):
-        # os.popen("hide.pyw")
-        event.accept()
+    def closeEvent(self, QCloseEvent):
+        QCloseEvent.ignore()
+        self.hide()
 
 
 if __name__ == "__main__":

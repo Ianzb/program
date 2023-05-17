@@ -27,7 +27,22 @@ try:
     os.makedirs(pj(user_path, "zb"))
 except:
     pass
-logging.basicConfig(level=logging.INFO, filename=pj(user_path, "zb/zb.log"), format="[%(asctime)s %(filename)s %(process)d] %(levelname)s:%(message)s")
+
+
+logger = logging.getLogger("mylogger")
+logger.setLevel(logging.INFO)
+rf_handler = logging.StreamHandler(sys.stderr)
+rf_handler.setLevel(logging.DEBUG)
+rf_handler.setFormatter(logging.Formatter("[%(asctime)s %(filename)s %(process)d] %(levelname)s:%(message)s"))
+
+f_handler = logging.FileHandler(pj(user_path, "zb/zb.log"))
+f_handler.setLevel(logging.DEBUG)
+f_handler.setFormatter(logging.Formatter("[%(asctime)s %(filename)s %(process)d] %(levelname)s:%(message)s"))
+
+logger.addHandler(rf_handler)
+logger.addHandler(f_handler)
+logging=logger
+
 logging.info("程序开始运行")
 # 初始化设置
 from configparser import ConfigParser
@@ -77,12 +92,6 @@ def saveSetting(name, data):
         conf.write(file)
 
 
-import shutil, re, time, hashlib, threading, ctypes, pickle, stat, bs4, lxml, requests, send2trash, winshell, platform, webbrowser, win32api, win32con, win32com.client, random
-
-# 任务栏图标加载
-ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("zb小程序 PyQt版")
-
-
 # 检测重复运行
 def checkIsOpen():
     if abs_cache in ["zb"]:
@@ -96,6 +105,11 @@ def checkIsOpen():
 
 
 checkIsOpen()
+
+import shutil, re, time, hashlib, threading, ctypes, pickle, stat, bs4, lxml, requests, send2trash, winshell, platform, webbrowser, win32api, win32con, win32com.client, random
+
+# 任务栏图标加载
+ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("zb小程序 PyQt版")
 
 
 # 自定义功能
@@ -283,7 +297,7 @@ def getMc():
 
 
 # 重启PPT小助手
-def RestartPPT():
+def restartPPT():
     logging.info("重启PPT小助手")
     os.popen("taskkill -f -im PPTService.exe")
     time.sleep(0.5)
