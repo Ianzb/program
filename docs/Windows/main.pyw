@@ -1,6 +1,6 @@
 import sys
 
-version = "0.6.0"
+version = "0.7.0"
 from PyQt5 import *
 from PyQt5 import QtCore
 from PyQt5.QtCore import *
@@ -15,6 +15,13 @@ from zb import *
 mode = None
 weight = 450
 height = 350
+p = os.popen("tasklist |findstr " + readSetting(abs_cache))
+if p.read() != "":
+    saveSetting("show", "1")
+    logging.info("已运行zb小程序，将其唤醒，新运行的zb小程序自动退出")
+    sys.exit()
+
+saveSetting(abs_cache, os.getpid())
 
 
 class TitleBar(StandardTitleBar):
@@ -71,7 +78,7 @@ class newThread(QThread):
     def run(self):
         global mode
         if mode == 1:
-            if readSetting("sort") == "当前未设置" or readSetting("wechat") == "当前未设置":
+            if readSetting("sort") == "" or readSetting("wechat") == "":
                 return
             clearRubbish()
             clearCache()
@@ -120,6 +127,12 @@ class newThread(QThread):
         if mode == 7:
             restartPPT()
             self.signal.emit("完成")
+        if mode == 8:
+            while True:
+                time.sleep(0.1)
+                if readSetting("show") == "1":
+                    saveSetting("show", "0")
+                    self.signal.emit("展示")
 
 
 class tab1(QFrame, QWidget):
@@ -170,7 +183,7 @@ class tab1(QFrame, QWidget):
         self.thread.start()
 
     def btn12(self):
-        if readSetting("sort") == "当前未设置" or readSetting("wechat") == "当前未设置":
+        if readSetting("sort") == "" or readSetting("wechat") == "":
             return
         os.startfile(readSetting("sort"))
 
@@ -290,7 +303,7 @@ class tab3(QFrame, QWidget):
         self.pushButton9.clicked.connect(self.btn50)
         self.pushButton9.move(0, 105)
         self.pushButton9.resize(200, 35)
-        self.checkBox = CheckBox("开机自动更新", self)
+        self.checkBox = CheckBox("开机自启动", self)
         self.checkBox.clicked.connect(self.btn60)
         self.checkBox.move(0, 140)
         self.checkBox.resize(200, 35)
@@ -443,6 +456,55 @@ class tab3(QFrame, QWidget):
         sys.exit()
 
 
+class Tray(QSystemTrayIcon):
+    def __init__(self, UI):
+        super(Tray, self).__init__()
+        self.window = UI
+        self.setIcon(QIcon("logo.ico"))
+        self.setToolTip("zb小程序 " + version)
+        self.activated.connect(self.clickedIcon)
+        self.menu()
+        self.show()
+
+    def clickedIcon(self, reason):
+        # 1单击右键2双击左键3单击左键4点击中键
+        if reason == 3:
+            self.trayClickedEvent()
+        elif reason == 1:
+            self.contextMenuEvent()
+
+    def menu(self):
+        menu2 = RoundMenu()
+        menu = QMenu()
+        self.setContextMenu(menu)
+
+    def trayClickedEvent(self):
+        if self.window.isHidden():
+            self.window.setHidden(False)
+            if self.window.windowState() == QtCore.Qt.WindowMinimized:
+                self.window.showNormal()
+            self.window.raise_()
+            self.window.activateWindow()
+        else:
+            self.window.setHidden(True)
+
+    def triggered(self):
+        self.deleteLater()
+        qApp.quit()
+
+    def contextMenuEvent(self):
+        pymouse.PyMouse().position()
+        menu = RoundMenu()
+        menu.addAction(Action(FIF.HOME, "打开", triggered=lambda: self.window.show()))
+        menu.addSeparator()
+        menu.addAction(Action(FIF.LINK, "官网", triggered=lambda: webbrowser.open("https://ianzb.github.io/server.github.io/")))
+        menu.addSeparator()
+        menu.addAction(Action(FIF.CLOSE, "退出", triggered=lambda: sys.exit()))
+        menu.move(pymouse.PyMouse().position()[0] - menu.width(), pymouse.PyMouse().position()[1] - menu.height())
+        menu.setCursor(Qt.CrossCursor)
+        menu.show()
+
+
 class Window(FramelessWindow):
 
     def __init__(self):
@@ -459,7 +521,16 @@ class Window(FramelessWindow):
         self.initLayout()
         self.initNavigation()
         self.initWindow()
-        self.initTray()
+        self.tray = Tray(self)
+        global mode
+        mode = 8
+        self.thread = newThread()
+        self.thread.signal.connect(self.ifshow)
+        self.thread.start()
+
+    def ifshow(self, msg):
+        if msg == "展示":
+            self.show()
 
     def initLayout(self):
         self.hBoxLayout.setSpacing(0)
@@ -496,15 +567,6 @@ class Window(FramelessWindow):
         w, h = desktop.width(), desktop.height()
         self.move(w // 2 - weight // 2, h // 2 - height // 2)
 
-    def initTray(self):
-        menu = QMenu(self)
-        menu.addAction(QAction("打开", self, triggered=lambda: self.show()))
-        menu.addAction(QAction("关闭", self, triggered=lambda: sys.exit()))
-        self.tray = QSystemTrayIcon()
-        self.tray.setIcon(QIcon("logo.ico"))
-        self.tray.setContextMenu(menu)
-        self.tray.show()
-
     def addSubInterface(self, interface, icon, text: str, position=NavigationItemPosition.TOP):
         self.stackWidget.addWidget(interface)
         self.navigationInterface.addItem(
@@ -530,6 +592,10 @@ class Window(FramelessWindow):
         else:
             message = None
 
+    def keyPressEvent(self, QKeyEvent):
+        if QKeyEvent.key() == QtCore.Qt.Key_Escape:
+            self.hide()
+
     def closeEvent(self, QCloseEvent):
         QCloseEvent.ignore()
         self.hide()
@@ -545,5 +611,12 @@ if __name__ == "__main__":
     translator = FluentTranslator(QLocale())
     app.installTranslator(translator)
     w = Window()
-    w.show()
+
+    if readSetting("startfirst") == "1":
+        w.hide()
+        logging.info("开机自启动成功，将自动隐藏")
+        saveSetting("startfirst", "0")
+    else:
+        w.show()
+        logging.info("启动成功，将显示窗口")
     app.exec_()

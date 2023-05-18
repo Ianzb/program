@@ -1,6 +1,7 @@
 import os, sys, winreg, logging
 
 # 通用变量
+old_path = os.getcwd()
 abs_path = sys.argv[0][:sys.argv[0].rfind(r"\ "[:-1])]
 abs_name = sys.argv[0][sys.argv[0].rfind(r"\ "[:-1]) + 1:]
 abs_cache = abs_name[:abs_name.rfind(".")]
@@ -28,11 +29,10 @@ try:
 except:
     pass
 
-
 logger = logging.getLogger("mylogger")
 logger.setLevel(logging.INFO)
 rf_handler = logging.StreamHandler(sys.stderr)
-rf_handler.setLevel(logging.DEBUG)
+rf_handler.setLevel(logging.INFO)
 rf_handler.setFormatter(logging.Formatter("[%(asctime)s %(filename)s %(process)d] %(levelname)s:%(message)s"))
 
 f_handler = logging.FileHandler(pj(user_path, "zb/zb.log"))
@@ -41,8 +41,7 @@ f_handler.setFormatter(logging.Formatter("[%(asctime)s %(filename)s %(process)d]
 
 logger.addHandler(rf_handler)
 logger.addHandler(f_handler)
-logging=logger
-
+logging = logger
 logging.info("程序开始运行")
 # 初始化设置
 from configparser import ConfigParser
@@ -50,16 +49,24 @@ from configparser import ConfigParser
 conf = ConfigParser()
 if os.path.exists(pj(user_path, "zb/settings.ini")):
     conf.read(pj(user_path, "zb/settings.ini"), encoding="utf-8")
-    logging.info("成功读取设置文件，路径：" + pj(user_path, "zb/settings.ini"))
+    logging.debug("成功读取设置文件，路径：" + pj(user_path, "zb/settings.ini"))
 else:
     if not os.path.exists(pj(user_path, "zb")):
         os.makedirs(pj(user_path, "zb"))
     with open(pj(user_path, "zb/settings.ini"), "w+", encoding="utf-8") as file:
-        logging.info("成功读取设置文件，路径：" + pj(user_path, "zb/settings.ini"))
+        logging.debug("成功读取设置文件，路径：" + pj(user_path, "zb/settings.ini"))
 
 
 # 读取设置
 def readSetting(name):
+    if os.path.exists(pj(user_path, "zb/settings.ini")):
+        conf.read(pj(user_path, "zb/settings.ini"), encoding="utf-8")
+        logging.debug("成功读取设置文件，路径：" + pj(user_path, "zb/settings.ini"))
+    else:
+        if not os.path.exists(pj(user_path, "zb")):
+            os.makedirs(pj(user_path, "zb"))
+        with open(pj(user_path, "zb/settings.ini"), "w+", encoding="utf-8") as file:
+            logging.debug("成功读取设置文件，路径：" + pj(user_path, "zb/settings.ini"))
     try:
         conf.add_section("data")
     except:
@@ -67,16 +74,24 @@ def readSetting(name):
     try:
         data = conf["data"][str(name)]
     except:
-        logging.info("项 " + str(name) + " 不存在")
-        return "当前未设置"
-    logging.info("项 " + str(name) + " 的内容为 " + data)
+        logging.debug("项 " + str(name) + " 不存在")
+        return ""
+    logging.debug("项 " + str(name) + " 的内容为 " + data)
     if data in ["", None, " "]:
-        return "当前未设置"
+        return ""
     return data
 
 
 # 保存设置
 def saveSetting(name, data):
+    if os.path.exists(pj(user_path, "zb/settings.ini")):
+        conf.read(pj(user_path, "zb/settings.ini"), encoding="utf-8")
+        logging.debug("成功读取设置文件，路径：" + pj(user_path, "zb/settings.ini"))
+    else:
+        if not os.path.exists(pj(user_path, "zb")):
+            os.makedirs(pj(user_path, "zb"))
+        with open(pj(user_path, "zb/settings.ini"), "w+", encoding="utf-8") as file:
+            logging.debug("成功读取设置文件，路径：" + pj(user_path, "zb/settings.ini"))
     try:
         conf.add_section("data")
     except:
@@ -84,10 +99,10 @@ def saveSetting(name, data):
     try:
         old = conf["data"][str(name)]
         conf.set("data", str(name), str(data))
-        logging.info("项 " + str(name) + "的内容从 " + old + " 修改为 " + str(data))
+        logging.debug("项 " + str(name) + "的内容从 " + old + " 修改为 " + str(data))
     except:
         conf.set("data", str(name), str(data))
-        logging.info("项 " + str(name) + " 的内容设置为 " + str(data))
+        logging.debug("项 " + str(name) + " 的内容设置为 " + str(data))
     with open(pj(user_path, "zb/settings.ini"), "w", encoding="utf-8") as file:
         conf.write(file)
 
@@ -104,9 +119,9 @@ def checkIsOpen():
     saveSetting(abs_cache, os.getpid())
 
 
-checkIsOpen()
+# checkIsOpen()
 
-import shutil, re, time, hashlib, threading, ctypes, pickle, stat, bs4, lxml, requests, send2trash, winshell, platform, webbrowser, win32api, win32con, win32com.client, random
+import pymouse,shutil, re, time, hashlib, threading, ctypes, pickle, stat, bs4, lxml, requests, send2trash, winshell, platform, webbrowser, win32api, win32con, win32com.client, random
 
 # 任务栏图标加载
 ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("zb小程序 PyQt版")
