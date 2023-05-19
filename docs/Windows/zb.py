@@ -121,7 +121,7 @@ def checkIsOpen():
 
 # checkIsOpen()
 
-import pymouse,shutil, re, time, hashlib, threading, ctypes, pickle, stat, bs4, lxml, requests, send2trash, winshell, platform, webbrowser, win32api, win32con, win32com.client, random
+import shutil, re, time, hashlib, threading, ctypes, pickle, stat, bs4, lxml, requests, send2trash, winshell, platform, webbrowser, win32api, win32con, win32com.client, random
 
 # 任务栏图标加载
 ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("zb小程序 PyQt版")
