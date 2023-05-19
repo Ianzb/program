@@ -1,6 +1,6 @@
 import sys
 
-version = "0.7.0"
+version = "1.0.0"
 from PyQt5 import *
 from PyQt5 import QtCore
 from PyQt5.QtCore import *
@@ -16,7 +16,7 @@ mode = None
 weight = 450
 height = 350
 p = os.popen("tasklist |findstr " + readSetting(abs_cache))
-if p.read() != "":
+if "pythonw" in p.read().strip():
     saveSetting("show", "1")
     logging.info("已运行zb小程序，将其唤醒，新运行的zb小程序自动退出")
     sys.exit()
@@ -305,7 +305,7 @@ class tab3(QFrame, QWidget):
         self.pushButton9.resize(200, 35)
         self.checkBox = CheckBox("开机自启动", self)
         self.checkBox.clicked.connect(self.btn60)
-        self.checkBox.move(0, 140)
+        self.checkBox.move(200, 105)
         self.checkBox.resize(200, 35)
         if readSetting("startupdate") == "1":
             self.checkBox.setChecked(True)
@@ -456,14 +456,13 @@ class tab3(QFrame, QWidget):
         sys.exit()
 
 
-class Tray(QSystemTrayIcon):
+class Tray(QSystemTrayIcon,QWidget):
     def __init__(self, UI):
         super(Tray, self).__init__()
         self.window = UI
         self.setIcon(QIcon("logo.ico"))
         self.setToolTip("zb小程序 " + version)
         self.activated.connect(self.clickedIcon)
-        self.menu()
         self.show()
 
     def clickedIcon(self, reason):
@@ -473,10 +472,6 @@ class Tray(QSystemTrayIcon):
         elif reason == 1:
             self.contextMenuEvent()
 
-    def menu(self):
-        menu2 = RoundMenu()
-        menu = QMenu()
-        self.setContextMenu(menu)
 
     def trayClickedEvent(self):
         if self.window.isHidden():
@@ -500,9 +495,7 @@ class Tray(QSystemTrayIcon):
         menu.addAction(Action(FIF.LINK, "官网", triggered=lambda: webbrowser.open("https://ianzb.github.io/server.github.io/")))
         menu.addSeparator()
         menu.addAction(Action(FIF.CLOSE, "退出", triggered=lambda: sys.exit()))
-        menu.move(pymouse.PyMouse().position()[0] - menu.width(), pymouse.PyMouse().position()[1] - menu.height())
-        menu.setCursor(Qt.CrossCursor)
-        menu.show()
+        menu.exec(QCursor.pos(), ani=True)
 
 
 class Window(FramelessWindow):
@@ -611,12 +604,11 @@ if __name__ == "__main__":
     translator = FluentTranslator(QLocale())
     app.installTranslator(translator)
     w = Window()
-
+    w.show()
+    logging.info("启动成功")
     if readSetting("startfirst") == "1":
         w.hide()
-        logging.info("开机自启动成功，将自动隐藏")
+        logging.info("当前为开机自启动，程序将自动隐藏至托盘")
         saveSetting("startfirst", "0")
-    else:
-        w.show()
-        logging.info("启动成功，将显示窗口")
+
     app.exec_()
