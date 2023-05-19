@@ -16,7 +16,7 @@ def update():
 
 if "D:\编程\server.github.io\docs" not in abs_path:
     update()
-if ":\WINDOWS\system32" in old_path:
-    logging.info(old_path,abs_path)
+logging.info("自启动默认工作目录"+old_path+"，当前工作目录"+abs_path)
+if ":\WINDOWS\system32".lower() in old_path.lower():
     saveSetting("startfirst", "1")
     os.popen("main.pyw")
