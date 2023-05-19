@@ -488,7 +488,6 @@ class Tray(QSystemTrayIcon,QWidget):
         qApp.quit()
 
     def contextMenuEvent(self):
-        pymouse.PyMouse().position()
         menu = RoundMenu()
         menu.addAction(Action(FIF.HOME, "打开", triggered=lambda: self.window.show()))
         menu.addSeparator()
