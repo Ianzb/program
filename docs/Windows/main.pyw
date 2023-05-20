@@ -9,6 +9,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from qfluentwidgets import *
 from qfluentwidgets import FluentIcon as FIF
+from qfluentwidgets.components.widgets.menu import *
 from qframelesswindow import *
 
 from zb import *
