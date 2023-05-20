@@ -1,6 +1,7 @@
+import logging
 import sys
 
-version = "1.0.0"
+version = "1.0.1"
 from PyQt5 import *
 from PyQt5 import QtCore
 from PyQt5.QtCore import *
@@ -67,6 +68,7 @@ class AvatarWidget(NavigationWidget):
             font.setPixelSize(14)
             painter.setFont(font)
             painter.drawText(QRect(44, 0, 255, 36), Qt.AlignVCenter, "Ianzb")
+        del painter
 
 
 class newThread(QThread):
@@ -78,12 +80,12 @@ class newThread(QThread):
     def run(self):
         global mode
         if mode == 1:
-            if readSetting("sort") == "" or readSetting("wechat") == "":
-                return
+
             clearRubbish()
             clearCache()
             clearDesk(readSetting("sort"))
-            clearWechat(readSetting("wechat"), readSetting("sort"))
+            if readSetting("wechat") != "":
+                clearWechat(readSetting("wechat"), readSetting("sort"))
             clearSeewo()
             clearUselessFiles(readSetting("sort"))
             self.signal.emit("完成")
@@ -164,22 +166,45 @@ class tab1(QFrame, QWidget):
         self.pushButton5.move(200, 70)
         self.pushButton5.resize(200, 35)
 
-    def btn10(self, title="zb小程序", content="提示内容"):
-        self.stateTooltip.setContent(content)
+    def btn10(self, content="提示内容"):
         self.stateTooltip.setState(True)
-        self.stateTooltip = None
+        self.stateTooltip.setContent(content)
+
         w.show()
         self.pushButton1.setEnabled(True)
 
     def btn11(self):
         global mode
         mode = 1
+        if readSetting("sort") == "":
+            InfoBar.warning(
+                title="警告",
+                content="当前未设置整理文件目录，无法整理！",
+                orient=Qt.Horizontal,
+                isClosable=False,
+                position=InfoBarPosition.BOTTOM_RIGHT,
+                duration=2000,
+                parent=self
+            )
+            return
+        if readSetting("wechat") == "":
+            self.infoBar = InfoBar(
+                icon=InfoBarIcon.INFORMATION,
+                title="提示",
+                content="当前未设置微信文件目录，无法整理微信文件！",
+                orient=Qt.Vertical,
+                isClosable=True,
+                position=InfoBarPosition.BOTTOM_RIGHT,
+                duration=2000,
+                parent=self
+            )
+            self.infoBar.show()
         self.pushButton1.setEnabled(False)
         self.stateTooltip = StateToolTip("正在整理文件", "请耐心等待", self)
         self.stateTooltip.move(143, 264)
         self.stateTooltip.show()
         self.thread = newThread()
-        self.thread.signal.connect(lambda: self.btn10("提示", "整理完毕"))
+        self.thread.signal.connect(lambda: self.btn10("整理完毕"))
         self.thread.start()
 
     def btn12(self):
@@ -410,7 +435,7 @@ class tab3(QFrame, QWidget):
             self.pushButton10 = PrimaryPushButton("重新运行", self, FIF.SYNC)
             self.pushButton10.clicked.connect(self.btn70)
             self.infoBar = InfoBar(
-                icon=InfoBarIcon.SUCCESS,
+                icon=InfoBarIcon.INFORMATION,
                 title="提示",
                 content="更新成功，重新运行后生效！",
                 orient=Qt.Vertical,
@@ -456,7 +481,7 @@ class tab3(QFrame, QWidget):
         sys.exit()
 
 
-class Tray(QSystemTrayIcon,QWidget):
+class Tray(QSystemTrayIcon):
     def __init__(self, UI):
         super(Tray, self).__init__()
         self.window = UI
@@ -471,7 +496,6 @@ class Tray(QSystemTrayIcon,QWidget):
             self.trayClickedEvent()
         elif reason == 1:
             self.contextMenuEvent()
-
 
     def trayClickedEvent(self):
         if self.window.isHidden():
@@ -519,6 +543,23 @@ class Window(FramelessWindow):
         self.thread = newThread()
         self.thread.signal.connect(self.ifshow)
         self.thread.start()
+        self.old_hook = sys.excepthook
+        sys.excepthook = self.catch_exceptions
+
+    def catch_exceptions(self, ty, value, trace):
+        """
+            捕获异常，并弹窗显示
+        :param ty: 异常的类型
+        :param value: 异常的对象
+        :param traceback: 异常的traceback
+        """
+        traceback_format = traceback.format_exception(ty, value, trace)
+        traceback_string = "".join(traceback_format)
+        self.old_hook(ty, value, trace)
+        import tkinter.messagebox
+        tkinter.messagebox.showerror("错误", "zb小程序 发生严重错误，程序已关闭！\n报错信息为：\n" + str(traceback_string))
+        logging.fatal("zb小程序 发生严重错误，程序已关闭！报错信息为：" + str(traceback_string))
+        sys.exit()
 
     def ifshow(self, msg):
         if msg == "展示":
@@ -593,21 +634,29 @@ class Window(FramelessWindow):
         self.hide()
 
 
-if __name__ == "__main__":
-    QApplication.setHighDpiScaleFactorRoundingPolicy(
-        Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
-    QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
-    QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
-    QApplication.processEvents()
-    app = QApplication(sys.argv)
-    translator = FluentTranslator(QLocale())
-    app.installTranslator(translator)
-    w = Window()
-    w.show()
-    logging.info("启动成功")
-    if readSetting("startfirst") == "1":
-        w.hide()
-        logging.info("当前为开机自启动，程序将自动隐藏至托盘")
-        saveSetting("startfirst", "0")
+try:
+    if __name__ == "__main__":
+        QApplication.setHighDpiScaleFactorRoundingPolicy(
+            Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
+        QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
+        QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
+        QApplication.processEvents()
+        app = QApplication(sys.argv)
+        translator = FluentTranslator(QLocale())
+        app.installTranslator(translator)
+        w = Window()
+        w.show()
 
-    app.exec_()
+        logging.info("启动成功")
+        if readSetting("startfirst") == "1":
+            w.hide()
+            logging.info("当前为开机自启动，程序将自动隐藏至托盘")
+            saveSetting("startfirst", "0")
+
+        app.exec_()
+except Exception as e:
+    from tkinter.messagebox import *
+
+    showerror("错误", "zb小程序 发生严重错误，程序已关闭！\n报错信息为：\n" + str(traceback.format_exc()))
+    logging.fatal("zb小程序 发生严重错误，程序已关闭！报错信息为：" + str(traceback.format_exc()))
+    sys.exit()

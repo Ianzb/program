@@ -29,6 +29,7 @@ try:
 except:
     pass
 
+os.remove(pj(user_path, "zb/zb.log"))
 logger = logging.getLogger("mylogger")
 logger.setLevel(logging.INFO)
 rf_handler = logging.StreamHandler(sys.stderr)
@@ -43,6 +44,7 @@ logger.addHandler(rf_handler)
 logger.addHandler(f_handler)
 logging = logger
 logging.info("程序开始运行")
+
 # 初始化设置
 from configparser import ConfigParser
 
@@ -107,21 +109,7 @@ def saveSetting(name, data):
         conf.write(file)
 
 
-# 检测重复运行
-def checkIsOpen():
-    if abs_cache in ["zb"]:
-        return
-    try:
-        pid = readSetting(abs_cache)
-        os.kill(int(pid), 0)
-    except:
-        pass
-    saveSetting(abs_cache, os.getpid())
-
-
-# checkIsOpen()
-
-import shutil, re, time, hashlib, threading, ctypes, pickle, stat, bs4, lxml, requests, send2trash, winshell, platform, webbrowser, win32api, win32con, win32com.client, random
+import traceback, shutil, re, time, hashlib, threading, ctypes, pickle, stat, bs4, lxml, requests, send2trash, winshell, platform, webbrowser, win32api, win32con, win32com.client, random
 
 # 任务栏图标加载
 ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("zb小程序 PyQt版")
@@ -314,9 +302,10 @@ def getMc():
 # 重启PPT小助手
 def restartPPT():
     logging.info("重启PPT小助手")
-    os.popen("taskkill -f -im PPTService.exe")
-    time.sleep(0.5)
-    os.popen("C:/Program Files (x86)/Seewo/PPTService/Main/PPTService.exe")
+    try:
+        os.popen("taskkill -f -im PPTService.exe & C:/Program Files (x86)/Seewo/PPTService/Main/PPTService.exe")
+    except:
+        pass
 
 
 # 清理希沃视频展台文件
@@ -401,9 +390,10 @@ def clearRubbish():
 # 重启文件资源管理器
 def restartExplorer():
     logging.info("重启文件资源管理器")
-    os.popen("taskkill /f /im explorer.exe")
-    time.sleep(0.5)
-    os.popen("start C:/windows/explorer.exe")
+    try:
+        os.popen("taskkill /f /im explorer.exe & start C:/windows/explorer.exe")
+    except:
+        pass
 
 
 # 整理+清理常用软件文件
