@@ -2,7 +2,6 @@ from zb import *
 
 logging.info("开机自动更新")
 
-
 def update():
     link = "https://ianzb.github.io/server.github.io/Windows/"
     res = requests.get(link + "index.html")

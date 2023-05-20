@@ -1,6 +1,3 @@
-import logging
-import sys
-
 version = "1.0.1"
 from PyQt5 import *
 from PyQt5 import QtCore
