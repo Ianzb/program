@@ -1,4 +1,4 @@
-version = "1.0.1"
+version = "1.1.0"
 from PyQt5 import *
 from PyQt5 import QtCore
 from PyQt5.QtCore import *
