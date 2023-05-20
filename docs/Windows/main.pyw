@@ -37,27 +37,23 @@ class AvatarWidget(NavigationWidget):
 
     def __init__(self, parent=None):
         super().__init__(isSelectable=False, parent=parent)
-        self.avatar = QImage("zb.png").scaled(
-            24, 24, Qt.KeepAspectRatio, Qt.SmoothTransformation)
 
     def paintEvent(self, e):
+        avatar = QImage("zb.png").scaled(24, 24, Qt.KeepAspectRatio, Qt.SmoothTransformation)
         painter = QPainter(self)
         painter.setRenderHints(
             QPainter.SmoothPixmapTransform | QPainter.Antialiasing)
 
         painter.setPen(Qt.NoPen)
-
+        painter.save()
         if self.isPressed:
             painter.setOpacity(0.7)
 
-        # draw background
         if self.isEnter:
             c = 255 if isDarkTheme() else 0
             painter.setBrush(QColor(c, c, c, 10))
             painter.drawRoundedRect(self.rect(), 5, 5)
-
-        # draw avatar
-        painter.setBrush(QBrush(self.avatar))
+        painter.setBrush(QBrush(avatar))
         painter.translate(8, 6)
         painter.drawEllipse(0, 0, 24, 24)
         painter.translate(-8, -6)
@@ -68,7 +64,11 @@ class AvatarWidget(NavigationWidget):
             font.setPixelSize(14)
             painter.setFont(font)
             painter.drawText(QRect(44, 0, 255, 36), Qt.AlignVCenter, "Ianzb")
+        painter.restore()
+        painter.end()
         del painter
+        del avatar
+
 
 
 class newThread(QThread):
@@ -491,7 +491,6 @@ class Tray(QSystemTrayIcon):
         self.show()
 
     def clickedIcon(self, reason):
-        # 1单击右键2双击左键3单击左键4点击中键
         if reason == 3:
             self.trayClickedEvent()
         elif reason == 1:

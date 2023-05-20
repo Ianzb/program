@@ -28,8 +28,10 @@ try:
     os.makedirs(pj(user_path, "zb"))
 except:
     pass
-
-os.remove(pj(user_path, "zb/zb.log"))
+try:
+    os.remove(pj(user_path, "zb/zb.log"))
+except:
+    pass
 logger = logging.getLogger("mylogger")
 logger.setLevel(logging.INFO)
 rf_handler = logging.StreamHandler(sys.stderr)
