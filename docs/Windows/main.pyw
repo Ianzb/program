@@ -156,6 +156,10 @@ class tab1(QFrame, QWidget):
         self.pushButton5.clicked.connect(self.btn25)
         self.pushButton5.move(200, 70)
         self.pushButton5.resize(200, 35)
+        if readSetting("sort") == "":
+            self.pushButton1.setEnabled(False)
+        else:
+            self.pushButton1.setEnabled(True)
 
     def btn10(self, content="提示内容"):
         self.stateTooltip.setState(True)
