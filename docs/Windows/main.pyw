@@ -40,35 +40,25 @@ class AvatarWidget(NavigationWidget):
 
     def paintEvent(self, e):
         avatar = QImage("zb.png").scaled(24, 24, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-        painter = QPainter(self)
-        painter.setRenderHints(
-            QPainter.SmoothPixmapTransform | QPainter.Antialiasing)
-
-        painter.setPen(Qt.NoPen)
-        painter.save()
+        paint1 = QPainter(self)
+        paint1.setRenderHints(QPainter.SmoothPixmapTransform | QPainter.Antialiasing)
+        paint1.setPen(Qt.NoPen)
         if self.isPressed:
-            painter.setOpacity(0.7)
-
+            paint1.setOpacity(0.7)
         if self.isEnter:
             c = 255 if isDarkTheme() else 0
-            painter.setBrush(QColor(c, c, c, 10))
-            painter.drawRoundedRect(self.rect(), 5, 5)
-        painter.setBrush(QBrush(avatar))
-        painter.translate(8, 6)
-        painter.drawEllipse(0, 0, 24, 24)
-        painter.translate(-8, -6)
-
+            paint1.setBrush(QColor(c, c, c, 10))
+            paint1.drawRoundedRect(self.rect(), 5, 5)
+        paint1.setBrush(QBrush(avatar))
+        paint1.translate(8, 6)
+        paint1.drawEllipse(0, 0, 24, 24)
+        paint1.translate(-8, -6)
         if not self.isCompacted:
-            painter.setPen(Qt.white if isDarkTheme() else Qt.black)
+            paint1.setPen(Qt.white if isDarkTheme() else Qt.black)
             font = QFont("Segoe UI")
             font.setPixelSize(14)
-            painter.setFont(font)
-            painter.drawText(QRect(44, 0, 255, 36), Qt.AlignVCenter, "Ianzb")
-        painter.restore()
-        painter.end()
-        del painter
-        del avatar
-
+            paint1.setFont(font)
+            paint1.drawText(QRect(44, 0, 255, 36), Qt.AlignVCenter, "Ianzb")
 
 
 class newThread(QThread):
@@ -517,7 +507,7 @@ class Tray(QSystemTrayIcon):
         menu.addAction(Action(FIF.LINK, "官网", triggered=lambda: webbrowser.open("https://ianzb.github.io/server.github.io/")))
         menu.addSeparator()
         menu.addAction(Action(FIF.CLOSE, "退出", triggered=lambda: sys.exit()))
-        menu.exec(QCursor.pos(), ani=True)
+        menu.exec(QCursor.pos(), ani=True, aniType=MenuAnimationType.PULL_UP)
 
 
 class Window(FramelessWindow):
@@ -546,12 +536,6 @@ class Window(FramelessWindow):
         sys.excepthook = self.catch_exceptions
 
     def catch_exceptions(self, ty, value, trace):
-        """
-            捕获异常，并弹窗显示
-        :param ty: 异常的类型
-        :param value: 异常的对象
-        :param traceback: 异常的traceback
-        """
         traceback_format = traceback.format_exception(ty, value, trace)
         traceback_string = "".join(traceback_format)
         self.old_hook(ty, value, trace)
