@@ -1,4 +1,4 @@
-version = "1.1.0"
+version = "1.1.1"
 from PyQt5 import *
 from PyQt5 import QtCore
 from PyQt5.QtCore import *
@@ -477,6 +477,11 @@ class Tray(QSystemTrayIcon):
     def __init__(self, UI):
         super(Tray, self).__init__()
         self.window = UI
+        self.menu = RoundMenu()
+        self.menu.addAction(Action(FIF.HOME, "打开", triggered=lambda: self.window.show()))
+        #self.menu.addSeparator()
+        self.menu.addAction(Action(FIF.LINK, "官网", triggered=lambda: webbrowser.open("https://ianzb.github.io/server.github.io/")))
+        self.menu.addAction(Action(FIF.CLOSE, "退出", triggered=lambda: sys.exit()))
         self.setIcon(QIcon("logo.ico"))
         self.setToolTip("zb小程序 " + version)
         self.activated.connect(self.clickedIcon)
@@ -503,13 +508,7 @@ class Tray(QSystemTrayIcon):
         qApp.quit()
 
     def contextMenuEvent(self):
-        menu = RoundMenu()
-        menu.addAction(Action(FIF.HOME, "打开", triggered=lambda: self.window.show()))
-        menu.addSeparator()
-        menu.addAction(Action(FIF.LINK, "官网", triggered=lambda: webbrowser.open("https://ianzb.github.io/server.github.io/")))
-        menu.addSeparator()
-        menu.addAction(Action(FIF.CLOSE, "退出", triggered=lambda: sys.exit()))
-        menu.exec(QCursor.pos(), ani=True, aniType=MenuAnimationType.PULL_UP)
+        self.menu.exec(QCursor.pos(), ani=True, aniType=MenuAnimationType.PULL_UP)
 
 
 class Window(FramelessWindow):
