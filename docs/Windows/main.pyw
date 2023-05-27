@@ -1,4 +1,4 @@
-version = "1.1.1"
+version = "1.1.2"
 from PyQt5 import *
 from PyQt5 import QtCore
 from PyQt5.QtCore import *
@@ -479,7 +479,10 @@ class Tray(QSystemTrayIcon):
         self.window = UI
         self.menu = RoundMenu()
         self.menu.addAction(Action(FIF.HOME, "打开", triggered=lambda: self.window.show()))
-        #self.menu.addSeparator()
+        # self.menu.addSeparator()
+        self.menu.addAction(Action(FIF.ALIGNMENT, "整理", triggered=lambda: self.window.tab1.btn11()))
+        self.menu.addAction(Action(FIF.SEND_FILL, "点名", triggered=lambda: self.window.tab2.btn12()))
+
         self.menu.addAction(Action(FIF.LINK, "官网", triggered=lambda: webbrowser.open("https://ianzb.github.io/server.github.io/")))
         self.menu.addAction(Action(FIF.CLOSE, "退出", triggered=lambda: sys.exit()))
         self.setIcon(QIcon("logo.ico"))
