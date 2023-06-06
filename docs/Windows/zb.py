@@ -399,12 +399,10 @@ def restartExplorer():
 
 
 # 整理+清理常用软件文件
-def clearApps(path):
-    logging.info("开始整理常用软件文件")
+def clearQQ(path):
+    logging.info("开始整理QQ文件")
     movePath("D:/文件/应用/QQ/93322252/FileRecv", path)
-    movePath("D:/文件/应用/钉钉", path)
-    movePath("D:/文件/应用/百度网盘", path)
-    logging.info("成功整理常用软件文件")
+    logging.info("成功整理QQ文件")
 
 
 # 更新模块下载文件

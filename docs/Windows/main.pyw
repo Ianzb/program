@@ -1,4 +1,4 @@
-version = "1.1.2"
+version = "1.1.3"
 from PyQt5 import *
 from PyQt5 import QtCore
 from PyQt5.QtCore import *
@@ -76,6 +76,7 @@ class newThread(QThread):
                 clearWechat(readSetting("wechat"), readSetting("sort"))
             clearSeewo()
             clearUselessFiles(readSetting("sort"))
+            clearQQ()
             self.signal.emit("完成")
         if mode == 2 or mode == 3:
             with open("names.zb", "r", encoding="utf-8") as file:
