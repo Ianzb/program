@@ -74,9 +74,9 @@ class newThread(QThread):
             clearDesk(readSetting("sort"))
             if readSetting("wechat") != "":
                 clearWechat(readSetting("wechat"), readSetting("sort"))
+            clearQQ(readSetting("sort"))
             clearSeewo()
             clearUselessFiles(readSetting("sort"))
-            clearQQ(readSetting("sort"))
             self.signal.emit("完成")
         if mode == 2 or mode == 3:
             with open("names.zb", "r", encoding="utf-8") as file:
