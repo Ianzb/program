@@ -170,22 +170,23 @@ def clearRepeat(path):
     if not os.path.exists(path):
         return
     logging.info("开始清理" + path + "下的重复文件")
-    all_size = {}
-    for file in os.listdir(path):
-        real_path = pj(path, file)
+    size=[]
+    name=[]
+    for i in os.listdir(path):
+        real_path = pj(path, i)
         if os.path.isfile(real_path) == True:
-            size = os.stat(real_path).st_size
-            size_and_md5 = [""]
-            if size in all_size.keys():
-                new_md5 = getMd5(real_path)
-                if all_size[size][0] == "":
-                    all_size[size][0] = new_md5
-                if new_md5 in all_size[size]:
+            md5 = getMd5(real_path)
+            if md5 in size:
+                num=size.index(md5)
+                if len(name[num])<=len(real_path):
                     os.remove(real_path)
+                    continue
                 else:
-                    all_size[size].append(new_md5)
-            else:
-                all_size[size] = size_and_md5
+                    os.remove(name[num])
+                    size.remove(size[num])
+                    name.remove(name[num])
+            size.append(md5)
+            name.append(real_path)
 
 
 # 整理指定目录文件到指定位置
