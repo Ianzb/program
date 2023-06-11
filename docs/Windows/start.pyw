@@ -3,7 +3,7 @@ from zb import *
 logging.info("开机自动更新")
 
 def update():
-    link = "https://ianzb.github.io/server.github.io/Windows/"
+    link = "https://ianzb.github.io/program/Windows/"
     res = requests.get(link + "index.html")
     res.encoding = "UTF-8"
     soup = bs4.BeautifulSoup(res.text, "lxml")
@@ -13,7 +13,7 @@ def update():
         download(link + data[i])
 
 
-if "D:\编程\server.github.io\docs" not in abs_path:
+if "D:\编程\program\docs" not in abs_path:
     update()
 logging.info("自启动默认工作目录" + old_path + "，当前工作目录" + abs_path)
 if ":\WINDOWS\system32".lower() in old_path.lower():

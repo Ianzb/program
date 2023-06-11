@@ -1,4 +1,4 @@
-version = "1.1.3"
+version = "1.1.4"
 from PyQt5 import *
 from PyQt5 import QtCore
 from PyQt5.QtCore import *
@@ -92,7 +92,7 @@ class newThread(QThread):
             self.signal.emit("完成")
         if mode == 3:
             self.signal.emit("开始")
-            link = "https://ianzb.github.io/server.github.io/Windows/"
+            link = "https://ianzb.github.io/program/Windows/"
             res = requests.get(link + "index.html")
             res.encoding = "UTF-8"
             soup = bs4.BeautifulSoup(res.text, "lxml")
@@ -395,7 +395,7 @@ class tab3(QFrame, QWidget):
     def btn42(self):
         global mode
         mode = 3
-        if ":\编程\server.github.io\docs" in abs_path:
+        if ":\编程\program\docs" in abs_path:
             InfoBar.warning(
                 title="警告",
                 content="开发者目录禁止更新！",
@@ -484,7 +484,7 @@ class Tray(QSystemTrayIcon):
         self.menu.addAction(Action(FIF.ALIGNMENT, "整理", triggered=lambda: self.window.tab1.btn11()))
         self.menu.addAction(Action(FIF.SEND_FILL, "点名", triggered=lambda: self.window.tab2.btn12()))
 
-        self.menu.addAction(Action(FIF.LINK, "官网", triggered=lambda: webbrowser.open("https://ianzb.github.io/server.github.io/")))
+        self.menu.addAction(Action(FIF.LINK, "官网", triggered=lambda: webbrowser.open("https://ianzb.github.io/program/")))
         self.menu.addAction(Action(FIF.CLOSE, "退出", triggered=lambda: sys.exit()))
         self.setIcon(QIcon("logo.ico"))
         self.setToolTip("zb小程序 " + version)
@@ -609,7 +609,7 @@ class Window(FramelessWindow):
     def showMessageBox(self):
         message = MessageBox("zb小程序", "是否打开 zb小程序 官网？", self)
         if message.exec():
-            webbrowser.open("https://ianzb.github.io/server.github.io/")
+            webbrowser.open("https://ianzb.github.io/program/")
         else:
             message = None
 
