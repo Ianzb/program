@@ -1,6 +1,7 @@
 import os, sys, winreg, logging
 
 # 通用变量
+version = "1.2.0"
 old_path = os.getcwd()
 abs_path = sys.argv[0][:sys.argv[0].rfind(r"\ "[:-1])]
 abs_name = sys.argv[0][sys.argv[0].rfind(r"\ "[:-1]) + 1:]
@@ -111,13 +112,28 @@ def saveSetting(name, data):
         conf.write(file)
 
 
-import traceback, shutil, re, time, hashlib, threading, ctypes, pickle, stat, bs4, lxml, requests, send2trash, winshell, platform, webbrowser, win32api, win32con, win32com.client, random
+# 重复运行检测
+p = os.popen("tasklist |findstr " + readSetting(abs_cache))
+if "python" in p.read().strip():
+    saveSetting("show", "1")
+    logging.info("已运行zb小程序，将其唤醒，新运行的zb小程序自动退出")
+    sys.exit()
+
+# 导入运行库
+try:
+    import traceback, shutil, re, time, hashlib, threading, ctypes, pickle, stat, bs4, lxml, requests, send2trash, winshell, platform, webbrowser, win32api, win32con, win32com.client, random
+except:
+    for name in lib_list:
+        p = os.popen("pip install " + name + " -i  https://pypi.mirrors.ustc.edu.cn/simple/")
+        print(p.read())
+        p = os.popen("pip install --upgrade " + name + " -i  https://pypi.mirrors.ustc.edu.cn/simple/")
+        print(p.read())
+    os.popen("main.pyw")
+    sys.exit()
 
 # 任务栏图标加载
-ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("zb小程序 PyQt版")
+ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("zb小程序")
 
-
-# 自定义功能
 
 # 多线程优化
 class MyThread(threading.Thread):
@@ -170,15 +186,15 @@ def clearRepeat(path):
     if not os.path.exists(path):
         return
     logging.info("开始清理" + path + "下的重复文件")
-    size=[]
-    name=[]
+    size = []
+    name = []
     for i in os.listdir(path):
         real_path = pj(path, i)
         if os.path.isfile(real_path) == True:
             md5 = getMd5(real_path)
             if md5 in size:
-                num=size.index(md5)
-                if len(name[num])<=len(real_path):
+                num = size.index(md5)
+                if len(name[num]) <= len(real_path):
                     os.remove(real_path)
                     continue
                 else:

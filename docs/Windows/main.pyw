@@ -1,4 +1,3 @@
-version = "1.1.4"
 from PyQt5 import *
 from PyQt5 import QtCore
 from PyQt5.QtCore import *
@@ -14,11 +13,7 @@ from zb import *
 mode = None
 weight = 450
 height = 350
-p = os.popen("tasklist |findstr " + readSetting(abs_cache))
-if "pythonw" in p.read().strip():
-    saveSetting("show", "1")
-    logging.info("已运行zb小程序，将其唤醒，新运行的zb小程序自动退出")
-    sys.exit()
+
 
 saveSetting(abs_cache, os.getpid())
 
@@ -78,12 +73,11 @@ class newThread(QThread):
             clearSeewo()
             clearUselessFiles(readSetting("sort"))
             self.signal.emit("完成")
-        if mode == 2 or mode == 3:
+        if mode == 2:
             with open("names.zb", "r", encoding="utf-8") as file:
                 names = file.readlines()
             for i in range(len(names)):
                 names[i] = names[i].strip()
-        if mode == 2:
             wait = 0
             for i in range(40):
                 wait += 0.002
@@ -634,7 +628,6 @@ try:
         app.installTranslator(translator)
         w = Window()
         w.show()
-
         logging.info("启动成功")
         if readSetting("startfirst") == "1":
             w.hide()
@@ -644,7 +637,6 @@ try:
         app.exec_()
 except Exception as e:
     from tkinter.messagebox import *
-
     showerror("错误", "zb小程序 发生严重错误，程序已关闭！\n报错信息为：\n" + str(traceback.format_exc()))
     logging.fatal("zb小程序 发生严重错误，程序已关闭！报错信息为：" + str(traceback.format_exc()))
     sys.exit()
