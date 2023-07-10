@@ -1,7 +1,7 @@
 import os, sys, winreg, logging
 
 # 通用变量
-version = "1.2.0"
+version = "2.0.0"
 old_path = os.getcwd()
 abs_path = sys.argv[0][:sys.argv[0].rfind(r"\ "[:-1])]
 abs_name = sys.argv[0][sys.argv[0].rfind(r"\ "[:-1]) + 1:]
@@ -15,8 +15,8 @@ lib_list = ["PyQt5-sip", "pyqt5-tools", "PyQt5", "PyQt5Designer", "PyQt-Fluent-W
 os.chdir(abs_path)
 
 
-# 更好的路径拼接
-def pj(*data):
+# 路径拼接
+def join(*data):
     path = ""
     for i in data:
         path = os.path.join(path, i)
@@ -26,11 +26,11 @@ def pj(*data):
 
 # 日志功能配置
 try:
-    os.makedirs(pj(user_path, "zb"))
+    os.makedirs(join(user_path, "zb"))
 except:
     pass
 try:
-    os.remove(pj(user_path, "zb/zb.log"))
+    os.remove(join(user_path, "zb/zb.log"))
 except:
     pass
 logger = logging.getLogger("mylogger")
@@ -39,7 +39,7 @@ rf_handler = logging.StreamHandler(sys.stderr)
 rf_handler.setLevel(logging.INFO)
 rf_handler.setFormatter(logging.Formatter("[%(asctime)s %(filename)s %(process)d] %(levelname)s:%(message)s"))
 
-f_handler = logging.FileHandler(pj(user_path, "zb/zb.log"))
+f_handler = logging.FileHandler(join(user_path, "zb/zb.log"))
 f_handler.setLevel(logging.DEBUG)
 f_handler.setFormatter(logging.Formatter("[%(asctime)s %(filename)s %(process)d] %(levelname)s:%(message)s"))
 
@@ -52,26 +52,26 @@ logging.info("程序开始运行")
 from configparser import ConfigParser
 
 conf = ConfigParser()
-if os.path.exists(pj(user_path, "zb/settings.ini")):
-    conf.read(pj(user_path, "zb/settings.ini"), encoding="utf-8")
-    logging.debug("成功读取设置文件，路径：" + pj(user_path, "zb/settings.ini"))
+if os.path.exists(join(user_path, "zb/settings.ini")):
+    conf.read(join(user_path, "zb/settings.ini"), encoding="utf-8")
+    logging.debug("成功读取设置文件，路径：" + join(user_path, "zb/settings.ini"))
 else:
-    if not os.path.exists(pj(user_path, "zb")):
-        os.makedirs(pj(user_path, "zb"))
-    with open(pj(user_path, "zb/settings.ini"), "w+", encoding="utf-8") as file:
-        logging.debug("成功读取设置文件，路径：" + pj(user_path, "zb/settings.ini"))
+    if not os.path.exists(join(user_path, "zb")):
+        os.makedirs(join(user_path, "zb"))
+    with open(join(user_path, "zb/settings.ini"), "w+", encoding="utf-8") as file:
+        logging.debug("成功读取设置文件，路径：" + join(user_path, "zb/settings.ini"))
 
 
 # 读取设置
 def readSetting(name):
-    if os.path.exists(pj(user_path, "zb/settings.ini")):
-        conf.read(pj(user_path, "zb/settings.ini"), encoding="utf-8")
-        logging.debug("成功读取设置文件，路径：" + pj(user_path, "zb/settings.ini"))
+    if os.path.exists(join(user_path, "zb/settings.ini")):
+        conf.read(join(user_path, "zb/settings.ini"), encoding="utf-8")
+        logging.debug("成功读取设置文件，路径：" + join(user_path, "zb/settings.ini"))
     else:
-        if not os.path.exists(pj(user_path, "zb")):
-            os.makedirs(pj(user_path, "zb"))
-        with open(pj(user_path, "zb/settings.ini"), "w+", encoding="utf-8") as file:
-            logging.debug("成功读取设置文件，路径：" + pj(user_path, "zb/settings.ini"))
+        if not os.path.exists(join(user_path, "zb")):
+            os.makedirs(join(user_path, "zb"))
+        with open(join(user_path, "zb/settings.ini"), "w+", encoding="utf-8") as file:
+            logging.debug("成功读取设置文件，路径：" + join(user_path, "zb/settings.ini"))
     try:
         conf.add_section("data")
     except:
@@ -89,14 +89,14 @@ def readSetting(name):
 
 # 保存设置
 def saveSetting(name, data):
-    if os.path.exists(pj(user_path, "zb/settings.ini")):
-        conf.read(pj(user_path, "zb/settings.ini"), encoding="utf-8")
-        logging.debug("成功读取设置文件，路径：" + pj(user_path, "zb/settings.ini"))
+    if os.path.exists(join(user_path, "zb/settings.ini")):
+        conf.read(join(user_path, "zb/settings.ini"), encoding="utf-8")
+        logging.debug("成功读取设置文件，路径：" + join(user_path, "zb/settings.ini"))
     else:
-        if not os.path.exists(pj(user_path, "zb")):
-            os.makedirs(pj(user_path, "zb"))
-        with open(pj(user_path, "zb/settings.ini"), "w+", encoding="utf-8") as file:
-            logging.debug("成功读取设置文件，路径：" + pj(user_path, "zb/settings.ini"))
+        if not os.path.exists(join(user_path, "zb")):
+            os.makedirs(join(user_path, "zb"))
+        with open(join(user_path, "zb/settings.ini"), "w+", encoding="utf-8") as file:
+            logging.debug("成功读取设置文件，路径：" + join(user_path, "zb/settings.ini"))
     try:
         conf.add_section("data")
     except:
@@ -108,7 +108,7 @@ def saveSetting(name, data):
     except:
         conf.set("data", str(name), str(data))
         logging.debug("项 " + str(name) + " 的内容设置为 " + str(data))
-    with open(pj(user_path, "zb/settings.ini"), "w", encoding="utf-8") as file:
+    with open(join(user_path, "zb/settings.ini"), "w", encoding="utf-8") as file:
         conf.write(file)
 
 
@@ -120,16 +120,7 @@ if "python" in p.read().strip():
     sys.exit()
 
 # 导入运行库
-try:
-    import traceback, shutil, re, time, hashlib, threading, ctypes, pickle, stat, bs4, lxml, requests, send2trash, winshell, platform, webbrowser, win32api, win32con, win32com.client, random
-except:
-    for name in lib_list:
-        p = os.popen("pip install " + name + " -i  https://pypi.mirrors.ustc.edu.cn/simple/")
-        print(p.read())
-        p = os.popen("pip install --upgrade " + name + " -i  https://pypi.mirrors.ustc.edu.cn/simple/")
-        print(p.read())
-    os.popen("main.pyw")
-    sys.exit()
+import traceback, shutil, re, time, hashlib, threading, ctypes, pickle, stat, bs4, lxml, requests, send2trash, winshell, platform, webbrowser, win32api, win32con, win32com.client, random
 
 # 任务栏图标加载
 ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("zb小程序")
@@ -150,144 +141,227 @@ class MyThread(threading.Thread):
         self.func(*self.args)
 
 
-# 获取文件md5
-def getMd5(file):
-    with open(file, "rb") as file:
-        data = file.read()
-    return hashlib.md5(data).hexdigest()
+# 更好的CMD
+def cmd(command):
+    return os.popen(str(command)).read()
+
+
+# 是否存在
+def exists(path):
+    return os.path.exists(path)
+
+
+# 是否为文件
+def isFile(path):
+    if not exists(path):
+        return False
+    return os.path.isfile(path)
+
+
+# 是否为目录
+def isDir(path):
+    if not exists(path):
+        return False
+    return os.path.isdir(path)
+
+
+# 删除
+def delete(path):
+    if isFile(path):
+        os.remove(path)
+    if isDir(path):
+        shutil.rmtree(path)
+
+
+# 获取文件MD5
+def getMd5(path):
+    if isFile(path):
+        with open(path, "rb") as file:
+            data = file.read()
+        return hashlib.md5(data).hexdigest()
+
+
+# 获取文件名/仅名称/仅后缀
+def baseName(path, mode=0):
+    if isFile(path):
+        name = os.path.basename(path)
+        if mode == 0:
+            return name
+        if mode == 1:
+            return os.path.splitext(name)[0]
+        if mode == 2:
+            return os.path.splitext(name)[1]
+        if mode == 3:
+            return path.replace(name, "")
+
+
+# 创建文件夹
+def mkDir(path):
+    if not exists(path):
+        os.makedirs(path)
+
+
+# 获取文件大小
+def getSize(path):
+    if isFile(path):
+        return os.path.getsize(path)
+
+
+# 遍历子文件夹
+def walkDir(path, mode=0):
+    list = []
+    if mode == 0:
+        if isDir(path):
+            paths = os.walk(path)
+            for path, dir_lst, file_lst in paths:
+                for dir_name in dir_lst:
+                    list.append(join(path, dir_name))
+    if mode == 1:
+        for i in os.listdir(path):
+            if isDir(join(path, i)):
+                list.append(join(path, i))
+    if list == None:
+        list = []
+    return list
+
+
+# 遍历子文件
+def walkFile(path, mode=0):
+    list = []
+    if mode == 0:
+        paths = os.walk(path)
+        if isDir(path):
+            for path, dir_lst, file_lst in paths:
+                for file_name in file_lst:
+                    list.append(join(path, file_name))
+    if mode == 1:
+        for i in os.listdir(path):
+            if isFile(join(path, i)):
+                list.append(join(path, i))
+    if list == None:
+        list = []
+    return list
+
+
+# 只读权限
+def onlyRead(path, mode):
+    if isFile(path):
+        if mode:
+            os.chmod(path, stat.S_IREAD)
+        else:
+            os.chmod(path, stat.S_IWRITE)
+
+
+# 复制
+def copy(old, new):
+    if isFile(old):
+        if isDir(new):
+            new = join(new, baseName(old))
+        if exists(new):
+            i = 1
+            while exists(join(baseName(new, 3), baseName(new, 1) + " (" + str(i) + ")" + baseName(new, 2))):
+                i = i + 1
+            new = join(baseName(new, 3), baseName(new, 1) + " (" + str(i) + ")" + baseName(new, 2))
+        try:
+            shutil.copy(join(old), join(new))
+        except:
+            onlyRead(old, False)
+            shutil.copy(join(old), join(new))
+    if isDir(old):
+        if exists(new):
+            i = 1
+            while exists(new + " (" + str(i) + ")"):
+                i = i + 1
+            new = new + " (" + str(i) + ")"
+        try:
+            shutil.copytree(join(old), join(new))
+        except:
+            try:
+                for i in walkFile(old):
+                    onlyRead(i, False)
+                shutil.copytree(join(old), join(new))
+            except:
+                return
+
+
+# 移动
+def move(old, new):
+    copy(old, new)
+    if exists(old):
+        delete(old)
 
 
 # 清理空文件
-def clearEmpty(path):
-    if not os.path.exists(path):
-        return
-    logging.info("开始清理" + path + "下的空文件")
-    dir_list = []
-    for root, dirs, files in os.walk(path):
-        dir_list.append(root)
-    for root in dir_list[::-1]:
-        if not os.listdir(root):
-            try:
-                os.rmdir(root)
-            except:
-                pass
-    for root, dirs, files in os.walk(path):
-        for file in files:
-            src_file = pj(root, file)
-            if os.path.getsize(src_file) == 0:
+def clearEmptyFile(path):
+    if isDir(path):
+        paths = walkFile(path, 1)
+        if paths != []:
+            for i in paths:
+                if getSize(i) == 0:
+                    delete(i)
+
+
+# 清理空文件夹
+def clearEmptyDir(path):
+    if isDir(path):
+        paths = walkDir(path, 1)
+        if paths != []:
+            for i in paths:
                 try:
-                    os.remove(src_file)
+                    os.rmdir(i)
                 except:
                     pass
 
 
-# 清理重复整理文件
-def clearRepeat(path):
-    if not os.path.exists(path):
-        return
-    logging.info("开始清理" + path + "下的重复文件")
-    size = []
-    name = []
-    for i in os.listdir(path):
-        real_path = pj(path, i)
-        if os.path.isfile(real_path) == True:
-            md5 = getMd5(real_path)
-            if md5 in size:
-                num = size.index(md5)
-                if len(name[num]) <= len(real_path):
-                    os.remove(real_path)
-                    continue
-                else:
-                    os.remove(name[num])
-                    size.remove(size[num])
-                    name.remove(name[num])
-            size.append(md5)
-            name.append(real_path)
+# 清理重复文件
+def clearRepeatFile(path):
+    if isDir(path):
+        sizes = []
+        names = walkFile(path)
+        if names == []:
+            return
+        names.sort(key=lambda i: len(i))
+        for i in names:
+            md5 = getMd5(i)
+            if md5 in sizes:
+                delete(i)
+            else:
+                sizes.append(md5)
+
+
+# 清理3合1
+def clearFile(path):
+    clearEmptyFile(path)
+    clearEmptyDir(path)
+    clearRepeatFile(path)
 
 
 # 整理指定目录文件到指定位置
-def movePath(old, new, mode=True):
-    logging.info("开始整理文件" + old + "至" + new)
-    list2 = []
-    list3 = os.walk(old)
-    for i in list3: list2.append(i)
-    try:
-        list3 = list2[0][2]
-    except:
-        return False
-    ppt = []
-    doc = []
-    xls = []
-    img = []
-    mp3 = []
-    zip = []
-    name1 = ["PPT", "文档", "表格", "图片", "音视频", "压缩包"]
-    name2 = [ppt, doc, xls, img, mp3, zip]
-    for name in range(len(name1)):
-        if name == 0: ends = ["ppt"]
-        if name == 1: ends = ["doc", "txt", "pdf", "json"]
-        if name == 2: ends = ["xls", "xlt", "csv"]
-        if name == 3: ends = ["png", "jpg", "jpeg", "webp", "gif"]
-        if name == 4: ends = ["mp", "wav", "ogg", "flv"]
-        if name == 5: ends = ["zip", "rar", "7z"]
-        for i in list3:
-            for j in ends:
-                if j in i[i.rfind("."):].lower() and "~$" not in i: name2[name].append(i)
-    for name in range(len(name1)):
-        for i in range(len(name2[name])):
-            if os.path.exists(pj(new, name1[name], name2[name][i])):
-                j = 1
-                while os.path.exists(pj(new, name1[name], name2[name][i][:name2[name][i].rfind(".")], "(", str(j), ")", name2[name][i][name2[name][i].rfind("."):])): j = j + 1
-                name2[name][i] = name2[name][i] + "(" + str(j) + ")"
-    for name in range(len(name1)):
-        if not os.path.exists(pj(new, name1[name])): os.makedirs(pj(new, name1[name]))
-    for name in range(len(name1)):
-        for i in name2[name]:
-            try:
-                os.chmod(pj(old, i), stat.S_IWRITE)
-                shutil.move(pj(old, i), pj(new, name1[name], i))
-            except:
-                try:
-                    os.chmod(pj(old, i[:i.rfind("(")]), stat.S_IWRITE)
-                    shutil.move(pj(old, i[:i.rfind("(")]), pj(new, name1[name], i[:i.rfind(".")] + i[i.rfind("("):] + i[i.rfind("."):i.rfind("(")]))
-                except Exception as e:
-                    logging.info("无法移动" + pj(old, i[:i.rfind("(")]) + "异常类型：" + e)
-    # 以下为文件夹整理部分
-    if mode == True:
-        list3 = list2[0][1]
-        fold = []
-        not1 = ["软件", "备份", "MobileFile"]
-        if not os.path.exists(pj(new, "文件夹")): os.makedirs(pj(new, "文件夹"))
-        for i in list3:
-            if i not in not1: fold.append(i)
-        for i in range(len(fold)):
-            if os.path.exists(pj(new, "文件夹", fold[i])):
-                j = 1
-                while os.path.exists(pj(new, "文件夹", fold[i] + "(" + str(j) + ")")): j = j + 1
-                fold[i] = fold[i] + "(" + str(j) + ")"
-        for i in fold:
-            try:
-                shutil.move(pj(old, i), pj(new, "文件夹", i))
-            except:
-                shutil.move(pj(old, i[:i.rfind("(")]), pj(new, "文件夹", i))
-    logging.info("成功整理" + old + "至" + new)
-
-
-# 清理整理目录下的无效文件
-def clearUselessFiles(path):
-    new_list = []
-    name1 = ["PPT", "文档", "表格", "图片", "音视频", "压缩包", "文件夹"]
-    for i in name1:
-        new_list.append(pj(path, i))
-    for i in new_list:
-        clearEmpty(i)
-        clearRepeat(i)
+def sortDir(old, new, mode=0):
+    names = ["PPT", "文档", "表格", "图片", "音视频", "压缩包"]
+    ends = [[".ppt", ".pptx"], [".doc", ".docx", ".txt", ".pdf", ".json"], [".xls", ".xlsx", ".xlt", ".csv"], [".png", ".jpg", ".jpeg", ".webp", ".gif"], [".mp3", ".mp4", ".wav", ".ogg", ".flv"], [".zip", ".rar", ".7z"]]
+    if mode != 1:
+        list = walkFile(old, 1)
+        if list != []:
+            for i in list:
+                for j in range(len(ends)):
+                    if baseName(i, 2) in ends[j]:
+                        move(i, join(new, names[j]))
+    if mode == 0:
+        list = walkDir(old, 1)
+        if list != []:
+            for i in list:
+                if i[i.rfind("\ "[:-1]) + 1:] not in ["软件"]:
+                    move(i, join(new, "文件夹", i[i.rfind("\ "[:-1]) + 1:]))
+    for i in names + ["文件夹"]:
+        clearFile(join(new, i))
+    clearEmptyDir(new)
 
 
 # MC版本爬虫
 def getMc():
     logging.info("开始获取我的世界最新版本")
-    useful = ["{{v|java}}", "{{v|java-experimental}}", "{{v|java-snap}}", "{{v|java-combat}}", "{{v|bedrock}}", "{{v|bedrock-beta}}", "{{v|bedrock-preview}}", "{{v|dungeons}}", "{{v|legends}}", "{{v|launcher}}", "{{v|launcher-beta}}", "{{v|education}}", "{{v|education-beta}}", "{{v|china-win}}", "{{v|china-android}}"]
+    useful = ["{{v|java}}", "{{v|java-experimental}}", "{{v|java-snap}}", "{{v|java-combat}}", "{{v|bedrock}}", "{{v|bedrock-beta}}", "{{v|bedrock-preview}}", "{{v|dungeons}}", "{{v|legends-win}}", "{{v|launcher}}", "{{v|launcher-beta}}", "{{v|education}}", "{{v|education-beta}}", "{{v|china-win}}", "{{v|china-android}}"]
     temp = os.getenv("TEMP")
     l1 = []
     v1 = []
@@ -312,87 +386,61 @@ def getMc():
             v1[i] = "中国版端游"
         if v3[i] == "{{v|china-android}}":
             v1[i] = "中国版手游"
+        if v3[i] == "{{v|legends-win}}":
+            v1[i] = "我的世界：传奇"
+        if v3[i] == "{{v|dungeons}}":
+            v1[i] = "我的世界：地下城"
         if v3[i] in useful and v2[i] != "":
             str1 = str1 + v1[i] + "版本：" + v2[i] + "\n"
     logging.info("我的世界最新版本获取成功")
     return str1
 
 
-# 重启PPT小助手
-def restartPPT():
-    logging.info("重启PPT小助手")
-    try:
-        os.popen("taskkill -f -im PPTService.exe & C:/Program Files (x86)/Seewo/PPTService/Main/PPTService.exe")
-    except:
-        pass
-
-
-# 清理希沃视频展台文件
-def clearSeewo():
-    logging.info("开始清理希沃视频展台文件")
-    try:
-        for j in [chr(i) for i in range(65, 91)]:
-            if os.path.exists(j + ":/EasiCameraPhoto"):
-                list = os.walk(j + ":/EasiCameraPhoto")
-                list2 = []
-                for i in list: list2.append(i)
-                list = list2[0][1]
-                for i in list:
-                    if i != time.strftime("%Y-%m-%d"):
-                        send2trash.send2trash(pj(j + ":/EasiCameraPhoto", i))
-        logging.info("成功清理希沃视频展台文件")
-    except:
-        pass
-
 
 # 整理微信文件
 def clearWechat(old, new):
     logging.info("开始整理微信文件")
-    list = []
-    list2 = []
-    for i in os.walk(old): list.append(i)
-    for i in list[0][1]:
-        if os.path.exists(pj(old, i, "FileStorage/File")): list2.append(pj(old, i, "FileStorage/File"))
-    logging.info("获取到的微信用户文件目录为" + str(list2))
-    list = []
-    for i in range(len(list2)):
-        list3 = []
-        for j in os.walk(list2[i]):
-            list3.append(j)
-        for k in list3[0][1]:
-            list.append(pj(list2[i], k))
-    for i in list:
-        movePath(i, new)
-        clearEmpty(i)
-    for i in list2:
-        movePath(i, new, False)
-        clearEmpty(i)
+    try:
+        list = []
+        list2 = []
+        for i in walkDir(old, 1):
+            if exists(join(i, "FileStorage/File")):
+                list.append(join(i, "FileStorage/File"))
+        for i in list:
+            if walkDir(i, 1) == None:
+                return
+            list2 = list2 + walkDir(i, 1)
+        for i in list2:
+            sortDir(i, new)
+        for i in list:
+            sortDir(i, new, 1)
+    except:
+        pass
     logging.info("成功整理微信文件")
 
 
 # 整理桌面文件
 def clearDesk(to):
-    movePath(abs_desktop, to)
+    sortDir(abs_desktop, to)
 
 
 # 清理系统缓存
 def clearCache():
     logging.info("开始清理系统缓存")
-    list = []
-    list1 = os.walk(os.getenv("TEMP"))
-    for i in list1: list.append(i)
-    if list: list1 = list[0][1]
-    list2 = list[0][2]
-    for i in list1:
-        try:
-            shutil.rmtree(pj(os.getenv("TEMP"), i))
-        except:
-            pass
-    for i in list2:
-        try:
-            os.remove(pj(os.getenv("TEMP"), i))
-        except:
-            pass
+    try:
+        path = os.getenv("TEMP")
+        for i in walkDir(path):
+            try:
+                delete(i)
+            except:
+                pass
+        for i in walkFile(path):
+            try:
+                delete(i)
+            except:
+                pass
+    except:
+        pass
     logging.info("成功清理系统缓存")
 
 
@@ -409,17 +457,7 @@ def clearRubbish():
 # 重启文件资源管理器
 def restartExplorer():
     logging.info("重启文件资源管理器")
-    try:
-        os.popen("taskkill /f /im explorer.exe & start C:/windows/explorer.exe")
-    except:
-        pass
-
-
-# 整理+清理常用软件文件
-def clearQQ(path):
-    logging.info("开始整理QQ文件")
-    movePath("D:/文件/应用/QQ/93322252/FileRecv", path)
-    logging.info("成功整理QQ文件")
+    cmd("taskkill /f /im explorer.exe & start C:/windows/explorer.exe")
 
 
 # 更新模块下载文件
@@ -435,15 +473,13 @@ def download(link):
 # pip安装模块
 def pipInstall(name):
     logging.info("开始安装" + name + "运行库")
-    p = os.popen("pip install " + name + " -i  https://pypi.mirrors.ustc.edu.cn/simple/")
-    print(p.read())
-    p = os.popen("pip install --upgrade " + name + " -i  https://pypi.mirrors.ustc.edu.cn/simple/")
-    print(p.read())
+    print(cmd("pip install " + name + " -i  https://pypi.mirrors.ustc.edu.cn/simple/"))
+    print(cmd("pip install --upgrade " + name + " -i  https://pypi.mirrors.ustc.edu.cn/simple/"))
 
 
 # 创建快捷方式
 def createLink(name="快捷方式", path="", to=abs_desktop, icon=""):
-    to = pj(to, name + ".lnk")
+    to = join(to, name + ".lnk")
     shell = win32com.client.Dispatch("WScript.Shell")
     shortcut = shell.CreateShortCut(to)
     shortcut.Targetpath = path
@@ -453,13 +489,13 @@ def createLink(name="快捷方式", path="", to=abs_desktop, icon=""):
 
 # 添加至开始菜单
 def addToStartMenu():
-    path = pj(user_path, "AppData\Roaming\Microsoft\Windows\Start Menu\Programs")
-    createLink(name="zb小程序", path=pj(abs_path, "main.pyw"), to=path, icon=pj(abs_path, "logo.ico"))
+    path = join(user_path, "AppData\Roaming\Microsoft\Windows\Start Menu\Programs")
+    createLink(name="zb小程序", path=join(abs_path, "main.pyw"), to=path, icon=join(abs_path, "logo.ico"))
 
 
 # 开机自启动
-# autoRun(switch="open", zdynames=os.path.basename(pj(path, "hide.pyw"))
-# autoRun(switch="close", zdynames=os.path.basename(pj(path, "hide.pyw"))
+# autoRun(switch="open", zdynames=os.path.basename(join(path, "hide.pyw"))
+# autoRun(switch="close", zdynames=os.path.basename(join(path, "hide.pyw"))
 # 判断键是否存在
 def judgeKey(key_name,
              reg_root=win32con.HKEY_CURRENT_USER,  # 根节点  其中的值可以有：HKEY_CLASSES_ROOT、HKEY_CURRENT_USER、HKEY_LOCAL_MACHINE、HKEY_USERS、HKEY_CURRENT_CONFIG

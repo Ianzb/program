@@ -10,10 +10,8 @@ from qframelesswindow import *
 
 from zb import *
 
-mode = None
 weight = 450
 height = 350
-
 
 saveSetting(abs_cache, os.getpid())
 
@@ -57,32 +55,19 @@ class AvatarWidget(NavigationWidget):
 class newThread(QThread):
     signal = pyqtSignal(str)
 
-    def __init__(self):
+    def __init__(self, mode):
         super().__init__()
+        self.mode = mode
 
     def run(self):
-        global mode
+        mode = self.mode
         if mode == 1:
-
             clearRubbish()
             clearCache()
             clearDesk(readSetting("sort"))
             if readSetting("wechat") != "":
                 clearWechat(readSetting("wechat"), readSetting("sort"))
-            clearQQ(readSetting("sort"))
-            clearSeewo()
-            clearUselessFiles(readSetting("sort"))
-            self.signal.emit("完成")
-        if mode == 2:
-            with open("names.zb", "r", encoding="utf-8") as file:
-                names = file.readlines()
-            for i in range(len(names)):
-                names[i] = names[i].strip()
-            wait = 0
-            for i in range(40):
-                wait += 0.002
-                self.signal.emit(random.choice(names))
-                time.sleep(wait)
+            clearFile(readSetting("sort"))
             self.signal.emit("完成")
         if mode == 3:
             self.signal.emit("开始")
@@ -109,9 +94,6 @@ class newThread(QThread):
         if mode == 6:
             restartExplorer()
             self.signal.emit("完成")
-        if mode == 7:
-            restartPPT()
-            self.signal.emit("完成")
         if mode == 8:
             while True:
                 time.sleep(0.1)
@@ -136,10 +118,10 @@ class tab1(QFrame, QWidget):
         self.pushButton2.clicked.connect(self.btn20)
         self.pushButton2.move(0, 35)
         self.pushButton2.resize(200, 35)
-        self.pushButton3 = PushButton("重启PPT小助手", self, FIF.SYNC)
-        self.pushButton3.clicked.connect(self.btn22)
-        self.pushButton3.move(200, 35)
-        self.pushButton3.resize(200, 35)
+        self.pushButton9 = PushButton("查看MC最新版本", self, FIF.CHECKBOX)
+        self.pushButton9.clicked.connect(self.btn50)
+        self.pushButton9.move(200, 35)
+        self.pushButton9.resize(200, 35)
         self.pushButton4 = PushButton("打开CCTV-13", self, FIF.LINK)
         self.pushButton4.clicked.connect(self.btn24)
         self.pushButton4.move(0, 70)
@@ -161,8 +143,6 @@ class tab1(QFrame, QWidget):
         self.pushButton1.setEnabled(True)
 
     def btn11(self):
-        global mode
-        mode = 1
         if readSetting("sort") == "":
             InfoBar.warning(
                 title="警告",
@@ -190,7 +170,7 @@ class tab1(QFrame, QWidget):
         self.stateTooltip = StateToolTip("正在整理文件", "请耐心等待", self)
         self.stateTooltip.move(143, 264)
         self.stateTooltip.show()
-        self.thread = newThread()
+        self.thread = newThread(1)
         self.thread.signal.connect(lambda: self.btn10("整理完毕"))
         self.thread.start()
 
@@ -200,10 +180,8 @@ class tab1(QFrame, QWidget):
         os.startfile(readSetting("sort"))
 
     def btn20(self):
-        global mode
-        mode = 6
         self.pushButton2.setEnabled(False)
-        self.thread = newThread()
+        self.thread = newThread(6)
         self.thread.signal.connect(self.btn21)
         self.thread.start()
 
@@ -212,10 +190,8 @@ class tab1(QFrame, QWidget):
             self.pushButton2.setEnabled(True)
 
     def btn22(self):
-        global mode
-        mode = 7
         self.pushButton3.setEnabled(False)
-        self.thread = newThread()
+        self.thread = newThread(7)
         self.thread.signal.connect(self.btn23)
         self.thread.start()
 
@@ -229,35 +205,15 @@ class tab1(QFrame, QWidget):
     def btn25(self):
         webbrowser.open("http://10.8.8.35:8443/live")
 
-
-class tab2(QFrame, QWidget):
-    def __init__(self, parent=None):
-        super().__init__(parent=parent)
-
-        self.setObjectName("模块")
-        self.pushButton1 = PrimaryPushButton("点名", self)
-        self.pushButton1.clicked.connect(self.btn12)
-        self.pushButton1.move(0, 0)
-        self.pushButton1.resize(400, 35)
-
-        self.label = QLabel("", self)
-        self.label.setAlignment(Qt.AlignCenter)
-        self.label.setFont(QFont("等线", 60))
-        self.label.setGeometry(QtCore.QRect(0, 60, 400, 100))
-
-    def btn11(self, msg):
-        if msg == "完成":
-            self.pushButton1.setEnabled(True)
-            return
-        self.label.setText(str(msg))
-
-    def btn12(self):
-        global mode
-        mode = 2
-        self.pushButton1.setEnabled(False)
-        self.thread = newThread()
-        self.thread.signal.connect(self.btn11)
+    def btn50(self):
+        self.pushButton9.setEnabled(False)
+        self.thread = newThread(5)
+        self.thread.signal.connect(self.btn51)
         self.thread.start()
+
+    def btn51(self, msg):
+        QMessageBox.information(self, "提示", msg)
+        self.pushButton9.setEnabled(True)
 
 
 class tab3(QFrame, QWidget):
@@ -311,13 +267,10 @@ class tab3(QFrame, QWidget):
         self.label.setFont(QFont("等线", 10))
         self.label.setHidden(True)
         self.label.setText("")
-        self.pushButton9 = PushButton("查看MC最新版本", self, FIF.CHECKBOX)
-        self.pushButton9.clicked.connect(self.btn50)
-        self.pushButton9.move(0, 105)
-        self.pushButton9.resize(200, 35)
+
         self.checkBox = CheckBox("开机自启动", self)
         self.checkBox.clicked.connect(self.btn60)
-        self.checkBox.move(200, 105)
+        self.checkBox.move(0, 105)
         self.checkBox.resize(200, 35)
         if readSetting("startupdate") == "1":
             self.checkBox.setChecked(True)
@@ -339,7 +292,7 @@ class tab3(QFrame, QWidget):
         saveSetting("wechat", str(get))
 
     def btn20(self):
-        createLink(name="zb小程序", path=pj(abs_path, "main.pyw"), to=abs_desktop, icon=pj(abs_path, "logo.ico"))
+        createLink(name="zb小程序", path=join(abs_path, "main.pyw"), to=abs_desktop, icon=join(abs_path, "logo.ico"))
 
     def btn21(self):
         addToStartMenu()
@@ -348,17 +301,15 @@ class tab3(QFrame, QWidget):
         os.startfile(abs_path)
 
     def btn31(self):
-        os.popen("start NotePad.exe " + pj(user_path, "zb/zb.log"))
+        cmd("start NotePad.exe " + join(user_path, "zb/zb.log"))
 
     def btn40(self):
-        global mode
-        mode = 4
         self.label.setHidden(False)
         self.pushButton7.setEnabled(False)
         self.pushButton8.setEnabled(False)
         self.progressBar.setHidden(False)
         self.progressBar.setValue(0)
-        self.thread = newThread()
+        self.thread = newThread(4)
         self.thread.signal.connect(self.btn41)
         self.thread.start()
 
@@ -387,8 +338,6 @@ class tab3(QFrame, QWidget):
         self.progressBar.setValue(int(100 / self.number * self.count))
 
     def btn42(self):
-        global mode
-        mode = 3
         if ":\编程\program\docs" in abs_path:
             InfoBar.warning(
                 title="警告",
@@ -406,7 +355,7 @@ class tab3(QFrame, QWidget):
         self.pushButton8.setEnabled(False)
         self.progressBar.setHidden(False)
         self.progressBar.setValue(0)
-        self.thread = newThread()
+        self.thread = newThread(3)
         self.thread.signal.connect(self.btn43)
         self.thread.start()
 
@@ -443,28 +392,16 @@ class tab3(QFrame, QWidget):
             self.label.setText("正在更新 " + msg + " " + str(int(100 / self.number * (self.count - 1))) + "%")
         self.progressBar.setValue(int(100 / self.number * (self.count - 1)))
 
-    def btn50(self):
-        global mode
-        mode = 5
-        self.pushButton9.setEnabled(False)
-        self.thread = newThread()
-        self.thread.signal.connect(self.btn51)
-        self.thread.start()
-
-    def btn51(self, msg):
-        QMessageBox.information(self, "提示", msg)
-        self.pushButton9.setEnabled(True)
-
     def btn60(self):
         if self.checkBox.isChecked():
             saveSetting("startupdate", "1")
-            autoRun(switch="open", zdynames=os.path.basename(pj(abs_path, "start.pyw")), current_file="zb小程序Qt")
+            autoRun(switch="open", zdynames=os.path.basename(join(abs_path, "start.pyw")), current_file="zb小程序Qt")
         else:
             saveSetting("startupdate", "0")
-            autoRun(switch="close", zdynames=os.path.basename(pj(abs_path, "start.pyw")), current_file="zb小程序Qt")
+            autoRun(switch="close", zdynames=os.path.basename(join(abs_path, "start.pyw")), current_file="zb小程序Qt")
 
     def btn70(self):
-        os.popen("main.pyw")
+        cmd("main.pyw")
         sys.exit()
 
 
@@ -476,8 +413,6 @@ class Tray(QSystemTrayIcon):
         self.menu.addAction(Action(FIF.HOME, "打开", triggered=lambda: self.window.show()))
         # self.menu.addSeparator()
         self.menu.addAction(Action(FIF.ALIGNMENT, "整理", triggered=lambda: self.window.tab1.btn11()))
-        self.menu.addAction(Action(FIF.SEND_FILL, "点名", triggered=lambda: self.window.tab2.btn12()))
-
         self.menu.addAction(Action(FIF.LINK, "官网", triggered=lambda: webbrowser.open("https://ianzb.github.io/program/")))
         self.menu.addAction(Action(FIF.CLOSE, "退出", triggered=lambda: sys.exit()))
         self.setIcon(QIcon("logo.ico"))
@@ -520,15 +455,12 @@ class Window(FramelessWindow):
         self.navigationInterface = NavigationInterface(self, True)
         self.stackWidget = QStackedWidget(self)
         self.tab1 = tab1()
-        self.tab2 = tab2()
         self.settingtab = tab3(self)
         self.initLayout()
         self.initNavigation()
         self.initWindow()
         self.tray = Tray(self)
-        global mode
-        mode = 8
-        self.thread = newThread()
+        self.thread = newThread(8)
         self.thread.signal.connect(self.ifshow)
         self.thread.start()
         self.old_hook = sys.excepthook
@@ -557,8 +489,6 @@ class Window(FramelessWindow):
     def initNavigation(self):
         self.navigationInterface.addSeparator(NavigationItemPosition.TOP)
         self.addSubInterface(self.tab1, FIF.HOME, "功能", NavigationItemPosition.TOP)
-        self.addSubInterface(self.tab2, FIF.BOOK_SHELF, "模块", NavigationItemPosition.TOP)
-
         self.navigationInterface.addWidget(
             routeKey="avatar",
             widget=AvatarWidget(),
@@ -637,6 +567,7 @@ try:
         app.exec_()
 except Exception as e:
     from tkinter.messagebox import *
+
     showerror("错误", "zb小程序 发生严重错误，程序已关闭！\n报错信息为：\n" + str(traceback.format_exc()))
     logging.fatal("zb小程序 发生严重错误，程序已关闭！报错信息为：" + str(traceback.format_exc()))
     sys.exit()
