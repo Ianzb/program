@@ -16,16 +16,16 @@ height = 350
 saveSetting(abs_cache, os.getpid())
 
 
+# 删除最大化按钮
 class TitleBar(StandardTitleBar):
-
     def __init__(self, parent=None):
         super().__init__(parent)
         self.maxBtn.setParent(None)
         self._isDoubleClickEnabled = False
 
 
+# 头像绘制
 class AvatarWidget(NavigationWidget):
-
     def __init__(self, parent=None):
         super().__init__(isSelectable=False, parent=parent)
 
@@ -52,6 +52,7 @@ class AvatarWidget(NavigationWidget):
             paint1.drawText(QRect(44, 0, 255, 36), Qt.AlignVCenter, "Ianzb")
 
 
+# 多线程操作
 class newThread(QThread):
     signal = pyqtSignal(str)
 
@@ -62,8 +63,8 @@ class newThread(QThread):
     def run(self):
         mode = self.mode
         if mode == 1:
-            clearRubbish()
-            clearCache()
+            MyThread(lambda: clearRubbish())
+            MyThread(lambda: clearCache())
             clearDesk(readSetting("sort"))
             if readSetting("wechat") != "":
                 clearWechat(readSetting("wechat"), readSetting("sort"))
@@ -87,7 +88,6 @@ class newThread(QThread):
                 self.signal.emit(str(i))
                 pipInstall(lib_list[i])
             self.signal.emit("完成")
-
         if mode == 5:
             str1 = getMc()
             self.signal.emit(str1)
@@ -110,6 +110,8 @@ class tab1(QFrame, QWidget):
         self.pushButton1.clicked.connect(self.btn11)
         self.pushButton1.move(0, 0)
         self.pushButton1.resize(300, 35)
+        if readSetting("sort") == "":
+            self.pushButton1.setEnabled(False)
         self.toolButton1 = ToolButton(FIF.FOLDER, self)
         self.toolButton1.clicked.connect(self.btn12)
         self.toolButton1.move(300, 0)
@@ -118,27 +120,14 @@ class tab1(QFrame, QWidget):
         self.pushButton2.clicked.connect(self.btn20)
         self.pushButton2.move(0, 35)
         self.pushButton2.resize(200, 35)
-        self.pushButton9 = PushButton("查看MC最新版本", self, FIF.CHECKBOX)
-        self.pushButton9.clicked.connect(self.btn50)
-        self.pushButton9.move(200, 35)
-        self.pushButton9.resize(200, 35)
-        self.pushButton4 = PushButton("打开CCTV-13", self, FIF.LINK)
-        self.pushButton4.clicked.connect(self.btn24)
-        self.pushButton4.move(0, 70)
-        self.pushButton4.resize(200, 35)
-        self.pushButton5 = PushButton("打开校园电视台", self, FIF.LINK)
-        self.pushButton5.clicked.connect(self.btn25)
-        self.pushButton5.move(200, 70)
-        self.pushButton5.resize(200, 35)
-        if readSetting("sort") == "":
-            self.pushButton1.setEnabled(False)
-        else:
-            self.pushButton1.setEnabled(True)
+        self.pushButton3 = PushButton("查看MC最新版本", self, FIF.CHECKBOX)
+        self.pushButton3.clicked.connect(self.btn50)
+        self.pushButton3.move(200, 35)
+        self.pushButton3.resize(200, 35)
 
     def btn10(self, content="提示内容"):
         self.stateTooltip.setState(True)
         self.stateTooltip.setContent(content)
-
         w.show()
         self.pushButton1.setEnabled(True)
 
@@ -189,31 +178,25 @@ class tab1(QFrame, QWidget):
         if msg == "完成":
             self.pushButton2.setEnabled(True)
 
-    def btn22(self):
-        self.pushButton3.setEnabled(False)
-        self.thread = newThread(7)
-        self.thread.signal.connect(self.btn23)
-        self.thread.start()
-
-    def btn23(self, msg):
-        if msg == "完成":
-            self.pushButton3.setEnabled(True)
-
-    def btn24(self):
-        webbrowser.open("https://tv.cctv.cn/live/cctv13")
-
-    def btn25(self):
-        webbrowser.open("http://10.8.8.35:8443/live")
-
     def btn50(self):
-        self.pushButton9.setEnabled(False)
+        self.pushButton3.setEnabled(False)
         self.thread = newThread(5)
         self.thread.signal.connect(self.btn51)
         self.thread.start()
 
     def btn51(self, msg):
-        QMessageBox.information(self, "提示", msg)
-        self.pushButton9.setEnabled(True)
+        self.infoBar = InfoBar(
+            icon=InfoBarIcon.INFORMATION,
+            title="MC最新版本",
+            content=msg,
+            orient=Qt.Vertical,
+            isClosable=True,
+            position=InfoBarPosition.BOTTOM_RIGHT,
+            duration=10000,
+            parent=self
+        )
+        self.infoBar.show()
+        self.pushButton3.setEnabled(True)
 
 
 class tab3(QFrame, QWidget):
@@ -286,7 +269,7 @@ class tab3(QFrame, QWidget):
 
     def btn11(self):
         path = readSetting("wechat")
-        get = QFileDialog.getExistingDirectory(self, "选择微信WeChat Files文件目录", path)
+        get = QFileDialog.getExistingDirectory(self, "选择微信WeChat Files文件夹目录", path)
         if not os.path.exists(get):
             return
         saveSetting("wechat", str(get))
@@ -461,12 +444,12 @@ class Window(FramelessWindow):
         self.initWindow()
         self.tray = Tray(self)
         self.thread = newThread(8)
-        self.thread.signal.connect(self.ifshow)
+        self.thread.signal.connect(self.ifShow)
         self.thread.start()
         self.old_hook = sys.excepthook
-        sys.excepthook = self.catch_exceptions
+        sys.excepthook = self.catchExceptions
 
-    def catch_exceptions(self, ty, value, trace):
+    def catchExceptions(self, ty, value, trace):
         traceback_format = traceback.format_exception(ty, value, trace)
         traceback_string = "".join(traceback_format)
         self.old_hook(ty, value, trace)
@@ -475,7 +458,7 @@ class Window(FramelessWindow):
         logging.fatal("zb小程序 发生严重错误，程序已关闭！报错信息为：" + str(traceback_string))
         sys.exit()
 
-    def ifshow(self, msg):
+    def ifShow(self, msg):
         if msg == "展示":
             self.show()
 
@@ -546,28 +529,20 @@ class Window(FramelessWindow):
         self.hide()
 
 
-try:
-    if __name__ == "__main__":
-        QApplication.setHighDpiScaleFactorRoundingPolicy(
-            Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
-        QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
-        QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
-        QApplication.processEvents()
-        app = QApplication(sys.argv)
-        translator = FluentTranslator(QLocale())
-        app.installTranslator(translator)
-        w = Window()
-        w.show()
-        logging.info("启动成功")
-        if readSetting("startfirst") == "1":
-            w.hide()
-            logging.info("当前为开机自启动，程序将自动隐藏至托盘")
-            saveSetting("startfirst", "0")
-
-        app.exec_()
-except Exception as e:
-    from tkinter.messagebox import *
-
-    showerror("错误", "zb小程序 发生严重错误，程序已关闭！\n报错信息为：\n" + str(traceback.format_exc()))
-    logging.fatal("zb小程序 发生严重错误，程序已关闭！报错信息为：" + str(traceback.format_exc()))
-    sys.exit()
+if __name__ == "__main__":
+    QApplication.setHighDpiScaleFactorRoundingPolicy(
+        Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
+    QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
+    QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
+    QApplication.processEvents()
+    app = QApplication(sys.argv)
+    translator = FluentTranslator(QLocale())
+    app.installTranslator(translator)
+    w = Window()
+    w.show()
+    logging.info("启动成功")
+    if readSetting("startfirst") == "1":
+        w.hide()
+        logging.info("当前为开机自启动，程序将自动隐藏至托盘")
+        saveSetting("startfirst", "0")
+    app.exec_()
