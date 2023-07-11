@@ -1,0 +1,56 @@
+html {
+    overflow-x: hidden;
+}
+
+body {
+    background: url(../img/bg.png) center;
+    background-attachment: fixed;
+    background-size: cover;
+    text-align: center;
+}
+.zb-top {
+    background-color: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(10px);
+}
+
+.zb {
+    text-align: center;
+    background-color: rgba(255, 255, 255, 0.5);
+    margin: 15px;
+    border-radius: 7px;
+    backdrop-filter: blur(10px);
+}
+
+
+.zb-left {
+    text-align: left;
+    background-color: rgba(255, 255, 255, 0.5);
+    margin: 15px;
+    border-radius: 7px;
+    backdrop-filter: blur(10px);
+}
+
+.zb-img {
+    text-align: center;
+    background-color: rgba(255, 255, 255, 1.0);
+    margin: 15px;
+    border-radius: 7px;
+    backdrop-filter: blur(10px);
+}
+
+.logo {
+    text-align: left;
+    background-color: rgba(255, 255, 255, 1.0);
+    margin: 15px;
+    border-radius: 50px;
+}
+
+ul {
+    background-color: rgba(250, 250, 250, 1.0);
+    margin: 0px;
+
+}
+
+img {
+    vertical-align: middle;
+}
