@@ -175,8 +175,7 @@ class tab1(QFrame, QWidget):
         self.thread.start()
 
     def btn21(self, msg):
-        if msg == "完成":
-            self.pushButton2.setEnabled(True)
+        self.pushButton2.setEnabled(True)
 
     def btn50(self):
         self.pushButton3.setEnabled(False)
