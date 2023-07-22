@@ -148,7 +148,10 @@ def urlJoin(url1, url2):
 
 # 更好的CMD
 def cmd(command):
-    return os.popen(str(command)).read()
+    result = os.popen(str(command))
+    word = result.read()
+    result.close()
+    return word
 
 
 # 是否存在
@@ -460,7 +463,6 @@ def clearRubbish():
 
 # 重启文件资源管理器
 def restartExplorer():
-    logging.info("重启文件资源管理器")
     cmd("taskkill /f /im explorer.exe & start C:/windows/explorer.exe")
 
 

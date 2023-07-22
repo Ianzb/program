@@ -70,6 +70,10 @@ class newThread(QThread):
                 clearWechat(readSetting("wechat"), readSetting("sort"))
             clearFile(readSetting("sort"))
             self.signal.emit("完成")
+        if mode == 2:
+            restartExplorer()
+            self.signal.emit("完成")
+
         if mode == 3:
             self.signal.emit("开始")
             link = "https://ianzb.github.io/program/Windows/"
@@ -91,9 +95,7 @@ class newThread(QThread):
         if mode == 5:
             str1 = getMc()
             self.signal.emit(str1)
-        if mode == 6:
-            restartExplorer()
-            self.signal.emit("完成")
+
         if mode == 8:
             while True:
                 time.sleep(0.1)
@@ -170,7 +172,7 @@ class tab1(QFrame, QWidget):
 
     def btn20(self):
         self.pushButton2.setEnabled(False)
-        self.thread = newThread(6)
+        self.thread = newThread(2)
         self.thread.signal.connect(self.btn21)
         self.thread.start()
 
