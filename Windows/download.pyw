@@ -1,5 +1,5 @@
 # 导入运行库
-import threading, os, re, pickle, sys, winreg, shutil
+import threading, os, re, pickle, sys, winreg, shutil, urllib.parse
 from tkinter import *
 from tkinter import ttk
 from tkinter.ttk import *
@@ -28,16 +28,22 @@ st.configure("TButton")
 
 
 # 功能
-def pj(*a):
-    out = ""
-    for i in a:
-        out = os.path.join(out, i)
-    out = out.replace("//", r"\ "[:-1]).replace(r"\\ "[:-1], r"\ "[:-1]).replace("\/", r"\ "[:-1]).replace("/\ "[:-1], r"\ "[:-1]).replace("/", r"\ "[:-1])
-    return out
+# 路径拼接
+def join(*data):
+    path = ""
+    for i in data:
+        path = os.path.join(path, i)
+    path = path.replace("//", r"\ "[:-1]).replace(r"\\ "[:-1], r"\ "[:-1]).replace("\/", r"\ "[:-1]).replace("/\ "[:-1], r"\ "[:-1]).replace("/", r"\ "[:-1])
+    return path
+
+
+# 网址拼接
+def urlJoin(url1, url2):
+    return urllib.parse.urljoin(url1, url2)
 
 
 try:
-    os.makedirs(pj(user_path, "zb"))
+    os.makedirs(join(user_path, "zb"))
 except:
     pass
 
@@ -61,7 +67,7 @@ def download(link):
     response1 = requests.get(link)
     response1.encoding = "UTF-8"
     main = response1.content
-    with open(pj(user_path, "zb", link[link.rfind("/") + 1:]), "wb") as file:
+    with open(join(user_path, "zb", link[link.rfind("/") + 1:]), "wb") as file:
         file.write(main)
 
 
@@ -93,7 +99,7 @@ def check_update(link):
         vari.set(int(100 * i / len(data)))
         tk.update()
     showinfo("提示", "zb小程序安装完毕！")
-    os.popen(pj(user_path, "zb/main.pyw"))
+    os.popen(join(user_path, "zb/main.pyw"))
     vari.set(100)
     using = False
     exit()

@@ -120,7 +120,7 @@ if "python" in p.read().strip():
     sys.exit()
 
 # 导入运行库
-import traceback, shutil, re, time, hashlib, threading, ctypes, pickle, stat, bs4, lxml, requests, send2trash, winshell, platform, webbrowser, win32api, win32con, win32com.client, random
+import traceback, shutil, re, time, hashlib, threading, ctypes, stat, bs4, lxml, urllib.parse, requests, send2trash, winshell, platform, webbrowser, win32api, win32con, win32com.client, random
 
 # 任务栏图标加载
 ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("zb小程序")
@@ -139,6 +139,11 @@ class MyThread(threading.Thread):
 
     def run(self):
         self.func(*self.args)
+
+
+# 网址拼接
+def urlJoin(url1, url2):
+    return urllib.parse.urljoin(url1, url2)
 
 
 # 更好的CMD
@@ -394,7 +399,6 @@ def getMc():
             str1 = str1 + v1[i] + "版本：" + v2[i] + "\n"
     logging.info("我的世界最新版本获取成功")
     return str1
-
 
 
 # 整理微信文件

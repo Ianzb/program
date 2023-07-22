@@ -73,7 +73,7 @@ class newThread(QThread):
         if mode == 3:
             self.signal.emit("开始")
             link = "https://ianzb.github.io/program/Windows/"
-            res = requests.get(link + "index.html")
+            res = requests.get(urlJoin(link, "index.html"))
             res.encoding = "UTF-8"
             soup = bs4.BeautifulSoup(res.text, "lxml")
             data = soup.find_all(name="div", class_="download", text=re.compile("."))
@@ -81,7 +81,7 @@ class newThread(QThread):
             self.signal.emit("总共" + str(len(data)))
             for i in range(len(data)):
                 self.signal.emit(data[i])
-                download(link + data[i])
+                download(urlJoin(link, data[i]))
             self.signal.emit("完成")
         if mode == 4:
             for i in range(len(lib_list)):
@@ -320,7 +320,7 @@ class tab3(QFrame, QWidget):
         self.progressBar.setValue(int(100 / self.number * self.count))
 
     def btn42(self):
-        if ":\编程\program\docs" in abs_path:
+        if ":\编程\program" in abs_path:
             InfoBar.warning(
                 title="警告",
                 content="开发者目录禁止更新！",
