@@ -71,9 +71,9 @@ class newThread(QThread):
             clearFile(readSetting("sort"))
             self.signal.emit("完成")
         if mode == 2:
-            restartExplorer()
+            cmd("taskkill /f /im explorer.exe")
             self.signal.emit("完成")
-
+            cmd("start C:/windows/explorer.exe")
         if mode == 3:
             self.signal.emit("开始")
             link = "https://ianzb.github.io/program/Windows/"

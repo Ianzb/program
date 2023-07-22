@@ -148,10 +148,7 @@ def urlJoin(url1, url2):
 
 # 更好的CMD
 def cmd(command):
-    result = os.popen(str(command))
-    word = result.read()
-    result.close()
-    return word
+    return os.popen(str(command)).read()
 
 
 # 是否存在
@@ -461,11 +458,6 @@ def clearRubbish():
     logging.info("成功清理回收站")
 
 
-# 重启文件资源管理器
-def restartExplorer():
-    cmd("taskkill /f /im explorer.exe & start C:/windows/explorer.exe")
-
-
 # 更新模块下载文件
 def download(link):
     import requests
@@ -500,25 +492,7 @@ def addToStartMenu():
 
 
 # 开机自启动
-# autoRun(switch="open", zdynames=os.path.basename(join(path, "hide.pyw"))
-# autoRun(switch="close", zdynames=os.path.basename(join(path, "hide.pyw"))
-# 判断键是否存在
-def judgeKey(key_name,
-             reg_root=win32con.HKEY_CURRENT_USER,  # 根节点  其中的值可以有：HKEY_CLASSES_ROOT、HKEY_CURRENT_USER、HKEY_LOCAL_MACHINE、HKEY_USERS、HKEY_CURRENT_CONFIG
-             reg_path=r"SOFTWARE\Microsoft\Windows\CurrentVersion\Run",  # 键的路径
-             ):
-    """
-    :param key_name: #  要查询的键名
-    :param reg_root: # 根节点
-    #win32con.HKEY_CURRENT_USER
-    #win32con.HKEY_CLASSES_ROOT
-    #win32con.HKEY_CURRENT_USER
-    #win32con.HKEY_LOCAL_MACHINE
-    #win32con.HKEY_USERS
-    #win32con.HKEY_CURRENT_CONFIG
-    :param reg_path: #  键的路径
-    :return:feedback是（0/1/2/3：存在/不存在/权限不足/报错）
-    """
+def judgeKey(key_name, reg_root=win32con.HKEY_CURRENT_USER, reg_path=r"SOFTWARE\Microsoft\Windows\CurrentVersion\Run"):
     reg_flags = win32con.WRITE_OWNER | win32con.KEY_WOW64_64KEY | win32con.KEY_ALL_ACCESS
     try:
         key = winreg.OpenKey(reg_root, reg_path, 0, reg_flags)
@@ -537,28 +511,13 @@ def judgeKey(key_name,
     return feedback
 
 
-def autoRun(switch="open",  # 开：open # 关：close
-            zdynames=None,
-            current_file=None,
-            abspath=abs_path):
-    """
-    :param switch: 注册表开启、关闭自启动
-    :param zdynames: 当前文件名
-    :param current_file: 获得文件名的前部分
-    :param abspath: 当前文件路径
-    :return:
-    """
+def autoRun(switch="open", zdynames=None, current_file=None, abspath=abs_path):
     logging.info(zdynames)
-
-    path = abspath + "\\" + zdynames  # 要添加的exe完整路径如：
-    judge_key = judgeKey(reg_root=win32con.HKEY_CURRENT_USER,
-                         reg_path=r"Software\Microsoft\Windows\CurrentVersion\Run",  # 键的路径
-                         key_name=current_file)
-    # 注册表项名
+    path = abspath + "\\" + zdynames
+    judge_key = judgeKey(reg_root=win32con.HKEY_CURRENT_USER, reg_path=r"Software\Microsoft\Windows\CurrentVersion\Run", key_name=current_file)
     KeyName = r"Software\Microsoft\Windows\CurrentVersion\Run"
     key = win32api.RegOpenKey(win32con.HKEY_CURRENT_USER, KeyName, 0, win32con.KEY_ALL_ACCESS)
     if switch == "open":
-        # 异常处理
         try:
             if judge_key == 0:
                 logging.info("已经开启开机自启动")
@@ -571,7 +530,7 @@ def autoRun(switch="open",  # 开：open # 关：close
     elif switch == "close":
         try:
             if judge_key == 0:
-                win32api.RegDeleteValue(key, current_file)  # 删除值
+                win32api.RegDeleteValue(key, current_file)
                 win32api.RegCloseKey(key)
                 logging.info("成功删除键！")
             elif judge_key == 1:
