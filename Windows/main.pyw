@@ -428,7 +428,7 @@ class Tray(QSystemTrayIcon):
         self.menu.exec(QCursor.pos(), ani=True, aniType=MenuAnimationType.PULL_UP)
 
 
-class Window(FramelessWindow):
+class Window(AcrylicWindow):
 
     def __init__(self):
         super().__init__()
