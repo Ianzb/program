@@ -73,6 +73,9 @@ class settingInterface(ScrollArea):
             "By " + zb_name + " 2022-2023\n版本 " + version,
             self.aboutGroup
         )
+        # self.aboutCard.infoBar1.setParent(self.scrollWidget)
+        # self.aboutCard.infoBar2.setParent(self.scrollWidget)
+        # self.aboutCard.infoBar3.setParent(self.scrollWidget)
 
         self.__initWidget()
 
