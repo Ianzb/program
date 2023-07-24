@@ -153,7 +153,6 @@ class ExampleCard(QWidget):
             i.setParent(self.card)
             self.topLayout.addWidget(i)
 
-
             i.show()
         if self.stretch == 0:
             self.topLayout.addStretch(1)
@@ -162,7 +161,6 @@ class ExampleCard(QWidget):
         # self.bottomLayout.addStretch(1)
         # self.bottomLayout.addWidget(self.linkIcon, 0, Qt.AlignRight)
         # self.bottomLayout.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-
 
 
 class GalleryInterface(ScrollArea):

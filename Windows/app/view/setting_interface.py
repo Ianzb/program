@@ -49,18 +49,17 @@ class settingInterface(ScrollArea):
             self.personalGroup
         )
         self.linkCard = pushSettingCard(
-            ["桌面","开始菜单"],
+            ["桌面", "开始菜单"],
             FIF.ADD_TO,
             "添加快捷方式",
             "添加程序的快捷方式至您的计算机中",
             self.personalGroup
         )
 
-
         self.aboutGroup = SettingCardGroup("关于", self.scrollWidget)
         self.helpCard = linkCard(
-            [program_url,"start NotePad.exe " + join(user_path, "zb/zb.log"),abs_path],
-            ["打开程序官网","查看运行日志","打开安装目录"],
+            [program_url, "start NotePad.exe " + join(user_path, "zb/zb.log"), abs_path],
+            ["打开程序官网", "查看运行日志", "打开安装目录"],
             FIF.HELP,
             "帮助",
             "查看" + program_name + "使用方法",
@@ -73,9 +72,6 @@ class settingInterface(ScrollArea):
             "By " + zb_name + " 2022-2023\n版本 " + version,
             self.aboutGroup
         )
-        # self.aboutCard.infoBar1.setParent(self.scrollWidget)
-        # self.aboutCard.infoBar2.setParent(self.scrollWidget)
-        # self.aboutCard.infoBar3.setParent(self.scrollWidget)
 
         self.__initWidget()
 

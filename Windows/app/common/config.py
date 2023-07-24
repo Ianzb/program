@@ -40,39 +40,6 @@ class updateSettingCard(SettingCard):
         self.hBoxLayout.addWidget(self.pushButton1, 0, Qt.AlignRight)
         self.hBoxLayout.addWidget(self.pushButton2, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
-        self.infoBar1 = InfoBar(
-            icon=InfoBarIcon.SUCCESS,
-            title="提示",
-            content="运行库安装成功！",
-            orient=Qt.Horizontal,
-            isClosable=True,
-            position=InfoBarPosition.TOP,
-            duration=2000,
-            parent=self
-        )
-        self.infoBar1.hide()
-        self.infoBar2 = InfoBar(
-            icon=InfoBarIcon.WARNING,
-            title="警告",
-            content="开发者目录禁止更新！",
-            orient=Qt.Horizontal,
-            isClosable=False,
-            position=InfoBarPosition.TOP_LEFT,
-            duration=2000,
-            parent=self
-        )
-        self.infoBar2.hide()
-        self.infoBar3 = InfoBar(
-            icon=InfoBarIcon.INFORMATION,
-            title="提示",
-            content="更新成功，重新运行后生效！",
-            orient=Qt.Vertical,
-            isClosable=True,
-            position=InfoBarPosition.TOP_RIGHT,
-            duration=5000,
-            parent=self
-        )
-        self.infoBar3.hide()
 
     def btn1(self):
         self.label.setHidden(False)
@@ -90,6 +57,16 @@ class updateSettingCard(SettingCard):
             self.progressBar.setValue(0)
             self.progressBar.setHidden(True)
             self.label.setHidden(True)
+            self.infoBar1 = InfoBar(
+                icon=InfoBarIcon.SUCCESS,
+                title="提示",
+                content="运行库安装成功！",
+                orient=Qt.Horizontal,
+                isClosable=True,
+                position=InfoBarPosition.TOP,
+                duration=2000,
+                parent=self
+            )
             self.infoBar1.show()
             self.pushButton1.setEnabled(True)
             self.pushButton2.setEnabled(True)
@@ -102,6 +79,16 @@ class updateSettingCard(SettingCard):
 
     def btn2(self):
         if ":\编程\program" in abs_path:
+            self.infoBar2 = InfoBar(
+                icon=InfoBarIcon.WARNING,
+                title="警告",
+                content="开发者目录禁止更新！",
+                orient=Qt.Horizontal,
+                isClosable=False,
+                position=InfoBarPosition.TOP_LEFT,
+                duration=2000,
+                parent=self
+            )
             self.infoBar2.show()
             return
         self.label.setHidden(False)
@@ -123,6 +110,16 @@ class updateSettingCard(SettingCard):
             self.progressBar.setValue(0)
             self.progressBar.setHidden(True)
             self.label.setHidden(True)
+            self.infoBar3 = InfoBar(
+                icon=InfoBarIcon.INFORMATION,
+                title="提示",
+                content="更新成功，重新运行后生效！",
+                orient=Qt.Vertical,
+                isClosable=True,
+                position=InfoBarPosition.TOP_RIGHT,
+                duration=5000,
+                parent=self
+            )
             self.infoBar3.show()
             self.pushButton1.setEnabled(True)
             self.pushButton2.setEnabled(True)
