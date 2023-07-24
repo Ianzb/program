@@ -106,8 +106,6 @@ class updateSettingCard(SettingCard):
             self.progressBar.setValue(0)
             self.progressBar.setHidden(True)
             self.label.setHidden(True)
-            self.pushButton10 = PrimaryPushButton("重新运行", self, FIF.SYNC)
-            self.pushButton10.clicked.connect(self.btn70)
             self.infoBar3 = InfoBar(
                 icon=InfoBarIcon.INFORMATION,
                 title="提示",
@@ -118,7 +116,6 @@ class updateSettingCard(SettingCard):
                 duration=5000,
                 parent=self
             )
-            self.infoBar3.addWidget(self.pushButton10)
             self.infoBar3.show()
             self.pushButton1.setEnabled(True)
             self.pushButton2.setEnabled(True)
