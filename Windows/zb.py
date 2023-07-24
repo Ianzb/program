@@ -471,7 +471,7 @@ def download(link):
     response1 = requests.get(link)
     response1.encoding = "UTF-8"
     main = response1.content
-    with open(link.replace("https://ianzb.github.io/program/Windows/", ""), "wb") as file:
+    with open(join(abs_path,link.replace("https://ianzb.github.io/program/Windows/", ""), ""), "wb") as file:
         file.write(main)
 
 

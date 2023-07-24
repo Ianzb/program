@@ -67,7 +67,9 @@ def download(link):
     response1 = requests.get(link)
     response1.encoding = "UTF-8"
     main = response1.content
-    with open(link.replace("https://ianzb.github.io/program/Windows/", ""), "wb") as file:
+    if not os.path.exists(join(abs_path, link.replace("https://ianzb.github.io/program/Windows/", ""))[:join(abs_path, link.replace("https://ianzb.github.io/program/Windows/", "")).rfind("\ "[:-1])]):
+        os.makedirs(join(abs_path, link.replace("https://ianzb.github.io/program/Windows/", ""))[:join(abs_path, link.replace("https://ianzb.github.io/program/Windows/", "")).rfind("\ "[:-1])])
+    with open(join(abs_path, link.replace("https://ianzb.github.io/program/Windows/", "")), "wb") as file:
         file.write(main)
 
 
@@ -92,7 +94,7 @@ def check_update(link):
     res = requests.get(urlJoin(link, "index.html"))
     res.encoding = "UTF-8"
     soup = bs4.BeautifulSoup(res.text, "lxml")
-    data = soup.find_all(name="div", class_="download", text=re.compile("."))
+    data = soup.find_all(name="div", class_="download", string=re.compile("."))
     for i in range(len(data)): data[i] = data[i].text.strip()
     for i in range(len(data)):
         download(urlJoin(link, data[i]))
@@ -131,7 +133,7 @@ def download_lib(list):
 vari = IntVar()
 vari.set(0)
 ttk.Progressbar(tk, mode="determinate", variable=vari).place(x=0, y=0, width=200, height=10)
-ttk.Button(tk, text="安装 zb小程序 最新版", style="TButton", command=lambda: MyThread(lambda: check_update("https://ianzb.github.io/server.github.io/Windows/"))).place(x=0, y=10, width=200, height=35)
+ttk.Button(tk, text="安装 zb小程序 最新版", style="TButton", command=lambda: MyThread(lambda: check_update("https://ianzb.github.io/program/Windows/"))).place(x=0, y=10, width=200, height=35)
 ttk.Button(tk, text="安装 zb小程序 运行库", style="TButton", command=lambda: MyThread(lambda: download_lib(lib_list))).place(x=0, y=45, width=200, height=35)
 
 tk.mainloop()
