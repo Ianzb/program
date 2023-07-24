@@ -471,7 +471,7 @@ def download(link):
     response1 = requests.get(link)
     response1.encoding = "UTF-8"
     main = response1.content
-    with open(link[link.rfind("/") + 1:], "wb") as file:
+    with open(link.replace("https://ianzb.github.io/program/Windows/",""), "wb") as file:
         file.write(main)
 
 
@@ -610,3 +610,4 @@ class newThread(QThread):
                 if readSetting("show") == "1":
                     saveSetting("show", "0")
                     self.signal.emit("展示")
+print(urlJoin("https://ianzb.github.io/program/Windows/", "app/view/setting_interface.py"))
