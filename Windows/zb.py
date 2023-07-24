@@ -2,6 +2,12 @@ import os, sys, winreg, logging
 
 # 通用变量
 version = "2.0.0"
+zb_name = "Ianzb"
+program_name = "zb小程序"
+title_name = program_name + " " + version
+zb_url = "https://ianzb.github.io/"
+program_url = "https://ianzb.github.io/program/"
+github_url = "https://github.com/Ianzb/program"
 old_path = os.getcwd()
 abs_path = sys.argv[0][:sys.argv[0].rfind(r"\ "[:-1])]
 abs_name = sys.argv[0][sys.argv[0].rfind(r"\ "[:-1]) + 1:]
@@ -260,7 +266,8 @@ def onlyRead(path, mode):
 # 复制
 def copy(old, new):
     if isFile(old):
-        if isDir(new):
+        if isDir(new) or "." not in new:
+            mkDir(new)
             new = join(new, baseName(old))
         if exists(new):
             i = 1
@@ -488,7 +495,7 @@ def createLink(name="快捷方式", path="", to=abs_desktop, icon=""):
 # 添加至开始菜单
 def addToStartMenu():
     path = join(user_path, "AppData\Roaming\Microsoft\Windows\Start Menu\Programs")
-    createLink(name="zb小程序", path=join(abs_path, "main.pyw"), to=path, icon=join(abs_path, "logo.ico"))
+    createLink(name="zb小程序", path=join(abs_path, "main.pyw"), to=path, icon=join(abs_path, "img/logo.ico"))
 
 
 # 开机自启动
@@ -541,3 +548,65 @@ def autoRun(switch="open", zdynames=None, current_file=None, abspath=abs_path):
                 logging.info("出现错误")
         except:
             logging.info("删除失败")
+
+
+from PyQt5 import *
+from PyQt5 import QtCore
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
+from qfluentwidgets import *
+from qfluentwidgets import FluentIcon as FIF
+from qfluentwidgets.components.widgets.menu import *
+from qframelesswindow import *
+
+
+class newThread(QThread):
+    signal = pyqtSignal(str)
+
+    def __init__(self, mode):
+        super().__init__()
+        self.mode = mode
+
+    def run(self):
+        mode = self.mode
+        if mode == 1:
+            MyThread(lambda: clearRubbish())
+            MyThread(lambda: clearCache())
+            clearDesk(readSetting("sort"))
+            if readSetting("wechat") != "":
+                clearWechat(readSetting("wechat"), readSetting("sort"))
+            clearFile(readSetting("sort"))
+            self.signal.emit("完成")
+        if mode == 2:
+            cmd("taskkill /f /im explorer.exe")
+            self.signal.emit("完成")
+            cmd("start C:/windows/explorer.exe")
+        if mode == 3:
+            self.signal.emit("开始")
+            link = "https://ianzb.github.io/program/Windows/"
+            res = requests.get(urlJoin(link, "index.html"))
+            res.encoding = "UTF-8"
+            soup = bs4.BeautifulSoup(res.text, "lxml")
+            data = soup.find_all(name="div", class_="download", text=re.compile("."))
+            for i in range(len(data)): data[i] = data[i].text.strip()
+            self.signal.emit("总共" + str(len(data)))
+            for i in range(len(data)):
+                self.signal.emit(data[i])
+                download(urlJoin(link, data[i]))
+            self.signal.emit("完成")
+        if mode == 4:
+            for i in range(len(lib_list)):
+                self.signal.emit(str(i))
+                pipInstall(lib_list[i])
+            self.signal.emit("完成")
+        if mode == 5:
+            str1 = getMc()
+            self.signal.emit(str1)
+
+        if mode == 8:
+            while True:
+                time.sleep(0.1)
+                if readSetting("show") == "1":
+                    saveSetting("show", "0")
+                    self.signal.emit("展示")
