@@ -29,7 +29,7 @@ class updateSettingCard(SettingCard):
         self.label.setAlignment(Qt.AlignCenter)
         self.label.setFont(QFont("等线", 10))
         self.label.setHidden(True)
-        self.label.setText("123")
+        self.label.setText("")
         self.hBoxLayout.addWidget(self.label, 0, Qt.AlignRight)
         self.hBoxLayout.addWidget(self.progressBar, 0, Qt.AlignLeft)
         self.hBoxLayout.addWidget(self.pushButton1, 0, Qt.AlignRight)
@@ -103,6 +103,9 @@ class updateSettingCard(SettingCard):
             self.count = 0
             self.number = 20
         if msg == "无需更新":
+            self.progressBar.setValue(0)
+            self.progressBar.setHidden(True)
+            self.label.setHidden(True)
             self.infoBar4 = InfoBar(
                 icon=InfoBarIcon.INFORMATION,
                 title="提示",
@@ -110,10 +113,12 @@ class updateSettingCard(SettingCard):
                 orient=Qt.Vertical,
                 isClosable=True,
                 position=InfoBarPosition.TOP_RIGHT,
-                duration=5000,
+                duration=3000,
                 parent=self.parent
             )
             self.infoBar4.show()
+            self.pushButton1.setEnabled(True)
+            self.pushButton2.setEnabled(True)
             return
         if msg == "完成":
             self.progressBar.setValue(0)
