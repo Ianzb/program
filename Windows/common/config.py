@@ -136,7 +136,7 @@ class updateSettingCard(SettingCard):
 
             )
 
-            self.pushButton3 = PushButton("重新运行", self, FIF.RETURN)
+            self.pushButton3 = PushButton("重新运行", self, FIF.SYNC)
             self.pushButton3.clicked.connect(self.btn3_1)
             self.infoBar3.addWidget(self.pushButton3)
             self.infoBar3.show()
