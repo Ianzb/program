@@ -8,6 +8,7 @@ title_name = program_name + " " + version
 zb_url = "https://ianzb.github.io/"
 program_url = "https://ianzb.github.io/program/"
 github_url = "https://github.com/Ianzb/program/"
+update_url="https://ianzb.github.io/program/Windows/"
 old_path = os.getcwd()
 abs_path = sys.argv[0][:sys.argv[0].rfind(r"\ "[:-1])]
 abs_name = sys.argv[0][sys.argv[0].rfind(r"\ "[:-1]) + 1:]
@@ -126,6 +127,7 @@ if "python" in p.read().strip():
     sys.exit()
 
 # 导入运行库
+from PyQt5.QtCore import *
 import traceback, shutil, re, time, hashlib, threading, ctypes, stat, bs4, lxml, urllib.parse, requests, send2trash, winshell, platform, webbrowser, win32api, win32con, win32com.client, random
 
 # 任务栏图标加载
@@ -471,7 +473,7 @@ def download(link):
     response1 = requests.get(link)
     response1.encoding = "UTF-8"
     main = response1.content
-    with open(join(abs_path,link.replace("https://ianzb.github.io/program/Windows/", ""), ""), "wb") as file:
+    with open(join(abs_path, link.replace("https://ianzb.github.io/program/Windows/", ""), ""), "wb") as file:
         file.write(main)
 
 
@@ -548,19 +550,13 @@ def autoRun(switch="open", zdynames=None, current_file=None, abspath=abs_path):
                 logging.info("出现错误")
         except:
             logging.info("删除失败")
-
-
-from PyQt5 import *
-from PyQt5 import QtCore
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
-from qfluentwidgets import *
-from qfluentwidgets import FluentIcon as FIF
-from qfluentwidgets.components.widgets.menu import *
-from qframelesswindow import *
-
-
+def getVersion():
+    res = requests.get(urlJoin(update_url, "history.html"))
+    res.encoding = "UTF-8"
+    soup = bs4.BeautifulSoup(res.text, "lxml")
+    data = soup.find_all(name="div", class_="zb update")
+    print(data)
+#getVersion()
 class newThread(QThread):
     signal = pyqtSignal(str)
 
@@ -584,8 +580,7 @@ class newThread(QThread):
             cmd("start C:/windows/explorer.exe")
         if mode == 3:
             self.signal.emit("开始")
-            link = "https://ianzb.github.io/program/Windows/"
-            res = requests.get(urlJoin(link, "index.html"))
+            res = requests.get(urlJoin(update_url, "index.html"))
             res.encoding = "UTF-8"
             soup = bs4.BeautifulSoup(res.text, "lxml")
             data = soup.find_all(name="div", class_="download", text=re.compile("."))
@@ -593,7 +588,7 @@ class newThread(QThread):
             self.signal.emit("总共" + str(len(data)))
             for i in range(len(data)):
                 self.signal.emit(data[i])
-                download(urlJoin(link, data[i]))
+                download(urlJoin(update_url, data[i]))
             self.signal.emit("完成")
         if mode == 4:
             for i in range(len(lib_list)):
