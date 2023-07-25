@@ -583,6 +583,7 @@ class newThread(QThread):
             self.signal.emit("开始")
             if getVersion()==version:
                 self.signal.emit("无需更新")
+                return
             res = requests.get(urlJoin(update_url, "index.html"))
             res.encoding = "UTF-8"
             soup = bs4.BeautifulSoup(res.text, "lxml")

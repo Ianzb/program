@@ -114,6 +114,7 @@ class updateSettingCard(SettingCard):
                 parent=self.parent
             )
             self.infoBar4.show()
+            return
         if msg == "完成":
             self.progressBar.setValue(0)
             self.progressBar.setHidden(True)
