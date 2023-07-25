@@ -13,6 +13,7 @@ class updateSettingCard(SettingCard):
     def __init__(self, text, icon: Union[str, QIcon, FluentIconBase], title, content=None, parent=None):
 
         super().__init__(icon, title, content, parent)
+        self.parent=parent
         self.pushButton1 = PushButton("安装运行库", self, FIF.DOWNLOAD)
         self.pushButton1.clicked.connect(self.btn1)
         self.pushButton2 = PrimaryPushButton("检查更新", self, FIF.DOWNLOAD)
@@ -57,7 +58,7 @@ class updateSettingCard(SettingCard):
                 isClosable=True,
                 position=InfoBarPosition.TOP,
                 duration=2000,
-                parent=self
+                parent=self.parent
             )
             self.infoBar1.show()
             self.pushButton1.setEnabled(True)
@@ -79,7 +80,7 @@ class updateSettingCard(SettingCard):
                 isClosable=False,
                 position=InfoBarPosition.TOP_LEFT,
                 duration=2000,
-                parent=self
+                parent=self.parent
             )
             self.infoBar2.show()
             return
@@ -107,7 +108,7 @@ class updateSettingCard(SettingCard):
                 isClosable=True,
                 position=InfoBarPosition.TOP_RIGHT,
                 duration=5000,
-                parent=self
+                parent=self.parent
             )
             self.infoBar4.show()
         if msg == "完成":
@@ -122,7 +123,7 @@ class updateSettingCard(SettingCard):
                 isClosable=True,
                 position=InfoBarPosition.TOP_RIGHT,
                 duration=5000,
-                parent=self
+                parent=self.parent
             )
             self.infoBar3.show()
             self.pushButton1.setEnabled(True)
