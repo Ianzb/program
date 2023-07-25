@@ -7,7 +7,7 @@ from qfluentwidgets import *
 from qfluentwidgets import FluentIcon as FIF
 from qfluentwidgets.components.widgets.menu import *
 from qframelesswindow import *
-from Windows.zb import *
+from zb import *
 from .gallery_interface import GalleryInterface
 
 

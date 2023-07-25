@@ -1,5 +1,5 @@
 from view.main_window import *
-from Windows.common.resource import *
+from common.resource import *
 
 saveSetting(abs_cache, os.getpid())
 

@@ -1,5 +1,5 @@
-from Windows.common.config import *
-from Windows.common.style_sheet import StyleSheet
+from common.config import *
+from common.style_sheet import StyleSheet
 
 
 class settingInterface(ScrollArea):
