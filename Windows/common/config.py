@@ -1,3 +1,5 @@
+import sys
+
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from qfluentwidgets import *
@@ -33,6 +35,7 @@ class updateSettingCard(SettingCard):
         self.hBoxLayout.addWidget(self.pushButton1, 0, Qt.AlignRight)
         self.hBoxLayout.addWidget(self.pushButton2, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
+
 
     def btn1(self):
         self.label.setHidden(False)
@@ -124,7 +127,12 @@ class updateSettingCard(SettingCard):
                 position=InfoBarPosition.TOP_RIGHT,
                 duration=5000,
                 parent=self.parent
+
             )
+
+            self.pushButton3 = PushButton("重新运行", self, FIF.RETURN)
+            self.pushButton3.clicked.connect(self.btn3_1)
+            self.infoBar3.addWidget(self.pushButton3)
             self.infoBar3.show()
             self.pushButton1.setEnabled(True)
             self.pushButton2.setEnabled(True)
@@ -136,8 +144,9 @@ class updateSettingCard(SettingCard):
             self.label.setText("正在更新 " + msg + " " + str(int(100 / self.number * (self.count - 1))) + "%")
         self.progressBar.setValue(int(100 / self.number * (self.count - 1)))
 
-    def flush(self):
-        pass
+    def btn3_1(self):
+        os.popen("main.pyw")
+        sys.exit()
 
 
 class pushSettingCard(SettingCard):
