@@ -60,19 +60,16 @@ class MainWindow(FluentWindow):
         super().__init__()
         self.initWindow()
         self.tray = Tray(self)
-        # create sub interface
         self.settingInterface = settingInterface(self)
         self.mainInterface = mainInterface(self)
 
-        # initialize layout
         self.initLayout()
-
-        # add items to navigation interface
         self.initNavigation()
         self.splashScreen.finish()
         self.thread = newThread(8)
         self.thread.signal.connect(self.ifShow)
         self.thread.start()
+        self.showMaximized()
 
     def ifShow(self, msg):
         if msg == "展示":
@@ -83,13 +80,11 @@ class MainWindow(FluentWindow):
         signalBus.supportSignal.connect(self.onSupport)
 
     def initNavigation(self):
-        # add navigation items
         self.navigationInterface.addSeparator()
 
         pos = NavigationItemPosition.SCROLL
         self.addSubInterface(self.mainInterface, FIF.HOME, "主页", pos)
 
-        # add custom widget to bottom
         self.navigationInterface.addWidget(
             routeKey="avatar",
             widget=NavigationAvatarWidget(zb_name, "img/zb.png"),
@@ -105,7 +100,6 @@ class MainWindow(FluentWindow):
         self.setWindowIcon(QIcon("img/logo.png"))
         self.setWindowTitle(title_name)
 
-        # create splash screen
         self.splashScreen = SplashScreen(self.windowIcon(), self)
         self.splashScreen.setIconSize(QSize(106, 106))
         self.splashScreen.raise_()

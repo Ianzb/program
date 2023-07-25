@@ -173,7 +173,7 @@ class checkBoxSettingCard(SettingCard):
         super().__init__(icon, title, content, parent)
         self.checkBox = CheckBox("开机自启动", self)
         self.checkBox.clicked.connect(self.btn1)
-        if readSetting("startupdate") == "1":
+        if readSetting("start") == "1":
             self.checkBox.setChecked(True)
         else:
             self.checkBox.setChecked(False)
@@ -182,10 +182,10 @@ class checkBoxSettingCard(SettingCard):
 
     def btn1(self):
         if self.checkBox.isChecked():
-            saveSetting("startupdate", "1")
+            saveSetting("start", "1")
             autoRun(switch="open", zdynames=os.path.basename(join(abs_path, "main.pyw")), current_file="zb小程序")
         else:
-            saveSetting("startupdate", "0")
+            saveSetting("start", "0")
             autoRun(switch="close", zdynames=os.path.basename(join(abs_path, "main.pyw")), current_file="zb小程序")
 
 
