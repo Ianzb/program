@@ -555,8 +555,9 @@ def getVersion():
     res.encoding = "UTF-8"
     soup = bs4.BeautifulSoup(res.text, "lxml")
     data = soup.find_all(name="div", class_="zb update")
-    print(data)
-#getVersion()
+    data=data[0].text.rstrip().split("\n")[-1].strip()
+    data=data[data.find("：")+1:data.rfind("：")]
+    return data
 class newThread(QThread):
     signal = pyqtSignal(str)
 
@@ -580,6 +581,8 @@ class newThread(QThread):
             cmd("start C:/windows/explorer.exe")
         if mode == 3:
             self.signal.emit("开始")
+            if getVersion()==version:
+                self.signal.emit("无需更新")
             res = requests.get(urlJoin(update_url, "index.html"))
             res.encoding = "UTF-8"
             soup = bs4.BeautifulSoup(res.text, "lxml")
