@@ -1,7 +1,7 @@
 from zb import *
 from main_window import *
 
-saveSetting(abs_cache, os.getpid())
+saveSetting("pid", abs_pid)
 
 QApplication.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
 QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)

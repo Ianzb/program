@@ -57,8 +57,8 @@ class newThread(QThread):
         if mode == 8:
             while True:
                 time.sleep(0.1)
-                if readSetting("show") == "1":
-                    saveSetting("show", "0")
+                if readSetting("shownow") == "1":
+                    saveSetting("shownow", "0")
                     self.signal.emit("展示")
 
 

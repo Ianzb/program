@@ -18,8 +18,8 @@ user_path = os.path.expanduser("~")
 abs_desktop = winreg.QueryValueEx(winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders"), "Desktop")[0]
 lib_list = ["PyQt5-sip", "pyqt5-tools", "PyQt5", "PyQt5Designer", "PyQt-Fluent-Widgets[full]", "lxml", "pypiwin32", "pandas", "numpy", "bs4", "requests", "send2trash", "winshell", "matplotlib", "openpyxl", "PyAudio", "python-xlib", "pymouse", "pyautogui", "PyUserInput", "psutil", "wmi"]
 sys.path.append(abs_path)
-sys.path.append(os.path.join(abs_path,"code"))
-# 切换工作路
+sys.path.append(os.path.join(abs_path, "code"))
+# 切换工作路径
 os.chdir(abs_path)
 
 
@@ -121,9 +121,9 @@ def saveSetting(name, data):
 
 
 # 重复运行检测
-p = os.popen("tasklist |findstr " + readSetting(abs_cache))
+p = os.popen("tasklist |findstr " + readSetting("pid"))
 if "python" in p.read().strip():
-    saveSetting("show", "1")
+    saveSetting("shownow", "1")
     logging.info("已运行zb小程序，将其唤醒，新运行的zb小程序自动退出")
     sys.exit()
 
@@ -560,5 +560,3 @@ def getVersion():
     data = data[0].text.rstrip().split("\n")[-1].strip()
     data = data[data.find("：") + 1:data.rfind("：")]
     return data
-
-
