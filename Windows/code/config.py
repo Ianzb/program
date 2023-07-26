@@ -1,12 +1,65 @@
-import sys
-
+from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from qfluentwidgets import *
 from qfluentwidgets import FluentIcon as FIF
 from qfluentwidgets.components.widgets.menu import *
 from qframelesswindow import *
+from resource import *
 from zb import *
+
+
+class newThread(QThread):
+    signal = pyqtSignal(str)
+
+    def __init__(self, mode):
+        super().__init__()
+        self.mode = mode
+
+    def run(self):
+        mode = self.mode
+        if mode == 1:
+            MyThread(lambda: clearRubbish())
+            MyThread(lambda: clearCache())
+            clearDesk(readSetting("sort"))
+            if readSetting("wechat") != "":
+                clearWechat(readSetting("wechat"), readSetting("sort"))
+            clearFile(readSetting("sort"))
+            self.signal.emit("完成")
+        if mode == 2:
+            cmd("taskkill /f /im explorer.exe")
+            self.signal.emit("完成")
+            cmd("start C:/windows/explorer.exe")
+        if mode == 3:
+            self.signal.emit("开始")
+            if getVersion() == version:
+                self.signal.emit("无需更新")
+                return
+            res = requests.get(urlJoin(update_url, "index.html"))
+            res.encoding = "UTF-8"
+            soup = bs4.BeautifulSoup(res.text, "lxml")
+            data = soup.find_all(name="div", class_="download", text=re.compile("."))
+            for i in range(len(data)): data[i] = data[i].text.strip()
+            self.signal.emit("总共" + str(len(data)))
+            for i in range(len(data)):
+                self.signal.emit(data[i])
+                download(urlJoin(update_url, data[i]))
+            self.signal.emit("完成")
+        if mode == 4:
+            for i in range(len(lib_list)):
+                self.signal.emit(str(i))
+                pipInstall(lib_list[i])
+            self.signal.emit("完成")
+        if mode == 5:
+            str1 = getMc()
+            self.signal.emit(str1)
+
+        if mode == 8:
+            while True:
+                time.sleep(0.1)
+                if readSetting("show") == "1":
+                    saveSetting("show", "0")
+                    self.signal.emit("展示")
 
 
 class updateSettingCard(SettingCard):
@@ -15,7 +68,7 @@ class updateSettingCard(SettingCard):
     def __init__(self, text, icon: Union[str, QIcon, FluentIconBase], title, content=None, parent=None):
 
         super().__init__(icon, title, content, parent)
-        self.parent=parent
+        self.parent = parent
         self.pushButton1 = PushButton("安装运行库", self, FIF.DOWNLOAD)
         self.pushButton1.clicked.connect(self.btn1)
         self.pushButton2 = PrimaryPushButton("检查更新", self, FIF.DOWNLOAD)
@@ -35,7 +88,6 @@ class updateSettingCard(SettingCard):
         self.hBoxLayout.addWidget(self.pushButton1, 0, Qt.AlignRight)
         self.hBoxLayout.addWidget(self.pushButton2, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
-
 
     def btn1(self):
         self.label.setHidden(False)
@@ -352,3 +404,95 @@ class CustomColorSettingCard(ExpandGroupSettingCard):
         self.color = QColor(color)
         saveSetting("color", self.color.name())
         self.colorChanged.emit(color)
+
+
+class SignalBus(QObject):
+    switchToSampleCard = pyqtSignal(str, int)
+    supportSignal = pyqtSignal()
+
+
+signalBus = SignalBus()
+
+
+class StyleSheet(StyleSheetBase, Enum):
+    LINK_CARD = "link_card"
+    SAMPLE_CARD = "sample_card"
+    HOME_INTERFACE = "home_interface"
+    ICON_INTERFACE = "icon_interface"
+    VIEW_INTERFACE = "view_interface"
+    SETTING_INTERFACE = "setting_interface"
+    GALLERY_INTERFACE = "gallery_interface"
+    NAVIGATION_VIEW_INTERFACE = "navigation_view_interface"
+
+    def path(self, theme=Theme.AUTO):
+        theme = qconfig.theme if theme == Theme.AUTO else theme
+        return f":/gallery/qss/{theme.value.lower()}/{self.value}.qss"
+
+
+from queue import Queue
+
+
+class Trie:
+
+    def __init__(self):
+        self.key = ''
+        self.value = None
+        self.children = [None] * 26
+        self.isEnd = False
+
+    def insert(self, key: str, value):
+        key = key.lower()
+
+        node = self
+        for c in key:
+            i = ord(c) - 97
+            if not 0 <= i < 26:
+                return
+
+            if not node.children[i]:
+                node.children[i] = Trie()
+
+            node = node.children[i]
+
+        node.isEnd = True
+        node.key = key
+        node.value = value
+
+    def get(self, key, default=None):
+        node = self.searchPrefix(key)
+        if not (node and node.isEnd):
+            return default
+
+        return node.value
+
+    def searchPrefix(self, prefix):
+        prefix = prefix.lower()
+        node = self
+        for c in prefix:
+            i = ord(c) - 97
+            if not (0 <= i < 26 and node.children[i]):
+                return None
+
+            node = node.children[i]
+
+        return node
+
+    def items(self, prefix):
+        node = self.searchPrefix(prefix)
+        if not node:
+            return []
+
+        q = Queue()
+        result = []
+        q.put(node)
+
+        while not q.empty():
+            node = q.get()
+            if node.isEnd:
+                result.append((node.key, node.value))
+
+            for c in node.children:
+                if c:
+                    q.put(c)
+
+        return result

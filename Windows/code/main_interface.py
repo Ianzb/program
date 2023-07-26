@@ -1,14 +1,4 @@
-from PyQt5 import *
-from PyQt5 import QtCore
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
-from qfluentwidgets import *
-from qfluentwidgets import FluentIcon as FIF
-from qfluentwidgets.components.widgets.menu import *
-from qframelesswindow import *
-from zb import *
-from .gallery_interface import GalleryInterface
+from gallery_interface import *
 
 
 class mainInterface(GalleryInterface):

@@ -1,7 +1,4 @@
-from PyQt5.QtWidgets import *
-from qfluentwidgets import *
-from qfluentwidgets.components.widgets.menu import *
-from common.style_sheet import StyleSheet
+from config import *
 
 
 class SeparatorWidget(QWidget):

@@ -1,5 +1,5 @@
-from view.main_window import *
-from common.resource import *
+from zb import *
+from main_window import *
 
 saveSetting(abs_cache, os.getpid())
 

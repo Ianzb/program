@@ -1,5 +1,4 @@
-from common.config import *
-from common.style_sheet import StyleSheet
+from gallery_interface import *
 
 
 class settingInterface(ScrollArea):

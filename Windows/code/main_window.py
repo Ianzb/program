@@ -1,5 +1,5 @@
-from .setting_interface import *
-from .main_interface import *
+from main_interface import *
+from setting_interface import *
 
 
 class SignalBus(QObject):
@@ -16,7 +16,6 @@ class Tray(QSystemTrayIcon):
         self.window = UI
         self.menu = RoundMenu()
         self.menu.addAction(Action(FIF.HOME, "打开", triggered=lambda: self.window.show()))
-        # self.menu.addSeparator()
         self.menu.addAction(Action(FIF.ALIGNMENT, "整理", triggered=lambda: self.window.mainInterface.btn1_1()))
         self.menu.addAction(Action(FIF.LINK, "官网", triggered=lambda: webbrowser.open(program_url)))
         self.menu.addAction(Action(FIF.CLOSE, "退出", triggered=lambda: sys.exit()))

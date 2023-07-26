@@ -8,7 +8,7 @@ title_name = program_name + " " + version
 zb_url = "https://ianzb.github.io/"
 program_url = "https://ianzb.github.io/program/"
 github_url = "https://github.com/Ianzb/program/"
-update_url="https://ianzb.github.io/program/Windows/"
+update_url = "https://ianzb.github.io/program/Windows/"
 old_path = os.getcwd()
 abs_path = sys.argv[0][:sys.argv[0].rfind(r"\ "[:-1])]
 abs_name = sys.argv[0][sys.argv[0].rfind(r"\ "[:-1]) + 1:]
@@ -17,7 +17,8 @@ abs_pid = os.getpid()
 user_path = os.path.expanduser("~")
 abs_desktop = winreg.QueryValueEx(winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders"), "Desktop")[0]
 lib_list = ["PyQt5-sip", "pyqt5-tools", "PyQt5", "PyQt5Designer", "PyQt-Fluent-Widgets[full]", "lxml", "pypiwin32", "pandas", "numpy", "bs4", "requests", "send2trash", "winshell", "matplotlib", "openpyxl", "PyAudio", "python-xlib", "pymouse", "pyautogui", "PyUserInput", "psutil", "wmi"]
-
+sys.path.append(abs_path)
+sys.path.append(os.path.join(abs_path,"code"))
 # 切换工作路
 os.chdir(abs_path)
 
@@ -127,7 +128,6 @@ if "python" in p.read().strip():
     sys.exit()
 
 # 导入运行库
-from PyQt5.QtCore import *
 import traceback, shutil, re, time, hashlib, threading, ctypes, stat, bs4, lxml, urllib.parse, requests, send2trash, winshell, platform, webbrowser, win32api, win32con, win32com.client, random
 
 # 任务栏图标加载
@@ -550,62 +550,15 @@ def autoRun(switch="open", zdynames=None, current_file=None, abspath=abs_path):
                 logging.info("出现错误")
         except:
             logging.info("删除失败")
+
+
 def getVersion():
     res = requests.get(urlJoin(update_url, "history.html"))
     res.encoding = "UTF-8"
     soup = bs4.BeautifulSoup(res.text, "lxml")
     data = soup.find_all(name="div", class_="zb update")
-    data=data[0].text.rstrip().split("\n")[-1].strip()
-    data=data[data.find("：")+1:data.rfind("：")]
+    data = data[0].text.rstrip().split("\n")[-1].strip()
+    data = data[data.find("：") + 1:data.rfind("：")]
     return data
-class newThread(QThread):
-    signal = pyqtSignal(str)
 
-    def __init__(self, mode):
-        super().__init__()
-        self.mode = mode
 
-    def run(self):
-        mode = self.mode
-        if mode == 1:
-            MyThread(lambda: clearRubbish())
-            MyThread(lambda: clearCache())
-            clearDesk(readSetting("sort"))
-            if readSetting("wechat") != "":
-                clearWechat(readSetting("wechat"), readSetting("sort"))
-            clearFile(readSetting("sort"))
-            self.signal.emit("完成")
-        if mode == 2:
-            cmd("taskkill /f /im explorer.exe")
-            self.signal.emit("完成")
-            cmd("start C:/windows/explorer.exe")
-        if mode == 3:
-            self.signal.emit("开始")
-            if getVersion()==version:
-                self.signal.emit("无需更新")
-                return
-            res = requests.get(urlJoin(update_url, "index.html"))
-            res.encoding = "UTF-8"
-            soup = bs4.BeautifulSoup(res.text, "lxml")
-            data = soup.find_all(name="div", class_="download", text=re.compile("."))
-            for i in range(len(data)): data[i] = data[i].text.strip()
-            self.signal.emit("总共" + str(len(data)))
-            for i in range(len(data)):
-                self.signal.emit(data[i])
-                download(urlJoin(update_url, data[i]))
-            self.signal.emit("完成")
-        if mode == 4:
-            for i in range(len(lib_list)):
-                self.signal.emit(str(i))
-                pipInstall(lib_list[i])
-            self.signal.emit("完成")
-        if mode == 5:
-            str1 = getMc()
-            self.signal.emit(str1)
-
-        if mode == 8:
-            while True:
-                time.sleep(0.1)
-                if readSetting("show") == "1":
-                    saveSetting("show", "0")
-                    self.signal.emit("展示")
