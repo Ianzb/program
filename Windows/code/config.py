@@ -65,10 +65,10 @@ class newThread(QThread):
 class updateSettingCard(SettingCard):
     clicked = pyqtSignal()
 
-    def __init__(self, text, icon: Union[str, QIcon, FluentIconBase], title, content=None, parent=None):
+    def __init__(self, text, icon: Union[str, QIcon, FluentIconBase], title, content=None, parent=None, parent2=None):
 
         super().__init__(icon, title, content, parent)
-        self.parent = parent
+        self.parent = parent2
         self.pushButton1 = PushButton("安装运行库", self, FIF.DOWNLOAD)
         self.pushButton1.clicked.connect(self.btn1)
         self.pushButton2 = PrimaryPushButton("检查更新", self, FIF.DOWNLOAD)

@@ -59,7 +59,8 @@ class settingInterface(ScrollArea):
             FIF.INFO,
             "关于",
             "By " + zb_name + " 2022-2023\n版本 " + version,
-            self.aboutGroup
+            self.aboutGroup,
+            self.scrollWidget,
         )
 
         self.__initWidget()
@@ -72,12 +73,10 @@ class settingInterface(ScrollArea):
         self.setWidgetResizable(True)
         self.setObjectName("设置")
 
-        # initialize style sheet
         self.scrollWidget.setObjectName("scrollWidget")
         self.settingLabel.setObjectName("settingLabel")
         StyleSheet.SETTING_INTERFACE.apply(self)
 
-        # initialize layout
         self.__initLayout()
         self.__connectSignalToSlot()
 
@@ -92,7 +91,6 @@ class settingInterface(ScrollArea):
         self.aboutGroup.addSettingCard(self.helpCard)
         self.aboutGroup.addSettingCard(self.aboutCard)
 
-        # add setting card group to layout
         self.expandLayout.setSpacing(28)
         self.expandLayout.setContentsMargins(36, 10, 36, 0)
         self.expandLayout.addWidget(self.personalGroup)
