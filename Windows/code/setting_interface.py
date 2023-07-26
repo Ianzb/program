@@ -51,7 +51,7 @@ class settingInterface(ScrollArea):
             ["打开程序官网", "查看运行日志", "打开安装目录"],
             FIF.HELP,
             "帮助",
-            "查看" + program_name + "使用方法",
+            "帮助您解决" + program_name + "的相关问题",
             self.aboutGroup
         )
         self.aboutCard = updateSettingCard(
