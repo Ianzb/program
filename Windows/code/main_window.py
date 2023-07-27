@@ -2,14 +2,6 @@ from main_interface import *
 from setting_interface import *
 
 
-class SignalBus(QObject):
-    switchToSampleCard = pyqtSignal(str, int)
-    supportSignal = pyqtSignal()
-
-
-signalBus = SignalBus()
-
-
 class Tray(QSystemTrayIcon):
     def __init__(self, UI):
         super(Tray, self).__init__()
