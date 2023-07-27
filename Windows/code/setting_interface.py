@@ -60,7 +60,7 @@ class settingInterface(ScrollArea):
             "关于",
             "By " + zb_name + " 2022-2023\n版本 " + version,
             self.aboutGroup,
-            self.scrollWidget,
+            self,
         )
 
         self.__initWidget()
