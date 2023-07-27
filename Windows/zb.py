@@ -469,11 +469,12 @@ def clearRubbish():
 
 # 更新模块下载文件
 def download(link):
-    import requests
     response1 = requests.get(link)
     response1.encoding = "UTF-8"
     main = response1.content
-    with open(join(abs_path, link.replace("https://ianzb.github.io/program/Windows/", "")), "wb") as file:
+    if not os.path.exists(join(abs_path, link.replace(update_url, ""))[:join(abs, link.replace(update_url, "")).rfind("\ "[:-1])]):
+        os.makedirs(join(abs_path, link.replace(update_url, ""))[:join(abs, link.replace(update_url, "")).rfind("\ "[:-1])])
+    with open(join(abs_path, link.replace(update_url, "")), "wb") as file:
         file.write(main)
 
 
