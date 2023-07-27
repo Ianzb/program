@@ -1,7 +1,7 @@
 import os, sys, winreg, logging
 
 # 通用变量
-version = "2.0.0"
+version = "2.0.1"
 zb_name = "Ianzb"
 program_name = "zb小程序"
 title_name = program_name + " " + version
