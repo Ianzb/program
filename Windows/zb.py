@@ -16,7 +16,7 @@ abs_cache = abs_name[:abs_name.rfind(".")]
 abs_pid = os.getpid()
 user_path = os.path.expanduser("~")
 abs_desktop = winreg.QueryValueEx(winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders"), "Desktop")[0]
-lib_list = ["PyQt5-sip", "pyqt5-tools", "PyQt5", "PyQt5Designer", "PyQt-Fluent-Widgets[full]", "lxml", "pypiwin32", "pandas", "numpy", "bs4", "requests", "send2trash", "winshell", "matplotlib", "openpyxl", "PyAudio", "python-xlib", "pymouse", "pyautogui", "PyUserInput", "psutil", "wmi"]
+lib_list = ["PyQt-Fluent-Widgets[full]", "requests", "bs4", "lxml", "pypiwin32", "pandas", "send2trash", "winshell"]
 sys.path.append(abs_path)
 sys.path.append(os.path.join(abs_path, "code"))
 # 切换工作路径

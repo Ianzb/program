@@ -18,7 +18,7 @@ if not os.path.exists(install_path):
     os.makedirs(install_path)
 # 加载信息
 using = False
-lib_list = ["PyQt5-sip", "pyqt5-tools", "PyQt5", "PyQt5Designer", "PyQt-Fluent-Widgets[full]", "sv-ttk", "lxml", "pypiwin32", "pandas", "numpy", "bs4", "requests", "send2trash", "winshell", "matplotlib", "openpyxl", "PyAudio", "python-xlib", "pymouse", "pyautogui", "PyUserInput", "psutil", "wmi"]
+lib_list = ["PyQt-Fluent-Widgets[full]", "requests", "bs4", "lxml", "pypiwin32", "pandas", "send2trash", "winshell"]
 # 窗口初始化
 tk = Tk()
 tk.title("zb小程序安装器")
