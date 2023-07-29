@@ -114,9 +114,9 @@ def check_update(link):
 
 
 def pip_install(name):
-    p = os.popen("pip install " + name + " -i  https://pypi.mirrors.ustc.edu.cn/simple/")
+    p = os.popen("pip install " + name + " -i https://pypi.tuna.tsinghua.edu.cn/simple some-package")
     print(p.read())
-    p = os.popen("pip install --upgrade " + name + " -i  https://pypi.mirrors.ustc.edu.cn/simple/")
+    p = os.popen("pip install --upgrade " + name + " -i https://pypi.tuna.tsinghua.edu.cn/simple some-package")
     print(p.read())
 
 

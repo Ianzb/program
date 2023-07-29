@@ -1,7 +1,7 @@
 import os, sys, winreg, logging
 
 # 通用变量
-version = "2.0.1"
+version = "2.0.2"
 zb_name = "Ianzb"
 program_name = "zb小程序"
 title_name = program_name + " " + version
@@ -30,6 +30,18 @@ def join(*data):
         path = os.path.join(path, i)
     path = path.replace("//", r"\ "[:-1]).replace(r"\\ "[:-1], r"\ "[:-1]).replace("\/", r"\ "[:-1]).replace("/\ "[:-1], r"\ "[:-1]).replace("/", r"\ "[:-1])
     return path
+
+
+# 更好的CMD
+def cmd(command):
+    return os.popen(str(command)).read()
+
+
+# pip安装模块
+def pipInstall(name):
+    logging.info("开始安装" + name + "运行库")
+    print(cmd("pip install " + name + " -i https://pypi.tuna.tsinghua.edu.cn/simple some-package"))
+    print(cmd("pip install --upgrade " + name + " -i https://pypi.tuna.tsinghua.edu.cn/simple some-package"))
 
 
 # 日志功能配置
@@ -128,8 +140,13 @@ if "python" in p.read().strip():
     sys.exit()
 
 # 导入运行库
-import traceback, shutil, re, time, hashlib, threading, ctypes, stat, bs4, lxml, urllib.parse, requests, send2trash, winshell, platform, webbrowser, win32api, win32con, win32com.client, random
-
+try:
+    import traceback, shutil, re, time, hashlib, threading, ctypes, stat, bs4, lxml, urllib.parse, requests, send2trash, winshell, platform, webbrowser, win32api, win32con, win32com.client, random
+except:
+    for i in lib_list:
+        pipInstall(i)
+    os.popen("main.pyw")
+    sys.exit()
 # 任务栏图标加载
 ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("zb小程序")
 
@@ -152,11 +169,6 @@ class MyThread(threading.Thread):
 # 网址拼接
 def urlJoin(url1, url2):
     return urllib.parse.urljoin(url1, url2)
-
-
-# 更好的CMD
-def cmd(command):
-    return os.popen(str(command)).read()
 
 
 # 是否存在
@@ -476,13 +488,6 @@ def download(link):
         os.makedirs(join(abs_path, link.replace(update_url, ""))[:join(abs, link.replace(update_url, "")).rfind("\ "[:-1])])
     with open(join(abs_path, link.replace(update_url, "")), "wb") as file:
         file.write(main)
-
-
-# pip安装模块
-def pipInstall(name):
-    logging.info("开始安装" + name + "运行库")
-    print(cmd("pip install " + name + " -i  https://pypi.mirrors.ustc.edu.cn/simple/"))
-    print(cmd("pip install --upgrade " + name + " -i  https://pypi.mirrors.ustc.edu.cn/simple/"))
 
 
 # 创建快捷方式
