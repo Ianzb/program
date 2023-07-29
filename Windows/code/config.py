@@ -226,10 +226,10 @@ class linkCard(SettingCard):
     def __init__(self, url, text, icon: Union[str, QIcon, FluentIconBase], title, content=None, parent=None):
         super().__init__(icon, title, content, parent)
         self.linkButton1 = HyperlinkButton("", text[0], self)
-        self.linkButton2 = HyperlinkButton(url[1], text[1], self)
-        self.linkButton3 = HyperlinkButton(url[2], text[2], self)
+        self.linkButton2 = HyperlinkButton("", text[1], self)
+        self.linkButton3 = HyperlinkButton("", text[2], self)
         self.linkButton1.clicked.connect(lambda: webbrowser.open(url[0]))
-        self.linkButton2.clicked.connect(lambda: cmd(url[1]))
+        self.linkButton2.clicked.connect(lambda: cmd(url[1],False))
         self.linkButton3.clicked.connect(lambda: os.startfile(url[2]))
         self.hBoxLayout.addWidget(self.linkButton1, 0, Qt.AlignRight)
         self.hBoxLayout.addWidget(self.linkButton2, 0, Qt.AlignRight)

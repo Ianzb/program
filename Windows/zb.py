@@ -33,8 +33,11 @@ def join(*data):
 
 
 # 更好的CMD
-def cmd(command):
-    return os.popen(str(command)).read()
+def cmd(command, message=True):
+    if message:
+        return os.popen(str(command)).read()
+    else:
+        os.popen(str(command))
 
 
 # pip安装模块
