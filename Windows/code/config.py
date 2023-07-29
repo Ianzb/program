@@ -134,7 +134,7 @@ class updateSettingCard(SettingCard):
                 orient=Qt.Horizontal,
                 isClosable=False,
                 position=InfoBarPosition.TOP_LEFT,
-                duration=2000,
+                duration=1500,
                 parent=self.parent
             )
             self.infoBar2.show()
@@ -165,7 +165,7 @@ class updateSettingCard(SettingCard):
                 orient=Qt.Vertical,
                 isClosable=True,
                 position=InfoBarPosition.TOP_RIGHT,
-                duration=3000,
+                duration=2500,
                 parent=self.parent
             )
             self.infoBar4.show()

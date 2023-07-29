@@ -1,3 +1,5 @@
+import logging
+
 from main_interface import *
 from setting_interface import *
 
@@ -10,7 +12,7 @@ class Tray(QSystemTrayIcon):
         self.menu.addAction(Action(FIF.HOME, "打开", triggered=lambda: self.window.show()))
         self.menu.addAction(Action(FIF.ALIGNMENT, "整理", triggered=lambda: self.window.mainInterface.btn1_1()))
         self.menu.addAction(Action(FIF.LINK, "官网", triggered=lambda: webbrowser.open(program_url)))
-        self.menu.addAction(Action(FIF.CLOSE, "退出", triggered=lambda: sys.exit()))
+        self.menu.addAction(Action(FIF.CLOSE, "退出", triggered=lambda: self.triggered()))
         self.setIcon(QIcon("img/logo.png"))
         self.setToolTip(title_name)
         self.activated.connect(self.clickedIcon)
@@ -115,8 +117,10 @@ class MainWindow(FluentWindow):
 
     def keyPressEvent(self, QKeyEvent):
         if QKeyEvent.key() == QtCore.Qt.Key_Escape:
+            logging.info("按下Esc键")
             self.hide()
 
     def closeEvent(self, QCloseEvent):
         QCloseEvent.ignore()
+        logging.info("隐藏窗口")
         self.hide()
