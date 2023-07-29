@@ -135,9 +135,13 @@ def download_lib(list):
 
 
 def show():
-    global install_path
+    global install_path,using
+    if using:
+        return False
+    using = True
     install_path = askdirectory(title="选择安装目录", initialdir=install_path)
     text.set(install_path)
+    using = False
 
 
 text = StringVar()
