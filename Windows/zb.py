@@ -487,8 +487,8 @@ def download(link):
     response1 = requests.get(link)
     response1.encoding = "UTF-8"
     main = response1.content
-    if not os.path.exists(join(abs_path, link.replace(update_url, ""))[:join(abs, link.replace(update_url, "")).rfind("\ "[:-1])]):
-        os.makedirs(join(abs_path, link.replace(update_url, ""))[:join(abs, link.replace(update_url, "")).rfind("\ "[:-1])])
+    if not os.path.exists(join(abs_path, link.replace(update_url, ""))[:join(abs_path, link.replace(update_url, "")).rfind("\ "[:-1])]):
+        os.makedirs(join(abs_path, link.replace(update_url, ""))[:join(abs_path, link.replace(update_url, "")).rfind("\ "[:-1])])
     with open(join(abs_path, link.replace(update_url, "")), "wb") as file:
         file.write(main)
 
