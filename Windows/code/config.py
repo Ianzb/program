@@ -229,7 +229,7 @@ class linkCard(SettingCard):
         self.linkButton2 = HyperlinkButton("", text[1], self)
         self.linkButton3 = HyperlinkButton("", text[2], self)
         self.linkButton1.clicked.connect(lambda: webbrowser.open(url[0]))
-        self.linkButton2.clicked.connect(lambda: cmd(url[1],False))
+        self.linkButton2.clicked.connect(lambda: cmd(url[1], False))
         self.linkButton3.clicked.connect(lambda: os.startfile(url[2]))
         self.hBoxLayout.addWidget(self.linkButton1, 0, Qt.AlignRight)
         self.hBoxLayout.addWidget(self.linkButton2, 0, Qt.AlignRight)
@@ -242,23 +242,40 @@ class checkBoxSettingCard(SettingCard):
 
     def __init__(self, text, icon: Union[str, QIcon, FluentIconBase], title, content=None, parent=None):
 
-        super().__init__(icon, title, content, parent)
-        self.checkBox = CheckBox("开机自启动", self)
-        self.checkBox.clicked.connect(self.btn1)
+        super().__init__(icon, title[0], content, parent)
+        self.checkBox1 = CheckBox(title[0], self)
+        self.checkBox1.clicked.connect(self.btn1)
+        self.checkBox2 = CheckBox(title[1], self)
+        self.checkBox2.clicked.connect(self.btn2)
         if readSetting("start") == "1":
-            self.checkBox.setChecked(True)
+            self.checkBox1.setChecked(True)
+            self.checkBox2.setEnabled(True)
         else:
-            self.checkBox.setChecked(False)
-        self.hBoxLayout.addWidget(self.checkBox, 0, Qt.AlignRight)
+            self.checkBox1.setChecked(False)
+            self.checkBox2.setEnabled(False)
+        if readSetting("autoupdate") == "1":
+            self.checkBox2.setChecked(True)
+        else:
+            self.checkBox2.setChecked(False)
+        self.hBoxLayout.addWidget(self.checkBox1, 0, Qt.AlignRight)
+        self.hBoxLayout.addWidget(self.checkBox2, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
     def btn1(self):
-        if self.checkBox.isChecked():
+        if self.checkBox1.isChecked():
             saveSetting("start", "1")
+            self.checkBox2.setEnabled(True)
             autoRun(switch="open", zdynames=os.path.basename(join(abs_path, "main.pyw")), current_file="zb小程序")
         else:
             saveSetting("start", "0")
+            self.checkBox2.setEnabled(False)
             autoRun(switch="close", zdynames=os.path.basename(join(abs_path, "main.pyw")), current_file="zb小程序")
+
+    def btn2(self):
+        if self.checkBox2.isChecked():
+            saveSetting("autoupdate", "1")
+        else:
+            saveSetting("autoupdate", "0")
 
 
 class OptionsSettingCard(ExpandSettingCard):
