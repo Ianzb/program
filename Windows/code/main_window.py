@@ -81,7 +81,7 @@ class MainWindow(FluentWindow):
             self.settingInterface, FIF.SETTING, "设置", NavigationItemPosition.BOTTOM)
 
     def initWindow(self):
-        self.resize(960, 780)
+        self.resize(800, 600)
         self.setMinimumWidth(760)
         self.setWindowIcon(QIcon("img/logo.png"))
         self.setWindowTitle(title_name)
@@ -93,7 +93,6 @@ class MainWindow(FluentWindow):
         desktop = QApplication.desktop().availableGeometry()
         w, h = desktop.width(), desktop.height()
         self.move(w // 2 - self.width() // 2, h // 2 - self.height() // 2)
-        self.show()
         QApplication.processEvents()
 
     def onSupport(self):

@@ -11,7 +11,7 @@ app.setAttribute(Qt.AA_DontCreateNativeWidgetSiblings)
 translator = FluentTranslator(QLocale())
 app.installTranslator(translator)
 w = MainWindow()
-w.show()
+w.showMaximized()
 if ":\WINDOWS\system32".lower() in old_path.lower():
     w.hide()
     if readSetting("autoupdate") == "1":
