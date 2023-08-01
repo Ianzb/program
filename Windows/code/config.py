@@ -46,9 +46,9 @@ class newThread(QThread):
                 download(urlJoin(update_url, data[i]))
             self.signal.emit("完成")
         if mode == 4:
-            for i in range(len(lib_list)):
+            for i in range(len(lib_update_list)):
                 self.signal.emit(str(i))
-                pipInstall(lib_list[i])
+                pipUpdate(lib_update_list[i])
             self.signal.emit("完成")
         if mode == 5:
             str1 = getMc()
@@ -69,7 +69,7 @@ class updateSettingCard(SettingCard):
 
         super().__init__(icon, title, content, parent)
         self.parent = parent2
-        self.pushButton1 = PushButton("安装运行库", self, FIF.DOWNLOAD)
+        self.pushButton1 = PushButton("更新运行库", self, FIF.DOWNLOAD)
         self.pushButton1.clicked.connect(self.btn1)
         self.pushButton2 = PrimaryPushButton("检查更新", self, FIF.DOWNLOAD)
         self.pushButton2.clicked.connect(self.btn2)
@@ -100,7 +100,7 @@ class updateSettingCard(SettingCard):
         self.thread.start()
 
     def btn1_2(self, msg):
-        self.number = len(lib_list)
+        self.number = len(lib_update_list)
         if msg == "完成":
             self.progressBar.setValue(0)
             self.progressBar.setHidden(True)
@@ -122,7 +122,7 @@ class updateSettingCard(SettingCard):
         if int(msg) == 0:
             self.count = 0
         self.count += 1
-        self.label.setText("正在安装 " + lib_list[int(msg)] + " " + str(int(100 / self.number * self.count)) + "%")
+        self.label.setText("正在更新 " + lib_update_list[int(msg)] + " " + str(int(100 / self.number * self.count)) + "%")
         self.progressBar.setValue(int(100 / self.number * self.count))
 
     def btn2(self):

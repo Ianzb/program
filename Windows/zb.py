@@ -1,7 +1,7 @@
 import os, sys, winreg, logging
 
 # 通用变量
-version = "2.1.0"
+version = "2.1.1"
 zb_name = "Ianzb"
 program_name = "zb小程序"
 title_name = program_name + " " + version
@@ -17,6 +17,7 @@ abs_pid = os.getpid()
 user_path = os.path.expanduser("~")
 abs_desktop = winreg.QueryValueEx(winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders"), "Desktop")[0]
 lib_list = ["PyQt-Fluent-Widgets[full]", "requests", "bs4", "lxml", "pypiwin32", "pandas", "send2trash", "winshell"]
+lib_update_list = lib_list + ["PyQt5", "PyQt-Frameless-Window", "PyQt5-Qt5", "PyQt5-sip", "altgraph", "beautifulsoup4", "certifi", "charset-normalizer", "click", "colorama", "colorthief", "darkdetect", "idna", "numpy", "prfile", "pyqt5-plugins", "pyqt5-tools", "python-dateutil", "python-dotenv", "pytz", "pywin32", "pywin32-ctypes", "qt5-applications", "qt5-tools", "scipy", "six", "some-package", "soupsieve", "tzdata", "urllib3"]
 sys.path.append(abs_path)
 sys.path.append(os.path.join(abs_path, "code"))
 # 切换工作路径
@@ -44,6 +45,11 @@ def cmd(command, message=True):
 def pipInstall(name):
     logging.info("开始安装" + name + "运行库")
     print(cmd("pip install " + name + " -i https://pypi.tuna.tsinghua.edu.cn/simple some-package"))
+
+
+# pip更新模块
+def pipUpdate(name):
+    logging.info("开始更新" + name + "运行库")
     print(cmd("pip install --upgrade " + name + " -i https://pypi.tuna.tsinghua.edu.cn/simple some-package"))
 
 
