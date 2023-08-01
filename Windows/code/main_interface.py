@@ -11,7 +11,7 @@ class mainInterface(GalleryInterface):
         )
         self.setObjectName("主页")
 
-        self.pushButton1_1 = PrimaryPushButton("开始整理+清理", self)
+        self.pushButton1_1 = PrimaryPushButton("开始整理+清理", self, FIF.ALIGNMENT)
         self.pushButton1_1.clicked.connect(self.btn1_1)
         if readSetting("sort") == "":
             self.pushButton1_1.setEnabled(False)
