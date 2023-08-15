@@ -1,7 +1,7 @@
 import os, sys, winreg, logging
 
 # 通用变量
-version = "2.1.1"
+version = "2.1.2"
 zb_name = "Ianzb"
 program_name = "zb小程序"
 title_name = program_name + " " + version
@@ -199,9 +199,19 @@ def isDir(path):
     return os.path.isdir(path)
 
 
+# 只读权限
+def onlyRead(path, mode):
+    if isFile(path):
+        if mode:
+            os.chmod(path, stat.S_IREAD)
+        else:
+            os.chmod(path, stat.S_IWRITE)
+
+
 # 删除
 def delete(path):
     if isFile(path):
+        onlyRead(path,False)
         os.remove(path)
     if isDir(path):
         shutil.rmtree(path)
@@ -275,15 +285,6 @@ def walkFile(path, mode=0):
     if list == None:
         list = []
     return list
-
-
-# 只读权限
-def onlyRead(path, mode):
-    if isFile(path):
-        if mode:
-            os.chmod(path, stat.S_IREAD)
-        else:
-            os.chmod(path, stat.S_IWRITE)
 
 
 # 复制
