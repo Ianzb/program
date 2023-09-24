@@ -1,3 +1,4 @@
+version="0.0.1"
 import requests, json
 
 header = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36 Edg/117.0.2045.36"}
@@ -56,3 +57,6 @@ str1 = search("", "mod")
 print(search_inf(str1))
 print(search_mod_inf(str1)[0])
 input()
+'''
+2023年9月24日：0.0.1：添加搜索api接入
+'''
