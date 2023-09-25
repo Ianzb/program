@@ -1,4 +1,4 @@
-version = "0.0.1"
+version = "0.0.2"
 import requests, json
 
 header = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36 Edg/117.0.2045.36"}
@@ -103,4 +103,5 @@ print(search_inf(str1))
 print(search_mod_inf(str1))
 '''
 2023年9月24日：0.0.1：添加搜索api接入
+2023年9月25日：0.0.2：完善搜索功能，丰富可操控参数，修复Bug，添加简易的搜索使用
 '''
