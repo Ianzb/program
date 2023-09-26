@@ -2,8 +2,6 @@ version = "0.0.2"
 import requests, json
 
 header = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36 Edg/117.0.2045.36"}
-response = requests.get("https://api.modrinth.com/v2", headers=header, stream=True)
-print("Modrinth服务器连接成功")
 
 
 # str转json
@@ -71,25 +69,43 @@ def search(data=None, type="mod", versions=None, index="相关性", limit=10, pa
     index = changeList(index, ["相关性", "下载量", "关注数", "发布时间", "更新时间"], ["relevance", "downloads", "downloads", "newest", "updated"])
     page = limit * (page - 1)
     facets = facetsEdit(type, versions, categories)
-    print(joinUrl("https://api.modrinth.com/v2/search", {"query": data, "facets": facets, "limit": limit, "index": index, "offset": page}))
-    response = requests.get(joinUrl("https://api.modrinth.com/v2/search", {"query": data, "facets": facets, "limit": limit, "index": index, "offset": page}), headers=header, stream=True)
-    response = load(response.text)
+    response = requests.get(joinUrl("https://api.modrinth.com/v2/search", {"query": data, "facets": facets, "limit": limit, "index": index, "offset": page}), headers=header, stream=True).text
+    response = load(response)
     return response
 
 
 # 处理搜索结果
-def search_inf(data):
+def searchInf(data):
     dict1 = {"当前页面展示数量": str(len(data["hits"])), "总结果数量": str(data["total_hits"])}
     return dict1
 
 
 # 处理搜索的模组结果
-def search_mod_inf(data):
+def searchModInf(data):
     string = data["hits"]
     list = []
     for i in string:
-        dict1 = {"名称": i["title"], "作者": i["author"], "类型：": i["project_type"], "链接": i["slug"], "介绍": i["description"], "标签": i["categories"], "适配版本": i["versions"], "下载次数": str(i["downloads"])}
+        i["versions2"] = [item for item in i["versions"] if "-" not in item and "w" not in item]
+        dict1 = {"名称": i["title"], "作者": i["author"], "类型：": i["project_type"], "ID": i["slug"], "介绍": i["description"], "标签": i["categories"], "适配版本": i["versions"], "适配版本范围": i["versions2"][0] + "-" + i["versions2"][-1], "下载次数": str(i["downloads"]), "图标": i["icon_url"], "发布日期": i["date_created"], "更新日期": i["date_modified"], "客户端": i["client_side"], "服务端": i["server_side"]}
         list.append(dict1)
+    return list
+
+
+# 获取模组详细信息
+def getModData(data: list):
+    data2 = []
+    for i in range(len(data)):
+        data2.append(data[i]["ID"])
+    print(joinUrl("https://api.modrinth.com/v2/projects", {"ids": data2}))
+    response = requests.get(joinUrl("https://api.modrinth.com/v2/projects", {"ids": data2}), headers=header, stream=True).text
+    response = load(response)
+    list = []
+    for i in response:
+        i["versions2"] = [item for item in i["versions"] if "-" not in item and "w" not in item]
+        dict1 = {"名称": i["title"], "类型：": i["project_type"], "ID": i["slug"], "介绍": i["description"], "标签": i["categories"], "适配版本": i["versions"], "适配版本范围": i["versions2"][0] + "-" + i["versions2"][-1], "下载次数": str(i["downloads"]), "图标": i["icon_url"], "发布日期": i["approved"], "更新日期": i["updated"], "客户端": i["client_side"], "服务端": i["server_side"], "加载器": i["loaders"], "模组版本": i["versions"], "源代码链接": i["source_url"]}
+        list.append(dict1)
+    for i in range(len(data)):
+        list[i].update(data[i])
     return list
 
 
@@ -99,8 +115,9 @@ page = input("页面数：")
 limit = input("每页数量：")
 index = input("排列顺序：")
 str1 = search(data, page=page, limit=limit, versions=version, index=index)
-print(search_inf(str1))
-print(search_mod_inf(str1))
+print(searchModInf(str1)[0])
+mod = getModData(searchModInf(str1))
+print(mod[0])
 '''
 2023年9月24日：0.0.1：添加搜索api接入
 2023年9月25日：0.0.2：完善搜索功能，丰富可操控参数，修复Bug，添加简易的搜索使用
