@@ -189,14 +189,14 @@ def checkShaUpdate(data: list, needVersion: str, needLoader: str):
         if not list2:
             print("模组更新了", needVersion, "但没有更新", needLoader, "加载器的这个版本")
             continue
-        list2=list2[0]
+        list2 = list2[0]
         if list2["sha1"] == data[i]:
             print("当前模组已经是最新的了", list2)
         elif list2["sha1"] != data[i]:
             print("当前模组有新版本", list2)
 
 
-checkShaUpdate(["9a591c62cfbff2ed7ff314ae8b6dd83f4ce4613b"], "1.19", "fabric")
+checkShaUpdate(["2eed0709f11a57720f57243345275703305746a2"], "1.20.2", "fabric")
 '''
 2023年9月24日：0.0.1：添加搜索api接入
 2023年9月25日：0.0.2：完善搜索功能，丰富可操控参数，修复Bug，添加简易的搜索使用
