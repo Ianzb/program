@@ -179,6 +179,7 @@ def checkShaUpdate(data: list, needVersion: str, needLoader: str):
         list = sortVersionsFiles(list)
         if needVersion not in list:
             print("该模组没有", needVersion, "版本")
+            continue
         list = list[needVersion]
         list2 = []
         for j in list[::-1]:
