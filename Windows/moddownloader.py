@@ -1,4 +1,4 @@
-version = "0.0.3"
+version = "0.0.4"
 import requests, json
 
 header = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36 Edg/117.0.2045.36"}
@@ -44,7 +44,7 @@ def facetsEdit(type, versions, categories):
     return facets
 
 
-# 搜索文件
+# 搜索模组
 def search(data=None, type="mod", versions=None, index="相关性", limit=10, page=1, categories=None):
     if not data:
         data = None
@@ -95,13 +95,12 @@ def searchModInf(data):
 def getModData(data: list):
     for i in range(len(data)):
         data[i] = data[i]["ID"]
-    print(joinUrl("https://api.modrinth.com/v2/projects", {"ids": data}))
     response = requests.get(joinUrl("https://api.modrinth.com/v2/projects", {"ids": data}), headers=header, stream=True).text
     response = load(response)
     list = []
     for i in response:
         i["game_versions2"] = [item for item in i["game_versions"] if "-" not in item and "w" not in item]
-        dict1 = {"名称": i["title"], "类型：": i["project_type"], "ID": i["slug"], "介绍": i["description"], "标签": i["categories"], "适配版本": i["game_versions"], "适配版本范围": i["game_versions2"][0] + "-" + i["game_versions2"][-1], "下载次数": str(i["downloads"]), "图标": i["icon_url"], "发布日期": i["approved"], "更新日期": i["updated"], "客户端": i["client_side"], "服务端": i["server_side"], "加载器": i["loaders"], "模组版本": i["versions"], "源代码链接": i["source_url"], "详细介绍": i["body"]}
+        dict1 = {"名称": i["title"], "类型：": i["project_type"], "ID": i["slug"], "介绍": i["description"], "标签": i["categories"], "适配版本": i["game_versions"], "适配版本范围": i["game_versions2"][0] + "-" + i["game_versions2"][-1], "下载次数": str(i["downloads"]), "图标": i["icon_url"], "发布日期": i["approved"], "更新日期": i["updated"], "客户端": i["client_side"], "服务端": i["server_side"], "加载器": i["loaders"], "模组版本": i["versions"], "源代码链接": i["source_url"]}
         list.append(dict1)
     return list
 
@@ -110,7 +109,7 @@ def getModData(data: list):
 def modVersionsInf(data: list):
     list = []
     for i in data:
-        dict1 = {"名称": i["name"], "版本号": i["version_number"], "更新日志": i["changelog"], "前置模组": i["dependencies"], "游戏版本": i["game_versions"], "版本类型": i["version_type"], "ID": i["id"], "下载次数": i["downloads"], "文件": i["files"], "sha1": i["files"][0]["hashes"]["sha1"]}
+        dict1 = {"名称": i["name"], "版本号": i["version_number"], "加载器": i["loaders"], "游戏版本": i["game_versions"], "版本类型": i["version_type"], "ID": i["project_id"], "版本ID": i["id"], "下载次数": i["downloads"], "文件": i["files"], "sha1": i["files"][0]["hashes"]["sha1"]}
         list.append(dict1)
     return list
 
@@ -127,30 +126,79 @@ def getModVersions(data: dict):
 
 
 # 获取sha1对应版本
-def getShaVersion(data: list):
+def getShaVersions(data: list):
     list = []
-    for i in list:
-        response = requests.get("https://api.modrinth.com/v2/version_file/" + i, headers=header, stream=True).text
-        response = load(response)
-        list.append(response)
+    for i in data:
+        try:
+            response = requests.get("https://api.modrinth.com/v2/version_file/" + i, headers=header, stream=True).text
+            response = load(response)
+            list.append(response)
+        except:
+            return
     list = modVersionsInf(list)
     return list
 
 
-data = input("搜索名称：")
-version = input("版本：")
-page = input("页面数：")
-limit = input("每页数量：")
-index = input("排列顺序：")
-str1 = search(data, page=page, limit=limit, versions=version, index=index)
-print(searchModInf(str1)[0])
-mod = getModData(searchModInf(str1))
-print(mod[0])
-data = input("下载第几个模组：")
-modv = getModVersions(mod[int(data) - 1])
-print(modv)
+# 版本文件整理
+def sortVersionsFiles(data: list):
+    dict = {}
+    for i in data:
+        for j in i["游戏版本"]:
+            if "-" not in j and "w" not in j:
+                dict[j] = []
+    for i in data:
+        for j in i["游戏版本"]:
+            for k in i["文件"]:
+                if "-" not in j and "w" not in j:
+                    dict[j].append({"文件名": k["filename"], "版本号": i["版本号"], "加载器": i["加载器"], "版本类型": i["版本类型"], "sha1": i["sha1"], "下载链接": k["url"]})
+    return dict
+
+
+# 获取前置模组
+def getModDepends(data):
+    response = requests.get("https://api.modrinth.com/v2/project/" + data["ID"] + "/dependencies", headers=header, stream=True).text
+    response = load(response)
+    list = response["projects"]
+    list = modVersionsInf(list)
+    return list
+
+
+# 检查sha1对应模组有无更新
+def checkShaUpdate(data: list, needVersion: str, needLoader: str):
+    for i in range(len(data)):
+        print("开始", data[i], "检查更新")
+        list = getShaVersions([data[i]])
+        if not list:
+            print("未找到模组", data[i])
+            continue
+        print("找到文件信息了", list[0])
+        list = getModData(list)
+        print("找到对应模组了", list[0]["名称"])
+        list = getModVersions(list[0])
+        print("正在翻找模组版本")
+        list = sortVersionsFiles(list)
+        if needVersion not in list:
+            print("该模组没有", needVersion, "版本")
+        list = list[needVersion]
+        list2 = []
+        for j in list[::-1]:
+            if needLoader in j["加载器"]:
+                list2.append(j)
+        print(list2)
+        if not list2:
+            print("模组更新了", needVersion, "但没有更新", needLoader, "加载器的这个版本")
+            continue
+        list2=list2[0]
+        if list2["sha1"] == data[i]:
+            print("当前模组已经是最新的了", list2)
+        elif list2["sha1"] != data[i]:
+            print("当前模组有新版本", list2)
+
+
+checkShaUpdate(["9a591c62cfbff2ed7ff314ae8b6dd83f4ce4613b"], "1.19", "fabric")
 '''
 2023年9月24日：0.0.1：添加搜索api接入
 2023年9月25日：0.0.2：完善搜索功能，丰富可操控参数，修复Bug，添加简易的搜索使用
 2023年9月26日：0.0.3：添加获取模组页面信息，获取版本列表，sha1对应版本
+2023年9月27日：0.0.4：添加模组版本按照游戏版本整理并提供链接功能，添加获取前置模组，简易版检查模组更新功能
 '''
