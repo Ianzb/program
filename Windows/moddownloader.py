@@ -257,9 +257,9 @@ def modUpdate(data):
             print(f"{i['新名称']}下载失败")
 
 
-data = checkShaUpdate(r"D:\Minecraft\Minecraft Java Edition\.minecraft\versions\建筑1.20.1\mods", "1.20.1", "fabric")
+data = checkShaUpdate(input("请输入模组目录："), "1.20.1", "fabric")
 print(data)
-if input("是否更新？") == "1":
+if input("是否更新？"):
     modUpdate(data)
 
 '''
