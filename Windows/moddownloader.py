@@ -1,4 +1,4 @@
-version = "0.0.5"
+version = "0.0.6"
 import requests, json, os, hashlib
 
 header = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36 Edg/117.0.2045.36"}
@@ -118,7 +118,7 @@ def getModData(data: list):
 def modVersionsInf(data: list):
     list = []
     for i in data:
-        dict1 = {"名称": i["name"], "版本号": i["version_number"], "加载器": i["loaders"], "游戏版本": i["game_versions"], "版本类型": i["version_type"], "ID": i["project_id"], "版本ID": i["id"], "下载次数": i["downloads"], "文件": i["files"], "sha1": i["files"][0]["hashes"]["sha1"]}
+        dict1 = {"名称": i["name"], "版本号": i["version_number"], "加载器": i["loaders"], "更新日期": i["date_published"], "游戏版本": i["game_versions"], "版本类型": i["version_type"], "ID": i["project_id"], "版本ID": i["id"], "下载次数": i["downloads"], "文件": i["files"], "sha1": i["files"][0]["hashes"]["sha1"]}
         list.append(dict1)
     return list
 
@@ -159,7 +159,8 @@ def sortVersionsFiles(data: list):
         for j in i["游戏版本"]:
             for k in i["文件"]:
                 if "-" not in j and "w" not in j:
-                    dict[j].append({"文件名": k["filename"], "版本号": i["版本号"], "加载器": i["加载器"], "版本类型": i["版本类型"], "sha1": i["sha1"], "下载链接": k["url"]})
+                    dict[j].append({"文件名": k["filename"], "版本号": i["版本号"], "更新日期": i["更新日期"], "加载器": i["加载器"], "版本类型": i["版本类型"], "sha1": i["sha1"], "下载链接": k["url"]})
+                    sorted(dict[j], key=lambda date: date["更新日期"], reverse=True)
     return dict
 
 
@@ -208,12 +209,16 @@ def checkShaUpdate(data, needVersion: str, needLoader: str):
     export = []
     for k, i in data.items():
         print("开始检查更新", os.path.basename(k))
-        if not k.endswith(".jar") or k.endswith(".old"):
+        if not k.endswith(".jar") or k.endswith(".old") or k.endswith(".jar.disabled"):
             print(f"{os.path.basename(k)}不是Minecraft模组文件")
+            continue
+
         list = getShaVersions([i])
         if not list:
             print("未找到模组", os.path.basename(k))
             continue
+        updatetime = list[0]["更新日期"]
+
         print("找到文件信息", list[0]["名称"])
         list = getModData(list)
         if not list:
@@ -231,18 +236,23 @@ def checkShaUpdate(data, needVersion: str, needLoader: str):
             continue
         list = list[needVersion]
         list2 = []
-        for j in list[::-1]:
+        for j in list:
             if needLoader in j["加载器"]:
                 list2.append(j)
         if not list2:
             print("模组更新了", needVersion, "但没有更新", needLoader, "加载器的这个版本")
             continue
-        list2 = list2[0]
+        list2 = list2[-1]
         if list2["sha1"] == i:
             print("当前模组已经是最新的了")
         elif list2["sha1"] != i:
-            print("当前模组有新版本", list2["文件名"])
-            export.append({"路径": os.path.dirname(k), "旧名称": os.path.basename(k), "新名称": list2["文件名"], "链接": list2["下载链接"]})
+            if list2["更新日期"] >= updatetime:
+
+                print("当前模组有新版本", list2["文件名"])
+                export.append({"路径": os.path.dirname(k), "旧名称": os.path.basename(k), "新名称": list2["文件名"], "链接": list2["下载链接"]})
+            else:
+                print(f"发生异常，“新版本”{list2['文件名']}的版本号更低")
+                continue
     return export
 
 
@@ -263,11 +273,12 @@ data = checkShaUpdate(input("请输入模组目录："), "1.20.1", "fabric")
 print(data)
 if input("是否更新？"):
     modUpdate(data)
-
+input()
 '''
 2023年9月24日：0.0.1：添加搜索api接入
 2023年9月25日：0.0.2：完善搜索功能，丰富可操控参数，修复Bug，添加简易的搜索使用
 2023年9月26日：0.0.3：添加获取模组页面信息，获取版本列表，sha1对应版本
 2023年9月27日：0.0.4：添加模组版本按照游戏版本整理并提供链接功能，添加获取前置模组，简易版检查模组更新功能
 2023年9月28日：0.0.5：完美完成检查指定文件夹模组更新的功能，添加获取mc正式版列表功能
+2023年9月29日：0.0.6：完善检查更新的错误判断，优化信息
 '''
