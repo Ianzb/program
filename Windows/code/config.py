@@ -8,6 +8,7 @@ from qframelesswindow import *
 from resource import *
 from zb import *
 from mod_downloader import *
+from copy import *
 
 
 class newThread(QThread):
@@ -66,6 +67,38 @@ class newThread(QThread):
             l1 = ["全部"] + getGameVersions(mode="lite")
             l2 = ["全部"] + getGameVersions()
             self.signal2.emit([l1, l2])
+
+
+class modInfoCard(SettingCard):
+    clicked = pyqtSignal()
+
+    def __init__(self, icon: Union[str, QIcon, FluentIconBase], title, discription, content, parent=None):
+        super().__init__(icon, title, discription, parent)
+        self.contentLabelR = QLabel(content, self)
+        # self.contentLabelR.setFont()
+        self.hBoxLayout.addSpacing(1000)
+        self.contentLabelR.setText(content)
+        self.hBoxLayout.addWidget(self.contentLabelR, 0, Qt.AlignLeft)
+        self.pushButton1 = PushButton("详情", self, FIF.INFO)
+        self.hBoxLayout.addWidget(self.pushButton1, 0, Qt.AlignRight)
+        self.pushButton1.clicked.connect(self.btn1)
+
+    def btn1(self):
+        self.animation = QPropertyAnimation(self, b"pos", self.parent().parent())
+        self.animation.setDuration(1000)  # 2
+        self.animation.setStartValue(QPoint(self.x(), self.y()))
+        self.animation.setKeyValueAt(0.1, QPoint(self.x(), int(self.y() - self.y() * 0.05)))
+        self.animation.setKeyValueAt(0.9, QPoint(self.x(), int(self.y() - self.y() * 0.95)))
+        self.animation.setEndValue(QPoint(self.x(), 0))
+        self.animation.start()
+        self.pushButton1.setText("返回")
+        self.pushButton1.setIcon(FIF.RETURN)
+        self.pushButton1.clicked.connect(self.btn2)
+
+    def btn2(self):
+        self.pushButton1.setText("详情")
+        self.pushButton1.setIcon(FIF.INFO)
+        self.pushButton1.clicked.connect(self.btn1)
 
 
 class updateSettingCard(SettingCard):

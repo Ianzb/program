@@ -211,7 +211,7 @@ def onlyRead(path, mode):
 # 删除
 def delete(path):
     if isFile(path):
-        onlyRead(path,False)
+        onlyRead(path, False)
         os.remove(path)
     if isDir(path):
         shutil.rmtree(path)

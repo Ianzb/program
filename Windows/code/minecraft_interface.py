@@ -37,11 +37,16 @@ class minecraftInterface(GalleryInterface):
         self.comboBox.setEnabled(False)
         self.comboBox.setText("加载中")
         self.comboBox.setPlaceholderText("加载中")
+        self.button = PrimaryPushButton("搜索", self, FIF.SEARCH)
+        self.button.clicked.connect(self.btn2_1)
         self.card1 = self.modDownload.addExampleCard(
             title="搜索模组",
-            widget=[self.lineEdit, self.comboBox],
+            widget=[self.lineEdit, self.comboBox, self.button],
         )
+        self.aboutCard = modInfoCard(FIF.PHOTO, "JEI物品管理器", "介绍\nForge/Fabric 1.18-1.20.2", "257000000", self)
+        self.aboutCard.setParent(self.modDownload)
 
+        self.modDownload.vBoxLayout.addWidget(self.aboutCard, 0, Qt.AlignTop)
         # 下方请勿修改
         self.addSubInterface(self.modDownload, "modDownload", "模组下载")
         self.addSubInterface(self.modUpdate, "modUpdate", "模组更新")
@@ -73,3 +78,7 @@ class minecraftInterface(GalleryInterface):
         self.comboBox.setText("全部")
         self.comboBox.setPlaceholderText("游戏版本")
         self.comboBox.setEnabled(True)
+
+    # 搜索按钮事件
+    def btn2_1(self):
+        print(self.comboBox.text(), self.lineEdit.text())

@@ -54,7 +54,7 @@ def facetsEdit(type, versions, categories):
 
 
 # 搜索模组
-def search(data=None, type="mod", versions=None, index="相关性", limit=10, page=1, categories=None):
+def search(data=None, type="mod", versions=None, index="相关性", limit=20, page=1, categories=None):
     if not data:
         data = None
     if not type:

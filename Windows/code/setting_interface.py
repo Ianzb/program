@@ -33,7 +33,7 @@ class settingInterface(ScrollArea):
         self.checkBoxCard = checkBoxSettingCard(
             "",
             FIF.POWER_BUTTON,
-            ["开机自启动  ", "自动更新"],
+            ["开机自启动  ","自动更新"],
             "开机后自动在后台运行zb小程序",
             self.personalGroup
         )
