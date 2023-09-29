@@ -209,7 +209,7 @@ def checkShaUpdate(data, needVersion: str, needLoader: str, nowVersion=None):
     export = []
     for k, i in data.items():
         print("开始检查更新", os.path.basename(k))
-        if not (k.endswith(".jar") or k.endswith(".old") or k.endswith(".jar.disabled")):
+        if os.path.splitext(os.path.basename(k))[-1] not in [".jar", ".zip", ".jar.disabled", ".zip.disabled"]:
             print(f"{os.path.basename(k)}不是Minecraft模组文件")
             continue
 
@@ -268,7 +268,7 @@ def modUpdate(data):
     print("下载完成")
 
 
-data = checkShaUpdate(input("请输入模组目录："), "1.20.1", "fabric", "1.20.1")
+data = checkShaUpdate(input("请输入模组目录："), "1.19.4", "fabric", "1.19.4")
 print(data)
 if input("是否更新？"):
     modUpdate(data)
