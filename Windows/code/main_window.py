@@ -1,6 +1,5 @@
-import logging
-
 from main_interface import *
+from minecraft_interface import *
 from setting_interface import *
 
 
@@ -48,8 +47,9 @@ class MainWindow(FluentWindow):
         super().__init__()
         self.initWindow()
         self.tray = Tray(self)
-        self.settingInterface = settingInterface(self)
         self.mainInterface = mainInterface(self)
+        self.minecraftInterface = minecraftInterface(self)
+        self.settingInterface = settingInterface(self)
 
         self.initLayout()
         self.initNavigation()
@@ -70,17 +70,17 @@ class MainWindow(FluentWindow):
     def initNavigation(self):
         self.navigationInterface.addSeparator()
 
-        pos = NavigationItemPosition.SCROLL
-        self.addSubInterface(self.mainInterface, FIF.HOME, "主页", pos)
-
+        self.addSubInterface(self.mainInterface, FIF.HOME, "主页", NavigationItemPosition.SCROLL)
+        self.addSubInterface(self.minecraftInterface, FIF.GAME, "Minecraft", NavigationItemPosition.SCROLL)
+        self.navigationInterface.addSeparator(NavigationItemPosition.BOTTOM)
         self.navigationInterface.addWidget(
             routeKey="avatar",
             widget=NavigationAvatarWidget(zb_name, "img/zb.png"),
             onClick=self.onSupport,
             position=NavigationItemPosition.BOTTOM
         )
-        self.addSubInterface(
-            self.settingInterface, FIF.SETTING, "设置", NavigationItemPosition.BOTTOM)
+
+        self.addSubInterface(self.settingInterface, FIF.SETTING, "设置", NavigationItemPosition.BOTTOM)
 
     def initWindow(self):
         self.resize(800, 600)

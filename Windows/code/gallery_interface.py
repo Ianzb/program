@@ -53,8 +53,7 @@ class ExampleCard(QWidget):
         self.card = QFrame(self)
 
         self.sourceWidget = QFrame(self.card)
-        self.sourcePathLabel = BodyLabel(
-            self.tr('Source code'), self.sourceWidget)
+        self.sourcePathLabel = BodyLabel("源代码", self.sourceWidget)
         self.linkIcon = IconWidget(FluentIcon.LINK, self.sourceWidget)
 
         self.vBoxLayout = QVBoxLayout(self)

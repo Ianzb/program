@@ -22,19 +22,19 @@ class mainInterface(GalleryInterface):
         self.pushButton1_4 = PushButton("设置微信目录", self, FIF.FOLDER_ADD)
         self.pushButton1_4.clicked.connect(self.btn1_4)
         self.addExampleCard(
-            title=self.tr("一键整理+清理"),
+            title="一键整理+清理",
             widget=[self.pushButton1_1, self.toolButton1_2, self.pushButton1_3, self.pushButton1_4],
         )
         self.pushButton2_1 = PushButton("重启文件资源管理器", self, FIF.SYNC)
         self.pushButton2_1.clicked.connect(self.btn2_1)
         self.addExampleCard(
-            title=self.tr("快捷功能"),
+            title="快捷功能",
             widget=[self.pushButton2_1],
         )
         self.pushButton3_1 = PushButton("查看MC最新版本", self, FIF.CHECKBOX)
         self.pushButton3_1.clicked.connect(self.btn3_1)
         self.addExampleCard(
-            title=self.tr("游戏功能"),
+            title="游戏功能",
             widget=[self.pushButton3_1],
         )
 

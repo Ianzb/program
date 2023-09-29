@@ -16,7 +16,7 @@ class settingInterface(ScrollArea):
         self.personalGroup = SettingCardGroup("个性化", self.scrollWidget)
         self.themeCard = OptionsSettingCard(
             FIF.BRUSH,
-            self.tr("选择模式"),
+            "选择模式",
             "更改程序中显示的颜色",
             texts=[
                 "浅色", "深色",
@@ -33,7 +33,7 @@ class settingInterface(ScrollArea):
         self.checkBoxCard = checkBoxSettingCard(
             "",
             FIF.POWER_BUTTON,
-            ["开机自启动  ","自动更新"],
+            ["开机自启动  ", "自动更新"],
             "开机后自动在后台运行zb小程序",
             self.personalGroup
         )
@@ -68,7 +68,7 @@ class settingInterface(ScrollArea):
     def __initWidget(self):
         self.resize(1000, 800)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.setViewportMargins(0, 80, 0, 20)
+        self.setViewportMargins(0, 80, 0, 0)
         self.setWidget(self.scrollWidget)
         self.setWidgetResizable(True)
         self.setObjectName("设置")

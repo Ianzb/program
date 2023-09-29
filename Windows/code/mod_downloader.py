@@ -174,13 +174,15 @@ def getModDepends(data):
 
 
 # 获取mc版本列表
-def getGameVersions():
+def getGameVersions(mode="all"):
     list = []
     response = requests.get("https://api.modrinth.com/v2/tag/game_version", headers=header, timeout=600).text
     response = load(response)
     for i in response:
         if i["version_type"] == "release":
             list.append(i["version"])
+    if mode == "lite":
+        list = list[:list.index("1.18.2") + 1] + ["1.17.1", "1.16.5", "1.15.2", "1.14.4", "1.13.2", "1.12.2", "1.9.4", "1.8.9", "1.7.10", "1.6.4"]
     return list
 
 
@@ -268,11 +270,6 @@ def modUpdate(data):
     print("下载完成")
 
 
-data = checkShaUpdate(input("请输入模组目录："), "1.19.4", "fabric", "1.19.4")
-print(data)
-if input("是否更新？"):
-    modUpdate(data)
-input()
 '''
 2023年9月24日：0.0.1：添加搜索api接入
 2023年9月25日：0.0.2：完善搜索功能，丰富可操控参数，修复Bug，添加简易的搜索使用

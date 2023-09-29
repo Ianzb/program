@@ -1,4 +1,6 @@
-from zb import *
+import sys
+
+sys.path.append("code")
 from main_window import *
 
 saveSetting("pid", abs_pid)

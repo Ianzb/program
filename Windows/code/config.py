@@ -7,10 +7,12 @@ from qfluentwidgets.components.widgets.menu import *
 from qframelesswindow import *
 from resource import *
 from zb import *
+from mod_downloader import *
 
 
 class newThread(QThread):
     signal = pyqtSignal(str)
+    signal2 = pyqtSignal(list)
 
     def __init__(self, mode):
         super().__init__()
@@ -60,6 +62,10 @@ class newThread(QThread):
                 if readSetting("shownow") == "1":
                     saveSetting("shownow", "0")
                     self.signal.emit("展示")
+        if mode == 10:
+            l1 = ["全部"] + getGameVersions(mode="lite")
+            l2 = ["全部"] + getGameVersions()
+            self.signal2.emit([l1, l2])
 
 
 class updateSettingCard(SettingCard):
