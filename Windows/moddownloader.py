@@ -256,7 +256,6 @@ def modUpdate(data):
         except:
             print(f"{i['新名称']}下载失败")
 
-
 data = checkShaUpdate(input("请输入模组目录："), "1.20.1", "fabric")
 print(data)
 if input("是否更新？"):
