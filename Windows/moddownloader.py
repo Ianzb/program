@@ -208,6 +208,8 @@ def checkShaUpdate(data, needVersion: str, needLoader: str):
     export = []
     for k, i in data.items():
         print("开始检查更新", os.path.basename(k))
+        if not k.endswith(".jar") or k.endswith(".old"):
+            print(f"{os.path.basename(k)}不是Minecraft模组文件")
         list = getShaVersions([i])
         if not list:
             print("未找到模组", os.path.basename(k))
