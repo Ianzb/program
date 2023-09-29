@@ -71,7 +71,7 @@ class updateSettingCard(SettingCard):
         self.parent = parent2
         self.pushButton1 = PushButton("更新运行库", self, FIF.DOWNLOAD)
         self.pushButton1.clicked.connect(self.btn1)
-        self.pushButton2 = PrimaryPushButton("检查更新", self, FIF.DOWNLOAD)
+        self.pushButton2 = PrimaryPushButton("检查更新", self, FIF.UPDATE)
         self.pushButton2.clicked.connect(self.btn2)
         self.progressBar = ProgressBar(self)
         self.progressBar.setMinimum(0)
