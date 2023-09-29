@@ -95,7 +95,7 @@ def searchModInf(data):
     list = []
     for i in string:
         i["versions2"] = [item for item in i["versions"] if "-" not in item and "w" not in item]
-        dict1 = {"名称": i["title"],  "类型：": i["project_type"], "ID": i["slug"], "介绍": i["description"], "标签": i["categories"], "适配版本": i["versions"], "适配版本范围": i["versions2"][0] + "-" + i["versions2"][-1], "下载次数": str(i["downloads"]), "图标": i["icon_url"], "发布日期": i["date_created"], "更新日期": i["date_modified"], "客户端": i["client_side"], "服务端": i["server_side"]}
+        dict1 = {"名称": i["title"], "类型：": i["project_type"], "ID": i["slug"], "介绍": i["description"], "标签": i["categories"], "适配版本": i["versions"], "适配版本范围": i["versions2"][0] + "-" + i["versions2"][-1], "下载次数": str(i["downloads"]), "图标": i["icon_url"], "发布日期": i["date_created"], "更新日期": i["date_modified"], "客户端": i["client_side"], "服务端": i["server_side"]}
         list.append(dict1)
     return list
 
@@ -207,10 +207,10 @@ def checkShaUpdate(data, needVersion: str, needLoader: str):
     data = getShaList(data)
     export = []
     for k, i in data.items():
-        print("开始检查更新", k)
+        print("开始检查更新", os.path.basename(k))
         list = getShaVersions([i])
         if not list:
-            print("未找到模组", k)
+            print("未找到模组", os.path.basename(k))
             continue
         print("找到文件信息", list[0]["名称"])
         list = getModData(list)
@@ -255,6 +255,7 @@ def modUpdate(data):
             print(f"{i['新名称']}下载成功")
         except:
             print(f"{i['新名称']}下载失败")
+
 
 data = checkShaUpdate(input("请输入模组目录："), "1.20.1", "fabric")
 print(data)
