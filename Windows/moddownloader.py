@@ -203,13 +203,13 @@ def getShaList(data):
 
 
 # 检查sha1对应模组有无更新
-def checkShaUpdate(data, needVersion: str, needLoader: str):
+def checkShaUpdate(data, needVersion: str, needLoader: str, nowVersion=None):
     needLoader.lower()
     data = getShaList(data)
     export = []
     for k, i in data.items():
         print("开始检查更新", os.path.basename(k))
-        if not k.endswith(".jar") or k.endswith(".old") or k.endswith(".jar.disabled"):
+        if not (k.endswith(".jar") or k.endswith(".old") or k.endswith(".jar.disabled")):
             print(f"{os.path.basename(k)}不是Minecraft模组文件")
             continue
 
@@ -218,7 +218,6 @@ def checkShaUpdate(data, needVersion: str, needLoader: str):
             print("未找到模组", os.path.basename(k))
             continue
         updatetime = list[0]["更新日期"]
-
         print("找到文件信息", list[0]["名称"])
         list = getModData(list)
         if not list:
@@ -246,8 +245,7 @@ def checkShaUpdate(data, needVersion: str, needLoader: str):
         if list2["sha1"] == i:
             print("当前模组已经是最新的了")
         elif list2["sha1"] != i:
-            if list2["更新日期"] >= updatetime:
-
+            if list2["更新日期"] >= updatetime and needVersion == nowVersion:
                 print("当前模组有新版本", list2["文件名"])
                 export.append({"路径": os.path.dirname(k), "旧名称": os.path.basename(k), "新名称": list2["文件名"], "链接": list2["下载链接"]})
             else:
@@ -267,9 +265,10 @@ def modUpdate(data):
             print(f"{i['新名称']}下载成功")
         except:
             print(f"{i['新名称']}下载失败")
+    print("下载完成")
 
 
-data = checkShaUpdate(input("请输入模组目录："), "1.20.1", "fabric")
+data = checkShaUpdate(input("请输入模组目录："), "1.20.1", "fabric", "1.20.1")
 print(data)
 if input("是否更新？"):
     modUpdate(data)
