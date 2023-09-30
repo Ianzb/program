@@ -1,3 +1,4 @@
+from zb import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
@@ -6,7 +7,6 @@ from qfluentwidgets import FluentIcon as FIF
 from qfluentwidgets.components.widgets.menu import *
 from qframelesswindow import *
 from resource import *
-from zb import *
 from mod_downloader import *
 from copy import *
 
