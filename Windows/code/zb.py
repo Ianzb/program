@@ -568,6 +568,7 @@ def autoRun(switch="open", zdynames=None, current_file=None, abspath=abs_path):
             logging.info("删除失败")
 
 
+# 获取zb小程序最新版本
 def getVersion():
     res = requests.get(urlJoin(update_url, "history.html"))
     res.encoding = "UTF-8"

@@ -72,32 +72,37 @@ class newThread(QThread):
             info = search(self.data[0], "mod", self.data[1], "相关性", 20, 1)
             info = searchModInf(info)
             info = getModData(info)
-            for i in info:
-                try:
-                    if exists(join(user_path, "zb", "cache", i["名称"]+".png")):
-                        continue
-                    response = requests.get(i["图标"], headers=header, timeout=600).content
-                    mkDir(join(user_path, "zb", "cache"))
-
-                    with open(join(user_path, "zb", "cache", i["名称"]+".png"), "wb") as file:
-                        file.write(response)
-                except:
-                    pass
             self.signal2.emit(info)
+        if mode == 12:
+            try:
+                if exists(join(user_path, "zb", "cache", self.data["名称"] + ".png")):
+                    self.signal.emit("成功")
+                response = requests.get(self.data["图标"], headers=header, timeout=600).content
+                mkDir(join(user_path, "zb", "cache"))
+                with open(join(user_path, "zb", "cache", self.data["名称"] + ".png"), "wb") as file:
+                    file.write(response)
+                self.signal.emit("成功")
+            except:
+                self.signal.emit("失败")
 
 
 class modCard(CardWidget):
 
-    def __init__(self, icon, title, content1, content2, parent=None):
+    def __init__(self, icon, title, content1, content2, data, parent=None):
         super().__init__(parent)
-        self.iconWidget = IconWidget(icon)
+        self.icon = icon
+        self.thread = newThread(12, data=data)
+        self.thread.signal.connect(self.imgLoad)
+        self.thread.start()
+        self.iconWidget = IconWidget(self.icon)
+        self.iconWidget.setEnabled(False)
+        self.iconWidget.setFixedSize(48, 48)
         self.titleLabel = BodyLabel(title, self)
         self.contentLabel1 = CaptionLabel(content1, self)
         self.contentLabel2 = CaptionLabel(content2, self)
         self.contentLabel1.setTextColor("#606060", "#d2d2d2")
         self.contentLabel2.setTextColor("#606060", "#d2d2d2")
         self.pushButton1 = PushButton("进入", self, FIF.CHEVRON_RIGHT)
-        self.iconWidget.setFixedSize(48, 48)
 
         self.hBoxLayout = QHBoxLayout(self)
         self.vBoxLayout = QVBoxLayout()
@@ -108,7 +113,6 @@ class modCard(CardWidget):
         self.hBoxLayout.setContentsMargins(20, 11, 11, 11)
         self.hBoxLayout.setSpacing(15)
         self.hBoxLayout.addWidget(self.iconWidget)
-
         self.vBoxLayout.setContentsMargins(0, 0, 0, 0)
         self.vBoxLayout.setSpacing(0)
         self.vBoxLayout.addWidget(self.titleLabel, 0, Qt.AlignVCenter)
@@ -124,6 +128,14 @@ class modCard(CardWidget):
         self.hBoxLayout.addStretch(0)
         self.hBoxLayout.addWidget(self.pushButton1, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
+
+    def imgLoad(self, msg):
+        if msg == "成功":
+            self.iconWidget.repaint()
+            self.iconWidget.update()
+            self.iconWidget.hide()
+            self.iconWidget.show()
+            self.iconWidget.setEnabled(True)
 
 
 class updateSettingCard(SettingCard):

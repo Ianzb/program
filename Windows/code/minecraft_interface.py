@@ -58,9 +58,10 @@ class minecraftInterface(GalleryInterface):
         self.stackedWidget.setCurrentWidget(self.modDownload)
         self.pivot.setMaximumSize(300, 33)
         self.pivot.setCurrentItem(self.modDownload.objectName())
+        self.num = 0
 
-    def addModCard(self, title, loader, version, download, time, description, icon="./img/zb.png"):
-        self.modCard = modCard(QIcon(icon), title, f"{description}\n{loader} {version}", f"{download}\n{time}", self.modDownload)
+    def addModCard(self, title, loader, version, download, time, description, icon="./img/zb.png", data=None):
+        self.modCard = modCard(QIcon(icon), title, f"{description}\n加载器 {loader} 支持的游戏版本 {version}", f"下载量 {download}\n最近更新 {time}", data, self.modDownload)
         self.modDownload.vBoxLayout.addWidget(self.modCard, 0, Qt.AlignTop)
 
     def addSubInterface(self, widget: QLabel, objectName, text):
@@ -88,6 +89,8 @@ class minecraftInterface(GalleryInterface):
 
     # 搜索按钮事件
     def btn2_1(self):
+        for i in range(self.modDownload.vBoxLayout.count())[1:]:
+            self.modDownload.vBoxLayout.itemAt(i).widget().deleteLater()
         self.lineEdit.setEnabled(False)
         self.comboBox.setEnabled(False)
         self.button.setEnabled(False)
@@ -101,7 +104,8 @@ class minecraftInterface(GalleryInterface):
 
     def btn2_2(self, msg):
         for i in msg:
-            self.addModCard(i["名称"], "/".join(i["加载器"]), i["适配版本范围"], i["下载次数"], datetime.datetime.strptime(i["更新日期"], "%Y-%m-%dT%H:%M:%S.%fZ").strftime("%Y/%m/%d"), i["介绍"], join(user_path, "zb", "cache", i["名称"] + ".png"))
+            self.addModCard(i["名称"], "/".join(i["加载器"]), i["适配版本范围"], i["下载次数"], datetime.datetime.strptime(i["更新日期"], "%Y-%m-%dT%H:%M:%S.%fZ").strftime("%Y/%m/%d"), i["介绍"], join(user_path, "zb", "cache", i["名称"] + ".png"), data=i)
+            self.num += 1
         self.lineEdit.setEnabled(True)
         self.comboBox.setEnabled(True)
         self.button.setEnabled(True)

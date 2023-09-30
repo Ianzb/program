@@ -1,4 +1,5 @@
 from zb import *
+
 header = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36 Edg/117.0.2045.36"}
 
 
@@ -83,7 +84,7 @@ def searchModInf(data):
     string = data["hits"]
     list = []
     for i in string:
-        i["versions2"] = [item for item in i["versions"] if "-" not in item and "w" not in item]
+        i["versions2"] = sorted([item for item in i["versions"] if "-" not in item and "w" not in item])
         dict1 = {"名称": i["title"], "类型：": i["project_type"], "ID": i["slug"], "介绍": i["description"], "标签": i["categories"], "适配版本": i["versions"], "适配版本范围": i["versions2"][0] + "-" + i["versions2"][-1], "下载次数": str(i["downloads"]), "图标": i["icon_url"], "发布日期": i["date_created"], "更新日期": i["date_modified"], "客户端": i["client_side"], "服务端": i["server_side"]}
         list.append(dict1)
     return list

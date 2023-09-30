@@ -8,6 +8,8 @@ saveSetting("pid", abs_pid)
 QApplication.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
 QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
 QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
+
+QApplication.processEvents()
 app = QApplication(sys.argv)
 app.setAttribute(Qt.AA_DontCreateNativeWidgetSiblings)
 translator = FluentTranslator(QLocale())
