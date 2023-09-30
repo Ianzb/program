@@ -150,7 +150,7 @@ if "python" in p.read().strip():
 
 # 导入运行库
 try:
-    import traceback, shutil, re, time, hashlib, threading, ctypes, stat, bs4, lxml, urllib.parse, requests, send2trash, winshell, platform, webbrowser, win32api, win32con, win32com.client, random
+    import datetime, traceback, shutil, re, time, hashlib, threading, ctypes, stat, bs4, lxml, urllib.parse, requests, send2trash, winshell, platform, webbrowser, win32api, win32con, win32com.client, random
 except:
     for i in lib_list:
         pipInstall(i)

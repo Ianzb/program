@@ -53,7 +53,7 @@ def facetsEdit(type, versions, categories):
     return facets
 
 
-# 搜索模组
+# 搜索模组多
 def search(data=None, type="mod", versions=None, index="相关性", limit=20, page=1, categories=None):
     if not data:
         data = None
@@ -89,7 +89,7 @@ def searchInf(data):
     return dict1
 
 
-# 处理搜索的模组结果
+# 处理搜索的模组结果单
 def searchModInf(data):
     string = data["hits"]
     list = []
@@ -100,7 +100,7 @@ def searchModInf(data):
     return list
 
 
-# 获取模组详细信息
+# 获取模组详细信息多
 def getModData(data: list):
     for i in range(len(data)):
         data[i] = data[i]["ID"]
@@ -114,7 +114,7 @@ def getModData(data: list):
     return list
 
 
-# 分析模组信息
+# 分析版本信息多
 def modVersionsInf(data: list):
     list = []
     for i in data:
@@ -123,7 +123,7 @@ def modVersionsInf(data: list):
     return list
 
 
-# 获取某模组的版本列表
+# 获取版本列表单
 def getModVersions(data: dict):
     list = []
     for i in data["模组版本"]:

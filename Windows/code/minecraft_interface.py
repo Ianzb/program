@@ -17,6 +17,7 @@ class minecraftInterface(GalleryInterface):
 
         self.modDownload = GalleryInterface("", "模组下载", parent=self)
         self.modUpdate = GalleryInterface("", "模组更新", parent=self)
+        self.modDownload.vBoxLayout.setSpacing(15)
         self.modDownload.toolBar.setParent(None)
         self.modUpdate.toolBar.setParent(None)
         self.modDownload.setViewportMargins(0, 0, 0, 0)
@@ -34,7 +35,6 @@ class minecraftInterface(GalleryInterface):
         self.thread.signal2.connect(self.btn1_2)
         self.thread.start()
         self.comboBox = EditableComboBox()
-        self.comboBox.setEnabled(False)
         self.comboBox.setText("加载中")
         self.comboBox.setPlaceholderText("加载中")
         self.button = PrimaryPushButton("搜索", self, FIF.SEARCH)
@@ -43,10 +43,10 @@ class minecraftInterface(GalleryInterface):
             title="搜索模组",
             widget=[self.lineEdit, self.comboBox, self.button],
         )
-        self.aboutCard = modInfoCard(FIF.PHOTO, "JEI物品管理器", "介绍\nForge/Fabric 1.18-1.20.2", "257000000", self)
-        self.aboutCard.setParent(self.modDownload)
 
-        self.modDownload.vBoxLayout.addWidget(self.aboutCard, 0, Qt.AlignTop)
+        self.lineEdit.setEnabled(False)
+        self.comboBox.setEnabled(False)
+        self.button.setEnabled(False)
         # 下方请勿修改
         self.addSubInterface(self.modDownload, "modDownload", "模组下载")
         self.addSubInterface(self.modUpdate, "modUpdate", "模组更新")
@@ -57,6 +57,10 @@ class minecraftInterface(GalleryInterface):
         self.stackedWidget.currentChanged.connect(self.onCurrentIndexChanged)
         self.stackedWidget.setCurrentWidget(self.modDownload)
         self.pivot.setCurrentItem(self.modDownload.objectName())
+
+    def addModCard(self, title, loader, version, download, time, description, icon="./img/zb.png"):
+        self.modCard = modCard(QIcon(icon), title, f"{description}\n{loader} {version}", f"{download}\n{time}", self.modDownload)
+        self.modDownload.vBoxLayout.addWidget(self.modCard, 0, Qt.AlignTop)
 
     def addSubInterface(self, widget: QLabel, objectName, text):
         widget.setObjectName(objectName)
@@ -77,8 +81,26 @@ class minecraftInterface(GalleryInterface):
         self.comboBox.addItems(msg[0])
         self.comboBox.setText("全部")
         self.comboBox.setPlaceholderText("游戏版本")
+        self.lineEdit.setEnabled(True)
         self.comboBox.setEnabled(True)
+        self.button.setEnabled(True)
 
     # 搜索按钮事件
     def btn2_1(self):
-        print(self.comboBox.text(), self.lineEdit.text())
+        self.lineEdit.setEnabled(False)
+        self.comboBox.setEnabled(False)
+        self.button.setEnabled(False)
+        mod_name = self.lineEdit.text()
+        mod_version = self.comboBox.text()
+        if mod_version == "全部":
+            mod_version = None
+        self.thread = newThread(11, data=[mod_name, mod_version])
+        self.thread.signal2.connect(self.btn2_2)
+        self.thread.start()
+
+    def btn2_2(self, msg):
+        for i in msg:
+            self.addModCard(i["名称"], "/".join(i["加载器"]), i["适配版本范围"], i["下载次数"], datetime.datetime.strptime(i["更新日期"], "%Y-%m-%dT%H:%M:%S.%fZ").strftime("%Y/%m/%d"), i["介绍"])
+        self.lineEdit.setEnabled(True)
+        self.comboBox.setEnabled(True)
+        self.button.setEnabled(True)

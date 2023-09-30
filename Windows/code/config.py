@@ -15,9 +15,10 @@ class newThread(QThread):
     signal = pyqtSignal(str)
     signal2 = pyqtSignal(list)
 
-    def __init__(self, mode):
+    def __init__(self, mode, data=None):
         super().__init__()
         self.mode = mode
+        self.data = data
 
     def run(self):
         mode = self.mode
@@ -67,38 +68,51 @@ class newThread(QThread):
             l1 = ["全部"] + getGameVersions(mode="lite")
             l2 = ["全部"] + getGameVersions()
             self.signal2.emit([l1, l2])
+        if mode == 11:
+            info = search(self.data[0], "mod", self.data[1], "相关性", 20, 1)
+            info = searchModInf(info)
+            info = getModData(info)
+            self.signal2.emit(info)
 
 
-class modInfoCard(SettingCard):
-    clicked = pyqtSignal()
+class modCard(CardWidget):
 
-    def __init__(self, icon: Union[str, QIcon, FluentIconBase], title, discription, content, parent=None):
-        super().__init__(icon, title, discription, parent)
-        self.contentLabelR = QLabel(content, self)
-        # self.contentLabelR.setFont()
-        self.hBoxLayout.addSpacing(1000)
-        self.contentLabelR.setText(content)
-        self.hBoxLayout.addWidget(self.contentLabelR, 0, Qt.AlignLeft)
-        self.pushButton1 = PushButton("详情", self, FIF.INFO)
+    def __init__(self, icon, title, content1, content2, parent=None):
+        super().__init__(parent)
+        self.iconWidget = IconWidget(icon)
+        self.titleLabel = BodyLabel(title, self)
+        self.contentLabel1 = CaptionLabel(content1, self)
+        self.contentLabel2 = CaptionLabel(content2, self)
+        self.contentLabel1.setTextColor("#606060", "#d2d2d2")
+        self.contentLabel2.setTextColor("#606060", "#d2d2d2")
+        self.pushButton1 = PushButton("进入", self, FIF.CHEVRON_RIGHT)
+        self.iconWidget.setFixedSize(48, 48)
+
+        self.hBoxLayout = QHBoxLayout(self)
+        self.vBoxLayout = QVBoxLayout()
+        self.vBoxLayoutR = QVBoxLayout()
+
+        self.setFixedHeight(73)
+
+        self.hBoxLayout.setContentsMargins(20, 11, 11, 11)
+        self.hBoxLayout.setSpacing(15)
+        self.hBoxLayout.addWidget(self.iconWidget)
+
+        self.vBoxLayout.setContentsMargins(0, 0, 0, 0)
+        self.vBoxLayout.setSpacing(0)
+        self.vBoxLayout.addWidget(self.titleLabel, 0, Qt.AlignVCenter)
+        self.vBoxLayout.addWidget(self.contentLabel1, 0, Qt.AlignVCenter)
+        self.vBoxLayout.setAlignment(Qt.AlignVCenter)
+        self.hBoxLayout.addLayout(self.vBoxLayout)
+        self.hBoxLayout.addStretch(5)
+        self.vBoxLayoutR.setContentsMargins(0, 0, 0, 0)
+        self.vBoxLayoutR.setSpacing(0)
+        self.vBoxLayoutR.addWidget(self.contentLabel2, 0, Qt.AlignVCenter)
+        self.vBoxLayoutR.setAlignment(Qt.AlignRight)
+        self.hBoxLayout.addLayout(self.vBoxLayoutR)
+        self.hBoxLayout.addStretch(0)
         self.hBoxLayout.addWidget(self.pushButton1, 0, Qt.AlignRight)
-        self.pushButton1.clicked.connect(self.btn1)
-
-    def btn1(self):
-        self.animation = QPropertyAnimation(self, b"pos", self.parent().parent())
-        self.animation.setDuration(1000)  # 2
-        self.animation.setStartValue(QPoint(self.x(), self.y()))
-        self.animation.setKeyValueAt(0.1, QPoint(self.x(), int(self.y() - self.y() * 0.05)))
-        self.animation.setKeyValueAt(0.9, QPoint(self.x(), int(self.y() - self.y() * 0.95)))
-        self.animation.setEndValue(QPoint(self.x(), 0))
-        self.animation.start()
-        self.pushButton1.setText("返回")
-        self.pushButton1.setIcon(FIF.RETURN)
-        self.pushButton1.clicked.connect(self.btn2)
-
-    def btn2(self):
-        self.pushButton1.setText("详情")
-        self.pushButton1.setIcon(FIF.INFO)
-        self.pushButton1.clicked.connect(self.btn1)
+        self.hBoxLayout.addSpacing(16)
 
 
 class updateSettingCard(SettingCard):
