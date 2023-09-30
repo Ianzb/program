@@ -1,16 +1,5 @@
-version = "0.0.6"
-import requests, json, os, hashlib
-
+from zb import *
 header = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36 Edg/117.0.2045.36"}
-
-
-# 路径拼接
-def join(*data):
-    path = ""
-    for i in data:
-        path = os.path.join(path, i)
-    path = path.replace("//", r"\ "[:-1]).replace(r"\\ "[:-1], r"\ "[:-1]).replace("\/", r"\ "[:-1]).replace("/\ "[:-1], r"\ "[:-1]).replace("/", r"\ "[:-1])
-    return path
 
 
 # str转json
@@ -108,7 +97,7 @@ def getModData(data: list):
     response = load(response)
     list = []
     for i in response:
-        i["game_versions2"] = [item for item in i["game_versions"] if "-" not in item and "w" not in item]
+        i["game_versions2"] = sorted([item for item in i["game_versions"] if "-" not in item and "w" not in item])
         dict1 = {"名称": i["title"], "类型：": i["project_type"], "ID": i["slug"], "介绍": i["description"], "标签": i["categories"], "适配版本": i["game_versions"], "适配版本范围": i["game_versions2"][0] + "-" + i["game_versions2"][-1], "下载次数": str(i["downloads"]), "图标": i["icon_url"], "发布日期": i["approved"], "更新日期": i["updated"], "客户端": i["client_side"], "服务端": i["server_side"], "加载器": i["loaders"], "模组版本": i["versions"], "源代码链接": i["source_url"]}
         list.append(dict1)
     return list

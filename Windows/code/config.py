@@ -72,6 +72,17 @@ class newThread(QThread):
             info = search(self.data[0], "mod", self.data[1], "相关性", 20, 1)
             info = searchModInf(info)
             info = getModData(info)
+            for i in info:
+                try:
+                    if exists(join(user_path, "zb", "cache", i["名称"]+".png")):
+                        continue
+                    response = requests.get(i["图标"], headers=header, timeout=600).content
+                    mkDir(join(user_path, "zb", "cache"))
+
+                    with open(join(user_path, "zb", "cache", i["名称"]+".png"), "wb") as file:
+                        file.write(response)
+                except:
+                    pass
             self.signal2.emit(info)
 
 

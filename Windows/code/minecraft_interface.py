@@ -51,11 +51,12 @@ class minecraftInterface(GalleryInterface):
         self.addSubInterface(self.modDownload, "modDownload", "模组下载")
         self.addSubInterface(self.modUpdate, "modUpdate", "模组更新")
 
-        self.vBoxLayout.addWidget(self.pivot)
+        self.vBoxLayout.addWidget(self.pivot, Qt.AlignLeft)
         self.vBoxLayout.addWidget(self.stackedWidget)
         self.vBoxLayout.setContentsMargins(36, 36, 36, 0)
         self.stackedWidget.currentChanged.connect(self.onCurrentIndexChanged)
         self.stackedWidget.setCurrentWidget(self.modDownload)
+        self.pivot.setMaximumSize(300, 33)
         self.pivot.setCurrentItem(self.modDownload.objectName())
 
     def addModCard(self, title, loader, version, download, time, description, icon="./img/zb.png"):
@@ -100,7 +101,7 @@ class minecraftInterface(GalleryInterface):
 
     def btn2_2(self, msg):
         for i in msg:
-            self.addModCard(i["名称"], "/".join(i["加载器"]), i["适配版本范围"], i["下载次数"], datetime.datetime.strptime(i["更新日期"], "%Y-%m-%dT%H:%M:%S.%fZ").strftime("%Y/%m/%d"), i["介绍"])
+            self.addModCard(i["名称"], "/".join(i["加载器"]), i["适配版本范围"], i["下载次数"], datetime.datetime.strptime(i["更新日期"], "%Y-%m-%dT%H:%M:%S.%fZ").strftime("%Y/%m/%d"), i["介绍"], join(user_path, "zb", "cache", i["名称"] + ".png"))
         self.lineEdit.setEnabled(True)
         self.comboBox.setEnabled(True)
         self.button.setEnabled(True)
