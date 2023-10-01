@@ -103,6 +103,30 @@ class minecraftInterface(GalleryInterface):
         self.thread.start()
 
     def btn2_2(self, msg):
+        if msg:
+            self.infoBar1 = InfoBar(
+                icon=InfoBarIcon.SUCCESS,
+                title="提示",
+                content=f"搜索模组{self.lineEdit.text()}成功！",
+                orient=Qt.Horizontal,
+                isClosable=False,
+                position=InfoBarPosition.TOP_RIGHT,
+                duration=2500,
+                parent=self
+            )
+            self.infoBar1.show()
+        else:
+            self.infoBar1 = InfoBar(
+                icon=InfoBarIcon.ERROR,
+                title="提示",
+                content=f"名称{self.lineEdit.text()}无搜索结果！",
+                orient=Qt.Horizontal,
+                isClosable=False,
+                position=InfoBarPosition.TOP_RIGHT,
+                duration=2500,
+                parent=self
+            )
+            self.infoBar1.show()
         for i in msg:
             self.addModCard(i["名称"], "/".join(i["加载器"]), i["适配版本范围"], i["下载次数"], datetime.datetime.strptime(i["更新日期"], "%Y-%m-%dT%H:%M:%S.%fZ").strftime("%Y/%m/%d"), i["介绍"], join(user_path, "zb", "cache", i["名称"] + ".png"), data=i)
             self.num += 1

@@ -57,7 +57,6 @@ class newThread(QThread):
         if mode == 5:
             str1 = getMc()
             self.signal.emit(str1)
-
         if mode == 8:
             while True:
                 time.sleep(0.1)
@@ -71,6 +70,9 @@ class newThread(QThread):
         if mode == 11:
             info = search(self.data[0], "mod", self.data[1], "相关性", 20, 1)
             info = searchModInf(info)
+            if not info:
+                self.signal2.emit(info)
+                return
             info = getModData(info)
             self.signal2.emit(info)
         if mode == 12:
