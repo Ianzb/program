@@ -1,6 +1,14 @@
-import sys
+# 加载code文件夹
+import os, sys
 
-sys.path.append("code")
+if ":\WINDOWS\system32".lower() in os.getcwd().lower():
+    auto_start = True
+    os.chdir(os.path.dirname(sys.argv[0]))
+    sys.path.append(os.path.join(os.path.dirname(sys.argv[0]), "code"))
+else:
+    auto_start=False
+    sys.path.append("code")
+# 窗口初始化
 from main_window import *
 
 saveSetting("pid", abs_pid)
@@ -15,8 +23,10 @@ app.setAttribute(Qt.AA_DontCreateNativeWidgetSiblings)
 translator = FluentTranslator(QLocale())
 app.installTranslator(translator)
 w = MainWindow()
-w.showMaximized()
-if ":\WINDOWS\system32".lower() in old_path.lower():
+# 展示窗口
+if not auto_start:
+    w.showMaximized()
+else:
     w.hide()
     if readSetting("autoupdate") == "1":
         w.settingInterface.aboutCard.btn2()
