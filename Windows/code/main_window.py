@@ -30,8 +30,10 @@ class Tray(QSystemTrayIcon):
                 self.window.showNormal()
             self.window.raise_()
             self.window.activateWindow()
+            logging.info("展示窗口")
         else:
             self.window.setHidden(True)
+            logging.info("隐藏窗口")
 
     def triggered(self):
         self.deleteLater()

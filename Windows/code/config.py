@@ -132,6 +132,7 @@ class modCard(CardWidget):
 
     def imgLoad(self, msg):
         if msg == "成功":
+            print("图片加载")
             self.iconWidget.repaint()
             self.iconWidget.update()
             self.iconWidget.hide()
