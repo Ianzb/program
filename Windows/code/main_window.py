@@ -45,29 +45,29 @@ class MainWindow(FluentWindow):
 
     def __init__(self):
         super().__init__()
-        self.initWindow()
+        # 窗口初始化
+        self.resize(800, 600)
+        self.setMinimumWidth(760)
+        self.setWindowIcon(QIcon("img/logo.png"))
+        self.setWindowTitle(title_name)
+
+        self.splashScreen = SplashScreen(self.windowIcon(), self)
+        self.splashScreen.setIconSize(QSize(106, 106))
+        self.splashScreen.raise_()
+
+        desktop = QApplication.desktop().availableGeometry()
+        w, h = desktop.width(), desktop.height()
+        self.move(w // 2 - self.width() // 2, h // 2 - self.height() // 2)
+        QApplication.processEvents()
+        # 组件设置
         self.tray = Tray(self)
         self.mainInterface = mainInterface(self)
         self.minecraftInterface = minecraftInterface(self)
         self.settingInterface = settingInterface(self)
 
-        self.initLayout()
-        self.initNavigation()
-        self.splashScreen.finish()
-        self.thread = newThread(8)
-        self.thread.signal.connect(self.ifShow)
-        self.thread.start()
-        self.showMaximized()
-
-    def ifShow(self, msg):
-        if msg == "展示":
-            self.show()
-
-    def initLayout(self):
         signalBus.switchToSampleCard.connect(self.switchToSample)
         signalBus.supportSignal.connect(self.onSupport)
-
-    def initNavigation(self):
+        # 设置导航栏
         self.navigationInterface.addSeparator()
 
         self.addSubInterface(self.mainInterface, FIF.HOME, "主页", NavigationItemPosition.SCROLL)
@@ -82,20 +82,14 @@ class MainWindow(FluentWindow):
 
         self.addSubInterface(self.settingInterface, FIF.SETTING, "设置", NavigationItemPosition.BOTTOM)
 
-    def initWindow(self):
-        self.resize(800, 600)
-        self.setMinimumWidth(760)
-        self.setWindowIcon(QIcon("img/logo.png"))
-        self.setWindowTitle(title_name)
+        self.splashScreen.finish()
+        self.thread = newThread(8)
+        self.thread.signal.connect(self.ifShow)
+        self.thread.start()
 
-        self.splashScreen = SplashScreen(self.windowIcon(), self)
-        self.splashScreen.setIconSize(QSize(106, 106))
-        self.splashScreen.raise_()
-
-        desktop = QApplication.desktop().availableGeometry()
-        w, h = desktop.width(), desktop.height()
-        self.move(w // 2 - self.width() // 2, h // 2 - self.height() // 2)
-        QApplication.processEvents()
+    def ifShow(self, msg):
+        if msg == "展示":
+            self.show()
 
     def onSupport(self):
         w = MessageBox(

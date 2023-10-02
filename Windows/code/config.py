@@ -8,7 +8,6 @@ from qfluentwidgets.components.widgets.menu import *
 from qframelesswindow import *
 from resource import *
 from mod_downloader import *
-from copy import *
 
 
 class newThread(QThread):

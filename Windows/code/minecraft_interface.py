@@ -10,6 +10,7 @@ class minecraftInterface(GalleryInterface):
             subtitle="",
             parent=parent
         )
+        # 组件设置
         self.setObjectName("Minecraft")
         self.pivot = SegmentedWidget(self)
         self.stackedWidget = QStackedWidget(self)
@@ -25,7 +26,6 @@ class minecraftInterface(GalleryInterface):
         self.modUpdate.setViewportMargins(0, 0, 0, 0)
         self.modUpdate.vBoxLayout.setContentsMargins(0, 20, 0, 0)
 
-        # 上方请勿修改
         self.lineEdit = LineEdit(self)
         self.lineEdit.setClearButtonEnabled(True)
         self.lineEdit.setPlaceholderText("输入模组名称")
@@ -47,7 +47,7 @@ class minecraftInterface(GalleryInterface):
         self.lineEdit.setEnabled(False)
         self.comboBox.setEnabled(False)
         self.button.setEnabled(False)
-        # 下方请勿修改
+        # 窗口设置
         self.addSubInterface(self.modDownload, "modDownload", "模组下载")
         self.addSubInterface(self.modUpdate, "modUpdate", "模组更新")
 

@@ -6,7 +6,7 @@ if ":\WINDOWS\system32".lower() in os.getcwd().lower():
     os.chdir(os.path.dirname(sys.argv[0]))
     sys.path.append(os.path.join(os.path.dirname(sys.argv[0]), "code"))
 else:
-    auto_start=False
+    auto_start = False
     sys.path.append("code")
 # 窗口初始化
 from main_window import *

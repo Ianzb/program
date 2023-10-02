@@ -10,6 +10,7 @@ class settingInterface(ScrollArea):
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
+        # 组件设置
         self.scrollWidget = QWidget()
         self.expandLayout = ExpandLayout(self.scrollWidget)
         self.settingLabel = QLabel("设置", self)
@@ -33,7 +34,7 @@ class settingInterface(ScrollArea):
         self.checkBoxCard = checkBoxSettingCard(
             "",
             FIF.POWER_BUTTON,
-            ["开机自启动  ","自动更新"],
+            ["开机自启动  ", "自动更新"],
             "开机后自动在后台运行zb小程序",
             self.personalGroup
         )
@@ -62,27 +63,6 @@ class settingInterface(ScrollArea):
             self.aboutGroup,
             self,
         )
-
-        self.__initWidget()
-
-    def __initWidget(self):
-        self.resize(1000, 800)
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.setViewportMargins(0, 80, 0, 0)
-        self.setWidget(self.scrollWidget)
-        self.setWidgetResizable(True)
-        self.setObjectName("设置")
-
-        self.scrollWidget.setObjectName("scrollWidget")
-        self.settingLabel.setObjectName("settingLabel")
-        StyleSheet.SETTING_INTERFACE.apply(self)
-
-        self.__initLayout()
-        self.__connectSignalToSlot()
-
-    def __initLayout(self):
-        self.settingLabel.move(36, 30)
-
         self.personalGroup.addSettingCard(self.themeCard)
         self.personalGroup.addSettingCard(self.themeColorCard)
         self.personalGroup.addSettingCard(self.checkBoxCard)
@@ -95,6 +75,17 @@ class settingInterface(ScrollArea):
         self.expandLayout.setContentsMargins(36, 10, 36, 0)
         self.expandLayout.addWidget(self.personalGroup)
         self.expandLayout.addWidget(self.aboutGroup)
-
-    def __connectSignalToSlot(self):
         self.themeColorCard.colorChanged.connect(setThemeColor)
+        # 属性设置
+        self.resize(1000, 800)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setViewportMargins(0, 80, 0, 0)
+        self.setWidget(self.scrollWidget)
+        self.setWidgetResizable(True)
+        self.setObjectName("设置")
+
+        self.scrollWidget.setObjectName("scrollWidget")
+        self.settingLabel.setObjectName("settingLabel")
+        StyleSheet.SETTING_INTERFACE.apply(self)
+
+        self.settingLabel.move(36, 30)

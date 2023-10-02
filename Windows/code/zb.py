@@ -399,7 +399,6 @@ def sortDir(old, new, mode=0):
 def getMc():
     logging.info("开始获取我的世界最新版本")
     useful = ["{{v|java}}", "{{v|java-experimental}}", "{{v|java-snap}}", "{{v|java-combat}}", "{{v|bedrock}}", "{{v|bedrock-beta}}", "{{v|bedrock-preview}}", "{{v|dungeons}}", "{{v|legends-win}}", "{{v|launcher}}", "{{v|launcher-beta}}", "{{v|education}}", "{{v|education-beta}}", "{{v|china-win}}", "{{v|china-android}}"]
-    temp = os.getenv("TEMP")
     l1 = []
     v1 = []
     v2 = []
@@ -571,6 +570,7 @@ def autoRun(switch="open", zdynames=None, current_file=None, abspath=abs_path):
 
 # 获取zb小程序最新版本
 def getVersion():
+    logging.info("开始获取zb小程序最新版本")
     res = requests.get(urlJoin(update_url, "history.html"))
     res.encoding = "UTF-8"
     soup = bs4.BeautifulSoup(res.text, "lxml")
