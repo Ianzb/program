@@ -87,7 +87,96 @@ class newThread(QThread):
                 self.signal.emit("失败")
 
 
+
+class modPage(SimpleCardWidget):
+
+    def __init__(self, img, name, url, download, update, description, parent=None, data=None):
+        super().__init__(parent)
+        self.data = data
+        self.setMaximumHeight(300)
+        self.backButton = TransparentToolButton(FIF.RETURN, self)
+        self.backButton.move(8,8)
+        self.backButton.setMaximumSize(32, 32)
+        self.backButton.clicked.connect(self.btn1_1)
+        self.pixmap = QPixmap(img)
+        self.picLabel = QLabel(self)
+        self.picLabel.setPixmap(self.pixmap)
+        self.picLabel.setFixedSize(48, 48)
+        self.picLabel.setScaledContents(True)
+
+        self.nameLabel = TitleLabel(name, self)
+        self.installButton = PrimaryPushButton("下载", self)
+        self.linkLabel1 = HyperlinkLabel(QUrl(url), "Modrinth", self)
+        self.linkLabel2 = HyperlinkLabel(QUrl(url), "MC百科", self)
+        self.installButton.setFixedWidth(160)
+
+        self.downloadWidget = StatisticsWidget("下载量", download, self)
+        self.separator = VerticalSeparator(self)
+        self.updateWidget = StatisticsWidget("最近更新", update, self)
+
+        self.descriptionLabel = BodyLabel(description, self)
+        self.descriptionLabel.setWordWrap(True)
+
+        self.hBoxLayout = QHBoxLayout(self)
+        self.vBoxLayout = QVBoxLayout()
+        self.hBoxLayout2 = QHBoxLayout()
+        self.topLayout = QHBoxLayout()
+        self.statisticsLayout = QHBoxLayout()
+        self.buttonLayout = QHBoxLayout()
+
+        self.hBoxLayout.setSpacing(30)
+        self.hBoxLayout.setContentsMargins(34, 24, 24, 24)
+        self.hBoxLayout.addWidget(self.picLabel)
+        self.hBoxLayout.addLayout(self.vBoxLayout)
+
+        self.vBoxLayout.setContentsMargins(0, 0, 0, 0)
+        self.vBoxLayout.setSpacing(0)
+
+        self.vBoxLayout.addLayout(self.topLayout)
+        self.topLayout.setContentsMargins(0, 0, 0, 0)
+        self.topLayout.addWidget(self.nameLabel)
+        self.topLayout.addWidget(self.installButton, 0, Qt.AlignRight)
+
+        self.vBoxLayout.addSpacing(3)
+        self.hBoxLayout2.setSpacing(16)
+        self.hBoxLayout2.addWidget(self.linkLabel1, alignment=Qt.AlignLeft)
+        self.hBoxLayout2.addWidget(self.linkLabel2, alignment=Qt.AlignLeft)
+        self.hBoxLayout2.addStretch(10)
+        self.vBoxLayout.addLayout(self.hBoxLayout2)
+
+        self.vBoxLayout.addSpacing(20)
+        self.vBoxLayout.addLayout(self.statisticsLayout)
+        self.statisticsLayout.setContentsMargins(0, 0, 0, 0)
+        self.statisticsLayout.setSpacing(10)
+        self.statisticsLayout.addWidget(self.downloadWidget)
+        self.statisticsLayout.addWidget(self.separator)
+        self.statisticsLayout.addWidget(self.updateWidget)
+        self.statisticsLayout.setAlignment(Qt.AlignLeft)
+
+        self.vBoxLayout.addSpacing(20)
+        self.vBoxLayout.addWidget(self.descriptionLabel)
+
+    def show(self):
+        super().show()
+        self.picLabel.hide()
+        self.thread = newThread(12, data=self.data)
+        self.thread.signal.connect(self.imgLoad)
+        self.thread.start()
+
+    def imgLoad(self, msg):
+        if msg == "成功":
+            self.pixmap.load(join(user_path, "zb", "cache", self.data["名称"] + ".png"))
+            self.picLabel.setPixmap(self.pixmap)
+            self.picLabel.show()
+
+    def btn1_1(self):
+        self.hide()
+        self.parent().pivot.show()
+        self.parent().stackedWidget.show()
+
+
 class modCard(CardWidget):
+    signalDict = pyqtSignal(dict)
 
     def __init__(self, icon, title, content1, content2, data, parent=None):
         super().__init__(parent)
@@ -102,7 +191,7 @@ class modCard(CardWidget):
         self.pixmap = QPixmap(self.icon)
         self.picLabel = QLabel(self)
         self.picLabel.setPixmap(self.pixmap)
-        self.picLabel.setFixedSize(48,48)
+        self.picLabel.setFixedSize(48, 48)
         self.picLabel.setScaledContents(True)
 
         self.titleLabel = BodyLabel(self.title, self)
@@ -111,6 +200,7 @@ class modCard(CardWidget):
         self.contentLabel1.setTextColor("#606060", "#d2d2d2")
         self.contentLabel2.setTextColor("#606060", "#d2d2d2")
         self.pushButton1 = PushButton("进入", self, FIF.CHEVRON_RIGHT)
+        self.pushButton1.clicked.connect(self.btn1_1)
 
         self.hBoxLayout = QHBoxLayout(self)
         self.vBoxLayout = QVBoxLayout()
@@ -141,6 +231,8 @@ class modCard(CardWidget):
             self.pixmap.load(self.icon)
             self.picLabel.setPixmap(self.pixmap)
 
+    def btn1_1(self):
+        self.signalDict.emit(self.data)
 
 
 class updateSettingCard(SettingCard):
@@ -594,3 +686,18 @@ class Trie:
                     q.put(c)
 
         return result
+
+
+class StatisticsWidget(QWidget):
+    def __init__(self, title: str, value: str, parent=None):
+        super().__init__(parent=parent)
+        self.titleLabel = CaptionLabel(title, self)
+        self.valueLabel = BodyLabel(value, self)
+        self.vBoxLayout = QVBoxLayout(self)
+
+        self.vBoxLayout.setContentsMargins(16, 0, 16, 0)
+        self.vBoxLayout.addWidget(self.valueLabel, 0, Qt.AlignTop)
+        self.vBoxLayout.addWidget(self.titleLabel, 0, Qt.AlignBottom)
+
+        setFont(self.valueLabel, 18, QFont.DemiBold)
+        self.titleLabel.setTextColor(QColor(96, 96, 96), QColor(206, 206, 206))

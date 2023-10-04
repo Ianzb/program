@@ -25,7 +25,6 @@ class minecraftInterface(GalleryInterface):
         self.modDownload.vBoxLayout.setContentsMargins(0, 20, 0, 0)
         self.modUpdate.setViewportMargins(0, 0, 0, 0)
         self.modUpdate.vBoxLayout.setContentsMargins(0, 20, 0, 0)
-
         self.lineEdit = LineEdit(self)
         self.lineEdit.setClearButtonEnabled(True)
         self.lineEdit.setPlaceholderText("输入模组名称")
@@ -47,6 +46,9 @@ class minecraftInterface(GalleryInterface):
         self.lineEdit.setEnabled(False)
         self.comboBox.setEnabled(False)
         self.button.setEnabled(False)
+        self.modPage = modPage("", "", "", "", "", "", self)
+        self.vBoxLayout.addWidget(self.modPage, alignment=Qt.AlignTop)
+        self.modPage.hide()
         # 窗口设置
         self.addSubInterface(self.modDownload, "modDownload", "模组下载")
         self.addSubInterface(self.modUpdate, "modUpdate", "模组更新")
@@ -69,6 +71,7 @@ class minecraftInterface(GalleryInterface):
         description.replace("\n", "").replace("\r", "")
         self.modCard = modCard(icon, title, f"{description}\n加载器 {loader} 游戏版本 {version}", f"下载量 {download}\n最近更新 {time}", data, self.modDownload)
         self.modDownload.vBoxLayout.addWidget(self.modCard, 0, Qt.AlignTop)
+        self.modCard.signalDict.connect(self.btn3_1)
 
     def addSubInterface(self, widget: QLabel, objectName, text):
         widget.setObjectName(objectName)
@@ -100,7 +103,7 @@ class minecraftInterface(GalleryInterface):
         self.lineEdit.setEnabled(False)
         self.comboBox.setEnabled(False)
         self.button.setEnabled(False)
-        mod_name = self.lineEdit.text()
+        mod_name = str(self.lineEdit.text())
         mod_version = self.comboBox.text()
         if mod_version == "全部":
             mod_version = None
@@ -134,8 +137,21 @@ class minecraftInterface(GalleryInterface):
             )
             self.infoBar1.show()
         for i in msg:
-            self.addModCard(i["名称"], "/".join(i["加载器"]), i["适配版本范围"], i["下载次数"], datetime.datetime.strptime(i["更新日期"], "%Y-%m-%dT%H:%M:%S.%fZ").strftime("%Y/%m/%d"), i["介绍"], join(user_path, "zb", "cache", i["名称"] + ".png"), data=i)
+            self.addModCard(i["名称"], "/".join(i["加载器"]), i["适配版本范围"], i["下载次数"], i["更新日期"], i["介绍"], join(user_path, "zb", "cache", i["名称"] + ".png"), data=i)
             self.num += 1
+
         self.lineEdit.setEnabled(True)
         self.comboBox.setEnabled(True)
         self.button.setEnabled(True)
+
+    def btn3_1(self, msg):
+        self.pivot.hide()
+        self.stackedWidget.hide()
+        self.modPage.nameLabel.setText(msg["名称"])
+        self.modPage.linkLabel1.setUrl(msg["主页"])
+        self.modPage.linkLabel2.setUrl("https://search.mcmod.cn/s?key="+msg["名称"])
+        self.modPage.downloadWidget.valueLabel.setText(msg["下载次数"])
+        self.modPage.updateWidget.valueLabel.setText(msg["更新日期"])
+        self.modPage.descriptionLabel.setText(msg["介绍"])
+        self.modPage.data = msg
+        self.modPage.show()

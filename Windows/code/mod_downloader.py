@@ -69,8 +69,10 @@ def searchModInf(data):
     string = data["hits"]
     list = []
     for i in string:
-        i["versions2"] = [item for item in i["versions"] if "-" not in item and "w" not in item]
+        i["versions2"] = [item for item in i["versions"] if "-" not in item and "w" not in item and "b" not in item and "a" not in item and "r" not in item]
         i["versions2"].sort(key=lambda x: tuple(int(v) for v in x.split(".")))
+        if not i["versions2"]:
+            continue
         dict1 = {"名称": i["title"], "类型：": i["project_type"], "ID": i["slug"], "介绍": i["description"], "标签": i["categories"], "适配版本": i["versions"], "适配版本范围": i["versions2"][0] + "-" + i["versions2"][-1], "下载次数": str(i["downloads"]), "图标": i["icon_url"], "发布日期": i["date_created"], "更新日期": i["date_modified"], "客户端": i["client_side"], "服务端": i["server_side"]}
         list.append(dict1)
     return list
@@ -83,11 +85,15 @@ def getModData(data: list):
     response = requests.get(joinUrl("https://api.modrinth.com/v2/projects", {"ids": data}), headers=header, timeout=600).text
     response = load(response)
     list = []
+    pos = 0
     for i in response:
-        i["game_versions2"] = [item for item in i["game_versions"] if "-" not in item and "w" not in item]
+        i["game_versions2"] = [item for item in i["game_versions"] if "-" not in item and "w" not in item and "b" not in item and "a" not in item and "r" not in item]
         i["game_versions2"].sort(key=lambda x: tuple(int(v) for v in x.split(".")))
-        dict1 = {"名称": i["title"], "类型：": i["project_type"], "ID": i["slug"], "介绍": i["description"], "标签": i["categories"], "适配版本": i["game_versions"], "适配版本范围": i["game_versions2"][0] + "-" + i["game_versions2"][-1], "下载次数": str(i["downloads"]), "图标": i["icon_url"], "发布日期": i["approved"], "更新日期": i["updated"], "客户端": i["client_side"], "服务端": i["server_side"], "加载器": i["loaders"], "模组版本": i["versions"], "源代码链接": i["source_url"]}
+        if not i["game_versions2"]:
+            continue
+        dict1 = {"名称": i["title"], "类型：": i["project_type"], "序号": pos, "ID": i["slug"], "主页": "https://modrinth.com/mod/" + i["slug"], "介绍": i["description"], "标签": i["categories"], "适配版本": i["game_versions"], "适配版本范围": i["game_versions2"][0] + "-" + i["game_versions2"][-1], "下载次数": str(i["downloads"]), "图标": i["icon_url"], "发布日期": i["approved"], "更新日期": datetime.datetime.strptime(i["updated"], "%Y-%m-%dT%H:%M:%S.%fZ").strftime("%Y/%m/%d"), "客户端": i["client_side"], "服务端": i["server_side"], "加载器": i["loaders"], "模组版本": i["versions"], "源代码链接": i["source_url"]}
         list.append(dict1)
+        pos += 1
     return list
 
 
