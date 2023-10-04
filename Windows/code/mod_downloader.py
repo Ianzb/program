@@ -36,7 +36,7 @@ def facetsEdit(type, versions):
     facets = []
     if type:
         facets.append(["project_type:" + type])
-    elif versions:
+    if versions:
         facets.append(["versions:" + versions])
     return facets
 
