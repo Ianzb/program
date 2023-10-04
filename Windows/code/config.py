@@ -67,7 +67,7 @@ class newThread(QThread):
             l2 = ["全部"] + getGameVersions()
             self.signal2.emit([l1, l2])
         if mode == 11:
-            info = search(self.data[0], "mod", self.data[1], "相关性", 20, 1)
+            info = search(self.data[0], self.data[1], 20, 1)
             info = searchModInf(info)
             if not info:
                 self.signal2.emit(info)
@@ -92,15 +92,22 @@ class modCard(CardWidget):
     def __init__(self, icon, title, content1, content2, data, parent=None):
         super().__init__(parent)
         self.icon = icon
-        self.thread = newThread(12, data=data)
+        self.title = title
+        self.content1 = content1
+        self.content2 = content2
+        self.data = data
+        self.thread = newThread(12, data=self.data)
         self.thread.signal.connect(self.imgLoad)
         self.thread.start()
-        self.iconWidget = IconWidget(self.icon)
-        self.iconWidget.setEnabled(False)
-        self.iconWidget.setFixedSize(48, 48)
-        self.titleLabel = BodyLabel(title, self)
-        self.contentLabel1 = CaptionLabel(content1, self)
-        self.contentLabel2 = CaptionLabel(content2, self)
+        self.pixmap = QPixmap(self.icon)
+        self.picLabel = QLabel(self)
+        self.picLabel.setPixmap(self.pixmap)
+        self.picLabel.setFixedSize(48,48)
+        self.picLabel.setScaledContents(True)
+
+        self.titleLabel = BodyLabel(self.title, self)
+        self.contentLabel1 = CaptionLabel(self.content1, self)
+        self.contentLabel2 = CaptionLabel(self.content2, self)
         self.contentLabel1.setTextColor("#606060", "#d2d2d2")
         self.contentLabel2.setTextColor("#606060", "#d2d2d2")
         self.pushButton1 = PushButton("进入", self, FIF.CHEVRON_RIGHT)
@@ -108,12 +115,9 @@ class modCard(CardWidget):
         self.hBoxLayout = QHBoxLayout(self)
         self.vBoxLayout = QVBoxLayout()
         self.vBoxLayoutR = QVBoxLayout()
-
-        self.setFixedHeight(73)
-
         self.hBoxLayout.setContentsMargins(20, 11, 11, 11)
         self.hBoxLayout.setSpacing(15)
-        self.hBoxLayout.addWidget(self.iconWidget)
+        self.hBoxLayout.addWidget(self.picLabel)
         self.vBoxLayout.setContentsMargins(0, 0, 0, 0)
         self.vBoxLayout.setSpacing(0)
         self.vBoxLayout.addWidget(self.titleLabel, 0, Qt.AlignVCenter)
@@ -129,15 +133,14 @@ class modCard(CardWidget):
         self.hBoxLayout.addStretch(0)
         self.hBoxLayout.addWidget(self.pushButton1, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
+        self.setMinimumWidth(100)
+        self.setFixedHeight(73)
 
     def imgLoad(self, msg):
         if msg == "成功":
-            print("图片加载")
-            self.iconWidget.repaint()
-            self.iconWidget.update()
-            self.iconWidget.hide()
-            self.iconWidget.show()
-            self.iconWidget.setEnabled(True)
+            self.pixmap.load(self.icon)
+            self.picLabel.setPixmap(self.pixmap)
+
 
 
 class updateSettingCard(SettingCard):
