@@ -63,12 +63,12 @@ class minecraftInterface(GalleryInterface):
         self.num = 0
 
     def addModCard(self, title, loader, version, download, time, description, icon="./img/zb.png", data=None):
-        title = title.replace("\n", "").replace("\r", "")
-        loader = loader.replace("\n", "").replace("\r", "")
-        version = version.replace("\n", "").replace("\r", "")
-        download = download.replace("\n", "").replace("\r", "")
-        time = time.replace("\n", "").replace("\r", "")
-        description = description.replace("\n", "").replace("\r", "")
+        title = title.replace("\n", " ").replace("\r", " ")
+        loader = loader.replace("\n", " ").replace("\r", " ")
+        version = version.replace("\n", " ").replace("\r", " ")
+        download = download.replace("\n", " ").replace("\r", " ")
+        time = time.replace("\n", " ").replace("\r", " ")
+        description = description.replace("\n", " ").replace("\r", " ")
         self.modCard = modCard(icon, title, f"{description}\n加载器 {loader} 游戏版本 {version}", f"下载量 {download}\n最近更新 {time}", data, self.modDownload)
         self.modDownload.vBoxLayout.addWidget(self.modCard, 0, Qt.AlignTop)
         self.modCard.signalDict.connect(self.btn3_1)
