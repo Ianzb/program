@@ -117,7 +117,7 @@ class GalleryInterface(ScrollArea):
         self.vBoxLayout.setAlignment(Qt.AlignTop)
         self.vBoxLayout.setContentsMargins(36, 20, 36, 36)
 
-        self.view.setObjectName('view')
+        self.view.setObjectName("view")
         StyleSheet.GALLERY_INTERFACE.apply(self)
 
     def addExampleCard(self, title, widget, sourcePath="", stretch=0):
