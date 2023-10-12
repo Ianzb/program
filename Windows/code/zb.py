@@ -17,8 +17,8 @@ abs_end = os.path.splitext(abs_file_path)[-1]
 abs_pid = os.getpid()
 user_path = os.path.expanduser("~")
 abs_desktop = winreg.QueryValueEx(winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders"), "Desktop")[0]
-lib_list = ["PyQt-Fluent-Widgets", "requests", "bs4", "lxml", "pypiwin32", "pandas", "send2trash", "winshell"]
-lib_update_list = lib_list + ["PyQt5", "PyQt-Frameless-Window", "PyQt5-Qt5", "PyQt5-sip", "altgraph", "beautifulsoup4", "certifi", "charset-normalizer", "click", "colorama", "colorthief", "darkdetect", "idna", "numpy", "prfile", "pyqt5-plugins", "pyqt5-tools", "python-dateutil", "python-dotenv", "pytz", "pywin32", "pywin32-ctypes", "qt5-applications", "qt5-tools", "scipy", "six", "some-package", "soupsieve", "tzdata", "urllib3"]
+lib_list = ["PyQt5", "PyQt-Fluent-Widgets", "requests", "bs4", "lxml", "pypiwin32", "pandas", "send2trash", "winshell"]
+lib_update_list = lib_list + ["PyQt-Frameless-Window", "PyQt5-Qt5", "PyQt5-sip", "altgraph", "beautifulsoup4", "certifi", "charset-normalizer", "click", "colorama", "colorthief", "darkdetect", "idna", "numpy", "prfile", "pyqt5-plugins", "pyqt5-tools", "python-dateutil", "python-dotenv", "pytz", "pywin32", "pywin32-ctypes", "qt5-applications", "qt5-tools", "scipy", "six", "some-package", "soupsieve", "tzdata", "urllib3"]
 sys.path.append(abs_path)
 sys.path.append(os.path.join(abs_path, "code"))
 # 切换工作路径
