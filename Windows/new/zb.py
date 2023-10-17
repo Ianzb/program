@@ -1,9 +1,27 @@
 import os
 import sys
 import shutil
+import threading
 
 
-class ProgramInfo():
+# 多线程优化
+
+
+class MyThread(threading.Thread):
+    def __init__(self, func, *args):
+        super().__init__()
+
+        self.func = func
+        self.args = args
+
+        self.daemon = True
+        self.start()
+
+    def run(self):
+        self.func(*self.args)
+
+
+class ProgramInit():
     """
     zb小程序信息类-处理信息
     """
@@ -16,11 +34,15 @@ class ProgramInfo():
     GITHUB_URL = "https://github.com/Ianzb/program/"
     UPDATE_URL = "https://ianzb.github.io/program/Windows/"
     PROGRAM_PATH = os.path.dirname(sys.argv[0])
+    SOURCE_PATH = os.path.join(PROGRAM_PATH, "img")
     FILE_PATH = os.path.basename(sys.argv[0])
     PROGRAM_PID = os.getpid()
     USER_PATH = os.path.expanduser("~")
     PROGRAM_FILE_PATH = os.path.join(USER_PATH, "zb")
+    SETTING_FILE_PATH = os.path.join(PROGRAM_FILE_PATH, "settings.ini")
     STARTUP_ARGUMENT = sys.argv[1:]
+    REQUEST_HEADER = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36 Edg/117.0.2045.47"}
+
     REQUIRE_LIB = ["PyQt5",
                    "PyQt-Fluent-Widgets",
                    "requests",
@@ -33,7 +55,12 @@ class ProgramInfo():
                    ]
 
     def __init__(self):
+        # 切换运行路径
         os.chdir(self.PROGRAM_PATH)
+        # 设置任务栏
+        import ctypes
+
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("zb小程序")
 
     @property
     def DESKTOP_PATH(self) -> str:
@@ -60,7 +87,58 @@ class ProgramInfo():
             os.makedirs(self.PROGRAM_FILE_PATH)
 
 
-program = ProgramInfo()
+program = ProgramInit()
+
+
+class settingFunctions():
+    """
+    设置相关函数
+    """
+
+    def __init__(self):
+        from configparser import ConfigParser
+        self.config = ConfigParser()
+
+    def reload(self):
+        """
+        重新读取设置文件
+        """
+        if not os.path.exists(program.SETTING_FILE_PATH):
+            file = open(program.SETTING_FILE_PATH, "w", encoding="utf-8")
+            file.close()
+        self.config.read(program.SETTING_FILE_PATH, encoding="utf-8")
+        try:
+            self.config.add_section("data")
+        except:
+            pass
+
+    def readSetting(self, name: str) -> str:
+        """
+        读取设置
+        :param name: 选项名称
+        :return: 选项内容
+        """
+        self.reload()
+        try:
+            data = self.config["data"][name]
+        except:
+            data = None
+        return data
+
+    def saveSetting(self, name: str, data: str):
+        """
+        保存设置
+        :param name: 选项名称
+        :param data: 选项数据
+        """
+        self.reload()
+        self.config.set("data", name, data)
+        file = open(program.SETTING_FILE_PATH, "w", encoding="utf-8")
+        self.config.write(file)
+        file.close()
+
+
+setting = settingFunctions()
 
 
 class FileFunctions():
@@ -72,16 +150,30 @@ class FileFunctions():
              "表格",
              "图片",
              "音视频",
-             "压缩包"]
+             "压缩包",
+             ]
     ends = [[".ppt", ".pptx"],
             [".doc", ".docx"".txt", ".pdf", ".json"],
             [".xls", ".xlsx", ".xlt", ".csv"],
             [".png", ".jpg", ".jpeg", ".webp", ".gif"],
             [".mp3", ".mp4", ".wav", ".ogg", ".flv"],
-            [".zip", ".rar", ".7z"]]
+            [".zip", ".rar", ".7z"],
+            ]
 
     def __init__(self):
         pass
+
+    def pathJoin(*data) -> str:
+        """
+        拼接路径
+        :param data: 多个字符串参数
+        :return: 拼接后的字符串
+        """
+        path = ""
+        for i in data:
+            path = os.path.join(path, i)
+        path = path.replace("//", r"\ "[:-1]).replace(r"\\ "[:-1], r"\ "[:-1]).replace("\/", r"\ "[:-1]).replace("/\ "[:-1], r"\ "[:-1]).replace("/", r"\ "[:-1])
+        return path
 
     def exists(self, path: str) -> bool:
         """
@@ -194,11 +286,11 @@ class FileFunctions():
                 paths = os.walk(path)
                 for path, dir_lst, file_lst in paths:
                     for dir_name in dir_lst:
-                        list.append(os.path.join(path, dir_name))
+                        list.append(self.pathJoin(path, dir_name))
         if mode == 1:
             for i in os.listdir(path):
-                if self.isDir(os.path.join(path, i)):
-                    list.append(os.path.join(path, i))
+                if self.isDir(self.pathJoin(path, i)):
+                    list.append(self.pathJoin(path, i))
         if not list:
             list = []
         return list
@@ -216,11 +308,11 @@ class FileFunctions():
             if self.isDir(path):
                 for path, dir_lst, file_lst in paths:
                     for file_name in file_lst:
-                        list.append(os.path.join(path, file_name))
+                        list.append(self.pathJoin(path, file_name))
         if mode == 1:
             for i in os.listdir(path):
-                if self.isFile(os.path.join(path, i)):
-                    list.append(os.path.join(path, i))
+                if self.isFile(self.pathJoin(path, i)):
+                    list.append(self.pathJoin(path, i))
         if not list:
             list = []
         return list
@@ -234,17 +326,17 @@ class FileFunctions():
         if self.isFile(old):
             if self.isDir(new) or "." not in new:
                 self.mkDir(new)
-                new = os.path.join(new, self.baseName(old))
+                new = self.pathJoin(new, self.baseName(old))
             if self.exists(new):
                 i = 1
-                while self.exists(os.path.join(self.baseName(new, 3), self.baseName(new, 1) + " (" + str(i) + ")" + self.baseName(new, 2))):
+                while self.exists(self.pathJoin(self.baseName(new, 3), self.baseName(new, 1) + " (" + str(i) + ")" + self.baseName(new, 2))):
                     i = i + 1
-                new = os.path.join(self.baseName(new, 3), self.baseName(new, 1) + " (" + str(i) + ")" + self.baseName(new, 2))
+                new = self.pathJoin(self.baseName(new, 3), self.baseName(new, 1) + " (" + str(i) + ")" + self.baseName(new, 2))
             try:
-                shutil.copy(os.path.join(old), os.path.join(new))
+                shutil.copy(self.pathJoin(old), self.pathJoin(new))
             except:
                 self.onlyRead(old, False)
-                shutil.copy(os.path.join(old), os.path.join(new))
+                shutil.copy(self.pathJoin(old), self.pathJoin(new))
         if self.isDir(old):
             if self.exists(new):
                 i = 1
@@ -252,12 +344,12 @@ class FileFunctions():
                     i = i + 1
                 new = new + " (" + str(i) + ")"
             try:
-                shutil.copytree(os.path.join(old), os.path.join(new))
+                shutil.copytree(self.pathJoin(old), self.pathJoin(new))
             except:
                 try:
                     for i in self.walkFile(old):
                         self.onlyRead(i, False)
-                    shutil.copytree(os.path.join(old), os.path.join(new))
+                    shutil.copytree(self.pathJoin(old), self.pathJoin(new))
                 except:
                     pass
 
@@ -348,55 +440,64 @@ class FileFunctions():
             self.clearFile(self.join(new, i))
         self.clearEmptyDir(new)
 
-
-file = FileFunctions()
-
-
-class settingFunctions():
-    """
-    设置相关函数
-    """
-    SETTING_FILE_PATH = os.path.join(program.PROGRAM_FILE_PATH, "settings.ini")
-
-    def __init__(self):
-        from configparser import ConfigParser
-        self.config = ConfigParser()
-
-    def reload(self):
+    def sortWechatFiles(self):
         """
-        重新读取设置文件
+        整理微信文件
         """
-        if not os.path.exists(self.SETTING_FILE_PATH):
-            file = open(self.SETTING_FILE_PATH, "w", encoding="utf-8")
-            file.close()
-        self.config.read(self.SETTING_FILE_PATH, encoding="utf-8")
         try:
-            self.config.add_section("data")
+            list = []
+            list2 = []
+            for i in self.walkDir(setting.readSetting("wechat"), 1):
+                if self.exists(self.join(i, "FileStorage/File")):
+                    list.append(self.join(i, "FileStorage/File"))
+            for i in list:
+                if self.walkDir(i, 1) == None:
+                    return
+                list2 = list2 + self.walkDir(i, 1)
+            for i in list2:
+                self.sortDir(i, setting.readSetting("sort"))
+            for i in list:
+                self.sortDir(i, setting.readSetting("sort"), 1)
         except:
             pass
 
-    def readSetting(self, name: str) -> str:
+    def sortDesktopFiles(self):
         """
-        读取设置
-        :param name: 选项名称
-        :return: 选项内容
+        整理桌面文件
         """
-        self.reload()
+        self.sortDir(program.DESKTOP_PATH, setting.readSetting("sort"))
+
+    def clearCache(self):
+        """
+        清理系统缓存
+        """
         try:
-            data = self.config["data"][name]
+            path = os.getenv("TEMP")
+            for i in self.walkDir(path, 1):
+                try:
+                    self.delete(i)
+                except:
+                    pass
+            for i in self.walkFile(path, 1):
+                try:
+                    self.delete(i)
+                except:
+                    pass
         except:
-            data = None
-        return data
+            pass
 
-    def saveSetting(self, name: str, data: str):
-        self.reload()
-        self.config.set("data", name, data)
-        file = open(self.SETTING_FILE_PATH, "w", encoding="utf-8")
-        self.config.write(file)
-        file.close()
+    def clearRubbish(self):
+        """
+        清空回收站
+        """
+        import winshell
+        try:
+            winshell.recycle_bin().empty(confirm=False, show_progress=False, sound=False)
+        except:
+            pass
 
 
-setting = settingFunctions()
+files = FileFunctions()
 
 
 class Functions():
@@ -406,6 +507,18 @@ class Functions():
 
     def __init__(self):
         pass
+
+    def urlJoin(self, *args):
+        """
+        拼接网址
+        :param args: 网址
+        :return: 拼接结果
+        """
+        import urllib.parse
+        data = ""
+        for i in range(len(args)):
+            data = urllib.parse.urljoin(data, args[i])
+        return data
 
     def cmd(self, command: str, pause: bool = False) -> str:
         """
@@ -432,6 +545,18 @@ class Functions():
         """
         self.cmd(f"pip install --upgrade {lib_name} -i https://pypi.tuna.tsinghua.edu.cn/simple some-package")
 
+    def changeList(self, data: list, index: dict):
+        """
+        批量替换元素
+        :param data: 数据列表
+        :param index: 替换字典{键值替换键名}
+        :return:
+        """
+        for i in range(len(data)):
+            for k, v in index.items():
+                data[i] = data[i].replace(k, v)
+        return data
+
     @property
     def getMC(self) -> str:
         """
@@ -439,7 +564,21 @@ class Functions():
         :return: 字符串
         """
         import requests, bs4, lxml
-        useful = ["{{v|java}}", "{{v|java-experimental}}", "{{v|java-snap}}", "{{v|java-combat}}", "{{v|bedrock}}", "{{v|bedrock-beta}}", "{{v|bedrock-preview}}", "{{v|dungeons}}", "{{v|legends-win}}", "{{v|launcher}}", "{{v|launcher-beta}}", "{{v|education}}", "{{v|education-beta}}", "{{v|china-win}}", "{{v|china-android}}"]
+        useful = ["{{v|java}}",
+                  "{{v|java-experimental}}",
+                  "{{v|java-snap}}",
+                  "{{v|bedrock}}",
+                  "{{v|bedrock-beta}}",
+                  "{{v|bedrock-preview}}",
+                  "{{v|dungeons}}",
+                  "{{v|legends-win}}",
+                  "{{v|launcher}}",
+                  "{{v|launcher-beta}}",
+                  "{{v|education}}",
+                  "{{v|education-beta}}",
+                  "{{v|china-win}}",
+                  "{{v|china-android}}",
+                  ]
         response = requests.get("https://minecraft.fandom.com/zh/wiki/Template:Version#table")
         response.encoding = "UTF-8"
         soup = bs4.BeautifulSoup(response.text, "lxml")
@@ -448,7 +587,8 @@ class Functions():
         v1 = l1[::3]
         v2 = l1[1::3]
         v3 = l1[2::3]
-        str1=""
+        str1 = ""
+        v1 = self.changeList(v1, {"（": "", "）": ""})
         for i in range(len(v1)):
             if v1[i][-1] == "版":
                 v1[i] = v1[i] + "正式版"
@@ -461,36 +601,85 @@ class Functions():
             if v3[i] == "{{v|dungeons}}":
                 v1[i] = "我的世界：地下城"
             if v3[i] in useful and v2[i] != "":
-                str1 = str1 + v1[i] + "版本：" + v2[i] + "\n"
+                str1 += v1[i] + "版本：" + v2[i] + "\n"
         return str1
+
+    def downloadFile(self, link: str, path: str):
+        """
+        下载文件
+        :param link: 文件链接
+        :param path: 下载路径
+        """
+        import requests
+        data = requests.get(link, headers=program.REQUEST_HEADER).content
+        files.mkDir(files.baseName(path, 4))
+        with open(path, "wb") as file:
+            file.write(data)
+
+    def createShortcut(self, old: str, new: str = program.DESKTOP_PATH, icon: str = "", arguments: str = ""):
+        """
+        创建快捷方式
+        :param old: 源文件路径
+        :param new: 新文件路径
+        :param icon: 图标
+        :param arguments: 参数
+        """
+        import win32com.client
+        if not new.endswith(".lnk"):
+            new += ".lnk"
+        shell = win32com.client.Dispatch("WScript.Shell")
+        shortcut = shell.CreateShortCut(files.baseName(new, 4))
+        shortcut.Targetpath = old
+        shortcut.IconLocation = icon
+        shortcut.Arguments = arguments
+        shortcut.save()
+
+    def addToStartMenu(self):
+        """
+        添加开始菜单快捷方式
+        """
+        self.createShortcut(sys.argv[0], files.pathJoin(program.USER_PATH, "AppData\Roaming\Microsoft\Windows\Start Menu\Programs", "zb小程序.lnk"), files.pathJoin(program.SOURCE_PATH, "logo.ico"))
+
+    def addToStartup(self, name: str, path: str, mode: bool = True):
+        """
+        添加开机自启动
+        :param name: 启动项名字
+        :param path: 文件路径
+        :param mode: True添加/False删除
+        """
+        import win32api, win32con
+        key = win32api.RegOpenKey(win32con.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Run", 0, win32con.KEY_ALL_ACCESS)
+        try:
+            if mode:
+                win32api.RegSetValueEx(key, name, 0, win32con.REG_SZ, f"{path} startup")
+                win32api.RegCloseKey(key)
+            else:
+                win32api.RegDeleteValue(key, name)
+                win32api.RegCloseKey(key)
+        except:
+            pass
+
+    def getProgramNewestVersion(self) -> str:
+        """
+        获取程序最新版本
+        :return: 程序最新版本
+        """
+        import requests, bs4, lxml
+        response = requests.get(self.urlJoin(program.UPDATE_URL, "history.html"))
+        response.encoding = "UTF-8"
+        soup = bs4.BeautifulSoup(response.text, "lxml")
+        data = soup.find_all(name="div", class_="zb update")
+        data = data[0].text.rstrip().split("\n")[-1].strip()
+        data = data[data.find("：") + 1:data.rfind("：")]
+        return data
 
 
 f = Functions()
+
 # 重复运行检测
 if "python" in f.cmd(f"tasklist |findstr {setting.readSetting('pid')}", True):
     setting.saveSetting("shownow", "1")
     sys.exit()
 setting.saveSetting("pid", str(program.PROGRAM_PID))
-# 设置任务栏
-import ctypes
-
-ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("zb小程序")
-# 多线程优化
-import threading
-
-
-class MyThread(threading.Thread):
-    def __init__(self, func, *args):
-        super().__init__()
-
-        self.func = func
-        self.args = args
-
-        self.daemon = True
-        self.start()
-
-    def run(self):
-        self.func(*self.args)
-
 
 print(f.getMC)
