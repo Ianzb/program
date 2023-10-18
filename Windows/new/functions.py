@@ -27,7 +27,7 @@ class ProgramInit():
     """
     PROGRAM_NAME = "zb小程序"
     PROGRAM_VERSION = "3.0.0beta"
-    TITLE_NAME = f"{PROGRAM_NAME} {PROGRAM_VERSION}"
+    PROGRAM_TITLE = f"{PROGRAM_NAME} {PROGRAM_VERSION}"
     AUTHOR_NAME = "Ianzb"
     AUTHOR_URL = "https://ianzb.github.io/"
     PROGRAM_URL = "https://ianzb.github.io/program/"
@@ -41,7 +41,7 @@ class ProgramInit():
     PROGRAM_FILE_PATH = os.path.join(USER_PATH, "zb")
     SETTING_FILE_PATH = os.path.join(PROGRAM_FILE_PATH, "settings.ini")
     STARTUP_ARGUMENT = sys.argv[1:]
-    REQUEST_HEADER = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36 Edg/117.0.2045.47"}
+    REQUEST_HEADER = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36 Edg/118.0.2088.46"}
 
     REQUIRE_LIB = ["PyQt5",
                    "PyQt-Fluent-Widgets",
@@ -141,7 +141,7 @@ class settingFunctions():
 setting = settingFunctions()
 
 
-class FileFunctions():
+class Functions():
     """
     文件相关函数
     """
@@ -163,7 +163,7 @@ class FileFunctions():
     def __init__(self):
         pass
 
-    def pathJoin(*data) -> str:
+    def pathJoin(self, *data) -> str:
         """
         拼接路径
         :param data: 多个字符串参数
@@ -496,18 +496,6 @@ class FileFunctions():
         except:
             pass
 
-
-files = FileFunctions()
-
-
-class Functions():
-    """
-    相关函数
-    """
-
-    def __init__(self):
-        pass
-
     def urlJoin(self, *args):
         """
         拼接网址
@@ -612,7 +600,7 @@ class Functions():
         """
         import requests
         data = requests.get(link, headers=program.REQUEST_HEADER).content
-        files.mkDir(files.baseName(path, 4))
+        self.mkDir(self.baseName(path, 4))
         with open(path, "wb") as file:
             file.write(data)
 
@@ -628,7 +616,7 @@ class Functions():
         if not new.endswith(".lnk"):
             new += ".lnk"
         shell = win32com.client.Dispatch("WScript.Shell")
-        shortcut = shell.CreateShortCut(files.baseName(new, 4))
+        shortcut = shell.CreateShortCut(f.baseName(new, 4))
         shortcut.Targetpath = old
         shortcut.IconLocation = icon
         shortcut.Arguments = arguments
@@ -638,7 +626,7 @@ class Functions():
         """
         添加开始菜单快捷方式
         """
-        self.createShortcut(sys.argv[0], files.pathJoin(program.USER_PATH, "AppData\Roaming\Microsoft\Windows\Start Menu\Programs", "zb小程序.lnk"), files.pathJoin(program.SOURCE_PATH, "logo.ico"))
+        self.createShortcut(sys.argv[0], f.pathJoin(program.USER_PATH, "AppData\Roaming\Microsoft\Windows\Start Menu\Programs", "zb小程序.lnk"), f.pathJoin(program.SOURCE_PATH, "logo.ico"))
 
     def addToStartup(self, name: str, path: str, mode: bool = True):
         """
@@ -675,11 +663,8 @@ class Functions():
 
 
 f = Functions()
-
-# 重复运行检测
-if "python" in f.cmd(f"tasklist |findstr {setting.readSetting('pid')}", True):
-    setting.saveSetting("shownow", "1")
-    sys.exit()
+# # 重复运行检测
+# if "python" in f.cmd(f"tasklist |findstr {setting.readSetting('pid')}", True):
+#     setting.saveSetting("shownow", "1")
+#     sys.exit()
 setting.saveSetting("pid", str(program.PROGRAM_PID))
-
-print(f.getMC)
