@@ -14,8 +14,10 @@ class ScrollArea(ScrollArea):
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
+        self.setQss()
+        qconfig.themeChanged.connect(self.setQss)
+    def setQss(self):
         if isDarkTheme():
             self.setStyleSheet("QScrollArea {background-color: rgb(39, 39, 39); border: none; border-top-left-radius: 10px;}")
         else:
-
             self.setStyleSheet("QScrollArea {background-color: rgb(249, 249, 249); border: none; border-top-left-radius: 10px;}")

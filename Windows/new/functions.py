@@ -1,3 +1,4 @@
+import json
 import os
 import sys
 import shutil
@@ -25,23 +26,23 @@ class ProgramInit():
     """
     zb小程序信息类-处理信息
     """
-    PROGRAM_NAME = "zb小程序"
-    PROGRAM_VERSION = "3.0.0beta"
-    PROGRAM_TITLE = f"{PROGRAM_NAME} {PROGRAM_VERSION}"
-    AUTHOR_NAME = "Ianzb"
-    AUTHOR_URL = "https://ianzb.github.io/"
-    PROGRAM_URL = "https://ianzb.github.io/program/"
-    GITHUB_URL = "https://github.com/Ianzb/program/"
-    UPDATE_URL = "https://ianzb.github.io/program/Windows/"
-    PROGRAM_PATH = os.path.dirname(sys.argv[0])
-    SOURCE_PATH = os.path.join(PROGRAM_PATH, "img")
-    FILE_PATH = os.path.basename(sys.argv[0])
-    PROGRAM_PID = os.getpid()
-    USER_PATH = os.path.expanduser("~")
-    PROGRAM_FILE_PATH = os.path.join(USER_PATH, "zb")
-    SETTING_FILE_PATH = os.path.join(PROGRAM_FILE_PATH, "settings.ini")
-    STARTUP_ARGUMENT = sys.argv[1:]
-    REQUEST_HEADER = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36 Edg/118.0.2088.46"}
+    PROGRAM_NAME = "zb小程序"  # 程序名称
+    PROGRAM_VERSION = "3.0.0-beta"  # 程序版本
+    PROGRAM_TITLE = f"{PROGRAM_NAME} {PROGRAM_VERSION}"  # 程序窗口标题
+    AUTHOR_NAME = "Ianzb"  # 作者名称
+    AUTHOR_URL = "https://ianzb.github.io/"  # 作者网址
+    PROGRAM_URL = "https://ianzb.github.io/program/"  # 程序网址
+    GITHUB_URL = "https://github.com/Ianzb/program/"  # Github网址
+    UPDATE_URL = "https://ianzb.github.io/program/Windows/"  # 更新网址
+    PROGRAM_PATH = os.path.dirname(sys.argv[0])  # 程序安装路径
+    SOURCE_PATH = os.path.join(PROGRAM_PATH, "img")  # 程序资源文件路径
+    FILE_NAME = os.path.basename(sys.argv[0])  # 当前程序文件名称
+    PROGRAM_PID = os.getpid()  # 程序pid
+    USER_PATH = os.path.expanduser("~")  # 系统用户路径
+    PROGRAM_FILE_PATH = os.path.join(USER_PATH, "zb")  # 程序保存文件路径
+    SETTING_FILE_PATH = os.path.join(PROGRAM_FILE_PATH, "settings.json")  # 程序设置文件路径
+    STARTUP_ARGUMENT = sys.argv[1:]  # 程序启动参数
+    REQUEST_HEADER = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36 Edg/118.0.2088.46"}  # 程序默认网络请求头
 
     REQUIRE_LIB = ["PyQt5",
                    "PyQt-Fluent-Widgets",
@@ -79,12 +80,13 @@ class ProgramInit():
         """
         return "startup" in self.STARTUP_ARGUMENT
 
-    def keepProgramFilePath(self):
+    def source(self, name: str) -> str:
         """
-        保存程序生成文件目录
+        快捷获取程序资源文件路径
+        :param name: 文件名
+        :return: 文件路径
         """
-        if not os.path.exists(self.PROGRAM_FILE_PATH):
-            os.makedirs(self.PROGRAM_FILE_PATH)
+        return f.pathJoin(self.SOURCE_PATH, name)
 
 
 program = ProgramInit()
@@ -96,46 +98,49 @@ class settingFunctions():
     """
 
     def __init__(self):
-        from configparser import ConfigParser
-        self.config = ConfigParser()
+        import json
+
 
     def reload(self):
         """
         重新读取设置文件
         """
-        if not os.path.exists(program.SETTING_FILE_PATH):
-            file = open(program.SETTING_FILE_PATH, "w", encoding="utf-8")
-            file.close()
-        self.config.read(program.SETTING_FILE_PATH, encoding="utf-8")
-        try:
-            self.config.add_section("data")
-        except:
-            pass
+        if not f.exists(program.SETTING_FILE_PATH):
+            with open(program.SETTING_FILE_PATH, "w", encoding="utf-8") as file:
+                file.write("{}")
+        else:
+            with open(program.SETTING_FILE_PATH, "r+", encoding="utf-8") as file:
+                if not file.read():
+                    file.write("{}")
 
-    def readSetting(self, name: str) -> str:
+
+    def read(self, name: str):
         """
         读取设置
         :param name: 选项名称
         :return: 选项内容
         """
         self.reload()
-        try:
-            data = self.config["data"][name]
-        except:
-            data = None
-        return data
+        with open(program.SETTING_FILE_PATH, "r+", encoding="utf-8") as file:
+            settings = json.loads(file.read())
+        if settings[name]:
+            return settings[name]
+        else:
+            self.save(name, None)
+            return
 
-    def saveSetting(self, name: str, data: str):
+    def save(self, name: str, data):
         """
         保存设置
         :param name: 选项名称
         :param data: 选项数据
         """
         self.reload()
-        self.config.set("data", name, data)
-        file = open(program.SETTING_FILE_PATH, "w", encoding="utf-8")
-        self.config.write(file)
-        file.close()
+        with open(program.SETTING_FILE_PATH, "r+", encoding="utf-8") as file:
+            settings = json.loads(file.read())
+        settings[name] = data
+        with open(program.SETTING_FILE_PATH, "w", encoding="utf-8") as file:
+            file.write(json.dumps(settings))
 
 
 setting = settingFunctions()
@@ -664,7 +669,11 @@ class Functions():
 
 f = Functions()
 # # 重复运行检测
-# if "python" in f.cmd(f"tasklist |findstr {setting.readSetting('pid')}", True):
-#     setting.saveSetting("shownow", "1")
+# if "python" in f.cmd(f"tasklist |findstr {setting.read('pid')}", True):
+#     setting.save("showWindow", "1")
 #     sys.exit()
-setting.saveSetting("pid", str(program.PROGRAM_PID))
+setting.save("pid", str(program.PROGRAM_PID))
+if not setting.read("theme"):
+    setting.save("theme", "Theme.AUTO")
+if not setting.read("themeColor"):
+    setting.save("themeColor", "#0078D4")
