@@ -123,9 +123,9 @@ class settingFunctions():
         self.reload()
         with open(program.SETTING_FILE_PATH, "r+", encoding="utf-8") as file:
             settings = json.loads(file.read())
-        if settings[name]:
+        try:
             return settings[name]
-        else:
+        except:
             self.save(name, None)
             return
 

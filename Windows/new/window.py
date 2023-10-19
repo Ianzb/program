@@ -10,7 +10,26 @@ class mainPage(ScrollArea):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.setObjectName(self.name)
-        self.TitleLabel = ToolBar(self.name,"常用功能", self)
+        self.toolBar = ToolBar(self.name, "常用功能", self)
+        self.setViewportMargins(0, self.toolBar.height(), 0, 0)
+
+        self.view = QWidget(self)
+        self.setWidget(self.view)
+        self.view.setStyleSheet("QWidget {background-color: rgba(0,0,0,0); border: none}")
+
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setViewportMargins(0, self.toolBar.height(), 0, 0)
+        self.setWidgetResizable(True)
+
+        self.vBoxLayout = QVBoxLayout(self.view)
+        self.vBoxLayout.setSpacing(30)
+        self.vBoxLayout.setAlignment(Qt.AlignTop)
+        self.vBoxLayout.setContentsMargins(36, 20, 36, 36)
+
+        self.card = HeaderCardWidget()
+        self.vBoxLayout.addWidget(self.card, 0, Qt.AlignTop)
+
+        self.btn = PrimaryPushButton("zb", self.card.view, FIF.ALIGNMENT)
 
 
 class toolPage(ScrollArea):
@@ -22,7 +41,7 @@ class toolPage(ScrollArea):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.setObjectName(self.name)
-        self.TitleLabel = ToolBar(self.name,"工具箱", self)
+        self.TitleLabel = ToolBar(self.name, "工具箱", self)
 
 
 class gamePage(ScrollArea):
@@ -34,7 +53,7 @@ class gamePage(ScrollArea):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.setObjectName(self.name)
-        self.TitleLabel = ToolBar(self.name,"Minecraft相关功能", self)
+        self.TitleLabel = ToolBar(self.name, "Minecraft相关功能", self)
 
 
 class settingPage(ScrollArea):
@@ -46,7 +65,7 @@ class settingPage(ScrollArea):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.setObjectName(self.name)
-        self.TitleLabel = ToolBar(self.name,"", self)
+        self.TitleLabel = ToolBar(self.name, "", self)
 
 
 class Window(FluentWindow):
