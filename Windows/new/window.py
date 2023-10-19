@@ -5,41 +5,48 @@ class mainPage(ScrollArea):
     """
     主页
     """
+    name = "主页"
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
-        self.setObjectName("主页")
-        self.TitleLabel = TitleLabel(program.PROGRAM_NAME, self)
+        self.setObjectName(self.name)
+        self.TitleLabel = ToolBar(self.name,"常用功能", self)
 
 
 class toolPage(ScrollArea):
     """
-    Minecraft页面
+    工具页面
     """
+    name = "工具"
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
-        self.setObjectName("工具")
+        self.setObjectName(self.name)
+        self.TitleLabel = ToolBar(self.name,"工具箱", self)
 
 
-class minecraftPage(ScrollArea):
+class gamePage(ScrollArea):
     """
-    Minecraft页面
+    游戏页面
     """
+    name = "游戏"
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
-        self.setObjectName("Minecraft")
+        self.setObjectName(self.name)
+        self.TitleLabel = ToolBar(self.name,"Minecraft相关功能", self)
 
 
 class settingPage(ScrollArea):
     """
     设置页面
     """
+    name = "设置"
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
-        self.setObjectName("设置")
+        self.setObjectName(self.name)
+        self.TitleLabel = ToolBar(self.name,"", self)
 
 
 class Window(FluentWindow):
@@ -64,24 +71,30 @@ class Window(FluentWindow):
         self.resize(900, 700)
         self.setWindowIcon(QIcon(program.source("logo.png")))
         self.setWindowTitle(program.PROGRAM_TITLE)
+        self.navigationInterface.setReturnButtonVisible(False)
         # 窗口居中
         desktop = QApplication.desktop().availableGeometry()
         w, h = desktop.width(), desktop.height()
         self.move(w // 2 - self.width() // 2, h // 2 - self.height() // 2)
-        self.navigationInterface.setReturnButtonVisible(False)
 
     def __initWidget(self):
         """
         组件初始化
         """
-        self.addSubInterface(mainPage(self), FIF.HOME, "主页", NavigationItemPosition.TOP)
+        # 页面组件
+        self.mainPage = mainPage(self)
+        self.toolPage = toolPage(self)
+        self.gamePage = gamePage(self)
+        self.settingPage = settingPage(self)
+        # 导航栏组件
+        self.addSubInterface(self.mainPage, FIF.HOME, self.mainPage.name, NavigationItemPosition.TOP)
         self.navigationInterface.addSeparator(NavigationItemPosition.TOP)
-        self.addSubInterface(toolPage(self), FIF.DEVELOPER_TOOLS, "工具", NavigationItemPosition.SCROLL)
-        self.addSubInterface(minecraftPage(self), FIF.GAME, "Minecraft", NavigationItemPosition.SCROLL)
+        self.addSubInterface(self.toolPage, FIF.DEVELOPER_TOOLS, self.toolPage.name, NavigationItemPosition.SCROLL)
+        self.addSubInterface(self.gamePage, FIF.GAME, self.gamePage.name, NavigationItemPosition.SCROLL)
         self.navigationInterface.addSeparator(NavigationItemPosition.BOTTOM)
         self.navigationInterface.addWidget(
             routeKey="avatar",
             widget=NavigationAvatarWidget("Ianzb", program.source("zb.png")),
             position=NavigationItemPosition.BOTTOM
         )
-        self.addSubInterface(settingPage(self), FIF.SETTING, "设置", NavigationItemPosition.BOTTOM)
+        self.addSubInterface(self.settingPage, FIF.SETTING, self.settingPage.name, NavigationItemPosition.BOTTOM)

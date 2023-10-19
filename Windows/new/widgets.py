@@ -14,10 +14,23 @@ class ScrollArea(ScrollArea):
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
-        self.setQss()
-        qconfig.themeChanged.connect(self.setQss)
-    def setQss(self):
-        if isDarkTheme():
-            self.setStyleSheet("QScrollArea {background-color: rgb(39, 39, 39); border: none; border-top-left-radius: 10px;}")
-        else:
-            self.setStyleSheet("QScrollArea {background-color: rgb(249, 249, 249); border: none; border-top-left-radius: 10px;}")
+        self.setStyleSheet("QScrollArea {background-color: rgba(0,0,0,0); border: none; border-top-left-radius: 10px;}")
+
+
+class ToolBar(QWidget):
+    """
+    页面顶端工具栏
+    """
+
+    def __init__(self, title, subtitle, parent=None):
+        super().__init__(parent=parent)
+        self.titleLabel = TitleLabel(title, self)
+        self.subtitleLabel = CaptionLabel(subtitle, self)
+        self.vBoxLayout = QVBoxLayout(self)
+        self.setFixedHeight(90)
+        self.vBoxLayout.setSpacing(0)
+        self.vBoxLayout.setContentsMargins(36, 22, 36, 12)
+        self.vBoxLayout.addWidget(self.titleLabel)
+        self.vBoxLayout.addSpacing(4)
+        self.vBoxLayout.addWidget(self.subtitleLabel)
+        self.vBoxLayout.setAlignment(Qt.AlignTop)
