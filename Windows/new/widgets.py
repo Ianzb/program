@@ -36,65 +36,11 @@ class ToolBar(QWidget):
         self.vBoxLayout.setAlignment(Qt.AlignTop)
 
 
-class ExampleCard(QWidget):
-
-    def __init__(self, title: str, widget: list = [], stretch: int = 0, parent=None):
-        super().__init__(parent=parent)
-        self.widget = widget
-        self.stretch = stretch
-
-        self.titleLabel = StrongBodyLabel(title, self)
-        self.card = QFrame(self)
-
-        self.sourceWidget = QFrame(self.card)
-        self.sourcePathLabel = BodyLabel("源代码", self.sourceWidget)
-        self.linkIcon = IconWidget(FluentIcon.LINK, self.sourceWidget)
-
-        self.vBoxLayout = QVBoxLayout(self)
-        self.cardLayout = QVBoxLayout(self.card)
-        self.topLayout = QHBoxLayout()
-
-        self.__initWidget()
-
-    def __initWidget(self):
-        self.linkIcon.setFixedSize(16, 16)
-        self.__initLayout()
-
-        self.sourceWidget.setCursor(Qt.PointingHandCursor)
-        self.sourceWidget.installEventFilter(self)
-
-        self.card.setObjectName('card')
-        self.sourceWidget.setObjectName('sourceWidget')
-
-    def __initLayout(self):
-        self.vBoxLayout.setSizeConstraint(QVBoxLayout.SetMinimumSize)
-        self.cardLayout.setSizeConstraint(QVBoxLayout.SetMinimumSize)
-        self.topLayout.setSizeConstraint(QHBoxLayout.SetMinimumSize)
-
-        self.vBoxLayout.setSpacing(12)
-        self.vBoxLayout.setContentsMargins(0, 0, 0, 0)
-        self.topLayout.setContentsMargins(12, 12, 12, 12)
-        self.cardLayout.setContentsMargins(0, 0, 0, 0)
-
-        self.vBoxLayout.addWidget(self.titleLabel, 0, Qt.AlignTop)
-        self.vBoxLayout.addWidget(self.card, 0, Qt.AlignTop)
-        self.vBoxLayout.setAlignment(Qt.AlignTop)
-
-        self.cardLayout.setSpacing(0)
-        self.cardLayout.setAlignment(Qt.AlignTop)
-        self.cardLayout.addLayout(self.topLayout, 0)
-        self.cardLayout.addWidget(self.sourceWidget, 0, Qt.AlignBottom)
-
-        for i in self.widget:
-            i.setParent(self.card)
-            self.topLayout.addWidget(i)
-
-            i.show()
-        if self.stretch == 0:
-            self.topLayout.addStretch(1)
-
-
 class Tray(QSystemTrayIcon):
+    """
+    系统托盘组件
+    """
+
     def __init__(self, UI):
         super(Tray, self).__init__()
         import webbrowser
@@ -104,7 +50,7 @@ class Tray(QSystemTrayIcon):
         self.menu.addAction(Action(FIF.ALIGNMENT, "整理", triggered=lambda: self.window.mainInterface.btn1_1()))
         self.menu.addAction(Action(FIF.LINK, "官网", triggered=lambda: webbrowser.open(program.PROGRAM_URL)))
         self.menu.addAction(Action(FIF.CLOSE, "退出", triggered=lambda: self.triggered()))
-        self.setIcon(QIcon("img/logo.png"))
+        self.setIcon(QIcon(program.source("logo.png")))
         self.setToolTip(program.PROGRAM_TITLE)
         self.activated.connect(self.clickedIcon)
         self.show()

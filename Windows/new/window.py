@@ -162,6 +162,17 @@ class Window(FluentWindow):
         )
         self.addSubInterface(self.settingPage, FIF.SETTING, self.settingPage.name, NavigationItemPosition.BOTTOM)
 
+    def keyPressEvent(self, QKeyEvent):
+        """
+        自定义按键事件
+        """
+        # Esc键
+        if QKeyEvent.key() == Qt.Key_Escape:
+            self.hide()
+
     def closeEvent(self, QCloseEvent):
+        """
+        自定义关闭事件
+        """
         QCloseEvent.ignore()
         self.hide()
