@@ -91,7 +91,10 @@ class GrayCard(QWidget):
 
         self.titleLabel = StrongBodyLabel(title, self)
         self.card = QFrame(self)
-        self.card.setStyleSheet("QWidget {background-color: rgba(150,150,150,0.1); border:1px solid rgba(150,150,150,0.15); border-radius: 10px}")
+        if isDarkTheme():
+            self.card.setStyleSheet("QWidget {background-color: rgba(25,25,25,0.5); border:1px solid rgba(20,20,20,0.15); border-radius: 10px}")
+        else:
+            self.card.setStyleSheet("QWidget {background-color: rgba(150,150,150,0.1); border:1px solid rgba(150,150,150,0.15); border-radius: 10px}")
         self.card.setObjectName("卡片")
 
         self.vBoxLayout = QVBoxLayout(self)

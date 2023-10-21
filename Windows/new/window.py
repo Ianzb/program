@@ -121,6 +121,7 @@ class Window(FluentWindow):
     def __init__(self):
         super().__init__()
         self.setObjectName("主窗口")
+
         self.__initWindow()
         self.__initWidget()
 
@@ -131,6 +132,7 @@ class Window(FluentWindow):
         # 外观调整
         setTheme(eval(setting.read("theme")))
         setThemeColor("#0078D4")
+        setTheme(Theme.DARK)
         # 窗口属性
         self.resize(900, 700)
         self.setWindowIcon(QIcon(program.source("logo.png")))
