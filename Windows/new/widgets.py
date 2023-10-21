@@ -43,7 +43,6 @@ class Tray(QSystemTrayIcon):
 
     def __init__(self, UI):
         super(Tray, self).__init__()
-        import webbrowser
         self.window = UI
         self.menu = RoundMenu()
         self.menu.addAction(Action(FIF.HOME, "打开", triggered=lambda: self.window.show()))
