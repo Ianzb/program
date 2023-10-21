@@ -96,7 +96,7 @@ class settingPage(ScrollArea):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.setObjectName(self.name)
-        self.toolBar = ToolBar(self.name, "设置界面、功能", self)
+        self.toolBar = ToolBar(self.name, "个性化修改程序", self)
         self.setViewportMargins(0, self.toolBar.height(), 0, 0)
 
         self.view = QWidget(self)
