@@ -92,3 +92,42 @@ class ExampleCard(QWidget):
             i.show()
         if self.stretch == 0:
             self.topLayout.addStretch(1)
+
+
+class Tray(QSystemTrayIcon):
+    def __init__(self, UI):
+        super(Tray, self).__init__()
+        import webbrowser
+        self.window = UI
+        self.menu = RoundMenu()
+        self.menu.addAction(Action(FIF.HOME, "打开", triggered=lambda: self.window.show()))
+        self.menu.addAction(Action(FIF.ALIGNMENT, "整理", triggered=lambda: self.window.mainInterface.btn1_1()))
+        self.menu.addAction(Action(FIF.LINK, "官网", triggered=lambda: webbrowser.open(program.PROGRAM_URL)))
+        self.menu.addAction(Action(FIF.CLOSE, "退出", triggered=lambda: self.triggered()))
+        self.setIcon(QIcon("img/logo.png"))
+        self.setToolTip(program.PROGRAM_TITLE)
+        self.activated.connect(self.clickedIcon)
+        self.show()
+
+    def clickedIcon(self, reason):
+        if reason == 3:
+            self.trayClickedEvent()
+        elif reason == 1:
+            self.contextMenuEvent()
+
+    def trayClickedEvent(self):
+        if self.window.isHidden():
+            self.window.setHidden(False)
+            if self.window.windowState() == Qt.WindowMinimized:
+                self.window.showNormal()
+            self.window.raise_()
+            self.window.activateWindow()
+        else:
+            self.window.setHidden(True)
+
+    def triggered(self):
+        self.deleteLater()
+        qApp.quit()
+
+    def contextMenuEvent(self):
+        self.menu.exec(QCursor.pos(), ani=True, aniType=MenuAnimationType.PULL_UP)

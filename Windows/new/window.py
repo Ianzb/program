@@ -137,6 +137,8 @@ class Window(FluentWindow):
         desktop = QApplication.desktop().availableGeometry()
         w, h = desktop.width(), desktop.height()
         self.move(w // 2 - self.width() // 2, h // 2 - self.height() // 2)
+        # 托盘
+        self.tray = Tray(self)
 
     def __initWidget(self):
         """
@@ -159,3 +161,7 @@ class Window(FluentWindow):
             position=NavigationItemPosition.BOTTOM
         )
         self.addSubInterface(self.settingPage, FIF.SETTING, self.settingPage.name, NavigationItemPosition.BOTTOM)
+
+    def closeEvent(self, QCloseEvent):
+        QCloseEvent.ignore()
+        self.hide()
