@@ -31,6 +31,9 @@ class mainPage(ScrollArea):
 
         self.btn = PrimaryPushButton("zb", self.card.view, FIF.ALIGNMENT)
 
+        self.card2 = GrayCard("123", self.btn, self.view)
+        self.vBoxLayout.addWidget(self.card2, 0, Qt.AlignTop)
+
 
 class toolPage(ScrollArea):
     """

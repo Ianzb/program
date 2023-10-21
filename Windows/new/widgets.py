@@ -76,3 +76,48 @@ class Tray(QSystemTrayIcon):
 
     def contextMenuEvent(self):
         self.menu.exec(QCursor.pos(), ani=True, aniType=MenuAnimationType.PULL_UP)
+
+
+class GrayCard(QWidget):
+    """
+    灰色背景组件卡片
+    """
+
+    def __init__(self, title: str, widget, parent=None):
+        super().__init__(parent=parent)
+        self.widget = widget
+        if type(self.widget) != list:
+            self.widget = [self.widget]
+
+        self.titleLabel = StrongBodyLabel(title, self)
+        self.card = QFrame(self)
+        self.card.setStyleSheet("QWidget {background-color: rgba(150,150,150,0.1); border:1px solid rgba(150,150,150,0.15); border-radius: 10px}")
+        self.card.setObjectName("卡片")
+
+        self.vBoxLayout = QVBoxLayout(self)
+        self.cardLayout = QVBoxLayout(self.card)
+        self.topLayout = QHBoxLayout()
+
+        self.vBoxLayout.setSizeConstraint(QVBoxLayout.SetMinimumSize)
+        self.cardLayout.setSizeConstraint(QVBoxLayout.SetMinimumSize)
+        self.topLayout.setSizeConstraint(QHBoxLayout.SetMinimumSize)
+
+        self.vBoxLayout.setSpacing(12)
+        self.vBoxLayout.setContentsMargins(0, 0, 0, 0)
+        self.topLayout.setContentsMargins(12, 12, 12, 12)
+        self.cardLayout.setContentsMargins(0, 0, 0, 0)
+
+        self.vBoxLayout.addWidget(self.titleLabel, 0, Qt.AlignTop)
+        self.vBoxLayout.addWidget(self.card, 0, Qt.AlignTop)
+        self.vBoxLayout.setAlignment(Qt.AlignTop)
+
+        self.cardLayout.setSpacing(0)
+        self.cardLayout.setAlignment(Qt.AlignTop)
+        self.cardLayout.addLayout(self.topLayout, 0)
+
+        for i in self.widget:
+            i.setParent(self.card)
+            self.topLayout.addWidget(i)
+            i.show()
+
+        self.topLayout.addStretch(1)
