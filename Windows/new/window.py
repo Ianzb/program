@@ -96,7 +96,7 @@ class settingPage(ScrollArea):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.setObjectName(self.name)
-        self.toolBar = ToolBar(self.name, "", self)
+        self.toolBar = ToolBar(self.name, "设置界面、功能", self)
         self.setViewportMargins(0, self.toolBar.height(), 0, 0)
 
         self.view = QWidget(self)
@@ -107,10 +107,17 @@ class settingPage(ScrollArea):
         self.setViewportMargins(0, self.toolBar.height(), 0, 0)
         self.setWidgetResizable(True)
 
-        self.vBoxLayout = QVBoxLayout(self.view)
+        self.vBoxLayout = VBoxLayout(self.view)
         self.vBoxLayout.setSpacing(30)
         self.vBoxLayout.setAlignment(Qt.AlignTop)
         self.vBoxLayout.setContentsMargins(36, 20, 36, 36)
+
+        self.settingCardGroup1 = SettingCardGroup("个性化", self)
+
+        self.settingCardGroup1.addSettingCard(ThemeSettingCard())
+        self.settingCardGroup1.addSettingCard(ColorSettingCard())
+
+        self.vBoxLayout.addWidget(self.settingCardGroup1)
 
 
 class Window(FluentWindow):
@@ -132,7 +139,6 @@ class Window(FluentWindow):
         # 外观调整
         setTheme(eval(setting.read("theme")))
         setThemeColor("#0078D4")
-        setTheme(Theme.DARK)
         # 窗口属性
         self.resize(900, 700)
         self.setWindowIcon(QIcon(program.source("logo.png")))
