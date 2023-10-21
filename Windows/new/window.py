@@ -41,7 +41,21 @@ class toolPage(ScrollArea):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.setObjectName(self.name)
-        self.TitleLabel = ToolBar(self.name, "工具箱", self)
+        self.toolBar = ToolBar(self.name, "工具箱", self)
+        self.setViewportMargins(0, self.toolBar.height(), 0, 0)
+
+        self.view = QWidget(self)
+        self.setWidget(self.view)
+        self.view.setStyleSheet("QWidget {background-color: rgba(0,0,0,0); border: none}")
+
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setViewportMargins(0, self.toolBar.height(), 0, 0)
+        self.setWidgetResizable(True)
+
+        self.vBoxLayout = QVBoxLayout(self.view)
+        self.vBoxLayout.setSpacing(30)
+        self.vBoxLayout.setAlignment(Qt.AlignTop)
+        self.vBoxLayout.setContentsMargins(36, 20, 36, 36)
 
 
 class gamePage(ScrollArea):
@@ -53,7 +67,21 @@ class gamePage(ScrollArea):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.setObjectName(self.name)
-        self.TitleLabel = ToolBar(self.name, "Minecraft相关功能", self)
+        self.toolBar = ToolBar(self.name, "Minecraft相关功能", self)
+        self.setViewportMargins(0, self.toolBar.height(), 0, 0)
+
+        self.view = QWidget(self)
+        self.setWidget(self.view)
+        self.view.setStyleSheet("QWidget {background-color: rgba(0,0,0,0); border: none}")
+
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setViewportMargins(0, self.toolBar.height(), 0, 0)
+        self.setWidgetResizable(True)
+
+        self.vBoxLayout = QVBoxLayout(self.view)
+        self.vBoxLayout.setSpacing(30)
+        self.vBoxLayout.setAlignment(Qt.AlignTop)
+        self.vBoxLayout.setContentsMargins(36, 20, 36, 36)
 
 
 class settingPage(ScrollArea):
@@ -65,7 +93,21 @@ class settingPage(ScrollArea):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.setObjectName(self.name)
-        self.TitleLabel = ToolBar(self.name, "", self)
+        self.toolBar = ToolBar(self.name, "", self)
+        self.setViewportMargins(0, self.toolBar.height(), 0, 0)
+
+        self.view = QWidget(self)
+        self.setWidget(self.view)
+        self.view.setStyleSheet("QWidget {background-color: rgba(0,0,0,0); border: none}")
+
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setViewportMargins(0, self.toolBar.height(), 0, 0)
+        self.setWidgetResizable(True)
+
+        self.vBoxLayout = QVBoxLayout(self.view)
+        self.vBoxLayout.setSpacing(30)
+        self.vBoxLayout.setAlignment(Qt.AlignTop)
+        self.vBoxLayout.setContentsMargins(36, 20, 36, 36)
 
 
 class Window(FluentWindow):
