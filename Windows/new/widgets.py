@@ -151,7 +151,7 @@ class ThemeSettingCard(ExpandSettingCard):
     themeChanged = pyqtSignal(OptionsConfigItem)
 
     def __init__(self, parent=None):
-        super().__init__(FIF.BRUSH, "主题模式", "修改程序明暗主题", parent)
+        super().__init__(FIF.BRUSH, "程序主题", "修改程序明暗主题", parent)
         self.choiceLabel = QLabel(self)
         self.buttonGroup = QButtonGroup(self)
 
