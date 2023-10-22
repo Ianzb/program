@@ -119,6 +119,12 @@ class settingPage(ScrollArea):
 
         self.vBoxLayout.addWidget(self.settingCardGroup1)
 
+        self.settingCardGroup2 = SettingCardGroup("关于", self)
+
+        self.settingCardGroup2.addSettingCard(HelpSettingCard())
+
+        self.vBoxLayout.addWidget(self.settingCardGroup2)
+
 
 class Window(FluentWindow):
     """

@@ -283,3 +283,18 @@ class ColorSettingCard(ExpandGroupSettingCard):
         self.color = QColor(color)
         setting.save("themeColor", self.color.name())
         self.colorChanged.emit(color)
+
+
+class HelpSettingCard(SettingCard):
+    """
+    帮助设置卡片
+    """
+
+    def __init__(self, parent=None):
+        super().__init__(FIF.HELP, "帮助", "查看程序相关信息", parent)
+        self.linkButton1 = HyperlinkButton(program.PROGRAM_URL, "程序官网", self, FIF.LINK)
+        self.linkButton2 = HyperlinkButton(program.PROGRAM_PATH, "程序安装路径", self, FIF.FOLDER)
+        self.linkButton2.clicked.connect(lambda: os.startfile(program.PROGRAM_PATH))
+        self.hBoxLayout.addWidget(self.linkButton1, 0, Qt.AlignRight)
+        self.hBoxLayout.addWidget(self.linkButton2, 0, Qt.AlignRight)
+        self.hBoxLayout.addSpacing(16)
