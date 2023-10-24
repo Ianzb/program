@@ -173,11 +173,26 @@ class Window(FluentWindow):
         self.addSubInterface(self.gamePage, FIF.GAME, self.gamePage.name, NavigationItemPosition.SCROLL)
         self.navigationInterface.addSeparator(NavigationItemPosition.BOTTOM)
         self.navigationInterface.addWidget(
-            routeKey="avatar",
-            widget=NavigationAvatarWidget("Ianzb", program.source("zb.png")),
-            position=NavigationItemPosition.BOTTOM
+            "avatar",
+            NavigationAvatarWidget(program.AUTHOR_NAME, program.source("zb.png")),
+            self.avatorEvent,
+            NavigationItemPosition.BOTTOM,
         )
         self.addSubInterface(self.settingPage, FIF.SETTING, self.settingPage.name, NavigationItemPosition.BOTTOM)
+
+    def avatorEvent(self):
+        """
+        头像页面事件
+        """
+        w = MessageBox(
+            f"欢迎使用{program.PROGRAM_NAME}！",
+            f"作者：{program.AUTHOR_NAME}",
+            self
+        )
+        w.yesButton.setText(f"{program.AUTHOR_NAME}的个人网站")
+        w.cancelButton.setText("关闭")
+        if w.exec():
+            webbrowser.open(program.AUTHOR_URL)
 
     def keyPressEvent(self, QKeyEvent):
         """
