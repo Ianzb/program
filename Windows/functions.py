@@ -744,7 +744,7 @@ class NewThread(QThread):
                 data[i] = data[i].text.strip()
             for i in range(len(data)):
                 self.signalDict.emit({"数量": len(data), "完成": False, "名称": data[i], "序号": i})
-                f.downloadFile(f.urlJoin(program.UPDATE_URL, i), f.pathJoin(program.PROGRAM_PATH, i))
+                f.downloadFile(f.urlJoin(program.UPDATE_URL, data[i]), f.pathJoin(program.PROGRAM_PATH, data[i]))
             self.signalDict.emit({"数量": len(data), "完成": True, "名称": "", "序号": 0})
     # if mode == 1:
     #     MyThread(lambda: f.clearRubbish())
