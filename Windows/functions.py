@@ -37,7 +37,7 @@ class ProgramInit():
     AUTHOR_URL = "https://ianzb.github.io/"  # 作者网址
     PROGRAM_URL = "https://ianzb.github.io/program/"  # 程序网址
     GITHUB_URL = "https://github.com/Ianzb/program/"  # Github网址
-    UPDATE_URL = "https://ianzb.github.io/program/Windows/history.html"  # 更新网址
+    UPDATE_URL = "https://ianzb.github.io/program/Windows/index.html"  # 更新网址
     PROGRAM_MAIN_FILE_PATH = sys.argv[0]  # 程序主文件路径
     PROGRAM_PATH = os.path.dirname(sys.argv[0])  # 程序安装路径
     SOURCE_PATH = os.path.join(PROGRAM_PATH, "img")  # 程序资源文件路径
