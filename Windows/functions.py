@@ -610,7 +610,7 @@ class Functions():
         path = os.path.abspath(path)
         import requests
         data = requests.get(link, headers=program.REQUEST_HEADER).content
-        self.mkDir(self.baseName(path, 4))
+        self.mkDir(self.baseName(path, 3))
         with open(path, "wb") as file:
             file.write(data)
 
