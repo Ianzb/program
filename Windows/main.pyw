@@ -6,6 +6,8 @@ if __name__ == '__main__':
     QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
 
     app = QApplication(sys.argv)
+    translator = FluentTranslator()
+    app.installTranslator(translator)
     w = Window()
     w.show()
     if program.isStartup and setting.read("autoHide"):
