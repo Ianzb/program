@@ -123,7 +123,18 @@ class SettingFunctions():
         try:
             return settings[name]
         except:
-            return
+            if name == "theme":
+                setting.save("theme", "Theme.AUTO")
+            if name == "themeColor":
+                setting.save("themeColor", "#0078D4")
+            if name == "autoStartup":
+                setting.save("autoStartup", False)
+            if name == "autoHide":
+                setting.save("autoHide", True)
+            if name == "autoUpdate":
+                setting.save("autoUpdate", False)
+            if name == "pid":
+                setting.save("pid", "0")
 
     def save(self, name: str, data):
         """
@@ -684,16 +695,6 @@ if "python" in f.cmd(f"tasklist |findstr {setting.read('pid')}", True):
     setting.save("showWindow", "1")
     sys.exit()
 setting.save("pid", str(program.PROGRAM_PID))
-if not setting.read("theme"):
-    setting.save("theme", "Theme.AUTO")
-if not setting.read("themeColor"):
-    setting.save("themeColor", "#0078D4")
-if not setting.read("autoStartup"):
-    setting.save("autoStartup", False)
-if not setting.read("autoHide"):
-    setting.save("autoHide", True)
-if not setting.read("autoUpdate"):
-    setting.save("autoUpdate", False)
 
 # UI多线程
 from PyQt5.QtCore import *
@@ -751,62 +752,3 @@ class NewThread(QThread):
                 self.signalDict.emit({"数量": len(data), "完成": False, "名称": data[i], "序号": i})
                 f.downloadFile(f.urlJoin(program.UPDATE_URL, data[i]), f.pathJoin(program.PROGRAM_PATH, data[i]))
             self.signalDict.emit({"数量": len(data), "完成": True, "名称": "", "序号": 0})
-    # if mode == 1:
-    #     MyThread(lambda: f.clearRubbish())
-    #     MyThread(lambda: f.clearCache())
-    #     f.clearDesk(setting("sort"))
-    #     if readSetting("wechat") != "":
-    #         clearWechat(readSetting("wechat"), readSetting("sort"))
-    #     clearFile(readSetting("sort"))
-    #     self.signal.emit("完成")
-    # if mode == 2:
-    #     cmd("taskkill /f /im explorer.exe")
-    #     self.signal.emit("完成")
-    #     cmd("start C:/windows/explorer.exe")
-    # if mode == 3:
-    #     self.signal.emit("开始")
-    #     if getVersion() == version:
-    #         self.signal.emit("无需更新")
-    #         return
-    #     res = requests.get(urlJoin(update_url, "index.html"))
-    #     res.encoding = "UTF-8"
-    #     soup = bs4.BeautifulSoup(res.text, "lxml")
-    #     data = soup.find_all(name="div", class_="download", text=re.compile("."))
-    #     for i in range(len(data)): data[i] = data[i].text.strip()
-    #     self.signal.emit("总共" + str(len(data)))
-    #     for i in range(len(data)):
-    #         self.signal.emit(data[i])
-    #         download(urlJoin(update_url, data[i]))
-    #     self.signal.emit("完成")
-    # if mode == 4:
-    #     for i in range(len(lib_update_list)):
-    #         self.signal.emit(str(i))
-    #         pipUpdate(lib_update_list[i])
-    #     self.signal.emit("完成")
-    # if mode == 5:
-    #     str1 = getMc()
-    #     self.signal.emit(str1)
-
-    # if mode == 10:
-    #     l1 = ["全部"] + getGameVersions(mode="lite")
-    #     l2 = ["全部"] + getGameVersions()
-    #     self.signal2.emit([l1, l2])
-    # if mode == 11:
-    #     info = search(self.data[0], self.data[1], 20, 1)
-    #     info = searchModInf(info)
-    #     if not info:
-    #         self.signal2.emit(info)
-    #         return
-    #     info = getModData(info)
-    #     self.signal2.emit(info)
-    # if mode == 12:
-    #     try:
-    #         if exists(join(user_path, "zb", "cache", self.data["名称"] + ".png")):
-    #             self.signal.emit("成功")
-    #         response = requests.get(self.data["图标"], headers=header, timeout=600).content
-    #         mkDir(join(user_path, "zb", "cache"))
-    #         with open(join(user_path, "zb", "cache", self.data["名称"] + ".png"), "wb") as file:
-    #             file.write(response)
-    #         self.signal.emit("成功")
-    #     except:
-    #         self.signal.emit("失败")

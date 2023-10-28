@@ -325,16 +325,10 @@ class StartupSettingCard(SettingCard):
             f.addToStartup(program.PROGRAM_NAME, program.PROGRAM_MAIN_FILE_PATH, False)
 
     def button2(self):
-        if self.checkBox2.isChecked():
-            setting.save("autoHide", True)
-        else:
-            setting.save("autoHide", False)
+        setting.save("autoHide", self.checkBox2.isChecked())
 
     def button3(self):
-        if self.checkBox3.isChecked():
-            setting.save("autoUpdate", True)
-        else:
-            setting.save("autoUpdate", False)
+        setting.save("autoUpdate", self.checkBox3.isChecked())
 
 
 class ShortcutSettingCard(SettingCard):
