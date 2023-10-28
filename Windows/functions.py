@@ -702,8 +702,6 @@ from qfluentwidgets import *
 from qfluentwidgets import FluentIcon as FIF
 from qframelesswindow import *
 
-print(f.urlJoin(program.UPDATE_URL, "img/logo.ico"))
-
 
 class NewThread(QThread):
     """
