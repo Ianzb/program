@@ -158,6 +158,7 @@ class Window(FluentWindow):
         setThemeColor("#0078D4")
         # 窗口属性
         self.resize(900, 700)
+        self.setMinimumSize(500, 400)
         self.setWindowIcon(QIcon(program.source("logo.png")))
         self.setWindowTitle(program.PROGRAM_TITLE)
         self.navigationInterface.setReturnButtonVisible(False)
