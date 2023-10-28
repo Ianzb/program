@@ -143,7 +143,7 @@ class Window(FluentWindow):
         self.__initWindow()
         self.__initWidget()
         # 自动更新
-        if setting.read("autoUpdate"):
+        if setting.read("autoUpdate") and program.isStartup:
             self.settingPage.updateSettingCard.button3()
 
     def __initWindow(self):
