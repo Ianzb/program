@@ -1,3 +1,5 @@
+import time
+
 from functions import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -12,7 +14,6 @@ class NewThread(QThread):
     多线程模块
     """
     signal = pyqtSignal(str)
-    signal2 = pyqtSignal(list)
 
     def __init__(self, mode, data=None):
         super().__init__()
@@ -20,71 +21,71 @@ class NewThread(QThread):
         self.data = data
 
     def run(self):
-        mode = self.mode
-        if mode == 1:
-            MyThread(lambda: clearRubbish())
-            MyThread(lambda: clearCache())
-            clearDesk(readSetting("sort"))
-            if readSetting("wechat") != "":
-                clearWechat(readSetting("wechat"), readSetting("sort"))
-            clearFile(readSetting("sort"))
-            self.signal.emit("完成")
-        if mode == 2:
-            cmd("taskkill /f /im explorer.exe")
-            self.signal.emit("完成")
-            cmd("start C:/windows/explorer.exe")
-        if mode == 3:
-            self.signal.emit("开始")
-            if getVersion() == version:
-                self.signal.emit("无需更新")
-                return
-            res = requests.get(urlJoin(update_url, "index.html"))
-            res.encoding = "UTF-8"
-            soup = bs4.BeautifulSoup(res.text, "lxml")
-            data = soup.find_all(name="div", class_="download", text=re.compile("."))
-            for i in range(len(data)): data[i] = data[i].text.strip()
-            self.signal.emit("总共" + str(len(data)))
-            for i in range(len(data)):
-                self.signal.emit(data[i])
-                download(urlJoin(update_url, data[i]))
-            self.signal.emit("完成")
-        if mode == 4:
-            for i in range(len(lib_update_list)):
-                self.signal.emit(str(i))
-                pipUpdate(lib_update_list[i])
-            self.signal.emit("完成")
-        if mode == 5:
-            str1 = getMc()
-            self.signal.emit(str1)
-        if mode == 8:
+        if self.mode == "展示窗口":
             while True:
                 time.sleep(0.1)
-                if readSetting("shownow") == "1":
-                    saveSetting("shownow", "0")
-                    self.signal.emit("展示")
-        if mode == 10:
-            l1 = ["全部"] + getGameVersions(mode="lite")
-            l2 = ["全部"] + getGameVersions()
-            self.signal2.emit([l1, l2])
-        if mode == 11:
-            info = search(self.data[0], self.data[1], 20, 1)
-            info = searchModInf(info)
-            if not info:
-                self.signal2.emit(info)
-                return
-            info = getModData(info)
-            self.signal2.emit(info)
-        if mode == 12:
-            try:
-                if exists(join(user_path, "zb", "cache", self.data["名称"] + ".png")):
-                    self.signal.emit("成功")
-                response = requests.get(self.data["图标"], headers=header, timeout=600).content
-                mkDir(join(user_path, "zb", "cache"))
-                with open(join(user_path, "zb", "cache", self.data["名称"] + ".png"), "wb") as file:
-                    file.write(response)
-                self.signal.emit("成功")
-            except:
-                self.signal.emit("失败")
+                if setting.read("showWindow") == "1":
+                    setting.save("showWindow", "0")
+                    self.signal.emit("展示窗口")
+        # if mode == 1:
+        #     MyThread(lambda: f.clearRubbish())
+        #     MyThread(lambda: f.clearCache())
+        #     f.clearDesk(setting("sort"))
+        #     if readSetting("wechat") != "":
+        #         clearWechat(readSetting("wechat"), readSetting("sort"))
+        #     clearFile(readSetting("sort"))
+        #     self.signal.emit("完成")
+        # if mode == 2:
+        #     cmd("taskkill /f /im explorer.exe")
+        #     self.signal.emit("完成")
+        #     cmd("start C:/windows/explorer.exe")
+        # if mode == 3:
+        #     self.signal.emit("开始")
+        #     if getVersion() == version:
+        #         self.signal.emit("无需更新")
+        #         return
+        #     res = requests.get(urlJoin(update_url, "index.html"))
+        #     res.encoding = "UTF-8"
+        #     soup = bs4.BeautifulSoup(res.text, "lxml")
+        #     data = soup.find_all(name="div", class_="download", text=re.compile("."))
+        #     for i in range(len(data)): data[i] = data[i].text.strip()
+        #     self.signal.emit("总共" + str(len(data)))
+        #     for i in range(len(data)):
+        #         self.signal.emit(data[i])
+        #         download(urlJoin(update_url, data[i]))
+        #     self.signal.emit("完成")
+        # if mode == 4:
+        #     for i in range(len(lib_update_list)):
+        #         self.signal.emit(str(i))
+        #         pipUpdate(lib_update_list[i])
+        #     self.signal.emit("完成")
+        # if mode == 5:
+        #     str1 = getMc()
+        #     self.signal.emit(str1)
+
+        # if mode == 10:
+        #     l1 = ["全部"] + getGameVersions(mode="lite")
+        #     l2 = ["全部"] + getGameVersions()
+        #     self.signal2.emit([l1, l2])
+        # if mode == 11:
+        #     info = search(self.data[0], self.data[1], 20, 1)
+        #     info = searchModInf(info)
+        #     if not info:
+        #         self.signal2.emit(info)
+        #         return
+        #     info = getModData(info)
+        #     self.signal2.emit(info)
+        # if mode == 12:
+        #     try:
+        #         if exists(join(user_path, "zb", "cache", self.data["名称"] + ".png")):
+        #             self.signal.emit("成功")
+        #         response = requests.get(self.data["图标"], headers=header, timeout=600).content
+        #         mkDir(join(user_path, "zb", "cache"))
+        #         with open(join(user_path, "zb", "cache", self.data["名称"] + ".png"), "wb") as file:
+        #             file.write(response)
+        #         self.signal.emit("成功")
+        #     except:
+        #         self.signal.emit("失败")
 
 
 class ScrollArea(ScrollArea):
@@ -380,50 +381,61 @@ class StartupSettingCard(SettingCard):
         self.checkBox2.clicked.connect(self.button2)
         self.checkBox3 = CheckBox("开机自动更新", self)
         self.checkBox3.clicked.connect(self.button3)
-        if setting.read("autoStartup") == "1":
-            self.checkBox1.setChecked(True)
+        self.checkBox1.setChecked(setting.read("autoStartup"))
+        if setting.read("autoStartup"):
             self.checkBox2.setEnabled(True)
             self.checkBox3.setEnabled(True)
         else:
-            self.checkBox1.setChecked(False)
             self.checkBox2.setEnabled(False)
             self.checkBox3.setEnabled(False)
-        if setting.read("autoMinimize") == "1":
-            self.checkBox2.setChecked(True)
-        else:
-            self.checkBox2.setChecked(False)
-        if setting.read("autoUpdate") == "1":
-            self.checkBox3.setChecked(True)
-        else:
-            self.checkBox3.setChecked(False)
+        self.checkBox2.setChecked(setting.read("autoHide"))
+        self.checkBox3.setChecked(setting.read("autoUpdate"))
         self.hBoxLayout.addWidget(self.checkBox1, 0, Qt.AlignRight)
+        self.hBoxLayout.addSpacing(8)
         self.hBoxLayout.addWidget(self.checkBox2, 0, Qt.AlignRight)
+        self.hBoxLayout.addSpacing(8)
         self.hBoxLayout.addWidget(self.checkBox3, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
     def button1(self):
         if self.checkBox1.isChecked():
-            setting.save("autoStartup", "1")
+            setting.save("autoStartup", True)
             self.checkBox2.setEnabled(True)
             self.checkBox3.setEnabled(True)
             f.addToStartup(program.PROGRAM_NAME, program.PROGRAM_MAIN_FILE_PATH, True)
         else:
-            setting.save("autoStartup", "0")
+            setting.save("autoStartup", False)
             self.checkBox2.setEnabled(False)
             self.checkBox3.setEnabled(False)
             f.addToStartup(program.PROGRAM_NAME, program.PROGRAM_MAIN_FILE_PATH, False)
 
     def button2(self):
         if self.checkBox2.isChecked():
-            setting.save("autoMinimize", "1")
+            setting.save("autoHide", True)
         else:
-            setting.save("autoMinimize", "0")
+            setting.save("autoHide", False)
 
     def button3(self):
         if self.checkBox3.isChecked():
-            setting.save("autoUpdate", "1")
+            setting.save("autoUpdate", True)
         else:
-            setting.save("autoUpdate", "0")
+            setting.save("autoUpdate", False)
+
+
+class ShortcutSettingCard(SettingCard):
+    """
+    快捷方式设置卡片
+    """
+
+    def __init__(self, parent=None):
+        super().__init__(FIF.ADD_TO, "添加快捷方式", "向计算机中添加程序的快捷方式", parent)
+        self.button1 = HyperlinkButton("", "桌面", self)
+        self.button2 = HyperlinkButton("", "开始菜单", self)
+        self.button1.clicked.connect(lambda: f.createShortcut(program.PROGRAM_MAIN_FILE_PATH, f.pathJoin(program.DESKTOP_PATH, "zb小程序.lnk"), program.source("logo.ico")))
+        self.button2.clicked.connect(lambda: f.addToStartMenu())
+        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
+        self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignRight)
+        self.hBoxLayout.addSpacing(16)
 
 
 class HelpSettingCard(SettingCard):

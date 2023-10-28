@@ -87,6 +87,9 @@ class ProgramInit():
         return f.pathJoin(self.SOURCE_PATH, name)
 
 
+program = ProgramInit()
+
+
 class SettingFunctions():
     """
     设置相关函数
@@ -119,7 +122,6 @@ class SettingFunctions():
         try:
             return settings[name]
         except:
-            self.save(name, None)
             return
 
     def save(self, name: str, data):
@@ -134,6 +136,9 @@ class SettingFunctions():
         settings[name] = data
         with open(program.SETTING_FILE_PATH, "w", encoding="utf-8") as file:
             file.write(json.dumps(settings))
+
+
+setting = SettingFunctions()
 
 
 class Functions():
@@ -238,7 +243,7 @@ class Functions():
         """
         获取文件名信息
         :param path: 文件路径
-        :param mode: 模式：1 文件完整名称 2 文件名称 3 文件扩展名 4 文件所在目录
+        :param mode: 模式：0 文件完整名称 1 文件名称 2 文件扩展名 3 文件所在目录
         :return: 文件名信息
         """
         if self.isFile(path):
@@ -611,7 +616,7 @@ class Functions():
         if not new.endswith(".lnk"):
             new += ".lnk"
         shell = win32com.client.Dispatch("WScript.Shell")
-        shortcut = shell.CreateShortCut(f.baseName(new, 4))
+        shortcut = shell.CreateShortCut(new)
         shortcut.Targetpath = old
         shortcut.IconLocation = icon
         shortcut.Arguments = arguments
@@ -621,7 +626,7 @@ class Functions():
         """
         添加开始菜单快捷方式
         """
-        self.createShortcut(sys.argv[0], f.pathJoin(program.USER_PATH, "AppData\Roaming\Microsoft\Windows\Start Menu\Programs", "zb小程序.lnk"), f.pathJoin(program.SOURCE_PATH, "logo.ico"))
+        self.createShortcut(program.PROGRAM_MAIN_FILE_PATH, f.pathJoin(program.USER_PATH, "AppData\Roaming\Microsoft\Windows\Start Menu\Programs", "zb小程序"), program.source("logo.ico"))
 
     def addToStartup(self, name: str, path: str, mode: bool = True):
         """
@@ -658,8 +663,6 @@ class Functions():
 
 
 # 初始化
-program = ProgramInit()
-setting = SettingFunctions()
 f = Functions()
 # 切换运行路径
 os.chdir(program.PROGRAM_PATH)
@@ -676,8 +679,8 @@ if not setting.read("theme"):
 if not setting.read("themeColor"):
     setting.save("themeColor", "#0078D4")
 if not setting.read("autoStartup"):
-    setting.save("autoStartup", "0")
-if not setting.read("autoMinimize"):
-    setting.save("autoMinimize", "1")
+    setting.save("autoStartup", False)
+if not setting.read("autoHide"):
+    setting.save("autoHide", True)
 if not setting.read("autoUpdate"):
-    setting.save("autoUpdate", "0")
+    setting.save("autoUpdate", False)

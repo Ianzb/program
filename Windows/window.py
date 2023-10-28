@@ -117,6 +117,7 @@ class SettingPage(ScrollArea):
         self.settingCardGroup1.addSettingCard(ThemeSettingCard())
         self.settingCardGroup1.addSettingCard(ColorSettingCard())
         self.settingCardGroup1.addSettingCard(StartupSettingCard())
+        self.settingCardGroup1.addSettingCard(ShortcutSettingCard())
 
         self.vBoxLayout.addWidget(self.settingCardGroup1)
 
@@ -144,6 +145,9 @@ class Window(FluentWindow):
         """
         窗口初始化
         """
+        self.thread = NewThread("展示窗口")
+        self.thread.signal.connect(self.ifShow)
+        self.thread.start()
         # 外观调整
         setTheme(eval(setting.read("theme")))
         setThemeColor("#0078D4")
@@ -195,6 +199,13 @@ class Window(FluentWindow):
         w.cancelButton.setText("关闭")
         if w.exec():
             webbrowser.open(program.AUTHOR_URL)
+
+    def ifShow(self, msg):
+        """
+        重复运行展示窗口
+        """
+        if msg == "展示窗口":
+            self.show()
 
     def keyPressEvent(self, QKeyEvent):
         """
