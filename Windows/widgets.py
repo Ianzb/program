@@ -483,7 +483,10 @@ class UpdateSettingCard(SettingCard):
         self.pushButton2.setEnabled(True)
 
     def button3(self):
-        self.infoBar.hide()
+        try:
+            self.infoBar.hide()
+        except:
+            pass
         self.pushButton1.setEnabled(False)
         self.pushButton2.setEnabled(False)
         self.label.setText("正在连接服务器")
@@ -519,7 +522,7 @@ class UpdateSettingCard(SettingCard):
                 )
                 self.pushButton4 = PushButton("重新启动", self, FIF.SYNC)
                 self.pushButton4.clicked.connect(self.button4)
-            self.infoBar.addWidget(self.pushButton4)
+                self.infoBar.addWidget(self.pushButton4)
             self.infoBar.show()
             self.label.hide()
             self.progressBar.hide()
