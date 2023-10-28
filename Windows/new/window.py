@@ -1,7 +1,7 @@
 from widgets import *
 
 
-class mainPage(ScrollArea):
+class MainPage(ScrollArea):
     """
     主页
     """
@@ -35,7 +35,7 @@ class mainPage(ScrollArea):
         self.vBoxLayout.addWidget(self.card2, 0, Qt.AlignTop)
 
 
-class toolPage(ScrollArea):
+class ToolPage(ScrollArea):
     """
     工具页面
     """
@@ -61,7 +61,7 @@ class toolPage(ScrollArea):
         self.vBoxLayout.setContentsMargins(36, 20, 36, 36)
 
 
-class gamePage(ScrollArea):
+class GamePage(ScrollArea):
     """
     游戏页面
     """
@@ -87,7 +87,7 @@ class gamePage(ScrollArea):
         self.vBoxLayout.setContentsMargins(36, 20, 36, 36)
 
 
-class settingPage(ScrollArea):
+class SettingPage(ScrollArea):
     """
     设置页面
     """
@@ -116,12 +116,14 @@ class settingPage(ScrollArea):
 
         self.settingCardGroup1.addSettingCard(ThemeSettingCard())
         self.settingCardGroup1.addSettingCard(ColorSettingCard())
+        self.settingCardGroup1.addSettingCard(StartupSettingCard())
 
         self.vBoxLayout.addWidget(self.settingCardGroup1)
 
         self.settingCardGroup2 = SettingCardGroup("关于", self)
 
         self.settingCardGroup2.addSettingCard(HelpSettingCard())
+        self.settingCardGroup2.addSettingCard(AboutSettingCard())
 
         self.vBoxLayout.addWidget(self.settingCardGroup2)
 
@@ -162,10 +164,10 @@ class Window(FluentWindow):
         组件初始化
         """
         # 页面组件
-        self.mainPage = mainPage(self)
-        self.toolPage = toolPage(self)
-        self.gamePage = gamePage(self)
-        self.settingPage = settingPage(self)
+        self.mainPage = MainPage(self)
+        self.toolPage = ToolPage(self)
+        self.gamePage = GamePage(self)
+        self.settingPage = SettingPage(self)
         # 导航栏组件
         self.addSubInterface(self.mainPage, FIF.HOME, self.mainPage.name, NavigationItemPosition.TOP)
         self.navigationInterface.addSeparator(NavigationItemPosition.TOP)

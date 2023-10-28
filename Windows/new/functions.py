@@ -5,10 +5,12 @@ import shutil
 import threading
 import webbrowser
 
-# 多线程优化
-
 
 class MyThread(threading.Thread):
+    """
+    多线程优化
+    """
+
     def __init__(self, func, *args):
         super().__init__()
 
@@ -34,6 +36,7 @@ class ProgramInit():
     PROGRAM_URL = "https://ianzb.github.io/program/"  # 程序网址
     GITHUB_URL = "https://github.com/Ianzb/program/"  # Github网址
     UPDATE_URL = "https://ianzb.github.io/program/Windows/"  # 更新网址
+    PROGRAM_MAIN_FILE_PATH = sys.argv[0]  # 程序主文件路径
     PROGRAM_PATH = os.path.dirname(sys.argv[0])  # 程序安装路径
     SOURCE_PATH = os.path.join(PROGRAM_PATH, "img")  # 程序资源文件路径
     FILE_NAME = os.path.basename(sys.argv[0])  # 当前程序文件名称
@@ -56,12 +59,7 @@ class ProgramInit():
                    ]
 
     def __init__(self):
-        # 切换运行路径
-        os.chdir(self.PROGRAM_PATH)
-        # 设置任务栏
-        import ctypes
-
-        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("zb小程序")
+        pass
 
     @property
     def DESKTOP_PATH(self) -> str:
@@ -89,17 +87,13 @@ class ProgramInit():
         return f.pathJoin(self.SOURCE_PATH, name)
 
 
-program = ProgramInit()
-
-
-class settingFunctions():
+class SettingFunctions():
     """
     设置相关函数
     """
 
     def __init__(self):
         import json
-
 
     def reload(self):
         """
@@ -112,7 +106,6 @@ class settingFunctions():
             with open(program.SETTING_FILE_PATH, "r+", encoding="utf-8") as file:
                 if not file.read():
                     file.write("{}")
-
 
     def read(self, name: str):
         """
@@ -141,9 +134,6 @@ class settingFunctions():
         settings[name] = data
         with open(program.SETTING_FILE_PATH, "w", encoding="utf-8") as file:
             file.write(json.dumps(settings))
-
-
-setting = settingFunctions()
 
 
 class Functions():
@@ -667,13 +657,27 @@ class Functions():
         return data
 
 
+# 初始化
+program = ProgramInit()
+setting = SettingFunctions()
 f = Functions()
-# # 重复运行检测
-# if "python" in f.cmd(f"tasklist |findstr {setting.read('pid')}", True):
-#     setting.save("showWindow", "1")
-#     sys.exit()
+# 切换运行路径
+os.chdir(program.PROGRAM_PATH)
+# 设置任务栏
+import ctypes
+
+ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("zb小程序")
+if "python" in f.cmd(f"tasklist |findstr {setting.read('pid')}", True):
+    setting.save("showWindow", "1")
+    sys.exit()
 setting.save("pid", str(program.PROGRAM_PID))
 if not setting.read("theme"):
     setting.save("theme", "Theme.AUTO")
 if not setting.read("themeColor"):
     setting.save("themeColor", "#0078D4")
+if not setting.read("autoStartup"):
+    setting.save("autoStartup", "0")
+if not setting.read("autoMinimize"):
+    setting.save("autoMinimize", "1")
+if not setting.read("autoUpdate"):
+    setting.save("autoUpdate", "0")
