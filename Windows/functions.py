@@ -739,7 +739,7 @@ class NewThread(QThread):
             import requests, bs4, lxml, re
             response = requests.get(program.UPDATE_URL, headers=program.REQUEST_HEADER, stream=True).text
             response = bs4.BeautifulSoup(response, "lxml")
-            data = response.find_all(name="div", class_="download", text=re.compile("."))
+            data = response.find_all(name="div", class_="download")
             for i in range(len(data)):
                 data[i] = data[i].text.strip()
             for i in range(len(data)):

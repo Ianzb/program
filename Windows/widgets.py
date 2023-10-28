@@ -486,6 +486,7 @@ class UpdateSettingCard(SettingCard):
         self.infoBar.hide()
         self.pushButton1.setEnabled(False)
         self.pushButton2.setEnabled(False)
+        self.label.setText("正在连接服务器")
         self.label.show()
         self.progressBar.show()
         self.thread = NewThread("立刻更新")
