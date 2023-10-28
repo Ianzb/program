@@ -124,6 +124,7 @@ class SettingPage(ScrollArea):
         self.settingCardGroup2 = SettingCardGroup("关于", self)
 
         self.settingCardGroup2.addSettingCard(HelpSettingCard())
+        self.settingCardGroup2.addSettingCard(UpdateSettingCard())
         self.settingCardGroup2.addSettingCard(AboutSettingCard())
 
         self.vBoxLayout.addWidget(self.settingCardGroup2)
@@ -146,7 +147,7 @@ class Window(FluentWindow):
         窗口初始化
         """
         self.thread = NewThread("展示窗口")
-        self.thread.signal.connect(self.ifShow)
+        self.thread.signalStr.connect(self.ifShow)
         self.thread.start()
         # 外观调整
         setTheme(eval(setting.read("theme")))

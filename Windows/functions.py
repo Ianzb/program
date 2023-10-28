@@ -4,6 +4,7 @@ import sys
 import shutil
 import threading
 import webbrowser
+import time
 
 
 class MyThread(threading.Thread):
@@ -35,7 +36,7 @@ class ProgramInit():
     AUTHOR_URL = "https://ianzb.github.io/"  # 作者网址
     PROGRAM_URL = "https://ianzb.github.io/program/"  # 程序网址
     GITHUB_URL = "https://github.com/Ianzb/program/"  # Github网址
-    UPDATE_URL = "https://ianzb.github.io/program/Windows/"  # 更新网址
+    UPDATE_URL = "https://ianzb.github.io/program/Windows/history.html"  # 更新网址
     PROGRAM_MAIN_FILE_PATH = sys.argv[0]  # 程序主文件路径
     PROGRAM_PATH = os.path.dirname(sys.argv[0])  # 程序安装路径
     SOURCE_PATH = os.path.join(PROGRAM_PATH, "img")  # 程序资源文件路径
@@ -47,8 +48,7 @@ class ProgramInit():
     STARTUP_ARGUMENT = sys.argv[1:]  # 程序启动参数
     REQUEST_HEADER = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36 Edg/118.0.2088.46"}  # 程序默认网络请求头
 
-    REQUIRE_LIB = ["PyQt5",
-                   "PyQt-Fluent-Widgets",
+    REQUIRE_LIB = ["PyQt-Fluent-Widgets",
                    "requests",
                    "bs4",
                    "lxml",
@@ -519,19 +519,27 @@ class Functions():
         if pause:
             return value.read()
 
-    def pipInstall(self, lib_name: str):
+    def pipInstall(self, lib_name: str | list):
         """
         pip安装运行库
         :param lib_name: 运行库名称
         """
-        self.cmd(f"pip install {lib_name} -i https://pypi.tuna.tsinghua.edu.cn/simple some-package")
+        if type(lib_name) == str:
+            self.cmd(f"pip install {lib_name} -i https://pypi.tuna.tsinghua.edu.cn/simple some-package", True)
+        elif type(lib_name) == list:
+            for i in lib_name:
+                self.cmd(f"pip install {i} -i https://pypi.tuna.tsinghua.edu.cn/simple some-package", True)
 
-    def pipUpdate(self, lib_name: str):
+    def pipUpdate(self, lib_name: str | list):
         """
         pip更新运行库
         :param lib_name: 运行库名称
         """
-        self.cmd(f"pip install --upgrade {lib_name} -i https://pypi.tuna.tsinghua.edu.cn/simple some-package")
+        if type(lib_name) == str:
+            self.cmd(f"pip install --upgrade {lib_name} -i https://pypi.tuna.tsinghua.edu.cn/simple some-package", True)
+        elif type(lib_name) == list:
+            for i in lib_name:
+                self.cmd(f"pip install --upgrade {i} -i https://pypi.tuna.tsinghua.edu.cn/simple some-package", True)
 
     def changeList(self, data: list, index: dict):
         """
@@ -647,13 +655,13 @@ class Functions():
         except:
             pass
 
-    def getProgramNewestVersion(self) -> str:
+    def getNewestVersion(self) -> str:
         """
         获取程序最新版本
         :return: 程序最新版本
         """
         import requests, bs4, lxml
-        response = requests.get(self.urlJoin(program.UPDATE_URL, "history.html"))
+        response = requests.get(program.UPDATE_URL)
         response.encoding = "UTF-8"
         soup = bs4.BeautifulSoup(response.text, "lxml")
         data = soup.find_all(name="div", class_="zb update")
@@ -684,3 +692,97 @@ if not setting.read("autoHide"):
     setting.save("autoHide", True)
 if not setting.read("autoUpdate"):
     setting.save("autoUpdate", False)
+
+# UI多线程
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
+from qfluentwidgets import *
+from qfluentwidgets import FluentIcon as FIF
+from qframelesswindow import *
+
+
+class NewThread(QThread):
+    """
+    多线程模块
+    """
+    signalStr = pyqtSignal(str)
+    signalList = pyqtSignal(list)
+    signalDict = pyqtSignal(dict)
+
+    def __init__(self, mode, data=None):
+        super().__init__()
+        self.mode = mode
+        self.data = data
+
+    def run(self):
+        if self.mode == "展示窗口":
+            while True:
+                time.sleep(0.1)
+                if setting.read("showWindow") == "1":
+                    setting.save("showWindow", "0")
+                    self.signalStr.emit("展示窗口")
+        if self.mode == "更新运行库":
+            for i in range(len(program.REQUIRE_LIB)):
+                self.signalDict.emit({"名称": program.REQUIRE_LIB[i], "序号": i, "完成": False})
+                f.pipUpdate(program.REQUIRE_LIB[i])
+            self.signalDict.emit({"名称": "", "序号": 0, "完成": True})
+            # if mode == 1:
+            #     MyThread(lambda: f.clearRubbish())
+            #     MyThread(lambda: f.clearCache())
+            #     f.clearDesk(setting("sort"))
+            #     if readSetting("wechat") != "":
+            #         clearWechat(readSetting("wechat"), readSetting("sort"))
+            #     clearFile(readSetting("sort"))
+            #     self.signal.emit("完成")
+            # if mode == 2:
+            #     cmd("taskkill /f /im explorer.exe")
+            #     self.signal.emit("完成")
+            #     cmd("start C:/windows/explorer.exe")
+            # if mode == 3:
+            #     self.signal.emit("开始")
+            #     if getVersion() == version:
+            #         self.signal.emit("无需更新")
+            #         return
+            #     res = requests.get(urlJoin(update_url, "index.html"))
+            #     res.encoding = "UTF-8"
+            #     soup = bs4.BeautifulSoup(res.text, "lxml")
+            #     data = soup.find_all(name="div", class_="download", text=re.compile("."))
+            #     for i in range(len(data)): data[i] = data[i].text.strip()
+            #     self.signal.emit("总共" + str(len(data)))
+            #     for i in range(len(data)):
+            #         self.signal.emit(data[i])
+            #         download(urlJoin(update_url, data[i]))
+            #     self.signal.emit("完成")
+            # if mode == 4:
+            #     for i in range(len(lib_update_list)):
+            #         self.signal.emit(str(i))
+            #         pipUpdate(lib_update_list[i])
+            #     self.signal.emit("完成")
+            # if mode == 5:
+            #     str1 = getMc()
+            #     self.signal.emit(str1)
+
+            # if mode == 10:
+            #     l1 = ["全部"] + getGameVersions(mode="lite")
+            #     l2 = ["全部"] + getGameVersions()
+            #     self.signal2.emit([l1, l2])
+            # if mode == 11:
+            #     info = search(self.data[0], self.data[1], 20, 1)
+            #     info = searchModInf(info)
+            #     if not info:
+            #         self.signal2.emit(info)
+            #         return
+            #     info = getModData(info)
+            #     self.signal2.emit(info)
+            # if mode == 12:
+            #     try:
+            #         if exists(join(user_path, "zb", "cache", self.data["名称"] + ".png")):
+            #             self.signal.emit("成功")
+            #         response = requests.get(self.data["图标"], headers=header, timeout=600).content
+            #         mkDir(join(user_path, "zb", "cache"))
+            #         with open(join(user_path, "zb", "cache", self.data["名称"] + ".png"), "wb") as file:
+            #             file.write(response)
+            #         self.signal.emit("成功")
+            #     except:
+            #         self.signal.emit("失败")

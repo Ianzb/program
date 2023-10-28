@@ -1,91 +1,4 @@
-import time
-
 from functions import *
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
-from qfluentwidgets import *
-from qfluentwidgets import FluentIcon as FIF
-from qframelesswindow import *
-
-
-class NewThread(QThread):
-    """
-    多线程模块
-    """
-    signal = pyqtSignal(str)
-
-    def __init__(self, mode, data=None):
-        super().__init__()
-        self.mode = mode
-        self.data = data
-
-    def run(self):
-        if self.mode == "展示窗口":
-            while True:
-                time.sleep(0.1)
-                if setting.read("showWindow") == "1":
-                    setting.save("showWindow", "0")
-                    self.signal.emit("展示窗口")
-        # if mode == 1:
-        #     MyThread(lambda: f.clearRubbish())
-        #     MyThread(lambda: f.clearCache())
-        #     f.clearDesk(setting("sort"))
-        #     if readSetting("wechat") != "":
-        #         clearWechat(readSetting("wechat"), readSetting("sort"))
-        #     clearFile(readSetting("sort"))
-        #     self.signal.emit("完成")
-        # if mode == 2:
-        #     cmd("taskkill /f /im explorer.exe")
-        #     self.signal.emit("完成")
-        #     cmd("start C:/windows/explorer.exe")
-        # if mode == 3:
-        #     self.signal.emit("开始")
-        #     if getVersion() == version:
-        #         self.signal.emit("无需更新")
-        #         return
-        #     res = requests.get(urlJoin(update_url, "index.html"))
-        #     res.encoding = "UTF-8"
-        #     soup = bs4.BeautifulSoup(res.text, "lxml")
-        #     data = soup.find_all(name="div", class_="download", text=re.compile("."))
-        #     for i in range(len(data)): data[i] = data[i].text.strip()
-        #     self.signal.emit("总共" + str(len(data)))
-        #     for i in range(len(data)):
-        #         self.signal.emit(data[i])
-        #         download(urlJoin(update_url, data[i]))
-        #     self.signal.emit("完成")
-        # if mode == 4:
-        #     for i in range(len(lib_update_list)):
-        #         self.signal.emit(str(i))
-        #         pipUpdate(lib_update_list[i])
-        #     self.signal.emit("完成")
-        # if mode == 5:
-        #     str1 = getMc()
-        #     self.signal.emit(str1)
-
-        # if mode == 10:
-        #     l1 = ["全部"] + getGameVersions(mode="lite")
-        #     l2 = ["全部"] + getGameVersions()
-        #     self.signal2.emit([l1, l2])
-        # if mode == 11:
-        #     info = search(self.data[0], self.data[1], 20, 1)
-        #     info = searchModInf(info)
-        #     if not info:
-        #         self.signal2.emit(info)
-        #         return
-        #     info = getModData(info)
-        #     self.signal2.emit(info)
-        # if mode == 12:
-        #     try:
-        #         if exists(join(user_path, "zb", "cache", self.data["名称"] + ".png")):
-        #             self.signal.emit("成功")
-        #         response = requests.get(self.data["图标"], headers=header, timeout=600).content
-        #         mkDir(join(user_path, "zb", "cache"))
-        #         with open(join(user_path, "zb", "cache", self.data["名称"] + ".png"), "wb") as file:
-        #             file.write(response)
-        #         self.signal.emit("成功")
-        #     except:
-        #         self.signal.emit("失败")
 
 
 class ScrollArea(ScrollArea):
@@ -452,6 +365,81 @@ class HelpSettingCard(SettingCard):
         self.hBoxLayout.addWidget(self.linkButton1, 0, Qt.AlignRight)
         self.hBoxLayout.addWidget(self.linkButton2, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
+
+
+class UpdateSettingCard(SettingCard):
+    """
+    更新设置卡片
+    """
+
+    def __init__(self, parent=None):
+        super().__init__(FIF.UPDATE, "更新", "更新程序至新版本", parent)
+        self.pushButton1 = PushButton("更新运行库", self, FIF.LIBRARY)
+        self.pushButton2 = PrimaryPushButton("检查更新", self, FIF.DOWNLOAD)
+        self.pushButton1.clicked.connect(self.button1)
+
+        self.label = QLabel(self)
+        self.label.setAlignment(Qt.AlignCenter)
+        self.label.setFont(QFont())
+        self.label.setText("")
+
+        self.progressBar = ProgressBar(self)
+        self.progressBar.setAlignment(Qt.AlignCenter)
+        self.progressBar.setMinimum(0)
+        self.progressBar.setMaximum(100)
+        self.progressBar.setValue(0)
+        self.progressBar.setMinimumWidth(250)
+
+        self.vBoxLayout2 = QVBoxLayout()
+        self.vBoxLayout2.setSpacing(0)
+        self.vBoxLayout2.setContentsMargins(0, 0, 0, 0)
+        self.vBoxLayout2.setAlignment(Qt.AlignVCenter)
+
+        self.vBoxLayout2.addWidget(self.label)
+        self.vBoxLayout2.addSpacing(2)
+        self.vBoxLayout2.addWidget(self.progressBar)
+
+        self.hBoxLayout.addLayout(self.vBoxLayout2)
+        self.hBoxLayout.addSpacing(8)
+        self.hBoxLayout.addWidget(self.pushButton1, 0, Qt.AlignRight)
+        self.hBoxLayout.addWidget(self.pushButton2, 0, Qt.AlignRight)
+        self.hBoxLayout.addSpacing(16)
+
+        self.label.hide()
+        self.progressBar.hide()
+
+    def button1(self):
+        self.pushButton1.setEnabled(False)
+        self.pushButton2.setEnabled(False)
+        self.label.show()
+        self.progressBar.show()
+        self.thread = NewThread("更新运行库")
+        self.thread.signalDict.connect(self.thread1)
+        self.thread.start()
+
+    def thread1(self, msg):
+        if msg["完成"]:
+            self.infoBar1 = InfoBar(
+                icon=InfoBarIcon.SUCCESS,
+                title="提示",
+                content="运行库安装成功！",
+                orient=Qt.Horizontal,
+                isClosable=True,
+                position=InfoBarPosition.TOP,
+                duration=2000,
+                parent=self.parent().parent().parent().parent()
+            )
+            self.infoBar1.show()
+            self.label.hide()
+            self.progressBar.hide()
+            self.label.setText("")
+            self.progressBar.setValue(0)
+            self.pushButton1.setEnabled(True)
+            self.pushButton2.setEnabled(True)
+        else:
+            value = int(msg['序号'] / len(program.REQUIRE_LIB) * 100)
+            self.label.setText(f"{str(value)}% 正在更新 {msg['名称']}")
+            self.progressBar.setValue(value)
 
 
 class AboutSettingCard(SettingCard):
