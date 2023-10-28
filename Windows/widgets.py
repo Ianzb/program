@@ -488,7 +488,7 @@ class UpdateSettingCard(SettingCard):
         self.pushButton2.setEnabled(False)
         self.label.show()
         self.progressBar.show()
-        self.thread = NewThread("更新运行库")
+        self.thread = NewThread("立刻更新")
         self.thread.signalDict.connect(self.thread3)
         self.thread.start()
 
