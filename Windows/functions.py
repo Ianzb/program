@@ -707,10 +707,11 @@ class NewThread(QThread):
     多线程模块
     """
     signalStr = pyqtSignal(str)
+    signalBool = pyqtSignal(bool)
     signalList = pyqtSignal(list)
     signalDict = pyqtSignal(dict)
 
-    def __init__(self, mode, data=None):
+    def __init__(self, mode: str, data=None):
         super().__init__()
         self.mode = mode
         self.data = data
@@ -727,6 +728,12 @@ class NewThread(QThread):
                 self.signalDict.emit({"名称": program.REQUIRE_LIB[i], "序号": i, "完成": False})
                 f.pipUpdate(program.REQUIRE_LIB[i])
             self.signalDict.emit({"名称": "", "序号": 0, "完成": True})
+        if self.mode == "检查更新":
+            data = f.getNewestVersion()
+            if data == program.PROGRAM_VERSION:
+                self.signalDict.emit({"更新": False})
+            else:
+                self.signalDict.emit({"更新": True, "版本": data})
             # if mode == 1:
             #     MyThread(lambda: f.clearRubbish())
             #     MyThread(lambda: f.clearCache())

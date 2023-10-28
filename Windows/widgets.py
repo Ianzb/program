@@ -377,6 +377,7 @@ class UpdateSettingCard(SettingCard):
         self.pushButton1 = PushButton("更新运行库", self, FIF.LIBRARY)
         self.pushButton2 = PrimaryPushButton("检查更新", self, FIF.DOWNLOAD)
         self.pushButton1.clicked.connect(self.button1)
+        self.pushButton2.clicked.connect(self.button2)
 
         self.label = QLabel(self)
         self.label.setAlignment(Qt.AlignCenter)
@@ -419,17 +420,17 @@ class UpdateSettingCard(SettingCard):
 
     def thread1(self, msg):
         if msg["完成"]:
-            self.infoBar1 = InfoBar(
+            self.infoBar = InfoBar(
                 icon=InfoBarIcon.SUCCESS,
                 title="提示",
                 content="运行库安装成功！",
                 orient=Qt.Horizontal,
                 isClosable=True,
-                position=InfoBarPosition.TOP,
+                position=InfoBarPosition.TOP_RIGHT,
                 duration=2000,
                 parent=self.parent().parent().parent().parent()
             )
-            self.infoBar1.show()
+            self.infoBar.show()
             self.label.hide()
             self.progressBar.hide()
             self.label.setText("")
@@ -440,6 +441,41 @@ class UpdateSettingCard(SettingCard):
             value = int(msg['序号'] / len(program.REQUIRE_LIB) * 100)
             self.label.setText(f"{str(value)}% 正在更新 {msg['名称']}")
             self.progressBar.setValue(value)
+
+    def button2(self):
+        self.pushButton1.setEnabled(False)
+        self.pushButton2.setEnabled(False)
+        self.thread = NewThread("检查更新")
+        self.thread.signalDict.connect(self.thread2)
+        self.thread.start()
+
+    def thread2(self, msg):
+        if msg["更新"]:
+            self.infoBar = InfoBar(
+                icon=InfoBarIcon.WARNING,
+                title="提示",
+                content=f"检测到新版本{msg['版本']}!",
+                orient=Qt.Horizontal,
+                isClosable=True,
+                position=InfoBarPosition.TOP_RIGHT,
+                duration=10000,
+                parent=self.parent().parent().parent().parent()
+            )
+            self.infoBar.show()
+        else:
+            self.infoBar = InfoBar(
+                icon=InfoBarIcon.INFORMATION,
+                title="提示",
+                content=f"{program.PROGRAM_VERSION}已为最新版本！",
+                orient=Qt.Horizontal,
+                isClosable=True,
+                position=InfoBarPosition.TOP_RIGHT,
+                duration=2000,
+                parent=self.parent().parent().parent().parent()
+            )
+            self.infoBar.show()
+        self.pushButton1.setEnabled(True)
+        self.pushButton2.setEnabled(True)
 
 
 class AboutSettingCard(SettingCard):
