@@ -1,3 +1,5 @@
+import sys
+
 from functions import *
 
 
@@ -438,7 +440,7 @@ class UpdateSettingCard(SettingCard):
             self.pushButton1.setEnabled(True)
             self.pushButton2.setEnabled(True)
         else:
-            value = int(msg['序号'] / len(program.REQUIRE_LIB) * 100)
+            value = int(msg["序号"] / len(program.REQUIRE_LIB) * 100)
             self.label.setText(f"{str(value)}% 正在更新 {msg['名称']}")
             self.progressBar.setValue(value)
 
@@ -461,6 +463,9 @@ class UpdateSettingCard(SettingCard):
                 duration=10000,
                 parent=self.parent().parent().parent().parent()
             )
+            self.pushButton3 = PushButton("立刻更新", self, FIF.DOWNLOAD)
+            self.pushButton3.clicked.connect(self.button3)
+            self.infoBar.addWidget(self.pushButton3)
             self.infoBar.show()
         else:
             self.infoBar = InfoBar(
@@ -476,6 +481,48 @@ class UpdateSettingCard(SettingCard):
             self.infoBar.show()
         self.pushButton1.setEnabled(True)
         self.pushButton2.setEnabled(True)
+
+    def button3(self):
+        self.infoBar.hide()
+        self.pushButton1.setEnabled(False)
+        self.pushButton2.setEnabled(False)
+        self.label.show()
+        self.progressBar.show()
+        self.thread = NewThread("更新运行库")
+        self.thread.signalDict.connect(self.thread3)
+        self.thread.start()
+
+    def thread3(self, msg):
+        if msg["完成"]:
+            self.infoBar = InfoBar(
+                icon=InfoBarIcon.SUCCESS,
+                title="提示",
+                content="更新成功！",
+                orient=Qt.Horizontal,
+                isClosable=True,
+                position=InfoBarPosition.TOP_RIGHT,
+                duration=10000,
+                parent=self.parent().parent().parent().parent()
+            )
+            self.pushButton4 = PushButton("重新启动", self, FIF.SYNC)
+            self.pushButton4.clicked.connect(self.button4)
+            self.infoBar.addWidget(self.pushButton4)
+            self.infoBar.show()
+            self.label.hide()
+            self.progressBar.hide()
+            self.label.setText("")
+            self.progressBar.setValue(0)
+            self.pushButton1.setEnabled(True)
+            self.pushButton2.setEnabled(True)
+        else:
+            value = int(msg["序号"] / msg["数量"] * 100)
+            self.label.setText(f"{str(value)}% 正在更新 {msg['名称']}")
+            self.progressBar.setValue(value)
+
+
+    def button4(self):
+        f.cmd(program.PROGRAM_MAIN_FILE_PATH)
+        sys.exit()
 
 
 class AboutSettingCard(SettingCard):
