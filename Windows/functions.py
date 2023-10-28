@@ -607,6 +607,7 @@ class Functions():
         :param link: 文件链接
         :param path: 下载路径
         """
+        path = os.path.abspath(path)
         import requests
         data = requests.get(link, headers=program.REQUEST_HEADER).content
         self.mkDir(self.baseName(path, 4))
