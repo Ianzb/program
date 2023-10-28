@@ -124,7 +124,8 @@ class SettingPage(ScrollArea):
         self.settingCardGroup2 = SettingCardGroup("关于", self)
 
         self.settingCardGroup2.addSettingCard(HelpSettingCard())
-        self.settingCardGroup2.addSettingCard(UpdateSettingCard())
+        self.updateSettingCard = UpdateSettingCard()
+        self.settingCardGroup2.addSettingCard(self.updateSettingCard)
         self.settingCardGroup2.addSettingCard(AboutSettingCard())
 
         self.vBoxLayout.addWidget(self.settingCardGroup2)
@@ -141,6 +142,9 @@ class Window(FluentWindow):
 
         self.__initWindow()
         self.__initWidget()
+        # 自动更新
+        if setting.read("autoUpdate"):
+            self.settingPage.updateSettingCard.button3()
 
     def __initWindow(self):
         """

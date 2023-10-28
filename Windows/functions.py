@@ -737,6 +737,10 @@ class NewThread(QThread):
             else:
                 self.signalDict.emit({"更新": True, "版本": data})
         if self.mode == "立刻更新":
+            data = f.getNewestVersion()
+            if data == program.PROGRAM_VERSION:
+                self.signalDict.emit({"数量": len(data), "完成": "失败", "名称": "", "序号": 0})
+                return
             import requests, bs4, lxml, re
             response = requests.get(program.UPDATE_URL, headers=program.REQUEST_HEADER, stream=True).text
             response = bs4.BeautifulSoup(response, "lxml")

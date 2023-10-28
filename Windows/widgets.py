@@ -495,18 +495,30 @@ class UpdateSettingCard(SettingCard):
 
     def thread3(self, msg):
         if msg["完成"]:
-            self.infoBar = InfoBar(
-                icon=InfoBarIcon.SUCCESS,
-                title="提示",
-                content="更新成功！",
-                orient=Qt.Horizontal,
-                isClosable=True,
-                position=InfoBarPosition.TOP_RIGHT,
-                duration=10000,
-                parent=self.parent().parent().parent().parent()
-            )
-            self.pushButton4 = PushButton("重新启动", self, FIF.SYNC)
-            self.pushButton4.clicked.connect(self.button4)
+            if msg["完成"] == "失败":
+                self.infoBar = InfoBar(
+                    icon=InfoBarIcon.INFORMATION,
+                    title="提示",
+                    content=f"{program.PROGRAM_VERSION}已为最新版本！",
+                    orient=Qt.Horizontal,
+                    isClosable=True,
+                    position=InfoBarPosition.TOP_RIGHT,
+                    duration=2000,
+                    parent=self.parent().parent().parent().parent()
+                )
+            else:
+                self.infoBar = InfoBar(
+                    icon=InfoBarIcon.SUCCESS,
+                    title="提示",
+                    content="更新成功！",
+                    orient=Qt.Horizontal,
+                    isClosable=True,
+                    position=InfoBarPosition.TOP_RIGHT,
+                    duration=10000,
+                    parent=self.parent().parent().parent().parent()
+                )
+                self.pushButton4 = PushButton("重新启动", self, FIF.SYNC)
+                self.pushButton4.clicked.connect(self.button4)
             self.infoBar.addWidget(self.pushButton4)
             self.infoBar.show()
             self.label.hide()
@@ -519,7 +531,6 @@ class UpdateSettingCard(SettingCard):
             value = int(msg["序号"] / msg["数量"] * 100)
             self.label.setText(f"{str(value)}% 正在更新 {msg['名称']}")
             self.progressBar.setValue(value)
-
 
     def button4(self):
         f.cmd(program.PROGRAM_MAIN_FILE_PATH)
