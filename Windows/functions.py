@@ -732,7 +732,7 @@ class NewThread(QThread):
         if self.mode == "检查更新":
             data = f.getNewestVersion()
             if data == program.PROGRAM_VERSION:
-                self.signalDict.emit({"更新": False})
+                self.signalDict.emit({"更新": False, "版本": data})
             else:
                 self.signalDict.emit({"更新": True, "版本": data})
         if self.mode == "立刻更新":
