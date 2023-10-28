@@ -662,7 +662,7 @@ class Functions():
         :return: 程序最新版本
         """
         import requests, bs4, lxml
-        response = requests.get(program.UPDATE_URL)
+        response = requests.get(f.urlJoin(program.UPDATE_URL, "history.html"))
         response.encoding = "UTF-8"
         soup = bs4.BeautifulSoup(response.text, "lxml")
         data = soup.find_all(name="div", class_="zb update")
