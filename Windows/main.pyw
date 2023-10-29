@@ -12,4 +12,4 @@ if __name__ == "__main__":
     w.show()
     if program.isStartup and setting.read("autoHide"):
         w.hide()
-    app.exec_()
+    app.exec()

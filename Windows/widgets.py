@@ -1,7 +1,3 @@
-import sys
-
-import qt5_tools
-
 from functions import *
 
 
