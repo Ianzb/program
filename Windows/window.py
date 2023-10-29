@@ -124,9 +124,9 @@ class MainPage(ScrollArea):
             icon=InfoBarIcon.INFORMATION,
             title="Minecraft最新版本",
             content=msg,
-            orient=Qt.Vertical,
+            orient=Qt.Horizontal,
             isClosable=True,
-            position=InfoBarPosition.BOTTOM_RIGHT,
+            position=InfoBarPosition.TOP_RIGHT,
             duration=10000,
             parent=self
         )
