@@ -375,10 +375,13 @@ class HelpSettingCard(SettingCard):
         super().__init__(FIF.HELP, "帮助", "查看程序相关信息", parent)
         self.linkButton1 = HyperlinkButton(program.PROGRAM_PATH, "程序安装路径", self, FIF.FOLDER)
         self.linkButton1.clicked.connect(lambda: os.startfile(program.PROGRAM_PATH))
-        self.linkButton2 = HyperlinkButton(program.SETTING_FILE_PATH, "程序设置文件", self, FIF.SAVE_AS)
-        self.linkButton2.clicked.connect(lambda: os.startfile(program.SETTING_FILE_PATH))
+        self.linkButton2 = HyperlinkButton(program.PROGRAM_PATH, "程序数据路径", self, FIF.FOLDER)
+        self.linkButton2.clicked.connect(lambda: os.startfile(program.PROGRAM_DATA_PATH))
+        self.linkButton3 = HyperlinkButton(program.SETTING_FILE_PATH, "程序设置文件", self, FIF.SAVE_AS)
+        self.linkButton3.clicked.connect(lambda: os.startfile(program.SETTING_FILE_PATH))
         self.hBoxLayout.addWidget(self.linkButton1, 0, Qt.AlignRight)
         self.hBoxLayout.addWidget(self.linkButton2, 0, Qt.AlignRight)
+        self.hBoxLayout.addWidget(self.linkButton3, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
 

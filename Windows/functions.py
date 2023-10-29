@@ -44,8 +44,8 @@ class ProgramInit():
     FILE_NAME = os.path.basename(sys.argv[0])  # 当前程序文件名称
     PROGRAM_PID = os.getpid()  # 程序pid
     USER_PATH = os.path.expanduser("~")  # 系统用户路径
-    PROGRAM_FILE_PATH = os.path.join(USER_PATH, "zb")  # 程序保存文件路径
-    SETTING_FILE_PATH = os.path.join(PROGRAM_FILE_PATH, "settings.json")  # 程序设置文件路径
+    PROGRAM_DATA_PATH = os.path.join(USER_PATH, "zb")  # 程序数据路径
+    SETTING_FILE_PATH = os.path.join(PROGRAM_DATA_PATH, "settings.json")  # 程序设置文件路径
     STARTUP_ARGUMENT = sys.argv[1:]  # 程序启动参数
     REQUEST_HEADER = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36 Edg/118.0.2088.76"}  # 程序默认网络请求头
 
