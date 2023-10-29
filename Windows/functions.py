@@ -31,13 +31,13 @@ class ProgramInit():
     zb小程序信息类-处理信息
     """
     PROGRAM_NAME = "zb小程序"  # 程序名称
-    PROGRAM_VERSION = "3.0.0-beta"  # 程序版本
+    PROGRAM_VERSION = "3.0.0"  # 程序版本
     PROGRAM_TITLE = f"{PROGRAM_NAME} {PROGRAM_VERSION}"  # 程序窗口标题
     AUTHOR_NAME = "Ianzb"  # 作者名称
     AUTHOR_URL = "https://ianzb.github.io/"  # 作者网址
     PROGRAM_URL = "https://ianzb.github.io/program/"  # 程序网址
     GITHUB_URL = "https://github.com/Ianzb/program/"  # Github网址
-    UPDATE_URL = "https://ianzb.github.io/program/Windows/index.html"  # 更新网址
+    UPDATE_URL = "https://ianzb.github.io/program/Windows/index.json"  # 更新网址
     PROGRAM_MAIN_FILE_PATH = sys.argv[0]  # 程序主文件路径
     PROGRAM_PATH = os.path.dirname(sys.argv[0])  # 程序安装路径
     SOURCE_PATH = os.path.join(PROGRAM_PATH, "img")  # 程序资源文件路径
@@ -55,7 +55,6 @@ class ProgramInit():
                    "lxml",
                    "pypiwin32",
                    "pandas",
-                   "send2trash",
                    "winshell",
                    ]
 
@@ -686,35 +685,32 @@ class Functions():
         获取程序最新版本
         :return: 程序最新版本
         """
-        import requests, bs4, lxml
-        response = requests.get(f.urlJoin(program.UPDATE_URL, "history.html")).text
-        soup = bs4.BeautifulSoup(response, "lxml")
-        data = soup.find_all(name="div", class_="zb update")
-        data = data[0].text.rstrip().split("\n")[-1].strip()
-        data = data[data.find("：") + 1:data.rfind("：")]
+        import requests, json
+        response = requests.get(program.UPDATE_URL, headers=program.REQUEST_HEADER, stream=True).text
+        data = json.loads(response)["version"]
         return data
 
 
-# 初始化
 f = Functions()
 # 切换运行路径
+
 os.chdir(program.PROGRAM_PATH)
+
 # 设置任务栏
 import ctypes
 
 ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("zb小程序")
+
+# 重复运行检测
 if "python" in f.cmd(f"tasklist |findstr {setting.read('pid')}", True):
     setting.save("showWindow", "1")
     sys.exit()
 setting.save("pid", str(program.PROGRAM_PID))
 
 # UI多线程
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
+from PyQt5.Qt import *
 from qfluentwidgets import *
 from qfluentwidgets import FluentIcon as FIF
-from qframelesswindow import *
 
 
 class NewThread(QThread):
@@ -754,12 +750,9 @@ class NewThread(QThread):
             if data == program.PROGRAM_VERSION:
                 self.signalDict.emit({"数量": len(data), "完成": "失败", "名称": "", "序号": 0})
                 return
-            import requests, bs4, lxml, re
+            import requests, json
             response = requests.get(program.UPDATE_URL, headers=program.REQUEST_HEADER, stream=True).text
-            response = bs4.BeautifulSoup(response, "lxml")
-            data = response.find_all(name="div", class_="download")
-            for i in range(len(data)):
-                data[i] = data[i].text.strip()
+            data = json.loads(response)["list"]
             for i in range(len(data)):
                 self.signalDict.emit({"数量": len(data), "完成": False, "名称": data[i], "序号": i})
                 f.downloadFile(f.urlJoin(program.UPDATE_URL, data[i]), f.pathJoin(program.PROGRAM_PATH, data[i]))

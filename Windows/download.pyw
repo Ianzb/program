@@ -1,5 +1,5 @@
 # 导入运行库
-import threading, os, re, pickle, sys, winreg, shutil, urllib.parse
+import threading, os, re, pickle, sys, winreg, shutil, urllib.parse, json
 from tkinter import *
 from tkinter import ttk
 from tkinter.ttk import *
@@ -18,7 +18,14 @@ if not os.path.exists(install_path):
     os.makedirs(install_path)
 # 加载信息
 using = False
-lib_list = ["PyQt-Fluent-Widgets[full]", "requests", "bs4", "lxml", "pypiwin32", "pandas", "send2trash", "winshell"]
+lib_list = ["PyQt-Fluent-Widgets",
+            "requests",
+            "bs4",
+            "lxml",
+            "pypiwin32",
+            "pandas",
+            "winshell",
+            ]
 # 窗口初始化
 tk = Tk()
 tk.title("zb小程序安装器")
@@ -97,11 +104,8 @@ def check_update(link):
     if not askokcancel("提示", "是否安装zb小程序？"):
         using = False
         return None
-    res = requests.get(urlJoin(link, "index.html"))
-    res.encoding = "UTF-8"
-    soup = bs4.BeautifulSoup(res.text, "lxml")
-    data = soup.find_all(name="div", class_="download", string=re.compile("."))
-    for i in range(len(data)): data[i] = data[i].text.strip()
+    response = requests.get("https://ianzb.github.io/program/Windows/index.json", stream=True).text
+    data = json.loads(response)["list"]
     for i in range(len(data)):
         download(urlJoin(link, data[i]))
         vari.set(int(100 * i / len(data)))
