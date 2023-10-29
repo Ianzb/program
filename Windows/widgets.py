@@ -458,7 +458,7 @@ class UpdateSettingCard(SettingCard):
             self.pushButton2.setEnabled(True)
         else:
             value = int(msg["序号"] / len(program.REQUIRE_LIB) * 100)
-            self.label.setText(f"{str(value)}% 正在更新 {msg["名称"]}")
+            self.label.setText(f"{str(value)}% 正在更新 {msg['名称']}")
             self.progressBar.setValue(value)
 
     def button2(self):
@@ -473,7 +473,7 @@ class UpdateSettingCard(SettingCard):
             self.infoBar = InfoBar(
                 icon=InfoBarIcon.WARNING,
                 title="提示",
-                content=f"检测到新版本{msg["版本"]}!",
+                content=f"检测到新版本{msg['版本']}!",
                 orient=Qt.Vertical,
                 isClosable=True,
                 position=InfoBarPosition.TOP_RIGHT,
@@ -549,7 +549,7 @@ class UpdateSettingCard(SettingCard):
             self.pushButton2.setEnabled(True)
         else:
             value = int(msg["序号"] / msg["数量"] * 100)
-            self.label.setText(f"{str(value)}% 正在更新 {msg["名称"]}")
+            self.label.setText(f"{str(value)}% 正在更新 {msg['名称']}")
             self.progressBar.setValue(value)
 
     def button4(self):
