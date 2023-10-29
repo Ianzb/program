@@ -56,6 +56,7 @@ class Tray(QSystemTrayIcon):
         self.menu.addAction(Action(FIF.ALIGNMENT, "整理", triggered=lambda: self.window.mainPage.button1_1()))
         self.menu.addAction(Action(FIF.LINK, "官网", triggered=lambda: webbrowser.open(program.PROGRAM_URL)))
         self.menu.addAction(Action(FIF.CLOSE, "退出", triggered=lambda: self.triggered()))
+
         self.setIcon(QIcon(program.source("logo.png")))
         self.setToolTip(program.PROGRAM_TITLE)
         self.activated.connect(self.clickedIcon)
@@ -157,12 +158,13 @@ class ThemeSettingCard(ExpandSettingCard):
         self.viewLayout.setContentsMargins(48, 18, 0, 18)
 
         self.radioButton1 = RadioButton("浅色", self.view)
+        self.radioButton2 = RadioButton("深色", self.view)
+        self.radioButton3 = RadioButton("跟随系统设置", self.view)
+
         self.buttonGroup.addButton(self.radioButton1)
         self.viewLayout.addWidget(self.radioButton1)
-        self.radioButton2 = RadioButton("深色", self.view)
         self.buttonGroup.addButton(self.radioButton2)
         self.viewLayout.addWidget(self.radioButton2)
-        self.radioButton3 = RadioButton("跟随系统设置", self.view)
         self.buttonGroup.addButton(self.radioButton3)
         self.viewLayout.addWidget(self.radioButton3)
 
@@ -175,6 +177,7 @@ class ThemeSettingCard(ExpandSettingCard):
         else:
             self.radioButton3.setChecked(True)
             self.choiceLabel.setText("跟随系统设置")
+
         self.buttonGroup.buttonClicked.connect(self.__onButtonClicked)
 
         self._adjustViewSize()
@@ -296,6 +299,7 @@ class StartupSettingCard(SettingCard):
         self.checkBox2.clicked.connect(self.button2)
         self.checkBox3 = CheckBox("开机自动更新", self)
         self.checkBox3.clicked.connect(self.button3)
+
         self.checkBox1.setChecked(setting.read("autoStartup"))
         if setting.read("autoStartup"):
             self.checkBox2.setEnabled(True)
@@ -305,6 +309,7 @@ class StartupSettingCard(SettingCard):
             self.checkBox3.setEnabled(False)
         self.checkBox2.setChecked(setting.read("autoHide"))
         self.checkBox3.setChecked(setting.read("autoUpdate"))
+
         self.hBoxLayout.addWidget(self.checkBox1, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(8)
         self.hBoxLayout.addWidget(self.checkBox2, 0, Qt.AlignRight)
@@ -338,12 +343,12 @@ class ShortcutSettingCard(SettingCard):
 
     def __init__(self, parent=None):
         super().__init__(FIF.ADD_TO, "添加快捷方式", "向计算机中添加程序的快捷方式", parent)
-        self.button1 = HyperlinkButton("", "桌面", self)
-        self.button2 = HyperlinkButton("", "开始菜单", self)
-        self.button1.clicked.connect(lambda: f.createShortcut(program.PROGRAM_MAIN_FILE_PATH, f.pathJoin(program.DESKTOP_PATH, "zb小程序.lnk"), program.source("logo.ico")))
-        self.button2.clicked.connect(lambda: f.addToStartMenu())
-        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
-        self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignRight)
+        self.linkButton1 = HyperlinkButton("", "桌面", self)
+        self.linkButton1.clicked.connect(lambda: f.createShortcut(program.PROGRAM_MAIN_FILE_PATH, f.pathJoin(program.DESKTOP_PATH, "zb小程序.lnk"), program.source("logo.ico")))
+        self.linkButton2 = HyperlinkButton("", "开始菜单", self)
+        self.linkButton2.clicked.connect(lambda: f.addToStartMenu())
+        self.hBoxLayout.addWidget(self.linkButton1, 0, Qt.AlignRight)
+        self.hBoxLayout.addWidget(self.linkButton2, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
 
@@ -355,8 +360,8 @@ class HelpSettingCard(SettingCard):
     def __init__(self, parent=None):
         super().__init__(FIF.HELP, "帮助", "查看程序相关信息", parent)
         self.linkButton1 = HyperlinkButton(program.PROGRAM_PATH, "程序安装路径", self, FIF.FOLDER)
-        self.linkButton2 = HyperlinkButton(program.SETTING_FILE_PATH, "程序设置文件", self, FIF.SAVE_AS)
         self.linkButton1.clicked.connect(lambda: os.startfile(program.PROGRAM_PATH))
+        self.linkButton2 = HyperlinkButton(program.SETTING_FILE_PATH, "程序设置文件", self, FIF.SAVE_AS)
         self.linkButton2.clicked.connect(lambda: os.startfile(program.SETTING_FILE_PATH))
         self.hBoxLayout.addWidget(self.linkButton1, 0, Qt.AlignRight)
         self.hBoxLayout.addWidget(self.linkButton2, 0, Qt.AlignRight)
@@ -371,8 +376,8 @@ class UpdateSettingCard(SettingCard):
     def __init__(self, parent=None):
         super().__init__(FIF.UPDATE, "更新", "更新程序至新版本", parent)
         self.pushButton1 = PushButton("更新运行库", self, FIF.LIBRARY)
-        self.pushButton2 = PrimaryPushButton("检查更新", self, FIF.DOWNLOAD)
         self.pushButton1.clicked.connect(self.button1)
+        self.pushButton2 = PrimaryPushButton("检查更新", self, FIF.DOWNLOAD)
         self.pushButton2.clicked.connect(self.button2)
 
         self.label = QLabel(self)
