@@ -537,7 +537,7 @@ class AboutSettingCard(SettingCard):
     """
 
     def __init__(self, parent=None):
-        super().__init__(FIF.INFO, "关于", f"By Ianzb 2022-2023. MIT License.\n当前版本 {program.PROGRAM_VERSION}", parent)
+        super().__init__(FIF.INFO, "关于", f"© 2022-2023 Ianzb. MIT License.\n当前版本 {program.PROGRAM_VERSION}", parent)
         self.linkButton1 = HyperlinkButton(program.PROGRAM_URL, "程序官网", self, FIF.LINK)
         self.linkButton2 = HyperlinkButton(program.GITHUB_URL, "GitHub", self, FIF.GITHUB)
         self.hBoxLayout.addWidget(self.linkButton1, 0, Qt.AlignRight)
