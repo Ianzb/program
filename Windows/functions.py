@@ -47,7 +47,7 @@ class ProgramInit():
     PROGRAM_FILE_PATH = os.path.join(USER_PATH, "zb")  # 程序保存文件路径
     SETTING_FILE_PATH = os.path.join(PROGRAM_FILE_PATH, "settings.json")  # 程序设置文件路径
     STARTUP_ARGUMENT = sys.argv[1:]  # 程序启动参数
-    REQUEST_HEADER = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36 Edg/118.0.2088.46"}  # 程序默认网络请求头
+    REQUEST_HEADER = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36 Edg/118.0.2088.76"}  # 程序默认网络请求头
 
     REQUIRE_LIB = ["PyQt-Fluent-Widgets",
                    "requests",
@@ -598,9 +598,11 @@ class Functions():
                   "{{v|china-win}}",
                   "{{v|china-android}}",
                   ]
-        response = requests.get("https://minecraft.fandom.com/zh/wiki/Template:Version#table")
-        response.encoding = "UTF-8"
-        soup = bs4.BeautifulSoup(response.text, "lxml")
+        try:
+            response = requests.get("https://minecraft.fandom.com/zh/wiki/Template:Version#table", headers=program.REQUEST_HEADER, stream=True, timeout=15).text
+        except:
+            response = requests.get("https://wiki.biligame.com/mc/%E6%A8%A1%E6%9D%BF:Version#table", headers=program.REQUEST_HEADER, stream=True, timeout=600).text
+        soup = bs4.BeautifulSoup(response, "lxml")
         data1 = soup.find_all(name="td")
         l1 = [n.text.replace("\n", "") for n in data1]
         v1 = l1[::3]
@@ -685,9 +687,8 @@ class Functions():
         :return: 程序最新版本
         """
         import requests, bs4, lxml
-        response = requests.get(f.urlJoin(program.UPDATE_URL, "history.html"))
-        response.encoding = "UTF-8"
-        soup = bs4.BeautifulSoup(response.text, "lxml")
+        response = requests.get(f.urlJoin(program.UPDATE_URL, "history.html")).text
+        soup = bs4.BeautifulSoup(response, "lxml")
         data = soup.find_all(name="div", class_="zb update")
         data = data[0].text.rstrip().split("\n")[-1].strip()
         data = data[data.find("：") + 1:data.rfind("：")]
