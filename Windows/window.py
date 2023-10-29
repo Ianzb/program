@@ -26,13 +26,112 @@ class MainPage(ScrollArea):
         self.vBoxLayout.setAlignment(Qt.AlignTop)
         self.vBoxLayout.setContentsMargins(36, 20, 36, 36)
 
-        self.card = HeaderCardWidget()
-        self.vBoxLayout.addWidget(self.card, 0, Qt.AlignTop)
+        self.pushButton1_1 = PrimaryPushButton("开始整理+清理", self, FIF.ALIGNMENT)
+        self.pushButton1_1.clicked.connect(self.button1_1)
+        self.pushButton1_2 = ToolButton(FIF.FOLDER, self)
+        self.pushButton1_2.clicked.connect(self.button1_2)
+        self.pushButton1_3 = PushButton("设置整理目录", self, FIF.FOLDER_ADD)
+        self.pushButton1_3.clicked.connect(self.button1_3)
+        self.pushButton1_4 = PushButton("设置微信目录", self, FIF.FOLDER_ADD)
+        self.pushButton1_4.clicked.connect(self.button1_4)
 
-        self.btn = PrimaryPushButton("zb", self.card.view, FIF.ALIGNMENT)
+        self.pushButton2_1 = PushButton("重启文件资源管理器", self, FIF.SYNC)
+        self.pushButton2_1.clicked.connect(self.button2_1)
 
-        self.card2 = GrayCard("123", self.btn, self.view)
+        self.pushButton3_1 = PushButton("查看Minecraft最新版本", self, FIF.CHECKBOX)
+        self.pushButton3_1.clicked.connect(self.button3_1)
+
+        self.card1 = GrayCard("一键整理+清理", [self.pushButton1_1, self.pushButton1_2, self.pushButton1_3, self.pushButton1_4], self.view)
+        self.card2 = GrayCard("快捷功能", [self.pushButton2_1], self.view)
+        self.card3 = GrayCard("游戏功能", [self.pushButton3_1], self.view)
+        self.vBoxLayout.addWidget(self.card1, 0, Qt.AlignTop)
         self.vBoxLayout.addWidget(self.card2, 0, Qt.AlignTop)
+        self.vBoxLayout.addWidget(self.card3, 0, Qt.AlignTop)
+
+    def button1_1(self):
+        if setting.read("sortPath") == "":
+            self.infoBar = InfoBar(
+                icon=InfoBarIcon.WARNING,
+                title="提示",
+                content="当前未设置整理文件目录，无法整理！",
+                orient=Qt.Horizontal,
+                isClosable=True,
+                position=InfoBarPosition.TOP_RIGHT,
+                duration=5000,
+                parent=self
+            )
+            self.infoBar.show()
+            return
+        if setting.read("wechatPath") == "":
+            self.infoBar = InfoBar(
+                icon=InfoBarIcon.INFORMATION,
+                title="提示",
+                content="当前未设置微信文件目录，无法整理微信文件！",
+                orient=Qt.Horizontal,
+                isClosable=True,
+                position=InfoBarPosition.TOP_RIGHT,
+                duration=2000,
+                parent=self
+            )
+            self.infoBar.show()
+        self.pushButton1_1.setEnabled(False)
+        self.stateTooltip = StateToolTip("正在整理文件", "请耐心等待", self)
+        self.stateTooltip.move(self.stateTooltip.getSuitablePos())
+        self.stateTooltip.show()
+        self.thread = NewThread("一键整理+清理")
+        self.thread.signalBool.connect(self.thread1_1)
+        self.thread.start()
+
+    def thread1_1(self, msg):
+        self.stateTooltip.setState(True)
+        self.pushButton1_1.setEnabled(True)
+        if msg:
+            self.stateTooltip.setContent("整理成功")
+        else:
+            self.stateTooltip.setContent("整理失败")
+
+    def button1_2(self):
+        if setting.read("sortPath") != "":
+            os.startfile(setting.read("sortPath"))
+
+    def button1_3(self):
+        get = QFileDialog.getExistingDirectory(self, "选择整理目录", setting.read("sortPath"))
+        if os.path.exists(get):
+            setting.save("sortPath", str(get))
+
+    def button1_4(self):
+        get = QFileDialog.getExistingDirectory(self, "选择微信WeChat Files文件夹目录", setting.read("wechatPath"))
+        if os.path.exists(get):
+            setting.save("wechatPath", str(get))
+
+    def button2_1(self):
+        self.pushButton2_1.setEnabled(False)
+        self.thread = NewThread("重启文件资源管理器")
+        self.thread.signalStr.connect(self.thread2_1)
+        self.thread.start()
+
+    def thread2_1(self, msg):
+        self.pushButton2_1.setEnabled(True)
+
+    def button3_1(self):
+        self.pushButton3_1.setEnabled(False)
+        self.thread = NewThread("Minecraft最新版本")
+        self.thread.signalStr.connect(self.thread3_1)
+        self.thread.start()
+
+    def thread3_1(self, msg):
+        self.infoBar = InfoBar(
+            icon=InfoBarIcon.INFORMATION,
+            title="Minecraft最新版本",
+            content=msg,
+            orient=Qt.Vertical,
+            isClosable=True,
+            position=InfoBarPosition.BOTTOM_RIGHT,
+            duration=10000,
+            parent=self
+        )
+        self.infoBar.show()
+        self.pushButton3_1.setEnabled(True)
 
 
 class ToolPage(ScrollArea):

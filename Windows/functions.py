@@ -125,16 +125,28 @@ class SettingFunctions():
         except:
             if name == "theme":
                 setting.save("theme", "Theme.AUTO")
+                return "Theme.AUTO"
             if name == "themeColor":
                 setting.save("themeColor", "#0078D4")
+                return "#0078D4"
             if name == "autoStartup":
                 setting.save("autoStartup", False)
+                return False
             if name == "autoHide":
                 setting.save("autoHide", True)
+                return True
             if name == "autoUpdate":
                 setting.save("autoUpdate", False)
+                return False
             if name == "pid":
                 setting.save("pid", "0")
+                return 0
+            if name == "sortPath":
+                setting.save("sortPath", "")
+                return ""
+            if name == "wechatPath":
+                setting.save("wechatPath", "")
+                return ""
 
     def save(self, name: str, data):
         """
@@ -441,15 +453,15 @@ class Functions():
                 for i in list:
                     for j in range(len(self.ends)):
                         if self.baseName(i, 2) in self.ends[j]:
-                            self.move(i, self.join(new, self.names[j]))
+                            self.move(i, self.pathJoin(new, self.names[j]))
         if mode in [0, 2]:
             list = self.walkDir(old, 1)
             if list != []:
                 for i in list:
                     if i[i.rfind("\ "[:-1]) + 1:] not in ["软件"]:
-                        self.move(i, self.join(new, "文件夹", i[i.rfind("\ "[:-1]) + 1:]))
+                        self.move(i, self.pathJoin(new, "文件夹", i[i.rfind("\ "[:-1]) + 1:]))
         for i in self.names + ["文件夹"]:
-            self.clearFile(self.join(new, i))
+            self.clearFile(self.pathJoin(new, i))
         self.clearEmptyDir(new)
 
     def sortWechatFiles(self):
@@ -459,17 +471,17 @@ class Functions():
         try:
             list = []
             list2 = []
-            for i in self.walkDir(setting.readSetting("wechat"), 1):
-                if self.exists(self.join(i, "FileStorage/File")):
-                    list.append(self.join(i, "FileStorage/File"))
+            for i in self.walkDir(setting.read("wechatPath"), 1):
+                if self.exists(self.pathJoin(i, "FileStorage/File")):
+                    list.append(self.pathJoin(i, "FileStorage/File"))
             for i in list:
                 if self.walkDir(i, 1) == None:
                     return
                 list2 = list2 + self.walkDir(i, 1)
             for i in list2:
-                self.sortDir(i, setting.readSetting("sort"))
+                self.sortDir(i, setting.read("sortPath"))
             for i in list:
-                self.sortDir(i, setting.readSetting("sort"), 1)
+                self.sortDir(i, setting.read("sortPath"), 1)
         except:
             pass
 
@@ -477,7 +489,7 @@ class Functions():
         """
         整理桌面文件
         """
-        self.sortDir(program.DESKTOP_PATH, setting.readSetting("sort"))
+        self.sortDir(program.DESKTOP_PATH, setting.read("sortPath"))
 
     def clearCache(self):
         """
@@ -565,10 +577,9 @@ class Functions():
                 data[i] = data[i].replace(k, v)
         return data
 
-    @property
     def getMC(self) -> str:
         """
-        获取我的世界最新版本
+        获取Minecraft最新版本
         :return: 字符串
         """
         import requests, bs4, lxml
@@ -752,3 +763,20 @@ class NewThread(QThread):
                 self.signalDict.emit({"数量": len(data), "完成": False, "名称": data[i], "序号": i})
                 f.downloadFile(f.urlJoin(program.UPDATE_URL, data[i]), f.pathJoin(program.PROGRAM_PATH, data[i]))
             self.signalDict.emit({"数量": len(data), "完成": True, "名称": "", "序号": 0})
+        if self.mode == "一键整理+清理":
+            try:
+                MyThread(lambda: f.clearRubbish())
+                MyThread(lambda: f.clearCache())
+                f.sortDesktopFiles()
+                if setting.read("wechatPath") != "":
+                    f.sortWechatFiles()
+                f.clearFile(setting.read("sortPath"))
+                self.signalBool.emit(True)
+            except:
+                self.signalBool.emit(False)
+        if self.mode == "重启文件资源管理器":
+            f.cmd("taskkill /f /im explorer.exe", True)
+            self.signalStr.emit("完成")
+            f.cmd("start C:/windows/explorer.exe", True)
+        if self.mode == "Minecraft最新版本":
+            self.signalStr.emit(f.getMC())

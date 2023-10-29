@@ -53,7 +53,7 @@ class Tray(QSystemTrayIcon):
         self.window = UI
         self.menu = RoundMenu()
         self.menu.addAction(Action(FIF.HOME, "打开", triggered=lambda: self.window.show()))
-        self.menu.addAction(Action(FIF.ALIGNMENT, "整理", triggered=lambda: self.window.mainInterface.btn1_1()))
+        self.menu.addAction(Action(FIF.ALIGNMENT, "整理", triggered=lambda: self.window.mainPage.button1_1()))
         self.menu.addAction(Action(FIF.LINK, "官网", triggered=lambda: webbrowser.open(program.PROGRAM_URL)))
         self.menu.addAction(Action(FIF.CLOSE, "退出", triggered=lambda: self.triggered()))
         self.setIcon(QIcon(program.source("logo.png")))
@@ -90,7 +90,7 @@ class GrayCard(QWidget):
     灰色背景组件卡片
     """
 
-    def __init__(self, title: str, widget, parent=None):
+    def __init__(self, title: str, widget: object | list, parent=None):
         super().__init__(parent=parent)
         self.widget = widget
         if type(self.widget) != list:
