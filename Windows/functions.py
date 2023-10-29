@@ -49,7 +49,9 @@ class ProgramInit():
     STARTUP_ARGUMENT = sys.argv[1:]  # 程序启动参数
     REQUEST_HEADER = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36 Edg/118.0.2088.76"}  # 程序默认网络请求头
 
-    REQUIRE_LIB = ["PyQt-Fluent-Widgets",
+    REQUIRE_LIB = ["PyQt5",
+                   "PyQt-Fluent-Widgets",
+                   "qt5_tools",
                    "requests",
                    "bs4",
                    "lxml",
@@ -598,10 +600,10 @@ class Functions():
                   "{{v|china-android}}",
                   ]
         try:
-            response = requests.get("https://minecraft.fandom.com/zh/wiki/Template:Version#table", headers=program.REQUEST_HEADER, stream=True, timeout=(5,10)).text
+            response = requests.get("https://minecraft.fandom.com/zh/wiki/Template:Version#table", headers=program.REQUEST_HEADER, stream=True, timeout=(5, 10)).text
         except:
             try:
-                response = requests.get("https://wiki.biligame.com/mc/%E6%A8%A1%E6%9D%BF:Version#table", headers=program.REQUEST_HEADER, stream=True, timeout=(60,600)).text
+                response = requests.get("https://wiki.biligame.com/mc/%E6%A8%A1%E6%9D%BF:Version#table", headers=program.REQUEST_HEADER, stream=True, timeout=(60, 600)).text
             except:
                 return "无法连接至服务器"
         soup = bs4.BeautifulSoup(response, "lxml")
@@ -705,7 +707,7 @@ import ctypes
 ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("zb小程序")
 
 # 重复运行检测
-if "python" in f.cmd(f"tasklist |findstr {setting.read('pid')}", True):
+if "python" in f.cmd(f"tasklist |findstr {setting.read("pid")}", True):
     setting.save("showWindow", "1")
     sys.exit()
 setting.save("pid", str(program.PROGRAM_PID))
