@@ -598,9 +598,12 @@ class Functions():
                   "{{v|china-android}}",
                   ]
         try:
-            response = requests.get("https://minecraft.fandom.com/zh/wiki/Template:Version#table", headers=program.REQUEST_HEADER, stream=True, timeout=15).text
+            response = requests.get("https://minecraft.fandom.com/zh/wiki/Template:Version#table", headers=program.REQUEST_HEADER, stream=True, timeout=(5,10)).text
         except:
-            response = requests.get("https://wiki.biligame.com/mc/%E6%A8%A1%E6%9D%BF:Version#table", headers=program.REQUEST_HEADER, stream=True, timeout=600).text
+            try:
+                response = requests.get("https://wiki.biligame.com/mc/%E6%A8%A1%E6%9D%BF:Version#table", headers=program.REQUEST_HEADER, stream=True, timeout=(60,600)).text
+            except:
+                return "无法连接至服务器"
         soup = bs4.BeautifulSoup(response, "lxml")
         data1 = soup.find_all(name="td")
         l1 = [n.text.replace("\n", "") for n in data1]
