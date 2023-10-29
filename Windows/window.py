@@ -30,10 +30,6 @@ class MainPage(ScrollArea):
         self.pushButton1_1.clicked.connect(self.button1_1)
         self.pushButton1_2 = ToolButton(FIF.FOLDER, self)
         self.pushButton1_2.clicked.connect(self.button1_2)
-        self.pushButton1_3 = PushButton("设置整理目录", self, FIF.FOLDER_ADD)
-        self.pushButton1_3.clicked.connect(self.button1_3)
-        self.pushButton1_4 = PushButton("设置微信目录", self, FIF.FOLDER_ADD)
-        self.pushButton1_4.clicked.connect(self.button1_4)
 
         self.pushButton2_1 = PushButton("重启文件资源管理器", self, FIF.SYNC)
         self.pushButton2_1.clicked.connect(self.button2_1)
@@ -46,8 +42,6 @@ class MainPage(ScrollArea):
         self.card3 = GrayCard("游戏功能", self.view)
         self.card1.addWidget(self.pushButton1_1)
         self.card1.addWidget(self.pushButton1_2)
-        self.card1.addWidget(self.pushButton1_3)
-        self.card1.addWidget(self.pushButton1_4)
         self.card2.addWidget(self.pushButton2_1)
         self.card3.addWidget(self.pushButton3_1)
 
@@ -100,16 +94,6 @@ class MainPage(ScrollArea):
     def button1_2(self):
         if setting.read("sortPath") != "":
             os.startfile(setting.read("sortPath"))
-
-    def button1_3(self):
-        get = QFileDialog.getExistingDirectory(self, "选择整理目录", setting.read("sortPath"))
-        if os.path.exists(get):
-            setting.save("sortPath", str(get))
-
-    def button1_4(self):
-        get = QFileDialog.getExistingDirectory(self, "选择微信WeChat Files文件夹目录", setting.read("wechatPath"))
-        if os.path.exists(get):
-            setting.save("wechatPath", str(get))
 
     def button2_1(self):
         self.pushButton2_1.setEnabled(False)
@@ -220,21 +204,32 @@ class SettingPage(ScrollArea):
 
         self.settingCardGroup1 = SettingCardGroup("个性化", self)
 
-        self.settingCardGroup1.addSettingCard(ThemeSettingCard())
-        self.settingCardGroup1.addSettingCard(ColorSettingCard())
-        self.settingCardGroup1.addSettingCard(StartupSettingCard())
-        self.settingCardGroup1.addSettingCard(ShortcutSettingCard())
+        self.themeSettingCard = ThemeSettingCard()
+        self.settingCardGroup1.addSettingCard(self.themeSettingCard)
+        self.colorSettingCard = ColorSettingCard()
+        self.settingCardGroup1.addSettingCard(self.colorSettingCard)
+        self.startupSettingCard = StartupSettingCard()
+        self.settingCardGroup1.addSettingCard(self.startupSettingCard)
+        self.shortcutSettingCard = ShortcutSettingCard()
+        self.settingCardGroup1.addSettingCard(self.shortcutSettingCard)
 
         self.vBoxLayout.addWidget(self.settingCardGroup1)
 
-        self.settingCardGroup2 = SettingCardGroup("关于", self)
-
-        self.settingCardGroup2.addSettingCard(HelpSettingCard())
-        self.updateSettingCard = UpdateSettingCard()
-        self.settingCardGroup2.addSettingCard(self.updateSettingCard)
-        self.settingCardGroup2.addSettingCard(AboutSettingCard())
-
+        self.settingCardGroup2 = SettingCardGroup("功能", self)
+        self.sortSettingCard = SortSettingCard()
+        self.settingCardGroup2.addSettingCard(self.sortSettingCard)
         self.vBoxLayout.addWidget(self.settingCardGroup2)
+
+        self.settingCardGroup3 = SettingCardGroup("关于", self)
+
+        self.helpSettingCard = HelpSettingCard()
+        self.settingCardGroup3.addSettingCard(self.helpSettingCard)
+        self.updateSettingCard = UpdateSettingCard()
+        self.settingCardGroup3.addSettingCard(self.updateSettingCard)
+        self.aboutSettingCard = AboutSettingCard()
+        self.settingCardGroup3.addSettingCard(self.aboutSettingCard)
+
+        self.vBoxLayout.addWidget(self.settingCardGroup3)
 
 
 class Window(FluentWindow):

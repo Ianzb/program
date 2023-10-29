@@ -344,6 +344,32 @@ class ShortcutSettingCard(SettingCard):
         self.hBoxLayout.addSpacing(16)
 
 
+class SortSettingCard(SettingCard):
+    """
+    整理文件设置卡片
+    """
+
+    def __init__(self, parent=None):
+        super().__init__(FIF.ALIGNMENT, "整理文件", "设置整理文件的目录", parent)
+        self.pushButton1 = PushButton("整理目录", self, FIF.FOLDER_ADD)
+        self.pushButton1.clicked.connect(self.button1)
+        self.pushButton2 = PushButton("微信目录", self, FIF.FOLDER_ADD)
+        self.pushButton2.clicked.connect(self.button2)
+        self.hBoxLayout.addWidget(self.pushButton1, 0, Qt.AlignRight)
+        self.hBoxLayout.addWidget(self.pushButton2, 0, Qt.AlignRight)
+        self.hBoxLayout.addSpacing(16)
+
+    def button1(self):
+        get = QFileDialog.getExistingDirectory(self, "选择整理目录", setting.read("sortPath"))
+        if os.path.exists(get):
+            setting.save("sortPath", str(get))
+
+    def button2(self):
+        get = QFileDialog.getExistingDirectory(self, "选择微信WeChat Files文件夹目录", setting.read("wechatPath"))
+        if os.path.exists(get):
+            setting.save("wechatPath", str(get))
+
+
 class HelpSettingCard(SettingCard):
     """
     帮助设置卡片
