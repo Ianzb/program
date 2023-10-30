@@ -11,6 +11,38 @@ class ScrollArea(ScrollArea):
         self.setStyleSheet("QScrollArea {background-color: rgba(0,0,0,0); border: none; border-top-left-radius: 10px;}")
 
 
+class PhotoCard(ElevatedCardWidget):
+    """
+    大图片卡片
+    """
+
+    def __init__(self, icon: str, name: str = "名称", parent=None):
+        super().__init__(parent)
+        self.iconWidget = ImageLabel(icon, self)
+        self.label = CaptionLabel(name, self)
+        self.label.setStyleSheet("QLabel {background-color: rgba(0,0,0,0); border: none;}")
+
+        self.iconWidget.scaledToHeight(68)
+
+        self.vBoxLayout = QVBoxLayout(self)
+        self.vBoxLayout.setAlignment(Qt.AlignCenter)
+        self.vBoxLayout.addStretch(1)
+        self.vBoxLayout.addWidget(self.iconWidget, 0, Qt.AlignCenter)
+        self.vBoxLayout.addStretch(1)
+        self.vBoxLayout.addWidget(self.label, 0, Qt.AlignHCenter | Qt.AlignBottom)
+
+        self.setFixedSize(168, 176)
+
+    def mousePressEvent(self, event):
+        self.clickedFunction()
+
+    def connect(self, functions):
+        self.clickedFunction = functions
+
+    def clickedFunction(self):
+        pass
+
+
 class ToolBar(QWidget):
     """
     页面顶端工具栏
