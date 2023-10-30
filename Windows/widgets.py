@@ -16,13 +16,14 @@ class PhotoCard(ElevatedCardWidget):
     大图片卡片
     """
 
-    def __init__(self, icon: str, name: str = "名称", parent=None):
+    def __init__(self, icon: str, name: str = "名称", parent=None, image_size: int = 68):
         super().__init__(parent)
+        self.image_size = image_size
         self.iconWidget = ImageLabel(icon, self)
         self.label = CaptionLabel(name, self)
         self.setStyleSheet("QLabel {background-color: rgba(0,0,0,0); border: none;}")
 
-        self.iconWidget.scaledToHeight(68)
+        self.iconWidget.scaledToHeight(self.image_size)
 
         self.vBoxLayout = QVBoxLayout(self)
         self.vBoxLayout.setAlignment(Qt.AlignCenter)
@@ -47,6 +48,7 @@ class PhotoCard(ElevatedCardWidget):
 
     def setImage(self, img):
         self.iconWidget.setImage(img)
+        self.iconWidget.scaledToHeight(self.image_size)
 
 
 class ToolBar(QWidget):
