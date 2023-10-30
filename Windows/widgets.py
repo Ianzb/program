@@ -16,14 +16,14 @@ class PhotoCard(ElevatedCardWidget):
     大图片卡片
     """
 
-    def __init__(self, icon: str, name: str = "名称", parent=None, image_size: int = 68):
+    def __init__(self, icon: str, name: str = "名称", parent=None, imageSize: int = 68, widgetSize: list | tuple = (168, 176)):
         super().__init__(parent)
-        self.image_size = image_size
+        self.imageSize = imageSize
         self.iconWidget = ImageLabel(icon, self)
         self.label = CaptionLabel(name, self)
         self.setStyleSheet("QLabel {background-color: rgba(0,0,0,0); border: none;}")
 
-        self.iconWidget.scaledToHeight(self.image_size)
+        self.iconWidget.scaledToHeight(self.imageSize)
 
         self.vBoxLayout = QVBoxLayout(self)
         self.vBoxLayout.setAlignment(Qt.AlignCenter)
@@ -32,7 +32,7 @@ class PhotoCard(ElevatedCardWidget):
         self.vBoxLayout.addStretch(1)
         self.vBoxLayout.addWidget(self.label, 0, Qt.AlignHCenter | Qt.AlignBottom)
 
-        self.setFixedSize(168, 176)
+        self.setFixedSize(widgetSize[0], widgetSize[1])
 
     def mousePressEvent(self, event):
         self.clickedFunction()
@@ -81,49 +81,6 @@ class ToolBar(QWidget):
             self.setStyleSheet("QLabel {background-color: transparent; color: black}")
 
 
-class Tray(QSystemTrayIcon):
-    """
-    系统托盘组件
-    """
-
-    def __init__(self, UI):
-        super(Tray, self).__init__()
-        self.window = UI
-        self.menu = RoundMenu()
-        self.menu.addAction(Action(FIF.HOME, "打开", triggered=lambda: self.window.show()))
-        self.menu.addAction(Action(FIF.ALIGNMENT, "整理", triggered=lambda: self.window.mainPage.button1_1()))
-        self.menu.addAction(Action(FIF.LINK, "官网", triggered=lambda: webbrowser.open(program.PROGRAM_URL)))
-        self.menu.addAction(Action(FIF.CLOSE, "退出", triggered=lambda: self.triggered()))
-
-        self.setIcon(QIcon(program.source("logo.png")))
-        self.setToolTip(program.PROGRAM_TITLE)
-        self.activated.connect(self.clickedIcon)
-        self.show()
-
-    def clickedIcon(self, reason):
-        if reason == 3:
-            self.trayClickedEvent()
-        elif reason == 1:
-            self.contextMenuEvent()
-
-    def trayClickedEvent(self):
-        if self.window.isHidden():
-            self.window.setHidden(False)
-            if self.window.windowState() == Qt.WindowMinimized:
-                self.window.showNormal()
-            self.window.raise_()
-            self.window.activateWindow()
-        else:
-            self.window.setHidden(True)
-
-    def triggered(self):
-        self.deleteLater()
-        qApp.quit()
-
-    def contextMenuEvent(self):
-        self.menu.exec(QCursor.pos(), ani=True, aniType=MenuAnimationType.PULL_UP)
-
-
 class GrayCard(QWidget):
     """
     灰色背景组件卡片
@@ -167,6 +124,49 @@ class GrayCard(QWidget):
         else:
             self.setStyleSheet("QLabel {background-color: transparent; color: black}")
             self.card.setStyleSheet("QWidget {background-color: rgba(175,175,175,0.1); border:1px solid rgba(150,150,150,0.15); border-radius: 10px}")
+
+
+class Tray(QSystemTrayIcon):
+    """
+    系统托盘组件
+    """
+
+    def __init__(self, UI):
+        super(Tray, self).__init__()
+        self.window = UI
+        self.menu = RoundMenu()
+        self.menu.addAction(Action(FIF.HOME, "打开", triggered=lambda: self.window.show()))
+        self.menu.addAction(Action(FIF.ALIGNMENT, "整理", triggered=lambda: self.window.mainPage.button1_1()))
+        self.menu.addAction(Action(FIF.LINK, "官网", triggered=lambda: webbrowser.open(program.PROGRAM_URL)))
+        self.menu.addAction(Action(FIF.CLOSE, "退出", triggered=lambda: self.triggered()))
+
+        self.setIcon(QIcon(program.source("logo.png")))
+        self.setToolTip(program.PROGRAM_TITLE)
+        self.activated.connect(self.clickedIcon)
+        self.show()
+
+    def clickedIcon(self, reason):
+        if reason == 3:
+            self.trayClickedEvent()
+        elif reason == 1:
+            self.contextMenuEvent()
+
+    def trayClickedEvent(self):
+        if self.window.isHidden():
+            self.window.setHidden(False)
+            if self.window.windowState() == Qt.WindowMinimized:
+                self.window.showNormal()
+            self.window.raise_()
+            self.window.activateWindow()
+        else:
+            self.window.setHidden(True)
+
+    def triggered(self):
+        self.deleteLater()
+        qApp.quit()
+
+    def contextMenuEvent(self):
+        self.menu.exec(QCursor.pos(), ani=True, aniType=MenuAnimationType.PULL_UP)
 
 
 class ThemeSettingCard(ExpandSettingCard):
