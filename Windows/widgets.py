@@ -20,7 +20,7 @@ class PhotoCard(ElevatedCardWidget):
         super().__init__(parent)
         self.iconWidget = ImageLabel(icon, self)
         self.label = CaptionLabel(name, self)
-        self.label.setStyleSheet("QLabel {background-color: rgba(0,0,0,0); border: none;}")
+        self.setStyleSheet("QLabel {background-color: rgba(0,0,0,0); border: none;}")
 
         self.iconWidget.scaledToHeight(68)
 
