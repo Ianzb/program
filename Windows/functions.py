@@ -703,7 +703,7 @@ os.chdir(program.PROGRAM_PATH)
 # 设置任务栏
 import ctypes
 
-ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("zb小程序")
+ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(program.PROGRAM_NAME)
 
 # 重复运行检测
 if "python" in f.cmd(f"tasklist |findstr {setting.read('pid')}", True):
