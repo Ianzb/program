@@ -97,7 +97,7 @@ class SettingFunctions():
     """
 
     def __init__(self):
-        import json
+        pass
 
     def reload(self):
         """
