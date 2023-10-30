@@ -48,7 +48,7 @@ class PhotoCard(ElevatedCardWidget):
 
     def setImage(self, img):
         self.iconWidget.setImage(img)
-        self.iconWidget.scaledToHeight(self.image_size)
+        self.iconWidget.scaledToHeight(self.imageSize)
 
 
 class ToolBar(QWidget):
