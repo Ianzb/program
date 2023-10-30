@@ -42,6 +42,12 @@ class PhotoCard(ElevatedCardWidget):
     def clickedFunction(self):
         pass
 
+    def setText(self, data):
+        self.label.setText(data)
+
+    def setImage(self, img):
+        self.iconWidget.setImage(img)
+
 
 class ToolBar(QWidget):
     """
