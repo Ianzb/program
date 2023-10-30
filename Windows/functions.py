@@ -167,7 +167,7 @@ setting = SettingFunctions()
 
 class Functions():
     """
-    文件相关函数
+    程序相关函数
     """
     names = ["PPT",
              "文档",
