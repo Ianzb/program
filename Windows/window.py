@@ -27,19 +27,24 @@ class MainPage(ScrollArea):
         self.vBoxLayout.setContentsMargins(36, 20, 36, 36)
 
         self.pushButton1_1 = PrimaryPushButton("开始整理+清理", self, FIF.ALIGNMENT)
+        self.pushButton1_1.setToolTip("开始整理+清理文件")
         self.pushButton1_1.clicked.connect(self.button1_1)
         self.pushButton1_2 = ToolButton(FIF.FOLDER, self)
+        self.pushButton1_2.setToolTip("打开整理文件夹")
         self.pushButton1_2.clicked.connect(self.button1_2)
 
         self.pushButton2_1 = PushButton("重启文件资源管理器", self, FIF.SYNC)
+        self.pushButton2_1.setToolTip("重启文件资源管理器")
         self.pushButton2_1.clicked.connect(self.button2_1)
 
         self.pushButton3_1 = PushButton("查看Minecraft最新版本", self, FIF.CHECKBOX)
+        self.pushButton3_1.setToolTip("查看Minecraft最新版本")
         self.pushButton3_1.clicked.connect(self.button3_1)
 
         self.card1 = GrayCard("一键整理+清理", self.view)
         self.card2 = GrayCard("快捷功能", self.view)
         self.card3 = GrayCard("游戏功能", self.view)
+
         self.card1.addWidget(self.pushButton1_1)
         self.card1.addWidget(self.pushButton1_2)
         self.card2.addWidget(self.pushButton2_1)
