@@ -39,9 +39,9 @@ class ProgramInit():
     GITHUB_URL = "https://github.com/Ianzb/program/"  # Github网址
     UPDATE_URL = "https://ianzb.github.io/program/Windows/index.json"  # 更新网址
     PROGRAM_MAIN_FILE_PATH = sys.argv[0]  # 程序主文件路径
-    PROGRAM_PATH = os.path.dirname(sys.argv[0])  # 程序安装路径
+    PROGRAM_PATH = os.path.dirname(PROGRAM_MAIN_FILE_PATH)  # 程序安装路径
     SOURCE_PATH = os.path.join(PROGRAM_PATH, "img")  # 程序资源文件路径
-    FILE_NAME = os.path.basename(sys.argv[0])  # 当前程序文件名称
+    FILE_NAME = os.path.basename(PROGRAM_MAIN_FILE_PATH)  # 当前程序文件名称
     PROGRAM_PID = os.getpid()  # 程序pid
     USER_PATH = os.path.expanduser("~")  # 系统用户路径
     PROGRAM_DATA_PATH = os.path.join(USER_PATH, "zb")  # 程序数据路径
