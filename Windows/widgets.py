@@ -5,8 +5,8 @@ class ScrollArea(ScrollArea):
     """
     优化样式的滚动区域
     """
-    title = "Title"
-    subtitle = "Subtitle"
+    title = ""
+    subtitle = ""
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)

@@ -21,9 +21,15 @@ class MainPage(ScrollArea):
         self.button2_1.clicked.connect(self.buttonClicked2_1)
         self.button3_1.clicked.connect(self.buttonClicked3_1)
 
-        self.button1_1.setToolTip("开始整理+清理文件，范围包括：\n·整理桌面文件\n·整理微信文件\n·清空回收站\n·清理系统缓存")
-        self.button1_2.setToolTip("")
-        self.button1_1.installEventFilter(ToolTipFilter(self.button1_1, 1000, ToolTipPosition.TOP))
+        self.button1_1.setToolTip("开始整理+清理文件，范围包括：\n  整理桌面文件\n  整理微信文件\n  清空回收站\n  清理系统缓存")
+        self.button1_2.setToolTip("打开整理文件所在目录")
+        self.button2_1.setToolTip("重启文件资源管理器")
+        self.button3_1.setToolTip("查看Minecraft最新版本，数据来源：\n  主站：我的世界中文维基百科（https://minecraft.fandom.com/zh/wiki/Minecraft_Wiki）\n  备用：我的世界中文维基百科Bilibili镜像站（https://wiki.biligame.com/mc/Minecraft_Wiki）")
+
+        self.button1_1.installEventFilter(ToolTipFilter(self.button1_1, 1000))
+        self.button1_2.installEventFilter(ToolTipFilter(self.button1_2, 1000))
+        self.button2_1.installEventFilter(ToolTipFilter(self.button2_1, 1000))
+        self.button3_1.installEventFilter(ToolTipFilter(self.button3_1, 1000))
 
         self.card1 = GrayCard("一键整理+清理", self.view)
         self.card2 = GrayCard("快捷功能", self.view)
