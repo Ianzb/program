@@ -5,55 +5,40 @@ class MainPage(ScrollArea):
     """
     主页
     """
-    name = "主页"
+    title = "主页"
+    subtitle = "常用功能"
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
 
-        self.setObjectName(self.name)
-        self.toolBar = ToolBar(self.name, "常用功能", self)
-        self.setViewportMargins(0, self.toolBar.height(), 0, 0)
+        self.button1_1 = PrimaryPushButton("开始整理+清理", self, FIF.ALIGNMENT)
+        self.button1_2 = ToolButton(FIF.FOLDER, self)
+        self.button2_1 = PushButton("重启文件资源管理器", self, FIF.SYNC)
+        self.button3_1 = PushButton("查看Minecraft最新版本", self, FIF.CHECKBOX)
 
-        self.view = QWidget(self)
-        self.setWidget(self.view)
-        self.view.setStyleSheet("QWidget {background-color: rgba(0,0,0,0); border: none}")
+        self.button1_1.clicked.connect(self.buttonClicked1_1)
+        self.button1_2.clicked.connect(self.buttonClicked1_2)
+        self.button2_1.clicked.connect(self.buttonClicked2_1)
+        self.button3_1.clicked.connect(self.buttonClicked3_1)
 
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.setViewportMargins(0, self.toolBar.height(), 0, 0)
-        self.setWidgetResizable(True)
-
-        self.vBoxLayout = QVBoxLayout(self.view)
-        self.vBoxLayout.setSpacing(30)
-        self.vBoxLayout.setAlignment(Qt.AlignTop)
-        self.vBoxLayout.setContentsMargins(36, 20, 36, 36)
-
-        self.pushButton1_1 = PrimaryPushButton("开始整理+清理", self, FIF.ALIGNMENT)
-        self.pushButton1_1.clicked.connect(self.button1_1)
-        self.pushButton1_2 = ToolButton(FIF.FOLDER, self)
-        self.pushButton1_2.clicked.connect(self.button1_2)
-
-        self.pushButton2_1 = PushButton("重启文件资源管理器", self, FIF.SYNC)
-        self.pushButton2_1.clicked.connect(self.button2_1)
-
-        self.pushButton3_1 = PushButton("查看Minecraft最新版本", self, FIF.CHECKBOX)
-        self.pushButton3_1.clicked.connect(self.button3_1)
+        self.button1_1.setToolTip("开始整理+清理文件，范围包括：\n·整理桌面文件\n·整理微信文件\n·清空回收站\n·清理系统缓存")
+        self.button1_2.setToolTip("")
+        self.button1_1.installEventFilter(ToolTipFilter(self.button1_1, 1000, ToolTipPosition.TOP))
 
         self.card1 = GrayCard("一键整理+清理", self.view)
         self.card2 = GrayCard("快捷功能", self.view)
         self.card3 = GrayCard("游戏功能", self.view)
 
-        self.card1.addWidget(self.pushButton1_1)
-        self.card1.addWidget(self.pushButton1_2)
-        self.card2.addWidget(self.pushButton2_1)
-        self.card3.addWidget(self.pushButton3_1)
+        self.card1.addWidget(self.button1_1)
+        self.card1.addWidget(self.button1_2)
+        self.card2.addWidget(self.button2_1)
+        self.card3.addWidget(self.button3_1)
 
         self.vBoxLayout.addWidget(self.card1, 0, Qt.AlignTop)
         self.vBoxLayout.addWidget(self.card2, 0, Qt.AlignTop)
         self.vBoxLayout.addWidget(self.card3, 0, Qt.AlignTop)
 
-        self.pushButton1_1.installEventFilter(ToolTipFilter(self.pushButton1_1, 1000, ToolTipPosition.TOP))
-
-    def button1_1(self):
+    def buttonClicked1_1(self):
         if setting.read("sortPath") == "":
             self.infoBar = InfoBar(
                 icon=InfoBarIcon.WARNING,
@@ -79,7 +64,7 @@ class MainPage(ScrollArea):
                 parent=self
             )
             self.infoBar.show()
-        self.pushButton1_1.setEnabled(False)
+        self.button1_1.setEnabled(False)
         self.stateTooltip = StateToolTip("正在整理文件", "请耐心等待", self)
         self.stateTooltip.move(self.stateTooltip.getSuitablePos())
         self.stateTooltip.show()
@@ -89,27 +74,27 @@ class MainPage(ScrollArea):
 
     def thread1_1(self, msg):
         self.stateTooltip.setState(True)
-        self.pushButton1_1.setEnabled(True)
+        self.button1_1.setEnabled(True)
         if msg:
             self.stateTooltip.setContent("整理成功")
         else:
             self.stateTooltip.setContent("整理失败")
 
-    def button1_2(self):
+    def buttonClicked1_2(self):
         if setting.read("sortPath") != "":
             os.startfile(setting.read("sortPath"))
 
-    def button2_1(self):
-        self.pushButton2_1.setEnabled(False)
+    def buttonClicked2_1(self):
+        self.button2_1.setEnabled(False)
         self.thread = NewThread("重启文件资源管理器")
         self.thread.signalStr.connect(self.thread2_1)
         self.thread.start()
 
     def thread2_1(self, msg):
-        self.pushButton2_1.setEnabled(True)
+        self.button2_1.setEnabled(True)
 
-    def button3_1(self):
-        self.pushButton3_1.setEnabled(False)
+    def buttonClicked3_1(self):
+        self.button3_1.setEnabled(False)
         self.thread = NewThread("Minecraft最新版本")
         self.thread.signalStr.connect(self.thread3_1)
         self.thread.start()
@@ -126,85 +111,40 @@ class MainPage(ScrollArea):
             parent=self
         )
         self.infoBar.show()
-        self.pushButton3_1.setEnabled(True)
+        self.button3_1.setEnabled(True)
 
 
 class ToolPage(ScrollArea):
     """
     工具页面
     """
-    name = "工具"
+    title = "工具"
+    subtitle = "实用工具"
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
-        self.setObjectName(self.name)
-        self.toolBar = ToolBar(self.name, "工具箱", self)
-        self.setViewportMargins(0, self.toolBar.height(), 0, 0)
-
-        self.view = QWidget(self)
-        self.setWidget(self.view)
-        self.view.setStyleSheet("QWidget {background-color: rgba(0,0,0,0); border: none}")
-
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.setViewportMargins(0, self.toolBar.height(), 0, 0)
-        self.setWidgetResizable(True)
-
-        self.vBoxLayout = QVBoxLayout(self.view)
-        self.vBoxLayout.setSpacing(30)
-        self.vBoxLayout.setAlignment(Qt.AlignTop)
-        self.vBoxLayout.setContentsMargins(36, 20, 36, 36)
 
 
 class GamePage(ScrollArea):
     """
     游戏页面
     """
-    name = "游戏"
+    title = "游戏"
+    subtitle = "游戏功能"
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
-        self.setObjectName(self.name)
-        self.toolBar = ToolBar(self.name, "Minecraft相关功能", self)
-        self.setViewportMargins(0, self.toolBar.height(), 0, 0)
-
-        self.view = QWidget(self)
-        self.setWidget(self.view)
-        self.view.setStyleSheet("QWidget {background-color: rgba(0,0,0,0); border: none}")
-
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.setViewportMargins(0, self.toolBar.height(), 0, 0)
-        self.setWidgetResizable(True)
-
-        self.vBoxLayout = QVBoxLayout(self.view)
-        self.vBoxLayout.setSpacing(30)
-        self.vBoxLayout.setAlignment(Qt.AlignTop)
-        self.vBoxLayout.setContentsMargins(36, 20, 36, 36)
 
 
 class SettingPage(ScrollArea):
     """
     设置页面
     """
-    name = "设置"
+    title = "设置"
+    subtitle = "设置程序"
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
-        self.setObjectName(self.name)
-        self.toolBar = ToolBar(self.name, "个性化修改程序", self)
-        self.setViewportMargins(0, self.toolBar.height(), 0, 0)
-
-        self.view = QWidget(self)
-        self.setWidget(self.view)
-        self.view.setStyleSheet("QWidget {background-color: rgba(0,0,0,0); border: none}")
-
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.setViewportMargins(0, self.toolBar.height(), 0, 0)
-        self.setWidgetResizable(True)
-
-        self.vBoxLayout = VBoxLayout(self.view)
-        self.vBoxLayout.setSpacing(30)
-        self.vBoxLayout.setAlignment(Qt.AlignTop)
-        self.vBoxLayout.setContentsMargins(36, 20, 36, 36)
 
         self.settingCardGroup1 = SettingCardGroup("个性化", self)
 
@@ -285,10 +225,10 @@ class Window(FluentWindow):
         self.gamePage = GamePage(self)
         self.settingPage = SettingPage(self)
         # 导航栏组件
-        self.addSubInterface(self.mainPage, FIF.HOME, self.mainPage.name, NavigationItemPosition.TOP)
+        self.addSubInterface(self.mainPage, FIF.HOME, self.mainPage.title, NavigationItemPosition.TOP)
         self.navigationInterface.addSeparator(NavigationItemPosition.TOP)
-        self.addSubInterface(self.toolPage, FIF.DEVELOPER_TOOLS, self.toolPage.name, NavigationItemPosition.SCROLL)
-        self.addSubInterface(self.gamePage, FIF.GAME, self.gamePage.name, NavigationItemPosition.SCROLL)
+        self.addSubInterface(self.toolPage, FIF.DEVELOPER_TOOLS, self.toolPage.title, NavigationItemPosition.SCROLL)
+        self.addSubInterface(self.gamePage, FIF.GAME, self.gamePage.title, NavigationItemPosition.SCROLL)
         self.navigationInterface.addSeparator(NavigationItemPosition.BOTTOM)
         self.navigationInterface.addWidget(
             "avatar",
@@ -296,7 +236,7 @@ class Window(FluentWindow):
             self.avatorEvent,
             NavigationItemPosition.BOTTOM,
         )
-        self.addSubInterface(self.settingPage, FIF.SETTING, self.settingPage.name, NavigationItemPosition.BOTTOM)
+        self.addSubInterface(self.settingPage, FIF.SETTING, self.settingPage.title, NavigationItemPosition.BOTTOM)
 
     def avatorEvent(self):
         """

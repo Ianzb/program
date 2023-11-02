@@ -743,13 +743,21 @@ class NewThread(QThread):
                 f.pipUpdate(program.REQUIRE_LIB[i])
             self.signalDict.emit({"名称": "", "序号": 0, "完成": True})
         if self.mode == "检查更新":
-            data = f.getNewestVersion()
+            try:
+                data = f.getNewestVersion()
+            except:
+                self.signalDict.emit({"更新": False, "版本": data})
+                return
             if data == program.PROGRAM_VERSION:
                 self.signalDict.emit({"更新": False, "版本": data})
             else:
                 self.signalDict.emit({"更新": True, "版本": data})
         if self.mode == "立刻更新":
-            data = f.getNewestVersion()
+            try:
+                data = f.getNewestVersion()
+            except:
+                self.signalDict.emit({"数量": len(data), "完成": "失败", "名称": "", "序号": 0})
+                return
             if data == program.PROGRAM_VERSION:
                 self.signalDict.emit({"数量": len(data), "完成": "失败", "名称": "", "序号": 0})
                 return

@@ -5,9 +5,28 @@ class ScrollArea(ScrollArea):
     """
     优化样式的滚动区域
     """
+    title = "Title"
+    subtitle = "Subtitle"
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
+        self.setObjectName(self.title)
+        self.toolBar = ToolBar(self.title, self.subtitle, self)
+        self.setViewportMargins(0, self.toolBar.height(), 0, 0)
+
+        self.view = QWidget(self)
+        self.setWidget(self.view)
+        self.view.setStyleSheet("QWidget {background-color: rgba(0,0,0,0); border: none}")
+
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setViewportMargins(0, self.toolBar.height(), 0, 0)
+        self.setWidgetResizable(True)
+
+        self.vBoxLayout = QVBoxLayout(self.view)
+        self.vBoxLayout.setSpacing(30)
+        self.vBoxLayout.setAlignment(Qt.AlignTop)
+        self.vBoxLayout.setContentsMargins(36, 20, 36, 36)
+
         self.setStyleSheet("QScrollArea {background-color: rgba(0,0,0,0); border: none; border-top-left-radius: 10px;}")
 
 
