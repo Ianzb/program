@@ -9,6 +9,7 @@ class MainPage(ScrollArea):
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
+
         self.setObjectName(self.name)
         self.toolBar = ToolBar(self.name, "常用功能", self)
         self.setViewportMargins(0, self.toolBar.height(), 0, 0)
@@ -242,10 +243,11 @@ class Window(FluentWindow):
 
     def __init__(self):
         super().__init__()
-        self.setObjectName("主窗口")
 
+        self.setObjectName("主窗口")
         self.__initWindow()
         self.__initWidget()
+
         # 自动更新
         if setting.read("autoUpdate") and program.isStartup:
             self.settingPage.updateSettingCard.button3()
