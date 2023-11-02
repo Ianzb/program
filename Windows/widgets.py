@@ -11,23 +11,23 @@ class ScrollArea(ScrollArea):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.setObjectName(self.title)
+        self.setWidgetResizable(True)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setStyleSheet("QScrollArea {background-color: rgba(0,0,0,0); border: none; border-top-left-radius: 10px;}")
+
         self.toolBar = ToolBar(self.title, self.subtitle, self)
+
         self.setViewportMargins(0, self.toolBar.height(), 0, 0)
 
         self.view = QWidget(self)
-        self.setWidget(self.view)
         self.view.setStyleSheet("QWidget {background-color: rgba(0,0,0,0); border: none}")
 
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.setViewportMargins(0, self.toolBar.height(), 0, 0)
-        self.setWidgetResizable(True)
+        self.setWidget(self.view)
 
         self.vBoxLayout = QVBoxLayout(self.view)
         self.vBoxLayout.setSpacing(30)
         self.vBoxLayout.setAlignment(Qt.AlignTop)
         self.vBoxLayout.setContentsMargins(36, 20, 36, 36)
-
-        self.setStyleSheet("QScrollArea {background-color: rgba(0,0,0,0); border: none; border-top-left-radius: 10px;}")
 
 
 class PhotoCard(ElevatedCardWidget):
@@ -38,11 +38,14 @@ class PhotoCard(ElevatedCardWidget):
     def __init__(self, icon: str, name: str = "", parent=None, imageSize: int = 68, widgetSize: list | tuple = (168, 176)):
         super().__init__(parent)
         self.imageSize = imageSize
-        self.iconWidget = ImageLabel(icon, self)
-        self.label = CaptionLabel(name, self)
+
+        self.setFixedSize(widgetSize[0], widgetSize[1])
         self.setStyleSheet("QLabel {background-color: rgba(0,0,0,0); border: none;}")
 
+        self.iconWidget = ImageLabel(icon, self)
         self.iconWidget.scaledToHeight(self.imageSize)
+
+        self.label = CaptionLabel(name, self)
 
         self.vBoxLayout = QVBoxLayout(self)
         self.vBoxLayout.setAlignment(Qt.AlignCenter)
@@ -51,16 +54,14 @@ class PhotoCard(ElevatedCardWidget):
         self.vBoxLayout.addStretch(1)
         self.vBoxLayout.addWidget(self.label, 0, Qt.AlignHCenter | Qt.AlignBottom)
 
-        self.setFixedSize(widgetSize[0], widgetSize[1])
-
     def mousePressEvent(self, event):
         self.clickedFunction()
 
-    def connect(self, functions):
-        self.clickedFunction = functions
-
     def clickedFunction(self):
         pass
+
+    def connect(self, functions):
+        self.clickedFunction = functions
 
     def setText(self, data):
         self.label.setText(data)
@@ -109,25 +110,27 @@ class GrayCard(QWidget):
         super().__init__(parent=parent)
 
         self.titleLabel = StrongBodyLabel(title, self)
+
         self.card = QFrame(self)
         self.card.setObjectName("卡片")
 
         self.vBoxLayout = QVBoxLayout(self)
         self.hBoxLayout = QHBoxLayout(self.card)
 
+        self.vBoxLayout.setAlignment(Qt.AlignTop)
+        self.hBoxLayout.setAlignment(alignment)
+
         self.vBoxLayout.setSizeConstraint(QVBoxLayout.SetMinimumSize)
         self.hBoxLayout.setSizeConstraint(QHBoxLayout.SetMinimumSize)
 
         self.vBoxLayout.setSpacing(12)
+        self.hBoxLayout.setSpacing(0)
+
         self.vBoxLayout.setContentsMargins(0, 0, 0, 0)
+        self.hBoxLayout.setContentsMargins(12, 12, 12, 12)
 
         self.vBoxLayout.addWidget(self.titleLabel, 0, Qt.AlignTop)
         self.vBoxLayout.addWidget(self.card, 0, Qt.AlignTop)
-        self.vBoxLayout.setAlignment(Qt.AlignTop)
-
-        self.hBoxLayout.setSpacing(0)
-        self.hBoxLayout.setContentsMargins(12, 12, 12, 12)
-        self.hBoxLayout.setAlignment(alignment)
 
         self.setTheme()
         qconfig.themeChanged.connect(self.setTheme)
@@ -150,19 +153,21 @@ class Tray(QSystemTrayIcon):
     系统托盘组件
     """
 
-    def __init__(self, UI):
+    def __init__(self, window):
         super(Tray, self).__init__()
-        self.window = UI
-        self.menu = RoundMenu()
-        self.menu.addAction(Action(FIF.HOME, "打开", triggered=lambda: self.window.show()))
-        self.menu.addAction(Action(FIF.ALIGNMENT, "整理", triggered=lambda: self.window.mainPage.button1_1()))
-        self.menu.addAction(Action(FIF.LINK, "官网", triggered=lambda: webbrowser.open(program.PROGRAM_URL)))
-        self.menu.addAction(Action(FIF.CLOSE, "退出", triggered=lambda: self.triggered()))
+        self.window = window
 
         self.setIcon(QIcon(program.source("logo.png")))
         self.activated.connect(self.clickedIcon)
         self.show()
         self.showMessage(program.PROGRAM_NAME, f"{program.PROGRAM_NAME}启动成功！", QIcon(program.source("logo.png")), 1)
+
+        self.menu = RoundMenu()
+
+        self.menu.addAction(Action(FIF.HOME, "打开", triggered=lambda: self.window.show()))
+        self.menu.addAction(Action(FIF.ALIGNMENT, "整理", triggered=lambda: self.window.mainPage.button1_1()))
+        self.menu.addAction(Action(FIF.LINK, "官网", triggered=lambda: webbrowser.open(program.PROGRAM_URL)))
+        self.menu.addAction(Action(FIF.CLOSE, "退出", triggered=lambda: self.triggered()))
 
     def clickedIcon(self, reason):
         if reason == 3:
