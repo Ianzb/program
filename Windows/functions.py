@@ -731,12 +731,6 @@ class NewThread(QThread):
         self.data = data
 
     def run(self):
-        if self.mode == "展示窗口":
-            while True:
-                time.sleep(0.1)
-                if setting.read("showWindow") == "1":
-                    setting.save("showWindow", "0")
-                    self.signalStr.emit("展示窗口")
         if self.mode == "更新运行库":
             for i in range(len(program.REQUIRE_LIB)):
                 self.signalDict.emit({"名称": program.REQUIRE_LIB[i], "序号": i, "完成": False})
