@@ -201,10 +201,10 @@ class ThemeSettingCard(ExpandSettingCard):
 
     def __init__(self, parent=None):
         super().__init__(FIF.BRUSH, "程序主题", "修改程序明暗主题", parent)
-        self.choiceLabel = QLabel(self)
+        self.label = QLabel(self)
         self.buttonGroup = QButtonGroup(self)
 
-        self.addWidget(self.choiceLabel)
+        self.addWidget(self.label)
 
         self.viewLayout.setSpacing(19)
         self.viewLayout.setContentsMargins(48, 18, 0, 18)
@@ -222,20 +222,20 @@ class ThemeSettingCard(ExpandSettingCard):
 
         if setting.read("theme") == "Theme.LIGHT":
             self.radioButton1.setChecked(True)
-            self.choiceLabel.setText("浅色")
+            self.label.setText("浅色")
         elif setting.read("theme") == "Theme.DARK":
             self.radioButton2.setChecked(True)
-            self.choiceLabel.setText("深色")
+            self.label.setText("深色")
         else:
             self.radioButton3.setChecked(True)
-            self.choiceLabel.setText("跟随系统设置")
+            self.label.setText("跟随系统设置")
 
         self.buttonGroup.buttonClicked.connect(self.__onButtonClicked)
 
         self._adjustViewSize()
 
     def __onButtonClicked(self, button: RadioButton):
-        if button.text() == self.choiceLabel.text():
+        if button.text() == self.label.text():
             return
         if button is self.radioButton1:
             setting.save("theme", "Theme.LIGHT")
@@ -247,8 +247,8 @@ class ThemeSettingCard(ExpandSettingCard):
             setting.save("theme", "Theme.AUTO")
             setTheme(Theme.AUTO)
 
-        self.choiceLabel.setText(button.text())
-        self.choiceLabel.adjustSize()
+        self.label.setText(button.text())
+        self.label.adjustSize()
 
 
 class ColorSettingCard(ExpandGroupSettingCard):
@@ -259,7 +259,7 @@ class ColorSettingCard(ExpandGroupSettingCard):
 
     def __init__(self, parent=None):
         super().__init__(FIF.PALETTE, "主题色", "修改程序的主题色", parent=parent)
-        self.choiceLabel = QLabel(self)
+        self.label = QLabel(self)
         self.radioWidget = QWidget(self.view)
         self.radioLayout = QVBoxLayout(self.radioWidget)
         self.radioButton1 = RadioButton("默认", self.radioWidget)
@@ -273,7 +273,7 @@ class ColorSettingCard(ExpandGroupSettingCard):
 
         self.chooseColorButton = QPushButton("选择颜色", self.customColorWidget)
 
-        self.addWidget(self.choiceLabel)
+        self.addWidget(self.label)
 
         self.radioLayout.setSpacing(19)
         self.radioLayout.setAlignment(Qt.AlignTop)
@@ -304,8 +304,8 @@ class ColorSettingCard(ExpandGroupSettingCard):
             self.chooseColorButton.setEnabled(True)
         self.color = QColor(setting.read("themeColor"))
         setThemeColor(self.color.name())
-        self.choiceLabel.setText(self.buttonGroup.checkedButton().text())
-        self.choiceLabel.adjustSize()
+        self.label.setText(self.buttonGroup.checkedButton().text())
+        self.label.adjustSize()
 
         self.chooseColorButton.setObjectName("chooseColorButton")
 
@@ -313,10 +313,10 @@ class ColorSettingCard(ExpandGroupSettingCard):
         self.chooseColorButton.clicked.connect(self.__showColorDialog)
 
     def __onRadioButtonClicked(self, button: RadioButton):
-        if button.text() == self.choiceLabel.text():
+        if button.text() == self.label.text():
             return
-        self.choiceLabel.setText(button.text())
-        self.choiceLabel.adjustSize()
+        self.label.setText(button.text())
+        self.label.adjustSize()
         if button is self.radioButton1:
             self.chooseColorButton.setDisabled(True)
             setting.save("themeColor", "#0078D4")
