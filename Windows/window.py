@@ -201,23 +201,17 @@ class Window(FluentWindow):
         """
         组件初始化
         """
-        # 页面组件
         self.mainPage = MainPage(self)
         self.toolPage = ToolPage(self)
         self.gamePage = GamePage(self)
         self.settingPage = SettingPage(self)
-        # 导航栏组件
+
         self.addSubInterface(self.mainPage, FIF.HOME, self.mainPage.title, NavigationItemPosition.TOP)
         self.navigationInterface.addSeparator(NavigationItemPosition.TOP)
         self.addSubInterface(self.toolPage, FIF.DEVELOPER_TOOLS, self.toolPage.title, NavigationItemPosition.SCROLL)
         self.addSubInterface(self.gamePage, FIF.GAME, self.gamePage.title, NavigationItemPosition.SCROLL)
         self.navigationInterface.addSeparator(NavigationItemPosition.BOTTOM)
-        self.navigationInterface.addWidget(
-            "avatar",
-            NavigationAvatarWidget(program.AUTHOR_NAME, program.source("zb.png")),
-            self.avatorEvent,
-            NavigationItemPosition.BOTTOM,
-        )
+        self.navigationInterface.addWidget("avatar", NavigationAvatarWidget(program.AUTHOR_NAME, program.source("zb.png")), self.avatorEvent, NavigationItemPosition.BOTTOM)
         self.addSubInterface(self.settingPage, FIF.SETTING, self.settingPage.title, NavigationItemPosition.BOTTOM)
 
     def __initActivity(self):
@@ -232,11 +226,7 @@ class Window(FluentWindow):
         """
         头像点击事件
         """
-        w = MessageBox(
-            f"欢迎使用{program.PROGRAM_NAME}！",
-            f"作者：{program.AUTHOR_NAME}",
-            self
-        )
+        w = MessageBox(f"欢迎使用{program.PROGRAM_NAME}！", f"作者：{program.AUTHOR_NAME}", self)
         w.yesButton.setText(f"{program.AUTHOR_NAME}的个人网站")
         w.cancelButton.setText("关闭")
         if w.exec():

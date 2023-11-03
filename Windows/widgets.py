@@ -165,7 +165,7 @@ class Tray(QSystemTrayIcon):
         self.menu = RoundMenu()
 
         self.menu.addAction(Action(FIF.HOME, "打开", triggered=lambda: self.window.show()))
-        self.menu.addAction(Action(FIF.ALIGNMENT, "整理", triggered=lambda: self.window.mainPage.button1_1()))
+        self.menu.addAction(Action(FIF.ALIGNMENT, "整理", triggered=lambda: self.window.mainPage.buttonClicked1_1()))
         self.menu.addAction(Action(FIF.LINK, "官网", triggered=lambda: webbrowser.open(program.PROGRAM_URL)))
         self.menu.addAction(Action(FIF.CLOSE, "退出", triggered=lambda: self.triggered()))
 
@@ -202,22 +202,33 @@ class ThemeSettingCard(ExpandSettingCard):
     def __init__(self, parent=None):
         super().__init__(FIF.BRUSH, "程序主题", "修改程序明暗主题", parent)
         self.label = QLabel(self)
-        self.buttonGroup = QButtonGroup(self)
 
         self.addWidget(self.label)
-
-        self.viewLayout.setSpacing(19)
-        self.viewLayout.setContentsMargins(48, 18, 0, 18)
 
         self.radioButton1 = RadioButton("浅色", self.view)
         self.radioButton2 = RadioButton("深色", self.view)
         self.radioButton3 = RadioButton("跟随系统设置", self.view)
 
+        self.radioButton1.setToolTip("设置浅色模式")
+        self.radioButton2.setToolTip("设置深色模式")
+        self.radioButton3.setToolTip("设置跟随系统模式")
+
+        self.radioButton1.installEventFilter(ToolTipFilter(self.radioButton1, 1000))
+        self.radioButton2.installEventFilter(ToolTipFilter(self.radioButton2, 1000))
+        self.radioButton3.installEventFilter(ToolTipFilter(self.radioButton3, 1000))
+
+        self.buttonGroup = QButtonGroup(self)
+        self.buttonGroup.buttonClicked.connect(self.buttonClicked)
+
         self.buttonGroup.addButton(self.radioButton1)
-        self.viewLayout.addWidget(self.radioButton1)
         self.buttonGroup.addButton(self.radioButton2)
-        self.viewLayout.addWidget(self.radioButton2)
         self.buttonGroup.addButton(self.radioButton3)
+
+        self.viewLayout.setSpacing(19)
+        self.viewLayout.setContentsMargins(48, 18, 0, 18)
+
+        self.viewLayout.addWidget(self.radioButton1)
+        self.viewLayout.addWidget(self.radioButton2)
         self.viewLayout.addWidget(self.radioButton3)
 
         if setting.read("theme") == "Theme.LIGHT":
@@ -230,11 +241,9 @@ class ThemeSettingCard(ExpandSettingCard):
             self.radioButton3.setChecked(True)
             self.label.setText("跟随系统设置")
 
-        self.buttonGroup.buttonClicked.connect(self.__onButtonClicked)
-
         self._adjustViewSize()
 
-    def __onButtonClicked(self, button: RadioButton):
+    def buttonClicked(self, button: RadioButton):
         if button.text() == self.label.text():
             return
         if button is self.radioButton1:
@@ -259,77 +268,92 @@ class ColorSettingCard(ExpandGroupSettingCard):
 
     def __init__(self, parent=None):
         super().__init__(FIF.PALETTE, "主题色", "修改程序的主题色", parent=parent)
-        self.label = QLabel(self)
-        self.radioWidget = QWidget(self.view)
-        self.radioLayout = QVBoxLayout(self.radioWidget)
-        self.radioButton1 = RadioButton("默认", self.radioWidget)
-        self.radioButton2 = RadioButton("自定义", self.radioWidget)
+        self.label1 = QLabel(self)
 
-        self.buttonGroup = QButtonGroup(self)
+        self.addWidget(self.label1)
+
+        self.radioWidget = QWidget(self.view)
 
         self.customColorWidget = QWidget(self.view)
         self.customColorLayout = QHBoxLayout(self.customColorWidget)
-        self.customLabel = QLabel("自定义颜色", self.customColorWidget)
 
-        self.chooseColorButton = QPushButton("选择颜色", self.customColorWidget)
+        self.label2 = QLabel("自定义颜色", self.customColorWidget)
 
-        self.addWidget(self.label)
+        self.radioLayout = QVBoxLayout(self.radioWidget)
 
         self.radioLayout.setSpacing(19)
         self.radioLayout.setAlignment(Qt.AlignTop)
         self.radioLayout.setContentsMargins(48, 18, 0, 18)
-        self.buttonGroup.addButton(self.radioButton1)
-        self.buttonGroup.addButton(self.radioButton2)
-        self.radioLayout.addWidget(self.radioButton1)
-        self.radioLayout.addWidget(self.radioButton2)
         self.radioLayout.setSizeConstraint(QVBoxLayout.SetMinimumSize)
 
+        self.button1 = RadioButton("默认", self.radioWidget)
+        self.button2 = RadioButton("自定义", self.radioWidget)
+        self.button3 = QPushButton("选择颜色", self.customColorWidget)
+
+        self.button1.setToolTip("设置默认颜色")
+        self.button2.setToolTip("设置自定义颜色")
+        self.button3.setToolTip("选择自定义颜色")
+
+        self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
+        self.button2.installEventFilter(ToolTipFilter(self.button2, 1000))
+        self.button3.installEventFilter(ToolTipFilter(self.button3, 1000))
+
+        self.radioLayout.addWidget(self.button1)
+        self.radioLayout.addWidget(self.button2)
+
+        self.buttonGroup = QButtonGroup(self)
+
+        self.buttonGroup.addButton(self.button1)
+        self.buttonGroup.addButton(self.button2)
+
         self.customColorLayout.setContentsMargins(48, 18, 44, 18)
-        self.customColorLayout.addWidget(self.customLabel, 0, Qt.AlignLeft)
-        self.customColorLayout.addWidget(self.chooseColorButton, 0, Qt.AlignRight)
         self.customColorLayout.setSizeConstraint(QHBoxLayout.SetMinimumSize)
+
+        self.customColorLayout.addWidget(self.label2, 0, Qt.AlignLeft)
+        self.customColorLayout.addWidget(self.button3, 0, Qt.AlignRight)
 
         self.viewLayout.setSpacing(0)
         self.viewLayout.setContentsMargins(0, 0, 0, 0)
+
         self.addGroupWidget(self.radioWidget)
         self.addGroupWidget(self.customColorWidget)
 
         self._adjustViewSize()
 
         if setting.read("themeColor") == "#0078D4":
-            self.radioButton1.setChecked(True)
-            self.chooseColorButton.setEnabled(False)
+            self.button1.setChecked(True)
+            self.button3.setEnabled(False)
         else:
-            self.radioButton2.setChecked(True)
-            self.chooseColorButton.setEnabled(True)
+            self.button2.setChecked(True)
+            self.button3.setEnabled(True)
         self.color = QColor(setting.read("themeColor"))
         setThemeColor(self.color.name())
-        self.label.setText(self.buttonGroup.checkedButton().text())
-        self.label.adjustSize()
+        self.label1.setText(self.buttonGroup.checkedButton().text())
+        self.label1.adjustSize()
 
-        self.chooseColorButton.setObjectName("chooseColorButton")
+        self.buttonGroup.buttonClicked.connect(self.__onbuttonClicked)
+        self.button3.clicked.connect(self.__showColorDialog)
 
-        self.buttonGroup.buttonClicked.connect(self.__onRadioButtonClicked)
-        self.chooseColorButton.clicked.connect(self.__showColorDialog)
-
-    def __onRadioButtonClicked(self, button: RadioButton):
-        if button.text() == self.label.text():
+    def __onbuttonClicked(self, button: RadioButton):
+        if button.text() == self.label1.text():
             return
-        self.label.setText(button.text())
-        self.label.adjustSize()
-        if button is self.radioButton1:
-            self.chooseColorButton.setDisabled(True)
+
+        self.label1.setText(button.text())
+        self.label1.adjustSize()
+
+        if button is self.button1:
+            self.button3.setDisabled(True)
             setting.save("themeColor", "#0078D4")
             setThemeColor("#0078D4")
         else:
-            self.chooseColorButton.setDisabled(False)
+            self.button3.setDisabled(False)
             setting.save("themeColor", self.color.name())
             setThemeColor(self.color.name())
 
     def __showColorDialog(self):
-        w = ColorDialog(setting.read("themeColor"), "选择颜色", self.window())
-        w.colorChanged.connect(self.__colorChanged)
-        w.exec()
+        colorDialog = ColorDialog(setting.read("themeColor"), "选择颜色", self.window())
+        colorDialog.colorChanged.connect(self.__colorChanged)
+        colorDialog.exec()
 
     def __colorChanged(self, color):
         setThemeColor(color)
@@ -348,11 +372,20 @@ class StartupSettingCard(SettingCard):
 
         super().__init__(FIF.POWER_BUTTON, "开机自启动", "设置程序的开机自启动功能", parent)
         self.checkBox1 = CheckBox("开机自启动", self)
-        self.checkBox1.clicked.connect(self.button1)
         self.checkBox2 = CheckBox("最小化启动", self)
-        self.checkBox2.clicked.connect(self.button2)
         self.checkBox3 = CheckBox("开机自动更新", self)
-        self.checkBox3.clicked.connect(self.button3)
+
+        self.checkBox1.clicked.connect(self.buttonClicked1)
+        self.checkBox2.clicked.connect(self.buttonClicked2)
+        self.checkBox3.clicked.connect(self.buttonClicked3)
+
+        self.checkBox1.setToolTip("设置程序开机自启动")
+        self.checkBox2.setToolTip("设置程序在开机自启动时自动最小化窗口")
+        self.checkBox3.setToolTip("设置程序在开机自启动时自动更新新版本")
+
+        self.checkBox1.installEventFilter(ToolTipFilter(self.checkBox1, 1000))
+        self.checkBox2.installEventFilter(ToolTipFilter(self.checkBox2, 1000))
+        self.checkBox3.installEventFilter(ToolTipFilter(self.checkBox3, 1000))
 
         self.checkBox1.setChecked(setting.read("autoStartup"))
         if setting.read("autoStartup"):
@@ -371,7 +404,7 @@ class StartupSettingCard(SettingCard):
         self.hBoxLayout.addWidget(self.checkBox3, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
-    def button1(self):
+    def buttonClicked1(self):
         if self.checkBox1.isChecked():
             setting.save("autoStartup", True)
             self.checkBox2.setEnabled(True)
@@ -383,10 +416,10 @@ class StartupSettingCard(SettingCard):
             self.checkBox3.setEnabled(False)
             f.addToStartup(program.PROGRAM_NAME, program.PROGRAM_MAIN_FILE_PATH, False)
 
-    def button2(self):
+    def buttonClicked2(self):
         setting.save("autoHide", self.checkBox2.isChecked())
 
-    def button3(self):
+    def buttonClicked3(self):
         setting.save("autoUpdate", self.checkBox3.isChecked())
 
 
@@ -397,12 +430,20 @@ class ShortcutSettingCard(SettingCard):
 
     def __init__(self, parent=None):
         super().__init__(FIF.ADD_TO, "添加快捷方式", "向计算机中添加程序的快捷方式", parent)
-        self.linkButton1 = HyperlinkButton("", "桌面", self)
-        self.linkButton1.clicked.connect(lambda: f.createShortcut(program.PROGRAM_MAIN_FILE_PATH, f.pathJoin(program.DESKTOP_PATH, "zb小程序.lnk"), program.source("logo.ico")))
-        self.linkButton2 = HyperlinkButton("", "开始菜单", self)
-        self.linkButton2.clicked.connect(lambda: f.addToStartMenu())
-        self.hBoxLayout.addWidget(self.linkButton1, 0, Qt.AlignRight)
-        self.hBoxLayout.addWidget(self.linkButton2, 0, Qt.AlignRight)
+        self.button1 = HyperlinkButton("", "桌面", self)
+        self.button2 = HyperlinkButton("", "开始菜单", self)
+
+        self.button1.clicked.connect(lambda: f.createShortcut(program.PROGRAM_MAIN_FILE_PATH, f.pathJoin(program.DESKTOP_PATH, "zb小程序.lnk"), program.source("logo.ico")))
+        self.button2.clicked.connect(lambda: f.addToStartMenu())
+
+        self.button1.setToolTip("将程序添加到桌面快捷方式")
+        self.button2.setToolTip("将程序添加到开始菜单列表")
+
+        self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
+        self.button2.installEventFilter(ToolTipFilter(self.button2, 1000))
+
+        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
+        self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
 
@@ -412,23 +453,31 @@ class SortSettingCard(SettingCard):
     """
 
     def __init__(self, parent=None):
-        super().__init__(FIF.ALIGNMENT, "整理文件", "设置整理文件的目录", parent)
-        self.pushButton1 = PushButton("整理目录", self, FIF.FOLDER_ADD)
-        self.pushButton1.clicked.connect(self.button1)
-        self.pushButton2 = PushButton("微信目录", self, FIF.FOLDER_ADD)
-        self.pushButton2.clicked.connect(self.button2)
-        self.hBoxLayout.addWidget(self.pushButton1, 0, Qt.AlignRight)
-        self.hBoxLayout.addWidget(self.pushButton2, 0, Qt.AlignRight)
+        super().__init__(FIF.ALIGNMENT, "整理文件", "设置整理文件夹的目录", parent)
+        self.button1 = PushButton("整理目录", self, FIF.FOLDER_ADD)
+        self.button2 = PushButton("微信目录", self, FIF.FOLDER_ADD)
+
+        self.button1.clicked.connect(self.buttonClicked1)
+        self.button2.clicked.connect(self.buttonClicked2)
+
+        self.button1.setToolTip("设置整理文件夹目录")
+        self.button2.setToolTip("设置微信WeChat Files文件夹目录")
+
+        self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
+        self.button2.installEventFilter(ToolTipFilter(self.button2, 1000))
+
+        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
+        self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
-    def button1(self):
+    def buttonClicked1(self):
         get = QFileDialog.getExistingDirectory(self, "选择整理目录", setting.read("sortPath"))
-        if os.path.exists(get):
+        if f.exists(get):
             setting.save("sortPath", str(get))
 
-    def button2(self):
+    def buttonClicked2(self):
         get = QFileDialog.getExistingDirectory(self, "选择微信WeChat Files文件夹目录", setting.read("wechatPath"))
-        if os.path.exists(get):
+        if f.exists(get):
             setting.save("wechatPath", str(get))
 
 
@@ -439,15 +488,25 @@ class HelpSettingCard(SettingCard):
 
     def __init__(self, parent=None):
         super().__init__(FIF.HELP, "帮助", "查看程序相关信息", parent)
-        self.linkButton1 = HyperlinkButton(program.PROGRAM_PATH, "程序安装路径", self, FIF.FOLDER)
-        self.linkButton1.clicked.connect(lambda: os.startfile(program.PROGRAM_PATH))
-        self.linkButton2 = HyperlinkButton(program.PROGRAM_PATH, "程序数据路径", self, FIF.FOLDER)
-        self.linkButton2.clicked.connect(lambda: os.startfile(program.PROGRAM_DATA_PATH))
-        self.linkButton3 = HyperlinkButton(program.SETTING_FILE_PATH, "程序设置文件", self, FIF.SAVE_AS)
-        self.linkButton3.clicked.connect(lambda: os.startfile(program.SETTING_FILE_PATH))
-        self.hBoxLayout.addWidget(self.linkButton1, 0, Qt.AlignRight)
-        self.hBoxLayout.addWidget(self.linkButton2, 0, Qt.AlignRight)
-        self.hBoxLayout.addWidget(self.linkButton3, 0, Qt.AlignRight)
+        self.button1 = HyperlinkButton(program.PROGRAM_PATH, "程序安装路径", self, FIF.FOLDER)
+        self.button2 = HyperlinkButton(program.PROGRAM_PATH, "程序数据路径", self, FIF.FOLDER)
+        self.button3 = HyperlinkButton(program.SETTING_FILE_PATH, "程序设置文件", self, FIF.SAVE_AS)
+
+        self.button1.clicked.connect(lambda: os.startfile(program.PROGRAM_PATH))
+        self.button2.clicked.connect(lambda: os.startfile(program.PROGRAM_DATA_PATH))
+        self.button3.clicked.connect(lambda: os.startfile(program.SETTING_FILE_PATH))
+
+        self.button1.setToolTip("打开程序安装路径")
+        self.button2.setToolTip("打开程序数据路径")
+        self.button3.setToolTip("打开程序设置文件")
+
+        self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
+        self.button2.installEventFilter(ToolTipFilter(self.button2, 1000))
+        self.button3.installEventFilter(ToolTipFilter(self.button3, 1000))
+
+        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
+        self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignRight)
+        self.hBoxLayout.addWidget(self.button3, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
 
@@ -458,10 +517,17 @@ class UpdateSettingCard(SettingCard):
 
     def __init__(self, parent=None):
         super().__init__(FIF.UPDATE, "更新", "更新程序至新版本", parent)
-        self.pushButton1 = PushButton("更新运行库", self, FIF.LIBRARY)
-        self.pushButton1.clicked.connect(self.button1)
-        self.pushButton2 = PrimaryPushButton("检查更新", self, FIF.DOWNLOAD)
-        self.pushButton2.clicked.connect(self.button2)
+        self.button1 = PushButton("更新运行库", self, FIF.LIBRARY)
+        self.button2 = PrimaryPushButton("检查更新", self, FIF.DOWNLOAD)
+
+        self.button1.clicked.connect(self.buttonClicked1)
+        self.button2.clicked.connect(self.buttonClicked2)
+
+        self.button1.setToolTip("更新程序运行库")
+        self.button2.setToolTip("检查程序新版本更新")
+
+        self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
+        self.button2.installEventFilter(ToolTipFilter(self.button2, 1000))
 
         self.label = QLabel(self)
         self.label.setAlignment(Qt.AlignCenter)
@@ -486,94 +552,78 @@ class UpdateSettingCard(SettingCard):
 
         self.hBoxLayout.addLayout(self.vBoxLayout2)
         self.hBoxLayout.addSpacing(8)
-        self.hBoxLayout.addWidget(self.pushButton1, 0, Qt.AlignRight)
-        self.hBoxLayout.addWidget(self.pushButton2, 0, Qt.AlignRight)
+        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
+        self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
         self.label.hide()
         self.progressBar.hide()
 
-    def button1(self):
-        self.pushButton1.setEnabled(False)
-        self.pushButton2.setEnabled(False)
+    def buttonClicked1(self):
+        self.button1.setEnabled(False)
+        self.button2.setEnabled(False)
+
         self.label.show()
         self.progressBar.show()
+
         self.thread = NewThread("更新运行库")
         self.thread.signalDict.connect(self.thread1)
         self.thread.start()
 
     def thread1(self, msg):
         if msg["完成"]:
-            self.infoBar = InfoBar(
-                icon=InfoBarIcon.SUCCESS,
-                title="提示",
-                content="运行库安装成功！",
-                orient=Qt.Vertical,
-                isClosable=True,
-                position=InfoBarPosition.TOP_RIGHT,
-                duration=2000,
-                parent=self.parent().parent().parent().parent()
-            )
+            self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", "运行库安装成功！", Qt.Vertical, True, 2000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
             self.infoBar.show()
+
             self.label.hide()
             self.progressBar.hide()
+
             self.label.setText("")
             self.progressBar.setValue(0)
-            self.pushButton1.setEnabled(True)
-            self.pushButton2.setEnabled(True)
+
+            self.button1.setEnabled(True)
+            self.button2.setEnabled(True)
         else:
             value = int(msg["序号"] / len(program.REQUIRE_LIB) * 100)
             self.label.setText(f"{str(value)}% 正在更新 {msg['名称']}")
             self.progressBar.setValue(value)
 
-    def button2(self):
-        self.pushButton1.setEnabled(False)
-        self.pushButton2.setEnabled(False)
+    def buttonClicked2(self):
+        self.button1.setEnabled(False)
+        self.button2.setEnabled(False)
+
         self.thread = NewThread("检查更新")
         self.thread.signalDict.connect(self.thread2)
         self.thread.start()
 
     def thread2(self, msg):
         if msg["更新"]:
-            self.infoBar = InfoBar(
-                icon=InfoBarIcon.WARNING,
-                title="提示",
-                content=f"检测到新版本{msg['版本']}!",
-                orient=Qt.Vertical,
-                isClosable=True,
-                position=InfoBarPosition.TOP_RIGHT,
-                duration=10000,
-                parent=self.parent().parent().parent().parent()
-            )
-            self.pushButton3 = PushButton("立刻更新", self, FIF.DOWNLOAD)
-            self.pushButton3.clicked.connect(self.button3)
-            self.infoBar.addWidget(self.pushButton3)
+            self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", f"检测到新版本{msg['版本']}!", Qt.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+
+            self.button3 = PushButton("立刻更新", self, FIF.DOWNLOAD)
+            self.button3.clicked.connect(self.buttonClicked3)
+
+            self.infoBar.addWidget(self.button3)
             self.infoBar.show()
         else:
-            self.infoBar = InfoBar(
-                icon=InfoBarIcon.INFORMATION,
-                title="提示",
-                content=f"{program.PROGRAM_VERSION}已为最新版本！",
-                orient=Qt.Vertical,
-                isClosable=True,
-                position=InfoBarPosition.TOP_RIGHT,
-                duration=2000,
-                parent=self.parent().parent().parent().parent()
-            )
+            self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"{program.PROGRAM_VERSION}已为最新版本！", Qt.Vertical, True, 2000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
             self.infoBar.show()
-        self.pushButton1.setEnabled(True)
-        self.pushButton2.setEnabled(True)
+        self.button1.setEnabled(True)
+        self.button2.setEnabled(True)
 
     def button3(self):
         try:
             self.infoBar.hide()
         except:
             pass
-        self.pushButton1.setEnabled(False)
-        self.pushButton2.setEnabled(False)
+        self.button1.setEnabled(False)
+        self.button2.setEnabled(False)
+
         self.label.setText("正在连接服务器")
+
         self.label.show()
         self.progressBar.show()
+
         self.thread = NewThread("立刻更新")
         self.thread.signalDict.connect(self.thread3)
         self.thread.start()
@@ -581,43 +631,30 @@ class UpdateSettingCard(SettingCard):
     def thread3(self, msg):
         if msg["完成"]:
             if msg["完成"] == "失败":
-                self.infoBar = InfoBar(
-                    icon=InfoBarIcon.INFORMATION,
-                    title="提示",
-                    content=f"{program.PROGRAM_VERSION}已为最新版本！",
-                    orient=Qt.Vertical,
-                    isClosable=True,
-                    position=InfoBarPosition.TOP_RIGHT,
-                    duration=2000,
-                    parent=self.parent().parent().parent().parent()
-                )
+                self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"{program.PROGRAM_VERSION}已为最新版本！", Qt.Vertical, True, 2000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
             else:
-                self.infoBar = InfoBar(
-                    icon=InfoBarIcon.SUCCESS,
-                    title="提示",
-                    content="更新成功！",
-                    orient=Qt.Vertical,
-                    isClosable=True,
-                    position=InfoBarPosition.TOP_RIGHT,
-                    duration=10000,
-                    parent=self.parent().parent().parent().parent()
-                )
-                self.pushButton4 = PushButton("重新启动", self, FIF.SYNC)
-                self.pushButton4.clicked.connect(self.button4)
-                self.infoBar.addWidget(self.pushButton4)
+                self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", "更新成功！", Qt.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+
+                self.button4 = PushButton("重新启动", self, FIF.SYNC)
+                self.button4.clicked.connect(self.buttonClicked4)
+
+                self.infoBar.addWidget(self.button4)
             self.infoBar.show()
+
             self.label.hide()
             self.progressBar.hide()
+
             self.label.setText("")
             self.progressBar.setValue(0)
-            self.pushButton1.setEnabled(True)
-            self.pushButton2.setEnabled(True)
+
+            self.button1.setEnabled(True)
+            self.button2.setEnabled(True)
         else:
             value = int(msg["序号"] / msg["数量"] * 100)
             self.label.setText(f"{str(value)}% 正在更新 {msg['名称']}")
             self.progressBar.setValue(value)
 
-    def button4(self):
+    def buttonClicked4(self):
         f.cmd(program.PROGRAM_MAIN_FILE_PATH)
         sys.exit()
 
@@ -629,8 +666,15 @@ class AboutSettingCard(SettingCard):
 
     def __init__(self, parent=None):
         super().__init__(FIF.INFO, "关于", f"© 2022-2023 Ianzb. MIT License.\n当前版本 {program.PROGRAM_VERSION}", parent)
-        self.linkButton1 = HyperlinkButton(program.PROGRAM_URL, "程序官网", self, FIF.LINK)
-        self.linkButton2 = HyperlinkButton(program.GITHUB_URL, "GitHub", self, FIF.GITHUB)
-        self.hBoxLayout.addWidget(self.linkButton1, 0, Qt.AlignRight)
-        self.hBoxLayout.addWidget(self.linkButton2, 0, Qt.AlignRight)
+        self.button1 = HyperlinkButton(program.PROGRAM_URL, "程序官网", self, FIF.LINK)
+        self.button2 = HyperlinkButton(program.GITHUB_URL, "GitHub", self, FIF.GITHUB)
+
+        self.button1.setToolTip("打开程序官网")
+        self.button2.setToolTip("打开程序GitHub页面")
+
+        self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
+        self.button2.installEventFilter(ToolTipFilter(self.button2, 1000))
+
+        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
+        self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
