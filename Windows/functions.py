@@ -747,6 +747,7 @@ class NewThread(QThread):
     signalBool = pyqtSignal(bool)
     signalList = pyqtSignal(list)
     signalDict = pyqtSignal(dict)
+    signalObject = pyqtSignal(object)
 
     def __init__(self, mode: str, data=None):
         super().__init__()

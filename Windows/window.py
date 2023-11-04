@@ -55,6 +55,8 @@ class MainPage(ScrollArea):
 
         self.button1_1.setEnabled(False)
 
+        self.signalBool.emit(False)
+
         self.stateTooltip = StateToolTip("正在整理文件", "请耐心等待", self)
         self.stateTooltip.move(self.stateTooltip.getSuitablePos())
         self.stateTooltip.show()
@@ -66,7 +68,7 @@ class MainPage(ScrollArea):
     def thread1_1(self, msg):
         self.stateTooltip.setState(True)
         self.button1_1.setEnabled(True)
-
+        self.signalBool.emit(True)
         if msg:
             self.stateTooltip.setContent("整理成功")
         else:
@@ -194,8 +196,6 @@ class Window(FluentWindow):
         desktop = QApplication.desktop().availableGeometry()
         w, h = desktop.width(), desktop.height()
         self.move(w // 2 - self.width() // 2, h // 2 - self.height() // 2)
-        # 托盘组件
-        self.tray = Tray(self)
 
     def __initWidget(self):
         """
@@ -218,6 +218,9 @@ class Window(FluentWindow):
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.repeatOpen)
         self.timer.start(100)
+
+        # 托盘组件
+        self.tray = Tray(self)
 
         if setting.read("autoUpdate") and program.isStartup:
             self.settingPage.updateSettingCard.button3()

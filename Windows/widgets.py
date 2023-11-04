@@ -7,6 +7,11 @@ class ScrollArea(ScrollArea):
     """
     title = ""
     subtitle = ""
+    signalStr = pyqtSignal(str)
+    signalBool = pyqtSignal(bool)
+    signalList = pyqtSignal(list)
+    signalDict = pyqtSignal(dict)
+    signalObject = pyqtSignal(object)
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
@@ -162,12 +167,19 @@ class Tray(QSystemTrayIcon):
         self.show()
         self.showMessage(program.PROGRAM_NAME, f"{program.PROGRAM_NAME}启动成功！", QIcon(program.source("logo.png")), 1)
 
+        self.action1 = Action(FIF.HOME, "打开", triggered=self.actionClicked1)
+        self.action2 = Action(FIF.ALIGNMENT, "整理", triggered=self.actionClicked2)
+        self.action3 = Action(FIF.LINK, "官网", triggered=self.actionClicked3)
+        self.action4 = Action(FIF.CLOSE, "退出", triggered=self.actionClicked4)
+
         self.menu = RoundMenu()
 
-        self.menu.addAction(Action(FIF.HOME, "打开", triggered=lambda: self.window.show()))
-        self.menu.addAction(Action(FIF.ALIGNMENT, "整理", triggered=lambda: self.window.mainPage.buttonClicked1_1()))
-        self.menu.addAction(Action(FIF.LINK, "官网", triggered=lambda: webbrowser.open(program.PROGRAM_URL)))
-        self.menu.addAction(Action(FIF.CLOSE, "退出", triggered=lambda: self.triggered()))
+        self.menu.addAction(self.action1)
+        self.menu.addAction(self.action2)
+        self.menu.addAction(self.action3)
+        self.menu.addAction(self.action4)
+
+        self.window.mainPage.signalBool.connect(self.thread2)
 
     def clickedIcon(self, reason):
         if reason == 3:
@@ -185,12 +197,25 @@ class Tray(QSystemTrayIcon):
         else:
             self.window.setHidden(True)
 
-    def triggered(self):
-        self.deleteLater()
-        qApp.quit()
-
     def contextMenuEvent(self):
         self.menu.exec(QCursor.pos(), ani=True, aniType=MenuAnimationType.PULL_UP)
+
+    def actionClicked1(self):
+        self.window.show()
+
+    def actionClicked2(self):
+        self.action2.setEnabled(False)
+        self.window.mainPage.buttonClicked1_1()
+
+    def thread2(self, msg):
+        self.action2.setEnabled(msg)
+
+    def actionClicked3(self):
+        webbrowser.open(program.PROGRAM_URL)
+
+    def actionClicked4(self):
+        self.deleteLater()
+        qApp.quit()
 
 
 class ThemeSettingCard(ExpandSettingCard):
