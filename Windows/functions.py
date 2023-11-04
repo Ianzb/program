@@ -750,7 +750,7 @@ class NewThread(QThread):
             try:
                 data = f.getNewestVersion()
             except:
-                self.signalDict.emit({"数量": len(data), "完成": "失败", "名称": "", "序号": 0})
+                self.signalDict.emit({"数量": 0, "完成": "失败", "名称": "", "序号": 0})
                 return
             if data == program.PROGRAM_VERSION:
                 self.signalDict.emit({"数量": len(data), "完成": "失败", "名称": "", "序号": 0})
