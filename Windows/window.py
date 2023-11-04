@@ -94,12 +94,28 @@ class MainPage(ScrollArea):
         self.thread = NewThread("Minecraft最新版本")
         self.thread.signalStr.connect(self.thread3_1)
         self.thread.start()
+        self.flyout1 = Flyout(FlyoutViewBase())
+        self.flyout1.create(
+            icon=InfoBarIcon.INFORMATION,
+            title="Minecraft最新版本",
+            content="正在连接至服务器！",
+            target=self.button3_1,
+            parent=self,
+            isClosable=False,
+        )
 
     def thread3_1(self, msg):
         self.button3_1.setEnabled(True)
 
-        self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "Minecraft最新版本", msg, Qt.Vertical, True, 20000, InfoBarPosition.TOP_RIGHT, self)
-        self.infoBar.show()
+        self.flyout2 = Flyout(FlyoutViewBase())
+        self.flyout2.create(
+            icon=InfoBarIcon.INFORMATION,
+            title="Minecraft最新版本",
+            content=msg,
+            target=self.button3_1,
+            parent=self,
+            isClosable=True
+        )
 
 
 class ToolPage(ScrollArea):
