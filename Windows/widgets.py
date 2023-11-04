@@ -589,6 +589,10 @@ class UpdateSettingCard(SettingCard):
             self.progressBar.setValue(value)
 
     def buttonClicked2(self):
+        if "beta" in program.PROGRAM_VERSION:
+            self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", "当前版本为内测版无法更新！", Qt.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+            self.infoBar.show()
+            return
         self.button1.setEnabled(False)
         self.button2.setEnabled(False)
 
@@ -598,7 +602,7 @@ class UpdateSettingCard(SettingCard):
 
     def thread2(self, msg):
         if msg["更新"]:
-            self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", f"检测到新版本{msg['版本']}!", Qt.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+            self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", f"检测到新版本{msg['版本']}！", Qt.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
 
             self.button3 = PushButton("立刻更新", self, FIF.DOWNLOAD)
             self.button3.clicked.connect(self.buttonClicked3)
@@ -612,10 +616,10 @@ class UpdateSettingCard(SettingCard):
         self.button2.setEnabled(True)
 
     def button3(self):
-        try:
-            self.infoBar.hide()
-        except:
-            pass
+        if "beta" in program.PROGRAM_VERSION:
+            self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", "当前版本为内测版无法更新！", Qt.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+            self.infoBar.show()
+            return
         self.button1.setEnabled(False)
         self.button2.setEnabled(False)
 
