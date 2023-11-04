@@ -50,7 +50,7 @@ class MainPage(ScrollArea):
             self.infoBar.show()
             return
         if setting.read("wechatPath") == "":
-            self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", "当前未设置微信文件目录，无法整理微信文件！", Qt.Vertical, True, 2000, InfoBarPosition.TOP_RIGHT, self)
+            self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", "当前未设置微信文件目录，无法整理微信文件！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self)
             self.infoBar.show()
 
         self.button1_1.setEnabled(False)
@@ -98,7 +98,7 @@ class MainPage(ScrollArea):
     def thread3_1(self, msg):
         self.button3_1.setEnabled(True)
 
-        self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "Minecraft最新版本", msg, Qt.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self)
+        self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "Minecraft最新版本", msg, Qt.Vertical, True, 20000, InfoBarPosition.TOP_RIGHT, self)
         self.infoBar.show()
 
 
