@@ -30,7 +30,7 @@ class ProgramInit():
     zb小程序信息类-处理信息
     """
     PROGRAM_NAME = "zb小程序"  # 程序名称
-    PROGRAM_VERSION = "3.0.0"  # 程序版本
+    PROGRAM_VERSION = "3.1.0"  # 程序版本
     PROGRAM_TITLE = f"{PROGRAM_NAME} {PROGRAM_VERSION}"  # 程序窗口标题
     AUTHOR_NAME = "Ianzb"  # 作者名称
     AUTHOR_URL = "https://ianzb.github.io/"  # 作者网址
@@ -693,6 +693,29 @@ class Functions():
         data = json.loads(response)["version"]
         return data
 
+    def compareVersion(self, version1, version2):
+        """
+        不带英文的版本号
+        :param version1: 版本号1
+        :param version2: 版本号2
+        :return: ver1< = >ver2返回-1/0/1
+        """
+        list1 = str(version1).split(".")
+        list2 = str(version2).split(".")
+        for i in range(len(list1)) if len(list1) < len(list2) else range(len(list2)):
+            if int(list1[i]) == int(list2[i]):
+                pass
+            elif int(list1[i]) < int(list2[i]):
+                return version2
+            else:
+                return version1
+        if len(list1) == len(list2):
+            return version1
+        elif len(list1) < len(list2):
+            return version2
+        else:
+            return version1
+
 
 f = Functions()
 # 切换运行路径
@@ -742,7 +765,7 @@ class NewThread(QThread):
             except:
                 self.signalDict.emit({"更新": False, "版本": data})
                 return
-            if data == program.PROGRAM_VERSION:
+            if f.compareVersion(data, program.PROGRAM_VERSION) == program.PROGRAM_VERSION:
                 self.signalDict.emit({"更新": False, "版本": data})
             else:
                 self.signalDict.emit({"更新": True, "版本": data})
@@ -752,7 +775,7 @@ class NewThread(QThread):
             except:
                 self.signalDict.emit({"数量": 0, "完成": "失败", "名称": "", "序号": 0})
                 return
-            if data == program.PROGRAM_VERSION:
+            if f.compareVersion(data, program.PROGRAM_VERSION) == program.PROGRAM_VERSION:
                 self.signalDict.emit({"数量": len(data), "完成": "失败", "名称": "", "序号": 0})
                 return
             import requests, json
