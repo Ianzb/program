@@ -163,8 +163,11 @@ class Tray(QSystemTrayIcon):
         self.window = window
 
         self.setIcon(QIcon(program.source("logo.png")))
+        self.setToolTip(program.PROGRAM_TITLE)
+        self.installEventFilter(ToolTipFilter(self, 1000))
         self.activated.connect(self.clickedIcon)
         self.show()
+
         self.showMessage(program.PROGRAM_NAME, f"{program.PROGRAM_NAME}启动成功！", QIcon(program.source("logo.png")), 1)
 
         self.action1 = Action(FIF.HOME, "打开", triggered=self.actionClicked1)
