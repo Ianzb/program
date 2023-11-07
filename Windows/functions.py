@@ -824,3 +824,7 @@ class NewThread(QThread):
             f.cmd("start C:/windows/explorer.exe", True)
         if self.mode == "Minecraft最新版本":
             self.signalStr.emit(f.getMC())
+        if self.mode=="下载图片":
+            if not f.exists(self.data[1]):
+                f.downloadFile(self.data[0],self.data[1])
+            self.signalBool.emit(True)

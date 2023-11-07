@@ -165,6 +165,7 @@ class modPage(SimpleCardWidget):
 
     def imgLoad(self, msg):
         if msg == "成功":
+
             self.pixmap.load(join(user_path, "zb", "cache", self.data["名称"] + ".png"))
             self.picLabel.setPixmap(self.pixmap)
             self.picLabel.show()

@@ -172,13 +172,17 @@ class GrayCard(QWidget):
             self.card.setStyleSheet("QWidget {background-color: rgba(175,175,175,0.1); border:1px solid rgba(150,150,150,0.15); border-radius: 10px}")
 
 
-class InfoCard(SimpleCardWidget):
+class BigInfoCard(SimpleCardWidget):
     """
     信息卡片
     """
 
-    def __init__(self, title: str, img: str, info: str, parent=None):
+    def __init__(self, title: str, img: str, info: str, imglink: str = "", parent=None):
         super().__init__(parent)
+        self.img = img
+        self.imglink = imglink
+
+        self.setMinimumWidth(0)
 
         self.backButton = TransparentToolButton(FIF.RETURN, self)
         self.backButton.move(8, 8)
@@ -186,7 +190,7 @@ class InfoCard(SimpleCardWidget):
         self.backButton.clicked.connect(self.buttonClickedBack)
 
         self.picLabel = QLabel(self)
-        self.picLabel.setPixmap(QPixmap(img))
+        self.picLabel.setPixmap(QPixmap(program.source("logo.png")))
         self.picLabel.setFixedSize(48, 48)
         self.picLabel.setScaledContents(True)
 
@@ -230,6 +234,10 @@ class InfoCard(SimpleCardWidget):
         self.hBoxLayout1.addWidget(self.picLabel)
         self.hBoxLayout1.addLayout(self.vBoxLayout)
 
+        self.thread = NewThread("下载图片", [self.imglink, self.img])
+        self.thread.signalBool.connect(self.thread1)
+        self.thread.start()
+
     def addUrl(self, name: str, url: str):
         self.hBoxLayout2.addWidget(HyperlinkLabel(QUrl(url), name, self), alignment=Qt.AlignLeft)
 
@@ -240,6 +248,11 @@ class InfoCard(SimpleCardWidget):
 
     def buttonClickedBack(self):
         self.hide()
+
+    def thread1(self, msg):
+        if msg:
+            self.picLabel.setPixmap(QPixmap(self.img))
+            self.picLabel.show()
 
 
 class Tray(QSystemTrayIcon):
