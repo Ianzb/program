@@ -200,7 +200,6 @@ class InfoCard(SimpleCardWidget):
 
         self.topLayout = QHBoxLayout()
         self.statisticsLayout = QHBoxLayout()
-        self.buttonLayout = QHBoxLayout()
 
         self.topLayout.setContentsMargins(0, 0, 0, 0)
         self.topLayout.addWidget(self.titleLabel)

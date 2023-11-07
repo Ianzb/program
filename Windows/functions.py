@@ -86,6 +86,14 @@ class ProgramInit():
         """
         return f.pathJoin(self.SOURCE_PATH, name)
 
+    def cache(self, name: str) -> str:
+        """
+        快捷获取程序缓存文件路径
+        :param name: 文件名
+        :return: 文件路径
+        """
+        return f.pathJoin(program.PROGRAM_DATA_PATH, "cache", name)
+
 
 program = ProgramInit()
 
@@ -508,6 +516,20 @@ class Functions():
                     pass
         except:
             pass
+        try:
+            path = f.pathJoin(program.PROGRAM_DATA_PATH, "cache")
+            for i in self.walkDir(path, 1):
+                try:
+                    self.delete(i)
+                except:
+                    pass
+            for i in self.walkFile(path, 1):
+                try:
+                    self.delete(i)
+                except:
+                    pass
+        except:
+            pass
 
     def clearRubbish(self):
         """
@@ -803,3 +825,6 @@ class NewThread(QThread):
             f.cmd("start C:/windows/explorer.exe", True)
         if self.mode == "Minecraft最新版本":
             self.signalStr.emit(f.getMC())
+
+
+f.downloadFile("https://ianzb.github.io/img/logo2.png", f.pathJoin(program.PROGRAM_DATA_PATH, "cache", "123.png"))
