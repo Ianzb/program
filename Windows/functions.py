@@ -48,8 +48,8 @@ class ProgramInit():
     STARTUP_ARGUMENT = sys.argv[1:]  # 程序启动参数
     REQUEST_HEADER = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36 Edg/119.0.2151.44"}  # 程序默认网络请求头
 
-    REQUIRE_LIB = ["PyQt6-Fluent-Widgets",
-                   "qt6_tools",
+    REQUIRE_LIB = ["PyQt-Fluent-Widgets",
+                   "qt5_tools",
                    "requests",
                    "bs4",
                    "lxml",

@@ -18,8 +18,8 @@ if not os.path.exists(install_path):
     os.makedirs(install_path)
 # 加载信息
 using = False
-REQUIRE_LIB = ["PyQt6-Fluent-Widgets",
-               "qt6_tools",
+REQUIRE_LIB = ["PyQt-Fluent-Widgets",
+               "qt5_tools",
                "requests",
                "bs4",
                "lxml",
