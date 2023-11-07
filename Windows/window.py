@@ -138,6 +138,16 @@ class GamePage(ScrollArea):
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
+        self.card=InfoCard("标题",program.source("logo.png"),"fadfhakghadf")
+        self.card.addUrl("123","Ianzb.github.io")
+        self.card.addUrl("123","Ianzb.github.io")
+        self.card.addUrl("123","Ianzb.github.io")
+        self.card.addUrl("123","Ianzb.github.io")
+        self.card.addInfo("123","!1234324")
+        self.card.addInfo("123","!1234324")
+        self.card.addInfo("123","!1234324")
+        self.card.addInfo("123","!1234324")
+        self.vBoxLayout.addWidget(self.card)
 
 
 class SettingPage(ScrollArea):

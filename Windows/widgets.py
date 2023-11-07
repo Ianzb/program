@@ -35,6 +35,25 @@ class ScrollArea(ScrollArea):
         self.vBoxLayout.setContentsMargins(36, 20, 36, 36)
 
 
+class StatisticsWidget(QWidget):
+    """
+    两行信息组件
+    """
+
+    def __init__(self, title: str, value: str, parent=None):
+        super().__init__(parent=parent)
+        self.titleLabel = CaptionLabel(title, self)
+        self.valueLabel = BodyLabel(value, self)
+        self.vBoxLayout = QVBoxLayout(self)
+
+        self.vBoxLayout.setContentsMargins(16, 0, 16, 0)
+        self.vBoxLayout.addWidget(self.valueLabel, 0, Qt.AlignTop)
+        self.vBoxLayout.addWidget(self.titleLabel, 0, Qt.AlignBottom)
+
+        setFont(self.valueLabel, 18, QFont.DemiBold)
+        self.titleLabel.setTextColor(QColor(96, 96, 96), QColor(206, 206, 206))
+
+
 class PhotoCard(ElevatedCardWidget):
     """
     大图片卡片
@@ -151,6 +170,77 @@ class GrayCard(QWidget):
         else:
             self.setStyleSheet("QLabel {background-color: transparent; color: black}")
             self.card.setStyleSheet("QWidget {background-color: rgba(175,175,175,0.1); border:1px solid rgba(150,150,150,0.15); border-radius: 10px}")
+
+
+class InfoCard(SimpleCardWidget):
+    """
+    信息卡片
+    """
+
+    def __init__(self, title: str, img: str, info: str, parent=None):
+        super().__init__(parent)
+
+        self.backButton = TransparentToolButton(FIF.RETURN, self)
+        self.backButton.move(8, 8)
+        self.backButton.setMaximumSize(32, 32)
+        self.backButton.clicked.connect(self.buttonClickedBack)
+
+        self.picLabel = QLabel(self)
+        self.picLabel.setPixmap(QPixmap(img))
+        self.picLabel.setFixedSize(48, 48)
+        self.picLabel.setScaledContents(True)
+
+        self.titleLabel = TitleLabel(title, self)
+
+        self.installButton = PrimaryPushButton("下载", self)
+        self.installButton.setFixedWidth(160)
+
+        self.infoLabel = BodyLabel(info, self)
+        self.infoLabel.setWordWrap(True)
+
+        self.topLayout = QHBoxLayout()
+        self.statisticsLayout = QHBoxLayout()
+        self.buttonLayout = QHBoxLayout()
+
+        self.topLayout.setContentsMargins(0, 0, 0, 0)
+        self.topLayout.addWidget(self.titleLabel)
+        self.topLayout.addWidget(self.installButton, 0, Qt.AlignRight)
+
+        self.statisticsLayout.setContentsMargins(0, 0, 0, 0)
+        self.statisticsLayout.setSpacing(10)
+        self.statisticsLayout.setAlignment(Qt.AlignLeft)
+
+        self.hBoxLayout2 = QHBoxLayout()
+        self.hBoxLayout2.setSpacing(16)
+        self.hBoxLayout2.setAlignment(Qt.AlignLeft)
+
+        self.vBoxLayout = QVBoxLayout()
+        self.vBoxLayout.setContentsMargins(0, 0, 0, 0)
+        self.vBoxLayout.setSpacing(0)
+        self.vBoxLayout.addLayout(self.topLayout)
+        self.vBoxLayout.addSpacing(3)
+        self.vBoxLayout.addLayout(self.hBoxLayout2)
+        self.vBoxLayout.addSpacing(20)
+        self.vBoxLayout.addLayout(self.statisticsLayout)
+        self.vBoxLayout.addSpacing(20)
+        self.vBoxLayout.addWidget(self.infoLabel)
+
+        self.hBoxLayout1 = QHBoxLayout(self)
+        self.hBoxLayout1.setSpacing(30)
+        self.hBoxLayout1.setContentsMargins(34, 24, 24, 24)
+        self.hBoxLayout1.addWidget(self.picLabel)
+        self.hBoxLayout1.addLayout(self.vBoxLayout)
+
+    def addUrl(self, name: str, url: str):
+        self.hBoxLayout2.addWidget(HyperlinkLabel(QUrl(url), name, self), alignment=Qt.AlignLeft)
+
+    def addInfo(self, name: str, data: str | int):
+        if self.statisticsLayout.count() >= 1:
+            self.statisticsLayout.addWidget(VerticalSeparator(self))
+        self.statisticsLayout.addWidget(StatisticsWidget(name, data, self))
+
+    def buttonClickedBack(self):
+        self.hide()
 
 
 class Tray(QSystemTrayIcon):
