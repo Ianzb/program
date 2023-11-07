@@ -277,15 +277,14 @@ class Functions():
         :param mode: 模式：0 文件完整名称 1 文件名称 2 文件扩展名 3 文件所在目录
         :return: 文件名信息
         """
-        if self.isFile(path):
-            if mode == 0:
-                return os.path.basename(path)
-            if mode == 1:
-                return os.path.splitext(os.path.basename(path))[0]
-            if mode == 2:
-                return os.path.splitext(os.path.basename(path))[1]
-            if mode == 3:
-                return os.path.dirname(path)
+        if mode == 0:
+            return os.path.basename(path)
+        if mode == 1:
+            return os.path.splitext(os.path.basename(path))[0]
+        if mode == 2:
+            return os.path.splitext(os.path.basename(path))[1]
+        if mode == 3:
+            return os.path.dirname(path)
 
     def mkDir(self, path: str):
         """
