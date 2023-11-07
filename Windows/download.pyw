@@ -18,14 +18,15 @@ if not os.path.exists(install_path):
     os.makedirs(install_path)
 # 加载信息
 using = False
-lib_list = ["PyQt-Fluent-Widgets",
-            "requests",
-            "bs4",
-            "lxml",
-            "pypiwin32",
-            "pandas",
-            "winshell",
-            ]
+REQUIRE_LIB = ["PyQt6-Fluent-Widgets",
+               "qt6_tools",
+               "requests",
+               "bs4",
+               "lxml",
+               "pypiwin32",
+               "pandas",
+               "winshell",
+               ]
 # 窗口初始化
 tk = Tk()
 tk.title("zb小程序安装器")
