@@ -138,15 +138,7 @@ class GamePage(ScrollArea):
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
-        self.card=BigInfoCard("标题","logo.png","fadfhakghadf","https://ianzb.github.io/img/logo2.png")
-        self.card.addUrl("123","Ianzb.github.io")
-        self.card.addUrl("123","Ianzb.github.io")
-        self.card.addUrl("123","Ianzb.github.io")
-        self.card.addUrl("123","Ianzb.github.io")
-        self.card.addInfo("123","!1234324")
-        self.card.addInfo("123","!1234324")
-        self.card.addInfo("123","!1234324")
-        self.card.addInfo("123","!1234324")
+        self.card=NormalInfoCard("标题","mc.png",("1","2","3","4"),"https://static.wikia.nocookie.net/minecraft_zh_gamepedia/images/9/90/Minecraft_Wiki_header.svg/revision/latest/scale-to-width-down/300?cb=20211229051507")
         self.vBoxLayout.addWidget(self.card)
 
 

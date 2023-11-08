@@ -193,7 +193,7 @@ class GrayCard(QWidget):
 
 class BigInfoCard(SimpleCardWidget):
     """
-    信息卡片
+    详细信息卡片（资源主页展示）
     """
 
     def __init__(self, title: str, img: str, info: str, link: str = "", parent=None):
@@ -209,8 +209,9 @@ class BigInfoCard(SimpleCardWidget):
 
         self.titleLabel = TitleLabel(title, self)
 
-        self.installButton = PrimaryPushButton("下载", self)
-        self.installButton.setFixedWidth(160)
+        self.mainButton = PrimaryPushButton("下载", self)
+        self.mainButton.clicked.connect(self.buttonClickedMain)
+        self.mainButton.setFixedWidth(160)
 
         self.infoLabel = BodyLabel(info, self)
         self.infoLabel.setWordWrap(True)
@@ -220,7 +221,7 @@ class BigInfoCard(SimpleCardWidget):
 
         self.topLayout.setContentsMargins(0, 0, 0, 0)
         self.topLayout.addWidget(self.titleLabel)
-        self.topLayout.addWidget(self.installButton, 0, Qt.AlignRight)
+        self.topLayout.addWidget(self.mainButton, 0, Qt.AlignRight)
 
         self.statisticsLayout.setContentsMargins(0, 0, 0, 0)
         self.statisticsLayout.setSpacing(10)
@@ -257,6 +258,59 @@ class BigInfoCard(SimpleCardWidget):
 
     def buttonClickedBack(self):
         self.hide()
+
+    def buttonClickedMain(self):
+        pass
+
+
+class NormalInfoCard(CardWidget):
+    """
+    普通信息卡片（搜索列表展示）
+    """
+
+    def __init__(self, title: str, img: str, info: list | tuple, link: str = "", parent=None):
+        super().__init__(parent)
+        self.setMinimumWidth(0)
+        self.setFixedHeight(73)
+
+        self.picLabel = WebImage(img, link)
+
+        self.titleLabel = BodyLabel(title, self)
+        self.contentLabel1 = CaptionLabel(f"{info[0]}\n{info[1]}", self)
+        self.contentLabel2 = CaptionLabel(f"{info[2]}\n{info[3]}", self)
+        self.contentLabel1.setTextColor("#606060", "#d2d2d2")
+        self.contentLabel2.setTextColor("#606060", "#d2d2d2")
+
+        self.mainButton = PushButton("进入", self, FIF.CHEVRON_RIGHT)
+        self.mainButton.clicked.connect(self.buttonClickedMain)
+
+        self.vBoxLayout1 = QVBoxLayout()
+
+        self.vBoxLayout1.setContentsMargins(0, 0, 0, 0)
+        self.vBoxLayout1.setSpacing(0)
+        self.vBoxLayout1.addWidget(self.titleLabel, 0, Qt.AlignVCenter)
+        self.vBoxLayout1.addWidget(self.contentLabel1, 0, Qt.AlignVCenter)
+        self.vBoxLayout1.setAlignment(Qt.AlignVCenter)
+
+        self.vBoxLayout2 = QVBoxLayout()
+        self.vBoxLayout2.setContentsMargins(0, 0, 0, 0)
+        self.vBoxLayout2.setSpacing(0)
+        self.vBoxLayout2.addWidget(self.contentLabel2, 0, Qt.AlignVCenter)
+        self.vBoxLayout2.setAlignment(Qt.AlignRight)
+
+        self.hBoxLayout = QHBoxLayout(self)
+        self.hBoxLayout.setContentsMargins(20, 11, 11, 11)
+        self.hBoxLayout.setSpacing(15)
+        self.hBoxLayout.addWidget(self.picLabel)
+        self.hBoxLayout.addLayout(self.vBoxLayout1)
+        self.hBoxLayout.addStretch(5)
+        self.hBoxLayout.addLayout(self.vBoxLayout2)
+        self.hBoxLayout.addStretch(0)
+        self.hBoxLayout.addWidget(self.mainButton, 0, Qt.AlignRight)
+        self.hBoxLayout.addSpacing(16)
+
+    def buttonClickedMain(self):
+        pass
 
 
 class Tray(QSystemTrayIcon):

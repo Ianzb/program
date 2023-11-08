@@ -709,7 +709,7 @@ class Functions():
         获取程序最新版本
         :return: 程序最新版本
         """
-        import requests, json
+        import requests
         response = requests.get(program.UPDATE_URL, headers=program.REQUEST_HEADER, stream=True).text
         data = json.loads(response)["version"]
         return data
@@ -781,6 +781,7 @@ class NewThread(QThread):
                 self.signalDict.emit({"名称": program.REQUIRE_LIB[i], "序号": i, "完成": False})
                 f.pipUpdate(program.REQUIRE_LIB[i])
             self.signalDict.emit({"名称": "", "序号": 0, "完成": True})
+
         if self.mode == "检查更新":
             try:
                 data = f.getNewestVersion()
@@ -791,6 +792,7 @@ class NewThread(QThread):
                 self.signalDict.emit({"更新": False, "版本": data})
             else:
                 self.signalDict.emit({"更新": True, "版本": data})
+
         if self.mode == "立刻更新":
             try:
                 data = f.getNewestVersion()
@@ -800,13 +802,14 @@ class NewThread(QThread):
             if f.compareVersion(data, program.PROGRAM_VERSION) == program.PROGRAM_VERSION:
                 self.signalDict.emit({"数量": len(data), "完成": "失败", "名称": "", "序号": 0})
                 return
-            import requests, json
+            import requests
             response = requests.get(program.UPDATE_URL, headers=program.REQUEST_HEADER, stream=True).text
             data = json.loads(response)["list"]
             for i in range(len(data)):
                 self.signalDict.emit({"数量": len(data), "完成": False, "名称": data[i], "序号": i})
                 f.downloadFile(f.urlJoin(program.UPDATE_URL, data[i]), f.pathJoin(program.PROGRAM_PATH, data[i]))
             self.signalDict.emit({"数量": len(data), "完成": True, "名称": "", "序号": 0})
+
         if self.mode == "一键整理+清理":
             try:
                 MyThread(lambda: f.clearRubbish())
@@ -818,13 +821,16 @@ class NewThread(QThread):
                 self.signalBool.emit(True)
             except:
                 self.signalBool.emit(False)
+
         if self.mode == "重启文件资源管理器":
             f.cmd("taskkill /f /im explorer.exe", True)
             self.signalStr.emit("完成")
             f.cmd("start C:/windows/explorer.exe", True)
+
         if self.mode == "Minecraft最新版本":
             self.signalStr.emit(f.getMC())
-        if self.mode=="下载图片":
+
+        if self.mode == "下载图片":
             if not f.exists(self.data[1]):
-                f.downloadFile(self.data[0],self.data[1])
+                f.downloadFile(self.data[0], self.data[1])
             self.signalBool.emit(True)
