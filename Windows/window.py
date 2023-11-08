@@ -138,10 +138,13 @@ class GamePage(BasicPage):
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
-        self.card = BigInfoCard("标题", "mc.png", "!@3", "https://static.wikia.nocookie.net/minecraft_zh_gamepedia/images/9/90/Minecraft_Wiki_header.svg/revision/latest/scale-to-width-down/300?cb=20211229051507")
-        self.card.addUrl("123", "!@#")
-        self.card.addInfo("123", "!@#")
-        self.vBoxLayout.addWidget(self.card)
+        self.card1 = BigInfoCard("标题", "mc.png", "!@3", "https://static.wikia.nocookie.net/minecraft_zh_gamepedia/images/9/90/Minecraft_Wiki_header.svg/revision/latest/scale-to-width-down/300?cb=20211229051507")
+        self.card1.addUrl("123", "!@#")
+        self.card1.addInfo("123", "!@#")
+        self.card2 = NormalInfoCard("标题", "mc.png", ["!@3", 123123, 423, 4], "https://static.wikia.nocookie.net/minecraft_zh_gamepedia/images/9/90/Minecraft_Wiki_header.svg/revision/latest/scale-to-width-down/300?cb=20211229051507")
+
+        self.vBoxLayout.addWidget(self.card1)
+        self.vBoxLayout.addWidget(self.card2)
 
 
 class SettingPage(BasicPage):
@@ -208,6 +211,7 @@ class Window(FluentWindow):
         setThemeColor("#0078D4")
         # 窗口属性
         self.resize(900, 700)
+        self.setMinimumSize(700, 500)
         self.setWindowIcon(QIcon(program.source("logo.png")))
         self.setWindowTitle(program.PROGRAM_TITLE)
         self.navigationInterface.setReturnButtonVisible(False)
