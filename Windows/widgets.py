@@ -54,6 +54,25 @@ class StatisticsWidget(QWidget):
         self.titleLabel.setTextColor(QColor(96, 96, 96), QColor(206, 206, 206))
 
 
+class WebImage(QLabel):
+    def __init__(self, img: str, link: str = None, parent=None):
+        super().__init__(parent=parent)
+        self.setFixedSize(48, 48)
+        self.setScaledContents(True)
+        if link:
+            self.img = program.cache(img)
+            self.link = link
+            self.thread = NewThread("下载图片", [self.link, self.img])
+            self.thread.signalBool.connect(self.thread1)
+            self.thread.start()
+        else:
+            self.setPixmap(QPixmap(img))
+
+    def thread1(self, msg):
+        if msg:
+            self.setPixmap(QPixmap(self.img))
+
+
 class PhotoCard(ElevatedCardWidget):
     """
     大图片卡片
@@ -177,11 +196,8 @@ class BigInfoCard(SimpleCardWidget):
     信息卡片
     """
 
-    def __init__(self, title: str, img: str, info: str, imglink: str = "", parent=None):
+    def __init__(self, title: str, img: str, info: str, link: str = "", parent=None):
         super().__init__(parent)
-        self.img = img
-        self.imglink = imglink
-
         self.setMinimumWidth(0)
 
         self.backButton = TransparentToolButton(FIF.RETURN, self)
@@ -189,10 +205,7 @@ class BigInfoCard(SimpleCardWidget):
         self.backButton.setMaximumSize(32, 32)
         self.backButton.clicked.connect(self.buttonClickedBack)
 
-        self.picLabel = QLabel(self)
-        self.picLabel.setPixmap(QPixmap(program.source("logo.png")))
-        self.picLabel.setFixedSize(48, 48)
-        self.picLabel.setScaledContents(True)
+        self.picLabel = WebImage(img, link)
 
         self.titleLabel = TitleLabel(title, self)
 
@@ -234,10 +247,6 @@ class BigInfoCard(SimpleCardWidget):
         self.hBoxLayout1.addWidget(self.picLabel)
         self.hBoxLayout1.addLayout(self.vBoxLayout)
 
-        self.thread = NewThread("下载图片", [self.imglink, self.img])
-        self.thread.signalBool.connect(self.thread1)
-        self.thread.start()
-
     def addUrl(self, name: str, url: str):
         self.hBoxLayout2.addWidget(HyperlinkLabel(QUrl(url), name, self), alignment=Qt.AlignLeft)
 
@@ -248,11 +257,6 @@ class BigInfoCard(SimpleCardWidget):
 
     def buttonClickedBack(self):
         self.hide()
-
-    def thread1(self, msg):
-        if msg:
-            self.picLabel.setPixmap(QPixmap(self.img))
-            self.picLabel.show()
 
 
 class Tray(QSystemTrayIcon):

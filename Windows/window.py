@@ -138,7 +138,7 @@ class GamePage(ScrollArea):
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
-        self.card=BigInfoCard("标题",program.cache("logo.png"),"fadfhakghadf","https://ianzb.github.io/img/logo2.png")
+        self.card=BigInfoCard("标题","logo.png","fadfhakghadf","https://ianzb.github.io/img/logo2.png")
         self.card.addUrl("123","Ianzb.github.io")
         self.card.addUrl("123","Ianzb.github.io")
         self.card.addUrl("123","Ianzb.github.io")
