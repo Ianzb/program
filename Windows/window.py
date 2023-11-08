@@ -1,7 +1,7 @@
 from widgets import *
 
 
-class MainPage(ScrollArea):
+class MainPage(BasicPage):
     """
     主页
     """
@@ -118,7 +118,7 @@ class MainPage(ScrollArea):
         )
 
 
-class ToolPage(ScrollArea):
+class ToolPage(BasicPage):
     """
     工具页面
     """
@@ -129,7 +129,7 @@ class ToolPage(ScrollArea):
         super().__init__(parent=parent)
 
 
-class GamePage(ScrollArea):
+class GamePage(BasicPage):
     """
     游戏页面
     """
@@ -138,11 +138,13 @@ class GamePage(ScrollArea):
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
-        self.card=NormalInfoCard("标题","mc.png",("1","2","3","4"),"https://static.wikia.nocookie.net/minecraft_zh_gamepedia/images/9/90/Minecraft_Wiki_header.svg/revision/latest/scale-to-width-down/300?cb=20211229051507")
+        self.card = BigInfoCard("标题", "mc.png", "!@3", "https://static.wikia.nocookie.net/minecraft_zh_gamepedia/images/9/90/Minecraft_Wiki_header.svg/revision/latest/scale-to-width-down/300?cb=20211229051507")
+        self.card.addUrl("123", "!@#")
+        self.card.addInfo("123", "!@#")
         self.vBoxLayout.addWidget(self.card)
 
 
-class SettingPage(ScrollArea):
+class SettingPage(BasicPage):
     """
     设置页面
     """

@@ -1,9 +1,9 @@
 from functions import *
 
 
-class ScrollArea(ScrollArea):
+class BasicPage(ScrollArea):
     """
-    优化样式的滚动区域
+    页面模板（优化样式的滚动区域）
     """
     title = ""
     subtitle = ""
@@ -191,7 +191,7 @@ class GrayCard(QWidget):
             self.card.setStyleSheet("QWidget {background-color: rgba(175,175,175,0.1); border:1px solid rgba(150,150,150,0.15); border-radius: 10px}")
 
 
-class BigInfoCard(SimpleCardWidget):
+class BigInfoCard(CardWidget):
     """
     详细信息卡片（资源主页展示）
     """
