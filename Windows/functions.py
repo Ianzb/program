@@ -46,7 +46,7 @@ class ProgramInit():
     PROGRAM_DATA_PATH = os.path.join(USER_PATH, "zb")  # 程序数据路径
     SETTING_FILE_PATH = os.path.join(PROGRAM_DATA_PATH, "settings.json")  # 程序设置文件路径
     STARTUP_ARGUMENT = sys.argv[1:]  # 程序启动参数
-    REQUEST_HEADER = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36 Edg/119.0.2151.44"}  # 程序默认网络请求头
+    REQUEST_HEADER = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36 Edg/119.0.0.0"}  # 程序默认网络请求头
 
     REQUIRE_LIB = ["PyQt-Fluent-Widgets",
                    "qt5_tools",
@@ -619,15 +619,12 @@ class Functions():
                   "{{v|china-android}}",
                   ]
         try:
-            response = requests.get("https://minecraft.fandom.com/zh/wiki/Template:Version#table", headers=program.REQUEST_HEADER, stream=True, timeout=(5, 10)).text
+            response = requests.get("https://zh.minecraft.wiki/w/Template:Version", stream=True, timeout=(30, 600)).text
         except:
-            try:
-                response = requests.get("https://wiki.biligame.com/mc/%E6%A8%A1%E6%9D%BF:Version#table", headers=program.REQUEST_HEADER, stream=True, timeout=(60, 600)).text
-            except:
-                return "无法连接至服务器"
+            return "无法连接至服务器"
         soup = bs4.BeautifulSoup(response, "lxml")
-        data1 = soup.find_all(name="td")
-        l1 = [n.text.replace("\n", "") for n in data1]
+        data = soup.find_all(name="td")
+        l1 = [n.text.replace("\n", "") for n in data]
         v1 = l1[::3]
         v2 = l1[1::3]
         v3 = l1[2::3]
