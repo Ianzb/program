@@ -78,22 +78,22 @@ class PhotoCard(ElevatedCardWidget):
     大图片卡片
     """
 
-    def __init__(self, icon: str, name: str = "", parent=None, imageSize: int = 68, widgetSize: list | tuple = (168, 176)):
+    def __init__(self, img: str, name: str = "", parent=None, imageSize: int = 68, widgetSize: list | tuple = (168, 176), link: str = ""):
         super().__init__(parent)
         self.imageSize = imageSize
 
         self.setFixedSize(widgetSize[0], widgetSize[1])
         self.setStyleSheet("QLabel {background-color: rgba(0,0,0,0); border: none;}")
 
-        self.iconWidget = ImageLabel(icon, self)
-        self.iconWidget.scaledToHeight(self.imageSize)
+        self.image = WebImage(img, link, self)
+        self.image.setMinimumSize(self.imageSize, self.imageSize)
 
         self.label = CaptionLabel(name, self)
 
         self.vBoxLayout = QVBoxLayout(self)
         self.vBoxLayout.setAlignment(Qt.AlignCenter)
         self.vBoxLayout.addStretch(1)
-        self.vBoxLayout.addWidget(self.iconWidget, 0, Qt.AlignCenter)
+        self.vBoxLayout.addWidget(self.image, 0, Qt.AlignCenter)
         self.vBoxLayout.addStretch(1)
         self.vBoxLayout.addWidget(self.label, 0, Qt.AlignHCenter | Qt.AlignBottom)
 
