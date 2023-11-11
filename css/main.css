@@ -8,6 +8,28 @@ body {
     background-size: cover;
     text-align: center;
 }
+
+@media only screen and (orientation:landscape) {
+    body {
+        font-size: 16px;
+    }
+
+}
+
+@media only screen and (orientation:portrait) {
+    body {
+        font-size: 40px;
+    }
+
+    h3 {
+        font-size: 56px;
+    }
+
+    h5 {
+        font-size: 48px;
+    }
+}
+
 .zb-top {
     background-color: rgba(255, 255, 255, 0.85);
     backdrop-filter: blur(10px);
@@ -19,6 +41,8 @@ body {
     margin: 15px;
     border-radius: 7px;
     backdrop-filter: blur(10px);
+
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
 }
 
 
