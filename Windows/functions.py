@@ -184,7 +184,7 @@ class Functions():
              "压缩包",
              ]
     ends = [[".ppt", ".pptx"],
-            [".doc", ".docx"".txt", ".pdf", ".json"],
+            [".doc", ".docx", ".txt", ".pdf", ".json"],
             [".xls", ".xlsx", ".xlt", ".csv"],
             [".png", ".jpg", ".jpeg", ".webp", ".gif"],
             [".mp3", ".mp4", ".wav", ".ogg", ".flv"],
