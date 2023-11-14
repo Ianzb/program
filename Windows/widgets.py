@@ -35,6 +35,39 @@ class BasicPage(ScrollArea):
         self.vBoxLayout.setContentsMargins(36, 20, 36, 36)
 
 
+class BasicTabPage(BasicPage):
+    """
+    有多标签页的页面模板
+    """
+
+    def __init__(self, parent=None):
+        super().__init__(parent=parent)
+        self.toolBar.deleteLater()
+
+        self.vBoxLayout = QVBoxLayout(self)
+        self.vBoxLayout.setContentsMargins(0, 0, 0, 0)
+
+        self.pivot = Pivot(self)
+        self.vBoxLayout.addWidget(self.pivot, 0, Qt.AlignHCenter)
+
+        self.stackedWidget = QStackedWidget(self)
+        self.stackedWidget.currentChanged.connect(self.onCurrentIndexChanged)
+        self.vBoxLayout.addWidget(self.stackedWidget)
+
+    def addPage(self, widget, name, icon=None):
+        widget.setObjectName(name)
+        widget.setAlignment(Qt.AlignCenter)
+        self.stackedWidget.addWidget(widget)
+        self.pivot.addItem(name, name, lambda: self.stackedWidget.setCurrentWidget(widget), icon)
+        if self.stackedWidget.count() == 1:
+            self.stackedWidget.setCurrentWidget(widget)
+            self.pivot.setCurrentItem(widget.objectName())
+
+    def onCurrentIndexChanged(self, index):
+        widget = self.stackedWidget.widget(index)
+        self.pivot.setCurrentItem(widget.objectName())
+
+
 class StatisticsWidget(QWidget):
     """
     两行信息组件
