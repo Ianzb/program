@@ -128,9 +128,7 @@ class ToolPage(BasicTabPage):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
 
-        self.page1 = BasicPage()
-        self.page1.title = "123"
-        self.page1.subtitle = "345"
+        self.page1 = BasicTab()
         self.addPage(self.page1, "123", FIF.SEARCH)
         self.card1 = BigInfoCard("标题", "mc.png", "!@3", "https://static.wikia.nocookie.net/minecraft_zh_gamepedia/images/9/90/Minecraft_Wiki_header.svg/revision/latest/scale-to-width-down/300?cb=20211229051507")
         self.card1.addUrl("123", "!@#")
@@ -140,7 +138,7 @@ class ToolPage(BasicTabPage):
         self.page1.vBoxLayout.addWidget(self.card1)
         self.page1.vBoxLayout.addWidget(self.card2)
         self.page1.vBoxLayout.addWidget(self.card3)
-        self.addPage(BasicPage(), "12312")
+        self.addPage(BasicTab(), "12312")
 
 
 

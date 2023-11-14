@@ -68,6 +68,17 @@ class BasicTabPage(BasicPage):
         self.pivot.setCurrentItem(widget.objectName())
 
 
+class BasicTab(BasicPage):
+    """
+    有多标签页模板
+    """
+
+    def __init__(self, parent=None):
+        super().__init__(parent=parent)
+        self.toolBar.deleteLater()
+        self.setViewportMargins(0, 0, 0, 0)
+
+
 class StatisticsWidget(QWidget):
     """
     两行信息组件
@@ -232,6 +243,7 @@ class BigInfoCard(CardWidget):
     def __init__(self, title: str, img: str, info: str, link: str = "", parent=None):
         super().__init__(parent)
         self.setMinimumWidth(0)
+        self.setFixedHeight(250)
 
         self.backButton = TransparentToolButton(FIF.RETURN, self)
         self.backButton.move(8, 8)
