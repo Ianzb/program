@@ -243,7 +243,7 @@ class GrayCard(QWidget):
             self.card.setStyleSheet("QWidget {background-color: rgba(175,175,175,0.1); border:1px solid rgba(150,150,150,0.15); border-radius: 10px}")
 
 
-class BigInfoCard(CardWidget):
+class BigInfoCard(CardWidget, QWidget):
     """
     详细信息卡片（资源主页展示）
     """
@@ -251,7 +251,7 @@ class BigInfoCard(CardWidget):
     def __init__(self, title: str, img: str, info: str, link: str = "", parent=None):
         super().__init__(parent)
         self.setMinimumWidth(0)
-        self.setFixedHeight(250)
+        self.setMaximumHeight(300)
 
         self.backButton = TransparentToolButton(FIF.RETURN, self)
         self.backButton.move(8, 8)
