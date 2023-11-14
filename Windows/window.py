@@ -128,22 +128,8 @@ class ToolPage(BasicTabPage):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
 
-        self.page1 = BasicTab()
-        self.addPage(self.page1, "123", FIF.SEARCH)
-        self.card1 = BigInfoCard("标题", "mc.png", "!@3", "https://static.wikia.nocookie.net/minecraft_zh_gamepedia/images/9/90/Minecraft_Wiki_header.svg/revision/latest/scale-to-width-down/300?cb=20211229051507")
-        self.card1.addUrl("123", "!@#")
-        self.card1.addInfo("123", "!@#")
-        self.card2 = NormalInfoCard("标题", "mc.png", ["!@3", 123123, 423, 4], "https://static.wikia.nocookie.net/minecraft_zh_gamepedia/images/9/90/Minecraft_Wiki_header.svg/revision/latest/scale-to-width-down/300?cb=20211229051507")
-        self.card3 = PhotoCard("zb.png", "123", self, link="https://ianzb.github.io/img/title.png")
-        self.page1.vBoxLayout.addWidget(self.card1)
-        self.page1.vBoxLayout.addWidget(self.card2)
-        self.page1.vBoxLayout.addWidget(self.card3)
-        self.addPage(BasicTab(), "12312")
 
-
-
-
-class GamePage(BasicPage):
+class GamePage(BasicTabPage):
     """
     游戏页面
     """
@@ -156,10 +142,14 @@ class GamePage(BasicPage):
         self.card1.addUrl("123", "!@#")
         self.card1.addInfo("123", "!@#")
         self.card2 = NormalInfoCard("标题", "mc.png", ["!@3", 123123, 423, 4], "https://static.wikia.nocookie.net/minecraft_zh_gamepedia/images/9/90/Minecraft_Wiki_header.svg/revision/latest/scale-to-width-down/300?cb=20211229051507")
-        self.card3 = PhotoCard("zb.png", "123", self, link="https://ianzb.github.io/img/title.png")
-        self.vBoxLayout.addWidget(self.card1)
-        self.vBoxLayout.addWidget(self.card2)
-        self.vBoxLayout.addWidget(self.card3)
+        self.card3 = PhotoCard("李永国666.png", "李永国", self, link="https://picdl.sunbangyan.cn/2023/11/14/774ab3fad42612dd6e7a1aa68aef5b09.jpg", imageSize=200)
+
+        self.page1 = BasicTab()
+        self.page1.vBoxLayout.addWidget(self.card1)
+        self.page1.vBoxLayout.addWidget(self.card2)
+        self.page1.vBoxLayout.addWidget(self.card3)
+        self.addPage(self.page1, "测试", FIF.GAME)
+
 
 
 class SettingPage(BasicPage):

@@ -140,6 +140,14 @@ class PhotoCard(ElevatedCardWidget):
         self.vBoxLayout.addWidget(self.image, 0, Qt.AlignCenter)
         self.vBoxLayout.addStretch(1)
         self.vBoxLayout.addWidget(self.label, 0, Qt.AlignHCenter | Qt.AlignBottom)
+        self.setTheme()
+        qconfig.themeChanged.connect(self.setTheme)
+
+    def setTheme(self):
+        if isDarkTheme():
+            self.setStyleSheet("QLabel {background-color: transparent; color: white}")
+        else:
+            self.setStyleSheet("QLabel {background-color: transparent; color: black}")
 
     def mousePressEvent(self, event):
         self.clickedFunction()
@@ -293,6 +301,15 @@ class BigInfoCard(CardWidget):
         self.hBoxLayout1.addWidget(self.picLabel)
         self.hBoxLayout1.addLayout(self.vBoxLayout)
 
+        self.setTheme()
+        qconfig.themeChanged.connect(self.setTheme)
+
+    def setTheme(self):
+        if isDarkTheme():
+            self.setStyleSheet("QLabel {background-color: transparent; color: white}")
+        else:
+            self.setStyleSheet("QLabel {background-color: transparent; color: black}")
+
     def addUrl(self, name: str, url: str):
         self.hBoxLayout2.addWidget(HyperlinkLabel(QUrl(url), name, self), alignment=Qt.AlignLeft)
 
@@ -353,6 +370,15 @@ class NormalInfoCard(CardWidget):
         self.hBoxLayout.addStretch(0)
         self.hBoxLayout.addWidget(self.mainButton, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
+
+        self.setTheme()
+        qconfig.themeChanged.connect(self.setTheme)
+
+    def setTheme(self):
+        if isDarkTheme():
+            self.setStyleSheet("QLabel {background-color: transparent; color: white}")
+        else:
+            self.setStyleSheet("QLabel {background-color: transparent; color: black}")
 
     def buttonClickedMain(self):
         pass
