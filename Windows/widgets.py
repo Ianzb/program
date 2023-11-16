@@ -243,7 +243,7 @@ class GrayCard(QWidget):
             self.card.setStyleSheet("QWidget {background-color: rgba(175,175,175,0.1); border:1px solid rgba(150,150,150,0.15); border-radius: 10px}")
 
 
-class BigInfoCard(CardWidget, QWidget):
+class BigInfoCard(CardWidget):
     """
     详细信息卡片（资源主页展示）
     """
@@ -251,7 +251,6 @@ class BigInfoCard(CardWidget, QWidget):
     def __init__(self, title: str, img: str, info: str, link: str = "", parent=None):
         super().__init__(parent)
         self.setMinimumWidth(0)
-        self.setMaximumHeight(300)
 
         self.backButton = TransparentToolButton(FIF.RETURN, self)
         self.backButton.move(8, 8)
@@ -269,37 +268,42 @@ class BigInfoCard(CardWidget, QWidget):
         self.infoLabel = BodyLabel(info, self)
         self.infoLabel.setWordWrap(True)
 
-        self.topLayout = QHBoxLayout()
-        self.statisticsLayout = QHBoxLayout()
-
-        self.topLayout.setContentsMargins(0, 0, 0, 0)
-        self.topLayout.addWidget(self.titleLabel)
-        self.topLayout.addWidget(self.mainButton, 0, Qt.AlignRight)
-
-        self.statisticsLayout.setContentsMargins(0, 0, 0, 0)
-        self.statisticsLayout.setSpacing(10)
-        self.statisticsLayout.setAlignment(Qt.AlignLeft)
+        self.hBoxLayout1 = QHBoxLayout()
+        self.hBoxLayout1.setContentsMargins(0, 0, 0, 0)
+        self.hBoxLayout1.addWidget(self.titleLabel)
+        self.hBoxLayout1.addWidget(self.mainButton, 0, Qt.AlignRight)
 
         self.hBoxLayout2 = QHBoxLayout()
         self.hBoxLayout2.setSpacing(16)
         self.hBoxLayout2.setAlignment(Qt.AlignLeft)
 
+        self.hBoxLayout3 = QHBoxLayout()
+        self.hBoxLayout3.setContentsMargins(0, 0, 0, 0)
+        self.hBoxLayout3.setSpacing(10)
+        self.hBoxLayout3.setAlignment(Qt.AlignLeft)
+
+        self.hBoxLayout4 = QHBoxLayout()
+        self.hBoxLayout4.setSpacing(8)
+        self.hBoxLayout4.setAlignment(Qt.AlignLeft)
+
         self.vBoxLayout = QVBoxLayout()
         self.vBoxLayout.setContentsMargins(0, 0, 0, 0)
         self.vBoxLayout.setSpacing(0)
-        self.vBoxLayout.addLayout(self.topLayout)
+        self.vBoxLayout.addLayout(self.hBoxLayout1)
         self.vBoxLayout.addSpacing(3)
         self.vBoxLayout.addLayout(self.hBoxLayout2)
         self.vBoxLayout.addSpacing(20)
-        self.vBoxLayout.addLayout(self.statisticsLayout)
+        self.vBoxLayout.addLayout(self.hBoxLayout3)
         self.vBoxLayout.addSpacing(20)
         self.vBoxLayout.addWidget(self.infoLabel)
+        self.vBoxLayout.addSpacing(12)
+        self.vBoxLayout.addLayout(self.hBoxLayout4)
 
-        self.hBoxLayout1 = QHBoxLayout(self)
-        self.hBoxLayout1.setSpacing(30)
-        self.hBoxLayout1.setContentsMargins(34, 24, 24, 24)
-        self.hBoxLayout1.addWidget(self.picLabel)
-        self.hBoxLayout1.addLayout(self.vBoxLayout)
+        self.hBoxLayout = QHBoxLayout(self)
+        self.hBoxLayout.setSpacing(30)
+        self.hBoxLayout.setContentsMargins(34, 24, 24, 24)
+        self.hBoxLayout.addWidget(self.picLabel)
+        self.hBoxLayout.addLayout(self.vBoxLayout)
 
         self.setTheme()
         qconfig.themeChanged.connect(self.setTheme)
@@ -313,10 +317,17 @@ class BigInfoCard(CardWidget, QWidget):
     def addUrl(self, name: str, url: str):
         self.hBoxLayout2.addWidget(HyperlinkLabel(QUrl(url), name, self), alignment=Qt.AlignLeft)
 
-    def addInfo(self, name: str, data: str | int):
-        if self.statisticsLayout.count() >= 1:
-            self.statisticsLayout.addWidget(VerticalSeparator(self))
-        self.statisticsLayout.addWidget(StatisticsWidget(name, data, self))
+    def addIntroduction(self, name: str, data: str | int):
+        if self.hBoxLayout3.count() >= 1:
+            self.hBoxLayout3.addWidget(VerticalSeparator(self))
+        self.hBoxLayout3.addWidget(StatisticsWidget(name, data, self))
+
+    def addTag(self, name: str):
+        self.tagButton = PillPushButton(name, self)
+        self.tagButton.setCheckable(False)
+        setFont(self.tagButton, 12)
+        self.tagButton.setFixedSize(80, 32)
+        self.hBoxLayout4.addWidget(self.tagButton, 0, Qt.AlignLeft)
 
     def buttonClickedBack(self):
         self.hide()

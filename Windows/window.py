@@ -697,16 +697,23 @@ class GamePage(BasicTabPage):
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
-        self.card1 = BigInfoCard("标题", "mc.png", "!@3", "https://static.wikia.nocookie.net/minecraft_zh_gamepedia/images/9/90/Minecraft_Wiki_header.svg/revision/latest/scale-to-width-down/300?cb=20211229051507")
-        self.card1.addUrl("123", "!@#")
-        self.card1.addInfo("123", "!@#")
+
         self.card2 = NormalInfoCard("标题", "mc.png", ["!@3", 123123, 423, 4], "https://static.wikia.nocookie.net/minecraft_zh_gamepedia/images/9/90/Minecraft_Wiki_header.svg/revision/latest/scale-to-width-down/300?cb=20211229051507")
         self.card3 = PhotoCard("李永国666.png", "李永国", self, link="https://picdl.sunbangyan.cn/2023/11/14/774ab3fad42612dd6e7a1aa68aef5b09.jpg", imageSize=200)
 
         self.page1 = BasicTab()
-        self.page1.vBoxLayout.addWidget(self.card1)
-        self.page1.vBoxLayout.addWidget(self.card2)
-        self.page1.vBoxLayout.addWidget(self.card3)
+
+        self.card1 = BigInfoCard("标题", "mc.png", "!\n\n\n\n\n\n\n@3", "https://static.wikia.nocookie.net/minecraft_zh_gamepedia/images/9/90/Minecraft_Wiki_header.svg/revision/latest/scale-to-width-down/300?cb=20211229051507", self.page1)
+        self.card1.addUrl("12\n3", "!@#")
+        self.card1.addIntroduction("1\n23", "!@#")
+        self.card1.addTag("!2\n\n\n3")
+        self.card1.addTag("!23")
+        self.card1.addTag("!23")
+        self.card1.addTag("!23")
+
+        self.page1.vBoxLayout.addWidget(self.card1, 0, Qt.AlignTop)
+        self.page1.vBoxLayout.addWidget(self.card2, 0, Qt.AlignTop)
+        self.page1.vBoxLayout.addWidget(self.card3, 0, Qt.AlignTop)
         self.addPage(self.page1, "测试", FIF.GAME)
 
 
