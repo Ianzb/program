@@ -703,18 +703,19 @@ class GamePage(BasicTabPage):
 
         self.page1 = BasicTab()
 
-        self.card1 = BigInfoCard("标题", "mc.png", "!\n\n\n\n\n\n\n@3", "https://static.wikia.nocookie.net/minecraft_zh_gamepedia/images/9/90/Minecraft_Wiki_header.svg/revision/latest/scale-to-width-down/300?cb=20211229051507", self.page1)
-        self.card1.addUrl("12\n3", "!@#")
-        self.card1.addIntroduction("1\n23", "!@#")
-        self.card1.addTag("!2\n\n\n3")
-        self.card1.addTag("!23")
-        self.card1.addTag("!23")
-        self.card1.addTag("!23")
+        self.card1 = BigInfoCard()
+        self.card1.setImg("mc.png", "https://static.wikia.nocookie.net/minecraft_zh_gamepedia/images/9/90/Minecraft_Wiki_header.svg/revision/latest/scale-to-width-down/300?cb=20211229051507")
+        self.card1.setInfo("介绍Info")
+        self.card1.setTitle("标题Title")
+        self.card1.addUrl("链接Url", program.UPDATE_URL)
+        self.card1.addData("数据Data", "值")
+        self.card1.addTag("标签Tag")
+
 
         self.page1.vBoxLayout.addWidget(self.card1, 0, Qt.AlignTop)
         self.page1.vBoxLayout.addWidget(self.card2, 0, Qt.AlignTop)
         self.page1.vBoxLayout.addWidget(self.card3, 0, Qt.AlignTop)
-        self.addPage(self.page1, "测试", FIF.GAME)
+        self.addPage(self.page1, "Test", FIF.GAME)
 
 
 class SettingPage(BasicPage):

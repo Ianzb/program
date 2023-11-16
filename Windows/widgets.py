@@ -99,22 +99,33 @@ class StatisticsWidget(QWidget):
 
 
 class WebImage(QLabel):
-    def __init__(self, img: str, link: str = None, parent=None):
+    def __init__(self, path: str = None, url: str = None, parent=None):
         super().__init__(parent=parent)
         self.setFixedSize(48, 48)
         self.setScaledContents(True)
-        if link:
-            self.img = program.cache(img)
-            self.link = link
-            self.thread = NewThread("下载图片", [self.link, self.img])
-            self.thread.signalBool.connect(self.thread1)
-            self.thread.start()
-        else:
-            self.setPixmap(QPixmap(img))
+        if path:
+            if url:
+                self.path = program.cache(path)
+                self.url = url
+                self.thread = NewThread("下载图片", [self.url, self.path])
+                self.thread.signalBool.connect(self.thread1)
+                self.thread.start()
+            else:
+                self.setPixmap(QPixmap(path))
 
     def thread1(self, msg):
         if msg:
-            self.setPixmap(QPixmap(self.img))
+            self.setPixmap(QPixmap(self.path))
+
+    def setImg(self, path: str, url: str = None):
+        if url:
+            self.path = program.cache(path)
+            self.url = url
+            self.thread = NewThread("下载图片", [self.url, self.path])
+            self.thread.signalBool.connect(self.thread1)
+            self.thread.start()
+        else:
+            self.setPixmap(QPixmap(path))
 
 
 class PhotoCard(ElevatedCardWidget):
@@ -248,7 +259,7 @@ class BigInfoCard(CardWidget):
     详细信息卡片（资源主页展示）
     """
 
-    def __init__(self, title: str, img: str, info: str, link: str = "", parent=None):
+    def __init__(self, parent=None):
         super().__init__(parent)
         self.setMinimumWidth(0)
 
@@ -257,15 +268,15 @@ class BigInfoCard(CardWidget):
         self.backButton.setMaximumSize(32, 32)
         self.backButton.clicked.connect(self.buttonClickedBack)
 
-        self.picLabel = WebImage(img, link)
+        self.image = WebImage()
 
-        self.titleLabel = TitleLabel(title, self)
+        self.titleLabel = TitleLabel(self)
 
         self.mainButton = PrimaryPushButton("下载", self)
         self.mainButton.clicked.connect(self.buttonClickedMain)
         self.mainButton.setFixedWidth(160)
 
-        self.infoLabel = BodyLabel(info, self)
+        self.infoLabel = BodyLabel(self)
         self.infoLabel.setWordWrap(True)
 
         self.hBoxLayout1 = QHBoxLayout()
@@ -302,7 +313,7 @@ class BigInfoCard(CardWidget):
         self.hBoxLayout = QHBoxLayout(self)
         self.hBoxLayout.setSpacing(30)
         self.hBoxLayout.setContentsMargins(34, 24, 24, 24)
-        self.hBoxLayout.addWidget(self.picLabel)
+        self.hBoxLayout.addWidget(self.image)
         self.hBoxLayout.addLayout(self.vBoxLayout)
 
         self.setTheme()
@@ -314,13 +325,22 @@ class BigInfoCard(CardWidget):
         else:
             self.setStyleSheet("QLabel {background-color: transparent; color: black}")
 
-    def addUrl(self, name: str, url: str):
-        self.hBoxLayout2.addWidget(HyperlinkLabel(QUrl(url), name, self), alignment=Qt.AlignLeft)
+    def setTitle(self, text: str):
+        self.titleLabel.setText(text)
 
-    def addIntroduction(self, name: str, data: str | int):
+    def setImg(self, path: str, url: str = None):
+        self.image.setImg(path, url)
+
+    def setInfo(self, data: str):
+        self.infoLabel.setText(data)
+
+    def addUrl(self, text: str, url: str):
+        self.hBoxLayout2.addWidget(HyperlinkLabel(QUrl(url), text, self), alignment=Qt.AlignLeft)
+
+    def addData(self, type: str, data: str | int):
         if self.hBoxLayout3.count() >= 1:
             self.hBoxLayout3.addWidget(VerticalSeparator(self))
-        self.hBoxLayout3.addWidget(StatisticsWidget(name, data, self))
+        self.hBoxLayout3.addWidget(StatisticsWidget(type, data, self))
 
     def addTag(self, name: str):
         self.tagButton = PillPushButton(name, self)
@@ -346,7 +366,7 @@ class NormalInfoCard(CardWidget):
         self.setMinimumWidth(0)
         self.setFixedHeight(73)
 
-        self.picLabel = WebImage(img, link)
+        self.image = WebImage(img, link)
 
         self.titleLabel = BodyLabel(title, self)
         self.contentLabel1 = CaptionLabel(f"{info[0]}\n{info[1]}", self)
@@ -374,7 +394,7 @@ class NormalInfoCard(CardWidget):
         self.hBoxLayout = QHBoxLayout(self)
         self.hBoxLayout.setContentsMargins(20, 11, 11, 11)
         self.hBoxLayout.setSpacing(15)
-        self.hBoxLayout.addWidget(self.picLabel)
+        self.hBoxLayout.addWidget(self.image)
         self.hBoxLayout.addLayout(self.vBoxLayout1)
         self.hBoxLayout.addStretch(5)
         self.hBoxLayout.addLayout(self.vBoxLayout2)
