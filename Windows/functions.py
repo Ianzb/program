@@ -431,6 +431,8 @@ class Functions():
                 return
             names.sort(key=lambda i: len(i))
             for i in names:
+                if os.path.getsize(i) / 1024 / 1024 >= 128:
+                    continue
                 md5 = self.getMD5(i)
                 if md5 in sizes:
                     self.delete(i)
@@ -458,7 +460,7 @@ class Functions():
             if list != []:
                 for i in list:
                     for j in range(len(self.ends)):
-                        if self.baseName(i, 2) in self.ends[j]:
+                        if self.baseName(i, 2).lower() in self.ends[j]:
                             self.move(i, self.pathJoin(new, self.names[j]))
         if mode in [0, 2]:
             list = self.walkDir(old, 1)
@@ -466,9 +468,6 @@ class Functions():
                 for i in list:
                     if i[i.rfind("\ "[:-1]) + 1:] not in ["软件"]:
                         self.move(i, self.pathJoin(new, "文件夹", i[i.rfind("\ "[:-1]) + 1:]))
-        for i in self.names + ["文件夹"]:
-            self.clearFile(self.pathJoin(new, i))
-        self.clearEmptyDir(new)
 
     def sortWechatFiles(self):
         """
@@ -815,6 +814,8 @@ class NewThread(QThread):
                 if setting.read("wechatPath") != "":
                     f.sortWechatFiles()
                 f.clearFile(setting.read("sortPath"))
+                for i in f.names + ["文件夹"]:
+                    f.clearFile(f.pathJoin(setting.read("sortPath"), i))
                 self.signalBool.emit(True)
             except:
                 self.signalBool.emit(False)
