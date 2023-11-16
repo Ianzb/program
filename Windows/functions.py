@@ -176,20 +176,16 @@ class Functions():
     """
     程序相关函数
     """
-    names = ["PPT",
-             "文档",
-             "表格",
-             "图片",
-             "音视频",
-             "压缩包",
-             ]
-    ends = [[".ppt", ".pptx"],
-            [".doc", ".docx", ".txt", ".pdf", ".json"],
-            [".xls", ".xlsx", ".xlt", ".csv"],
-            [".png", ".jpg", ".jpeg", ".webp", ".gif"],
-            [".mp3", ".mp4", ".wav", ".ogg", ".flv"],
-            [".zip", ".rar", ".7z"],
-            ]
+    SORT_FILE_DIR = {"PPT": [".ppt", ".pptx"],
+                     "文档": [".doc", ".docx", ".txt", ".pdf"],
+                     "表格": [".xls", ".xlsx", ".xlsm", ".xlsb", ".xlt", ".csv"],
+                     "图片": [".png", ".jpg", ".jpeg", ".webp", ".gif", ".tif", ".tga", ".bmp", ".dds", ".svg", ".eps", ".hdr", ".raw", ".exr", ".psd"],
+                     "音频": [".mp3", ".wav", ".ogg", ".wma", ".ape", ".flac", ".aac"],
+                     "视频": [".mp4", ".flv", ".mov", ".avi", ".mkv", ".wmv"],
+                     "压缩包": [".zip", ".rar", ".7z", ".tar", ".gz", ".bz2"],
+                     "镜像": [".iso", ".img", ".bin"],
+                     "安装包": [".exe", ".msi"]
+                     }
 
     def __init__(self):
         pass
@@ -456,16 +452,16 @@ class Functions():
         :param mode: 模式：0 全部整理 1 仅文件 2 仅文件夹
         """
         if mode in [0, 1]:
-            list = self.walkFile(old, 1)
-            if list != []:
-                for i in list:
-                    for j in range(len(self.ends)):
-                        if self.baseName(i, 2).lower() in self.ends[j]:
-                            self.move(i, self.pathJoin(new, self.names[j]))
+            file_list = self.walkFile(old, 1)
+            if file_list:
+                for i in file_list:
+                    for j in range(len(self.SORT_FILE_DIR.values())):
+                        if self.baseName(i, 2).lower() in list(self.SORT_FILE_DIR.values())[j]:
+                            self.move(i, self.pathJoin(new, list(self.SORT_FILE_DIR.keys())[j]))
         if mode in [0, 2]:
-            list = self.walkDir(old, 1)
-            if list != []:
-                for i in list:
+            file_list = self.walkDir(old, 1)
+            if file_list:
+                for i in file_list:
                     if i[i.rfind("\ "[:-1]) + 1:] not in ["软件"]:
                         self.move(i, self.pathJoin(new, "文件夹", i[i.rfind("\ "[:-1]) + 1:]))
 
@@ -814,7 +810,7 @@ class NewThread(QThread):
                 if setting.read("wechatPath") != "":
                     f.sortWechatFiles()
                 f.clearFile(setting.read("sortPath"))
-                for i in f.names + ["文件夹"]:
+                for i in list(f.SORT_FILE_DIR.keys()) + ["文件夹"]:
                     f.clearFile(f.pathJoin(setting.read("sortPath"), i))
                 self.signalBool.emit(True)
             except:
