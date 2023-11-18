@@ -77,6 +77,7 @@ class AppInfoCard(SmallInfoCard):
     def __init__(self, data: dict, parent: QWidget = None):
         super().__init__(parent)
         self.data = data
+
         self.mainButton.setText("下载")
         self.mainButton.setIcon(FIF.DOWNLOAD)
 
@@ -87,6 +88,7 @@ class AppInfoCard(SmallInfoCard):
             self.setTitle(f"{self.data['SoftName']} 32位")
         else:
             self.setTitle(f"{self.data['SoftName']}")
+
         self.setInfo(self.data["xmlInfo"]["soft"]["feature"], 0)
         self.setInfo(f"{eval('%.2f' % eval('%.5g' % (eval(self.data['xmlInfo']['soft']['filesize']) / 1024 / 1024)))} MB", 1)
         self.setInfo(f"当前版本：{self.data['xmlInfo']['soft']['versionname']}", 2)
@@ -94,6 +96,7 @@ class AppInfoCard(SmallInfoCard):
 
     def buttonMainClicked(self):
         self.mainButton.setEnabled(False)
+
         self.thread = NewThread("下载文件", (self.data["xmlInfo"]["soft"]["filename"], self.data["xmlInfo"]["soft"]["url"]))
         self.thread.signalStr.connect(self.thread1)
         self.thread.signalInt.connect(self.thread2)
@@ -113,6 +116,7 @@ class AppInfoCard(SmallInfoCard):
         if msg == 100:
             self.stateTooltip.setContent("下载成功")
             self.stateTooltip.setState(True)
+
             self.mainButton.setEnabled(True)
 
     def thread3(self, msg):
