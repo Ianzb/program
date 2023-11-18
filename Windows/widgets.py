@@ -103,15 +103,6 @@ class ToolBar(QWidget):
         self.vBoxLayout.addWidget(self.subtitleLabel)
         self.vBoxLayout.setAlignment(Qt.AlignTop)
 
-        self.setTheme()
-        qconfig.themeChanged.connect(self.setTheme)
-
-    def setTheme(self):
-        if isDarkTheme():
-            self.setStyleSheet("QLabel {background-color: transparent; color: white}")
-        else:
-            self.setStyleSheet("QLabel {background-color: transparent; color: black}")
-
 
 class StatisticsWidget(QWidget):
     """
@@ -268,10 +259,10 @@ class GrayCard(QWidget):
     def setTheme(self):
         if isDarkTheme():
             self.setStyleSheet("QLabel {background-color: transparent; color: white}")
-            self.card.setStyleSheet("QWidget {background-color: rgba(25,25,25,0.5); border:1px solid rgba(20,20,20,0.15); border-radius: 10px}")
+            self.card.setStyleSheet("QFrame {background-color: rgba(25,25,25,0.5); border:1px solid rgba(20,20,20,0.15); border-radius: 10px}")
         else:
             self.setStyleSheet("QLabel {background-color: transparent; color: black}")
-            self.card.setStyleSheet("QWidget {background-color: rgba(175,175,175,0.1); border:1px solid rgba(150,150,150,0.15); border-radius: 10px}")
+            self.card.setStyleSheet("QFrame {background-color: rgba(175,175,175,0.1); border:1px solid rgba(150,150,150,0.15); border-radius: 10px}")
 
     def addWidget(self, widget: object, spacing=0, alignment=Qt.AlignTop):
         """
