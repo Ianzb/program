@@ -34,7 +34,7 @@ class ProgramInit():
     zb小程序信息类-处理信息
     """
     PROGRAM_NAME = "zb小程序"  # 程序名称
-    PROGRAM_VERSION = "3.1.0-beta"  # 程序版本
+    PROGRAM_VERSION = "3.1.0"  # 程序版本
     PROGRAM_TITLE = f"{PROGRAM_NAME} {PROGRAM_VERSION}"  # 程序窗口标题
     AUTHOR_NAME = "Ianzb"  # 作者名称
     AUTHOR_URL = "https://ianzb.github.io/"  # 作者网址
@@ -861,7 +861,12 @@ class NewThread(QThread):
             self.signalBool.emit(True)
 
         if self.mode == "搜索应用":
-            self.signalList.emit(f.searchSoftware(self.data))
+            try:
+                data = f.searchSoftware(self.data)
+                self.signalList.emit(data)
+            except:
+                self.signalBool.emit(False)
+
 
         if self.mode == "下载文件":
             path = f.pathJoin(setting.read("downloadPath"), self.data[0])

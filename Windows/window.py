@@ -100,7 +100,7 @@ class AppInfoCard(SmallInfoCard):
         self.thread.signalBool.connect(self.thread3)
         self.thread.start()
 
-        self.stateTooltip = StateToolTip(f"正在下载文件：{self.data['xmlInfo']['soft']['filename']}", "正在连接到服务器...", self.parent().parent().parent().parent().parent())
+        self.stateTooltip = StateToolTip(f"正在下载文件：{self.data['xmlInfo']['soft']['filename']}", "正在连接到服务器...", self.parent().parent().parent().parent())
         self.stateTooltip.move(self.stateTooltip.getSuitablePos())
         self.stateTooltip.closeButton.clicked.connect(self.thread.cancel)
         self.stateTooltip.show()
@@ -116,7 +116,8 @@ class AppInfoCard(SmallInfoCard):
             self.mainButton.setEnabled(True)
 
     def thread3(self, msg):
-        f.delete(self.filePath)
+        if msg:
+            f.delete(self.filePath)
         self.mainButton.setEnabled(True)
 
 
@@ -136,37 +137,53 @@ class AppStoreTab(BasicTab):
         self.lineEdit.setMaxLength(50)
         self.lineEdit.searchButton.clicked.connect(self.searchButtonClicked)
 
-        self.card1 = GrayCard("搜索")
-        self.card1.addWidget(self.lineEdit)
+        self.card = GrayCard("搜索")
+        self.card.addWidget(self.lineEdit)
 
-        self.vBoxLayout.addWidget(self.card1)
+        self.progressRingLoading = IndeterminateProgressRing(self)
+        self.progressRingLoading.hide()
 
-        self.progressRing = IndeterminateProgressRing(self)
+        self.progressRingError = ProgressRing(self)
+        self.progressRingError.setValue(100)
+        self.progressRingError.setFormat("")
+        self.progressRingError.hide()
 
         self.loadingCard = DisplayCard(self)
-        self.loadingCard.setText("搜索中...")
-        self.loadingCard.setDisplay(self.progressRing)
         self.loadingCard.hide()
 
+        self.vBoxLayout.addWidget(self.card)
         self.vBoxLayout.addWidget(self.loadingCard, 5, Qt.AlignCenter | Qt.AlignHCenter)
 
     def searchButtonClicked(self):
         if self.lineEdit.text():
             self.loadingCard.show()
+            self.loadingCard.setText("搜索中...")
+            self.loadingCard.setDisplay(self.progressRingLoading)
+            self.progressRingLoading.show()
+
             for i in range(self.vBoxLayout.count())[2:]:
                 self.vBoxLayout.itemAt(i).widget().deleteLater()
+
             self.thread = NewThread("搜索应用", self.lineEdit.text())
             self.thread.signalList.connect(self.thread1)
+            self.thread.signalBool.connect(self.thread2)
             self.thread.start()
 
     def thread1(self, msg):
         self.loadingCard.hide()
+        self.progressRingLoading.hide()
+        self.progressRingError.hide()
+
         for i in msg:
             self.infoCard = AppInfoCard(i)
             self.vBoxLayout.addWidget(self.infoCard)
 
-    def buttonDownloadClicked(self, data: str):
-        webbrowser.open(data)
+    def thread2(self, msg):
+        if not msg:
+            self.loadingCard.show()
+            self.loadingCard.setText("网络连接失败！")
+            self.loadingCard.setDisplay(self.progressRingError)
+            self.progressRingError.show()
 
 
 class ThemeSettingCard(ExpandSettingCard):
