@@ -1,3 +1,4 @@
+from functools import singledispatchmethod
 import json
 import os
 import sys
@@ -65,7 +66,7 @@ class ProgramInit():
     def DESKTOP_PATH(self) -> str:
         """
         获得桌面路径
-        :return: 桌面路径
+        @return: 桌面路径
         """
         import winreg
         return winreg.QueryValueEx(winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders"), "Desktop")[0]
@@ -74,23 +75,23 @@ class ProgramInit():
     def isStartup(self) -> bool:
         """
         判断程序是否为开机自启动
-        :return: bool
+        @return: bool
         """
         return "startup" in self.STARTUP_ARGUMENT
 
     def source(self, name: str) -> str:
         """
         快捷获取程序资源文件路径
-        :param name: 文件名
-        :return: 文件路径
+        @param name: 文件名
+        @return: 文件路径
         """
         return f.pathJoin(self.SOURCE_PATH, name)
 
     def cache(self, name: str) -> str:
         """
         快捷获取程序缓存文件路径
-        :param name: 文件名
-        :return: 文件路径
+        @param name: 文件名
+        @return: 文件路径
         """
         return f.pathJoin(program.PROGRAM_DATA_PATH, "cache", name)
 
@@ -121,8 +122,8 @@ class SettingFunctions():
     def read(self, name: str):
         """
         读取设置
-        :param name: 选项名称
-        :return: 选项内容
+        @param name: 选项名称
+        @return: 选项内容
         """
         self.reload()
         with open(program.SETTING_FILE_PATH, "r+", encoding="utf-8") as file:
@@ -158,8 +159,8 @@ class SettingFunctions():
     def save(self, name: str, data):
         """
         保存设置
-        :param name: 选项名称
-        :param data: 选项数据
+        @param name: 选项名称
+        @param data: 选项数据
         """
         self.reload()
         with open(program.SETTING_FILE_PATH, "r+", encoding="utf-8") as file:
@@ -193,8 +194,8 @@ class Functions():
     def pathJoin(self, *data) -> str:
         """
         拼接路径
-        :param data: 多个字符串参数
-        :return: 拼接后的字符串
+        @param data: 多个字符串参数
+        @return: 拼接后的字符串
         """
         path = ""
         for i in data:
@@ -205,16 +206,16 @@ class Functions():
     def exists(self, path: str) -> bool:
         """
         文件是否存在
-        :param path: 文件路径
-        :return: bool
+        @param path: 文件路径
+        @return: bool
         """
         return os.path.exists(path)
 
     def isFile(self, path: str) -> bool:
         """
         文件是否为文件
-        :param path: 文件路径
-        :return: bool
+        @param path: 文件路径
+        @return: bool
         """
         if not self.exists(path):
             return False
@@ -223,8 +224,8 @@ class Functions():
     def isDir(self, path: str) -> bool:
         """
         文件是否为目录
-        :param path: 文件路径
-        :return: bool
+        @param path: 文件路径
+        @return: bool
         """
         if not self.exists(path):
             return False
@@ -233,8 +234,8 @@ class Functions():
     def onlyRead(self, path: str, enable: bool):
         """
         只读权限
-        :param path: 文件路径
-        :param enable: 是否开启
+        @param path: 文件路径
+        @param enable: 是否开启
         """
         from stat import S_IREAD, S_IWRITE
         if self.isFile(path):
@@ -246,7 +247,7 @@ class Functions():
     def delete(self, path: str):
         """
         删除文件/目录
-        :param path: 文件路径
+        @param path: 文件路径
         """
         if self.isFile(path):
             self.onlyRead(path, False)
@@ -257,8 +258,8 @@ class Functions():
     def getMD5(self, path: str) -> str:
         """
         获取文件MD5值
-        :param path: 文件路径
-        :return: MD5值
+        @param path: 文件路径
+        @return: MD5值
         """
         from hashlib import md5
         if self.isFile(path):
@@ -266,12 +267,12 @@ class Functions():
                 data = file.read()
             return md5(data).hexdigest()
 
-    def baseName(self, path: str, mode: int = 0) -> str:
+    def splitPath(self, path: str, mode: int = 0) -> str:
         """
-        获取文件名信息
-        :param path: 文件路径
-        :param mode: 模式：0 文件完整名称 1 文件名称 2 文件扩展名 3 文件所在目录
-        :return: 文件名信息
+        分割路径信息
+        @param path: 文件路径
+        @param mode: 模式：0 文件完整名称 1 文件名称 2 文件扩展名 3 文件所在目录
+        @return: 文件名信息
         """
         if mode == 0:
             return os.path.basename(path)
@@ -285,7 +286,7 @@ class Functions():
     def mkDir(self, path: str):
         """
         创建文件夹
-        :param path: 文件路径
+        @param path: 文件路径
         """
         if not self.exists(path):
             os.makedirs(path)
@@ -293,8 +294,8 @@ class Functions():
     def getSize(self, path: str) -> int:
         """
         获取文件大小
-        :param path: 文件路径
-        :return: 文件大小
+        @param path: 文件路径
+        @return: 文件大小
         """
         if self.isFile(path):
             return os.path.getsize(path)
@@ -302,9 +303,9 @@ class Functions():
     def walkDir(self, path: str, mode=0) -> list:
         """
         遍历子文件夹
-        :param path: 文件夹路径
-        :param mode: 模式：0 包含所有层级文件夹 1 仅包含次级文件夹
-        :return: 文件夹路径列表
+        @param path: 文件夹路径
+        @param mode: 模式：0 包含所有层级文件夹 1 仅包含次级文件夹
+        @return: 文件夹路径列表
         """
         list = []
         if mode == 0:
@@ -324,9 +325,9 @@ class Functions():
     def walkFile(self, path: str, mode=0) -> list:
         """
         遍历子文件
-        :param path: 文件夹路径
-        :param mode: 模式：0 包含所有层级文件 1 仅包含次级文件
-        :return: 文件路径列表
+        @param path: 文件夹路径
+        @param mode: 模式：0 包含所有层级文件 1 仅包含次级文件
+        @return: 文件路径列表
         """
         list = []
         if mode == 0:
@@ -346,18 +347,18 @@ class Functions():
     def copy(self, old: str, new: str):
         """
         复制文件
-        :param old: 旧文件（夹）路径
-        :param new: 新文件（夹）路径
+        @param old: 旧文件（夹）路径
+        @param new: 新文件（夹）路径
         """
         if self.isFile(old):
             if self.isDir(new) or "." not in new:
                 self.mkDir(new)
-                new = self.pathJoin(new, self.baseName(old))
+                new = self.pathJoin(new, self.splitPath(old))
             if self.exists(new):
                 i = 1
-                while self.exists(self.pathJoin(self.baseName(new, 3), self.baseName(new, 1) + " (" + str(i) + ")" + self.baseName(new, 2))):
+                while self.exists(self.pathJoin(self.splitPath(new, 3), self.splitPath(new, 1) + " (" + str(i) + ")" + self.splitPath(new, 2))):
                     i = i + 1
-                new = self.pathJoin(self.baseName(new, 3), self.baseName(new, 1) + " (" + str(i) + ")" + self.baseName(new, 2))
+                new = self.pathJoin(self.splitPath(new, 3), self.splitPath(new, 1) + " (" + str(i) + ")" + self.splitPath(new, 2))
             try:
                 shutil.copy(self.pathJoin(old), self.pathJoin(new))
             except:
@@ -382,8 +383,8 @@ class Functions():
     def move(self, old: str, new: str):
         """
         移动文件
-        :param old: 旧文件（夹）路径
-        :param new: 新文件（夹）路径
+        @param old: 旧文件（夹）路径
+        @param new: 新文件（夹）路径
         """
         self.copy(old, new)
         if self.exists(old):
@@ -392,7 +393,7 @@ class Functions():
     def clearEmptyFile(self, path: str):
         """
         删除空文件
-        :param path: 文件夹路径
+        @param path: 文件夹路径
         """
         if self.isDir(path):
             paths = self.walkFile(path, 1)
@@ -404,7 +405,7 @@ class Functions():
     def clearEmptyDir(self, path):
         """
         删除空文件夹
-        :param path: 文件夹路径
+        @param path: 文件夹路径
         """
         if self.isDir(path):
             paths = self.walkDir(path, 1)
@@ -418,7 +419,7 @@ class Functions():
     def clearRepeatFile(self, path: str):
         """
         清理重复文件
-        :param path: 文件夹路径
+        @param path: 文件夹路径
         """
         if self.isDir(path):
             sizes = []
@@ -438,7 +439,7 @@ class Functions():
     def clearFile(self, path: str):
         """
         清理文件夹3合1
-        :param path: 文件夹路径
+        @param path: 文件夹路径
         """
         self.clearEmptyFile(path)
         self.clearEmptyDir(path)
@@ -447,16 +448,16 @@ class Functions():
     def sortDir(self, old: str, new: str, mode: int = 0):
         """
         整理文件
-        :param old: 旧文件夹路径
-        :param new: 新文件夹路径
-        :param mode: 模式：0 全部整理 1 仅文件 2 仅文件夹
+        @param old: 旧文件夹路径
+        @param new: 新文件夹路径
+        @param mode: 模式：0 全部整理 1 仅文件 2 仅文件夹
         """
         if mode in [0, 1]:
             file_list = self.walkFile(old, 1)
             if file_list:
                 for i in file_list:
                     for j in range(len(self.SORT_FILE_DIR.values())):
-                        if self.baseName(i, 2).lower() in list(self.SORT_FILE_DIR.values())[j]:
+                        if self.splitPath(i, 2).lower() in list(self.SORT_FILE_DIR.values())[j]:
                             self.move(i, self.pathJoin(new, list(self.SORT_FILE_DIR.keys())[j]))
         if mode in [0, 2]:
             file_list = self.walkDir(old, 1)
@@ -538,8 +539,8 @@ class Functions():
     def urlJoin(self, *args):
         """
         拼接网址
-        :param args: 网址
-        :return: 拼接结果
+        @param args: 网址
+        @return: 拼接结果
         """
         import urllib.parse
         data = ""
@@ -550,9 +551,9 @@ class Functions():
     def cmd(self, command: str, pause: bool = False) -> str:
         """
         简单的使用cmd
-        :param command: 命令
-        :param pause: 是否返回输出结果
-        :return: 输出结果
+        @param command: 命令
+        @param pause: 是否返回输出结果
+        @return: 输出结果
         """
         value = os.popen(command)
         if pause:
@@ -561,7 +562,7 @@ class Functions():
     def pipInstall(self, lib_name: str | list):
         """
         pip安装运行库
-        :param lib_name: 运行库名称
+        @param lib_name: 运行库名称
         """
         if type(lib_name) == str:
             self.cmd(f"pip install {lib_name} -i https://pypi.tuna.tsinghua.edu.cn/simple some-package", True)
@@ -572,7 +573,7 @@ class Functions():
     def pipUpdate(self, lib_name: str | list):
         """
         pip更新运行库
-        :param lib_name: 运行库名称
+        @param lib_name: 运行库名称
         """
         if type(lib_name) == str:
             self.cmd(f"pip install --upgrade {lib_name} -i https://pypi.tuna.tsinghua.edu.cn/simple some-package", True)
@@ -583,9 +584,9 @@ class Functions():
     def changeList(self, data: list, index: dict):
         """
         批量替换元素
-        :param data: 数据列表
-        :param index: 替换字典{键值替换键名}
-        :return:
+        @param data: 数据列表
+        @param index: 替换字典{键值替换键名}
+        @return:
         """
         for i in range(len(data)):
             for k, v in index.items():
@@ -595,7 +596,7 @@ class Functions():
     def getMC(self) -> str:
         """
         获取Minecraft最新版本
-        :return: 字符串
+        @return: 字符串
         """
         import requests, bs4, lxml
         useful = ["{{v|java}}",
@@ -643,23 +644,23 @@ class Functions():
     def downloadFile(self, link: str, path: str):
         """
         下载文件
-        :param link: 文件链接
-        :param path: 下载路径
+        @param link: 文件链接
+        @param path: 下载路径
         """
         path = os.path.abspath(path)
         import requests
         data = requests.get(link, headers=program.REQUEST_HEADER).content
-        self.mkDir(self.baseName(path, 3))
+        self.mkDir(self.splitPath(path, 3))
         with open(path, "wb") as file:
             file.write(data)
 
     def createShortcut(self, old: str, new: str = program.DESKTOP_PATH, icon: str = "", arguments: str = ""):
         """
         创建快捷方式
-        :param old: 源文件路径
-        :param new: 新文件路径
-        :param icon: 图标
-        :param arguments: 参数
+        @param old: 源文件路径
+        @param new: 新文件路径
+        @param icon: 图标
+        @param arguments: 参数
         """
         import win32com.client
         if not new.endswith(".lnk"):
@@ -680,9 +681,9 @@ class Functions():
     def addToStartup(self, name: str, path: str, mode: bool = True):
         """
         添加开机自启动
-        :param name: 启动项名字
-        :param path: 文件路径
-        :param mode: True添加/False删除
+        @param name: 启动项名字
+        @param path: 文件路径
+        @param mode: True添加/False删除
         """
         import win32api, win32con
         key = win32api.RegOpenKey(win32con.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Run", 0, win32con.KEY_ALL_ACCESS)
@@ -699,7 +700,7 @@ class Functions():
     def getNewestVersion(self) -> str:
         """
         获取程序最新版本
-        :return: 程序最新版本
+        @return: 程序最新版本
         """
         import requests
         response = requests.get(program.UPDATE_URL, headers=program.REQUEST_HEADER, stream=True).text
@@ -709,9 +710,9 @@ class Functions():
     def compareVersion(self, version1, version2):
         """
         不带英文的版本号
-        :param version1: 版本号1
-        :param version2: 版本号2
-        :return: ver1< = >ver2返回-1/0/1
+        @param version1: 版本号1
+        @param version2: 版本号2
+        @return: ver1< = >ver2返回-1/0/1
         """
         list1 = str(version1).split(".")
         list2 = str(version2).split(".")

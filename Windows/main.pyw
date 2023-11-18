@@ -13,6 +13,7 @@ class Window(FluentWindow):
 
         self.__initWindow()
         self.__initWidget()
+
         self.__initActivity()
 
     def __initWindow(self):

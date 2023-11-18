@@ -18,7 +18,7 @@ class BasicPage(ScrollArea):
         self.setObjectName(self.title)
         self.setWidgetResizable(True)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.setStyleSheet("QScrollArea {background-color: rgba(0,0,0,0); border: none; border-top-left-radius: 10px;}")
+        self.setStyleSheet("QScrollArea {background-color: rgba(0,0,0,0); border: none}")
 
         self.toolBar = ToolBar(self.title, self.subtitle, self)
 
@@ -79,110 +79,16 @@ class BasicTab(BasicPage):
         self.setViewportMargins(0, 0, 0, 0)
 
 
-class StatisticsWidget(QWidget):
-    """
-    两行信息组件
-    """
-
-    def __init__(self, title: str, value: str, parent=None):
-        super().__init__(parent=parent)
-        self.titleLabel = CaptionLabel(title, self)
-        self.valueLabel = BodyLabel(value, self)
-        self.vBoxLayout = QVBoxLayout(self)
-
-        self.vBoxLayout.setContentsMargins(16, 0, 16, 0)
-        self.vBoxLayout.addWidget(self.valueLabel, 0, Qt.AlignTop)
-        self.vBoxLayout.addWidget(self.titleLabel, 0, Qt.AlignBottom)
-
-        setFont(self.valueLabel, 18, QFont.DemiBold)
-        self.titleLabel.setTextColor(QColor(96, 96, 96), QColor(206, 206, 206))
-
-
-class WebImage(QLabel):
-    def __init__(self, path: str = None, url: str = None, parent=None):
-        super().__init__(parent=parent)
-        self.setFixedSize(48, 48)
-        self.setScaledContents(True)
-        if path:
-            if url:
-                self.path = program.cache(path)
-                self.url = url
-                self.thread = NewThread("下载图片", [self.url, self.path])
-                self.thread.signalBool.connect(self.thread1)
-                self.thread.start()
-            else:
-                self.setPixmap(QPixmap(path))
-
-    def thread1(self, msg):
-        if msg:
-            self.setPixmap(QPixmap(self.path))
-
-    def setImg(self, path: str, url: str = None):
-        if url:
-            self.path = program.cache(path)
-            self.url = url
-            self.thread = NewThread("下载图片", [self.url, self.path])
-            self.thread.signalBool.connect(self.thread1)
-            self.thread.start()
-        else:
-            self.setPixmap(QPixmap(path))
-
-
-class PhotoCard(ElevatedCardWidget):
-    """
-    大图片卡片
-    """
-
-    def __init__(self, img: str, name: str = "", parent=None, imageSize: int = 68, widgetSize: list | tuple = (168, 176), link: str = ""):
-        super().__init__(parent)
-        self.imageSize = imageSize
-
-        self.setFixedSize(widgetSize[0], widgetSize[1])
-        self.setStyleSheet("QLabel {background-color: rgba(0,0,0,0); border: none;}")
-
-        self.image = WebImage(img, link, self)
-        self.image.setMinimumSize(self.imageSize, self.imageSize)
-
-        self.label = CaptionLabel(name, self)
-
-        self.vBoxLayout = QVBoxLayout(self)
-        self.vBoxLayout.setAlignment(Qt.AlignCenter)
-        self.vBoxLayout.addStretch(1)
-        self.vBoxLayout.addWidget(self.image, 0, Qt.AlignCenter)
-        self.vBoxLayout.addStretch(1)
-        self.vBoxLayout.addWidget(self.label, 0, Qt.AlignHCenter | Qt.AlignBottom)
-        self.setTheme()
-        qconfig.themeChanged.connect(self.setTheme)
-
-    def setTheme(self):
-        if isDarkTheme():
-            self.setStyleSheet("QLabel {background-color: transparent; color: white}")
-        else:
-            self.setStyleSheet("QLabel {background-color: transparent; color: black}")
-
-    def mousePressEvent(self, event):
-        self.clickedFunction()
-
-    def clickedFunction(self):
-        pass
-
-    def connect(self, functions):
-        self.clickedFunction = functions
-
-    def setText(self, data):
-        self.label.setText(data)
-
-    def setImage(self, img):
-        self.iconWidget.setImage(img)
-        self.iconWidget.scaledToHeight(self.imageSize)
-
-
 class ToolBar(QWidget):
     """
     页面顶端工具栏
     """
 
-    def __init__(self, title, subtitle, parent=None):
+    def __init__(self, title: str, subtitle: str, parent: QWidget = None):
+        """
+        @param title: 主标题
+        @param subtitle: 副标题
+        """
         super().__init__(parent=parent)
         self.setFixedHeight(90)
 
@@ -207,12 +113,134 @@ class ToolBar(QWidget):
             self.setStyleSheet("QLabel {background-color: transparent; color: black}")
 
 
+class StatisticsWidget(QWidget):
+    """
+    两行信息组件
+    """
+
+    def __init__(self, title: str, value: str, parent: QWidget = None):
+        """
+        @param title: 标题
+        @param value: 值
+        """
+        super().__init__(parent=parent)
+        self.titleLabel = CaptionLabel(title, self)
+        self.valueLabel = BodyLabel(value, self)
+
+        self.vBoxLayout = QVBoxLayout(self)
+        self.vBoxLayout.setContentsMargins(16, 0, 16, 0)
+        self.vBoxLayout.addWidget(self.valueLabel, 0, Qt.AlignTop)
+        self.vBoxLayout.addWidget(self.titleLabel, 0, Qt.AlignBottom)
+
+        setFont(self.valueLabel, 18, QFont.DemiBold)
+        self.titleLabel.setTextColor(QColor(96, 96, 96), QColor(206, 206, 206))
+
+
+class Image(QLabel):
+    @singledispatchmethod
+    def __init__(self, parent: QWidget = None):
+        super().__init__(parent=parent)
+        self.setFixedSize(48, 48)
+        self.setScaledContents(True)
+
+    @__init__.register
+    def _(self, path: str = None, url: str = None, parent: QWidget = None):
+        """
+        @param path: 路径
+        @param url: 链接
+        """
+        self.__init__(parent)
+        if path:
+            self.setImg(path, url)
+
+    def thread1(self, msg):
+        if msg:
+            self.setPixmap(QPixmap(self.path))
+
+    def setImg(self, path: str, url: str = None):
+        """
+        设置图片
+        @param path: 路径
+        @param url: 链接
+        """
+        if url:
+            self.path = program.cache(path)
+            self.url = url
+            self.thread = NewThread("下载图片", [self.url, self.path])
+            self.thread.signalBool.connect(self.thread1)
+            self.thread.start()
+        else:
+            self.setPixmap(QPixmap(path))
+
+
+class DisplayCard(ElevatedCardWidget):
+    """
+    大图片卡片
+    """
+
+    def __init__(self, parent: QWidget = None):
+        super().__init__(parent)
+        self.setFixedSize(168, 176)
+        self.setStyleSheet("QLabel {background-color: rgba(0,0,0,0); border: none;}")
+
+        self.display = Image(self)
+
+        self.label = CaptionLabel(self)
+
+        self.vBoxLayout = QVBoxLayout(self)
+        self.vBoxLayout.setAlignment(Qt.AlignCenter)
+        self.vBoxLayout.addStretch(1)
+        self.vBoxLayout.addWidget(self.display, 0, Qt.AlignCenter)
+        self.vBoxLayout.addStretch(1)
+        self.vBoxLayout.addWidget(self.label, 0, Qt.AlignHCenter | Qt.AlignBottom)
+
+        self.setTheme()
+        qconfig.themeChanged.connect(self.setTheme)
+
+    def setTheme(self):
+        if isDarkTheme():
+            self.setStyleSheet("QLabel {background-color: transparent; color: white}")
+        else:
+            self.setStyleSheet("QLabel {background-color: transparent; color: black}")
+
+    def mousePressEvent(self, event):
+        self.clickedFunction()
+
+    def clickedFunction(self):
+        pass
+
+    def connect(self, functions):
+        """
+        设置点击事件
+        @param functions: 函数
+        """
+        self.clickedFunction = functions
+
+    def setText(self, text: str):
+        """
+        设置文本
+        @param text: 文本
+        """
+        self.label.setText(text)
+
+    def setDisplay(self, widget: QWidget):
+        """
+        设置展示组件
+        @param widget: 组件
+        """
+        self.widget = widget
+        self.vBoxLayout.replaceWidget(self.display, self.widget)
+
+
 class GrayCard(QWidget):
     """
     灰色背景组件卡片
     """
 
-    def __init__(self, title: str, parent=None, alignment=Qt.AlignLeft):
+    def __init__(self, title: str, parent: QWidget = None, alignment=Qt.AlignLeft):
+        """
+        @param title: 标题
+        """
         super().__init__(parent=parent)
 
         self.titleLabel = StrongBodyLabel(title, self)
@@ -221,29 +249,21 @@ class GrayCard(QWidget):
         self.card.setObjectName("卡片")
 
         self.vBoxLayout = QVBoxLayout(self)
-        self.hBoxLayout = QHBoxLayout(self.card)
-
         self.vBoxLayout.setAlignment(Qt.AlignTop)
-        self.hBoxLayout.setAlignment(alignment)
-
         self.vBoxLayout.setSizeConstraint(QVBoxLayout.SetMinimumSize)
-        self.hBoxLayout.setSizeConstraint(QHBoxLayout.SetMinimumSize)
-
         self.vBoxLayout.setSpacing(12)
-        self.hBoxLayout.setSpacing(0)
-
         self.vBoxLayout.setContentsMargins(0, 0, 0, 0)
-        self.hBoxLayout.setContentsMargins(12, 12, 12, 12)
-
         self.vBoxLayout.addWidget(self.titleLabel, 0, Qt.AlignTop)
         self.vBoxLayout.addWidget(self.card, 0, Qt.AlignTop)
 
+        self.hBoxLayout = QHBoxLayout(self.card)
+        self.hBoxLayout.setAlignment(alignment)
+        self.hBoxLayout.setSizeConstraint(QHBoxLayout.SetMinimumSize)
+        self.hBoxLayout.setSpacing(0)
+        self.hBoxLayout.setContentsMargins(12, 12, 12, 12)
+
         self.setTheme()
         qconfig.themeChanged.connect(self.setTheme)
-
-    def addWidget(self, widget: object, spacing=0, alignment=Qt.AlignTop):
-        self.hBoxLayout.addWidget(widget, alignment=alignment)
-        self.hBoxLayout.addSpacing(spacing)
 
     def setTheme(self):
         if isDarkTheme():
@@ -253,13 +273,23 @@ class GrayCard(QWidget):
             self.setStyleSheet("QLabel {background-color: transparent; color: black}")
             self.card.setStyleSheet("QWidget {background-color: rgba(175,175,175,0.1); border:1px solid rgba(150,150,150,0.15); border-radius: 10px}")
 
+    def addWidget(self, widget: object, spacing=0, alignment=Qt.AlignTop):
+        """
+        添加组件
+        @param widget: 组件
+        @param spacing: 间隔
+        @param alignment: 对齐方式
+        """
+        self.hBoxLayout.addWidget(widget, alignment=alignment)
+        self.hBoxLayout.addSpacing(spacing)
+
 
 class BigInfoCard(CardWidget):
     """
     详细信息卡片（资源主页展示）
     """
 
-    def __init__(self, parent=None):
+    def __init__(self, parent: QWidget = None):
         super().__init__(parent)
         self.setMinimumWidth(0)
 
@@ -268,7 +298,7 @@ class BigInfoCard(CardWidget):
         self.backButton.setMaximumSize(32, 32)
         self.backButton.clicked.connect(self.buttonClickedBack)
 
-        self.image = WebImage()
+        self.image = Image(self)
 
         self.titleLabel = TitleLabel(self)
 
@@ -325,35 +355,62 @@ class BigInfoCard(CardWidget):
         else:
             self.setStyleSheet("QLabel {background-color: transparent; color: black}")
 
-    def setTitle(self, text: str):
-        self.titleLabel.setText(text)
-
-    def setImg(self, path: str, url: str = None):
-        self.image.setImg(path, url)
-
-    def setInfo(self, data: str):
-        self.infoLabel.setText(data)
-
-    def addUrl(self, text: str, url: str):
-        self.hBoxLayout2.addWidget(HyperlinkLabel(QUrl(url), text, self), alignment=Qt.AlignLeft)
-
-    def addData(self, type: str, data: str | int):
-        if self.hBoxLayout3.count() >= 1:
-            self.hBoxLayout3.addWidget(VerticalSeparator(self))
-        self.hBoxLayout3.addWidget(StatisticsWidget(type, data, self))
-
-    def addTag(self, name: str):
-        self.tagButton = PillPushButton(name, self)
-        self.tagButton.setCheckable(False)
-        setFont(self.tagButton, 12)
-        self.tagButton.setFixedSize(80, 32)
-        self.hBoxLayout4.addWidget(self.tagButton, 0, Qt.AlignLeft)
-
     def buttonClickedBack(self):
         self.hide()
 
     def buttonClickedMain(self):
         pass
+
+    def setTitle(self, text: str):
+        """
+        设置标题
+        @param text: 文本
+        """
+        self.titleLabel.setText(text)
+
+    def setImg(self, path: str, url: str = None):
+        """
+        设置图片
+        @param path: 路径
+        @param url: 链接
+        """
+        self.image.setImg(path, url)
+
+    def setInfo(self, data: str):
+        """
+        设置信息
+        @param data: 文本
+        """
+        self.infoLabel.setText(data)
+
+    def addUrl(self, text: str, url: str):
+        """
+        添加链接
+        @param text: 文本
+        @param url: 链接
+        """
+        self.hBoxLayout2.addWidget(HyperlinkLabel(QUrl(url), text, self), alignment=Qt.AlignLeft)
+
+    def addData(self, title: str, data: str | int):
+        """
+        添加数据
+        @param title: 标题
+        @param data: 数据
+        """
+        if self.hBoxLayout3.count() >= 1:
+            self.hBoxLayout3.addWidget(VerticalSeparator(self))
+        self.hBoxLayout3.addWidget(StatisticsWidget(title, data, self))
+
+    def addTag(self, name: str):
+        """
+        添加标签
+        @param name: 名称
+        """
+        self.tagButton = PillPushButton(name, self)
+        self.tagButton.setCheckable(False)
+        setFont(self.tagButton, 12)
+        self.tagButton.setFixedSize(80, 32)
+        self.hBoxLayout4.addWidget(self.tagButton, 0, Qt.AlignLeft)
 
 
 class NormalInfoCard(CardWidget):
@@ -361,16 +418,18 @@ class NormalInfoCard(CardWidget):
     普通信息卡片（搜索列表展示）
     """
 
-    def __init__(self, title: str, img: str, info: list | tuple, link: str = "", parent=None):
+    def __init__(self, parent: QWidget = None):
         super().__init__(parent)
         self.setMinimumWidth(0)
         self.setFixedHeight(73)
 
-        self.image = WebImage(img, link)
+        self.image = Image(self)
 
-        self.titleLabel = BodyLabel(title, self)
-        self.contentLabel1 = CaptionLabel(f"{info[0]}\n{info[1]}", self)
-        self.contentLabel2 = CaptionLabel(f"{info[2]}\n{info[3]}", self)
+        self.titleLabel = BodyLabel(self)
+
+        self.info = ["", "", "", ""]
+        self.contentLabel1 = CaptionLabel(f"{self.info[0]}\n{self.info[1]}", self)
+        self.contentLabel2 = CaptionLabel(f"{self.info[2]}\n{self.info[3]}", self)
         self.contentLabel1.setTextColor("#606060", "#d2d2d2")
         self.contentLabel2.setTextColor("#606060", "#d2d2d2")
 
@@ -413,3 +472,28 @@ class NormalInfoCard(CardWidget):
 
     def buttonClickedMain(self):
         pass
+
+    def setTitle(self, text: str):
+        """
+        设置标题
+        @param text: 文本
+        """
+        self.titleLabel.setText(text)
+
+    def setImg(self, path: str, url: str = None):
+        """
+        设置图片
+        @param path: 路径
+        @param url: 链接
+        """
+        self.image.setImg(path, url)
+
+    def setInfo(self, data: str, pos: int):
+        """
+        设置信息
+        @param data: 文本
+        @param pos: 位置：0 左上 1 左下 2 右上 3 右下
+        """
+        self.info[pos] = data
+        self.contentLabel1.setText(f"{self.info[0]}\n{self.info[1]}")
+        self.contentLabel2.setText(f"{self.info[2]}\n{self.info[3]}")

@@ -698,8 +698,20 @@ class GamePage(BasicTabPage):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
 
-        self.card2 = NormalInfoCard("标题", "mc.png", ["!@3", 123123, 423, 4], "https://static.wikia.nocookie.net/minecraft_zh_gamepedia/images/9/90/Minecraft_Wiki_header.svg/revision/latest/scale-to-width-down/300?cb=20211229051507")
-        self.card3 = PhotoCard("李永国666.png", "李永国", self, link="https://picdl.sunbangyan.cn/2023/11/14/774ab3fad42612dd6e7a1aa68aef5b09.jpg", imageSize=200)
+        self.card2 = NormalInfoCard()
+        self.card2.setImg("mc.png", "https://static.wikia.nocookie.net/minecraft_zh_gamepedia/images/9/90/Minecraft_Wiki_header.svg/revision/latest/scale-to-width-down/300?cb=20211229051507")
+        self.card2.setTitle("标题")
+        self.card2.setInfo("左上", 0)
+        self.card2.setInfo("左下", 1)
+        self.card2.setInfo("右上", 2)
+        self.card2.setInfo("右下", 3)
+
+        self.card3 = DisplayCard(self)
+        self.card3.setFixedSize(500, 600)
+        self.image = Image("linger.png", "https://picdl.sunbangyan.cn/2023/11/14/774ab3fad42612dd6e7a1aa68aef5b09.jpg")
+        self.image.setFixedSize(500, 600)
+        self.card3.setDisplay(self.image)
+        self.card3.setText("123")
 
         self.page1 = BasicTab()
 
@@ -710,7 +722,6 @@ class GamePage(BasicTabPage):
         self.card1.addUrl("链接Url", program.UPDATE_URL)
         self.card1.addData("数据Data", "值")
         self.card1.addTag("标签Tag")
-
 
         self.page1.vBoxLayout.addWidget(self.card1, 0, Qt.AlignTop)
         self.page1.vBoxLayout.addWidget(self.card2, 0, Qt.AlignTop)
