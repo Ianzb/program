@@ -220,7 +220,8 @@ class DisplayCard(ElevatedCardWidget):
         设置展示组件
         @param widget: 组件
         """
-        self.vBoxLayout.replaceWidget(self.widget, widget)
+        self.widget = widget
+        self.vBoxLayout.replaceWidget(self.vBoxLayout.itemAt(1).widget(), self.widget)
 
 
 class GrayCard(QWidget):

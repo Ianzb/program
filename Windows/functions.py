@@ -653,11 +653,14 @@ class Functions():
         @param link: 文件链接
         @param path: 下载路径
         """
-        path = os.path.abspath(path)
-        data = requests.get(link, headers=program.REQUEST_HEADER).content
-        self.mkDir(self.splitPath(path, 3))
-        with open(path, "wb") as file:
-            file.write(data)
+        try:
+            path = os.path.abspath(path)
+            data = requests.get(link, headers=program.REQUEST_HEADER).content
+            self.mkDir(self.splitPath(path, 3))
+            with open(path, "wb") as file:
+                file.write(data)
+        except:
+            pass
 
     def createShortcut(self, old: str, new: str, icon: str, arguments: str = ""):
         """
@@ -866,7 +869,6 @@ class NewThread(QThread):
                 self.signalList.emit(data)
             except:
                 self.signalBool.emit(False)
-
 
         if self.mode == "下载文件":
             path = f.pathJoin(setting.read("downloadPath"), self.data[0])

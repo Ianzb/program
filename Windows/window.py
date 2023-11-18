@@ -160,13 +160,16 @@ class AppStoreTab(BasicTab):
 
     def searchButtonClicked(self):
         if self.lineEdit.text():
-            self.loadingCard.show()
+            for i in range(self.vBoxLayout.count())[2:]:
+                self.vBoxLayout.itemAt(i).widget().deleteLater()
+
+            self.lineEdit.searchButton.setEnabled(False)
+
             self.loadingCard.setText("搜索中...")
             self.loadingCard.setDisplay(self.progressRingLoading)
             self.progressRingLoading.show()
-
-            for i in range(self.vBoxLayout.count())[2:]:
-                self.vBoxLayout.itemAt(i).widget().deleteLater()
+            self.progressRingError.hide()
+            self.loadingCard.show()
 
             self.thread = NewThread("搜索应用", self.lineEdit.text())
             self.thread.signalList.connect(self.thread1)
@@ -181,13 +184,15 @@ class AppStoreTab(BasicTab):
         for i in msg:
             self.infoCard = AppInfoCard(i)
             self.vBoxLayout.addWidget(self.infoCard)
+        self.lineEdit.searchButton.setEnabled(True)
 
     def thread2(self, msg):
         if not msg:
-            self.loadingCard.show()
             self.loadingCard.setText("网络连接失败！")
             self.loadingCard.setDisplay(self.progressRingError)
+            self.progressRingLoading.hide()
             self.progressRingError.show()
+            self.loadingCard.show()
 
 
 class ThemeSettingCard(ExpandSettingCard):
