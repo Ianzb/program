@@ -421,9 +421,12 @@ class SmallInfoCard(CardWidget):
 
         self.info = ["", "", "", ""]
         self.contentLabel1 = CaptionLabel(f"{self.info[0]}\n{self.info[1]}", self)
-        self.contentLabel2 = CaptionLabel(f"{self.info[2]}\n{self.info[3]}", self)
         self.contentLabel1.setTextColor("#606060", "#d2d2d2")
+        self.contentLabel1.setAlignment(Qt.AlignLeft)
+
+        self.contentLabel2 = CaptionLabel(f"{self.info[2]}\n{self.info[3]}", self)
         self.contentLabel2.setTextColor("#606060", "#d2d2d2")
+        self.contentLabel2.setAlignment(Qt.AlignRight)
 
         self.mainButton = PushButton("进入", self, FIF.CHEVRON_RIGHT)
         self.mainButton.clicked.connect(self.buttonMainClicked)
