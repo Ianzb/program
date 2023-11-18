@@ -57,6 +57,7 @@ class ProgramInit():
                    "pypiwin32",
                    "pandas",
                    "winshell",
+                   "xmltodict",
                    ]
 
     def __init__(self):
@@ -722,6 +723,15 @@ class Functions():
         else:
             return version2
 
+    def xmlToJson(self, data: str) -> dict:
+        """
+        xml转json
+        @param data: xml字符串
+        @return: 转换字典
+        """
+        import xmltodict
+        data = xmltodict.parse(data)
+        return data
 
 f = Functions()
 # 切换运行路径

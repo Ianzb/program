@@ -69,6 +69,20 @@ class Tray(QSystemTrayIcon):
         qApp.quit()
 
 
+class AppStoreTab(BasicTab):
+    """
+    应用商店页面
+    """
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.card1 = GrayCard("搜索")
+        self.lindEdit = SearchLineEdit(self)
+        self.card1.addWidget(self.lindEdit)
+
+        self.vBoxLayout.addWidget(self.card1)
+
+
 class ThemeSettingCard(ExpandSettingCard):
     """
     主题设置卡片
@@ -686,6 +700,8 @@ class ToolPage(BasicTabPage):
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
+        self.page1 = AppStoreTab()
+        self.addPage(self.page1, "应用商店", FIF.SHOPPING_CART)
 
 
 class GamePage(BasicTabPage):
