@@ -99,19 +99,19 @@ class AppStoreTab(BasicTab):
 
     def thread1(self, msg):
         for i in msg:
-            self.smallInfoCard = AppInfoCard(i["xmlInfo"]["soft"]["url"])
-            self.smallInfoCard.setImg(i["SoftName"], f"https://pc3.gtimg.com/softmgr/logo/48/{i['xmlInfo']['soft']['logo48']}")
+            self.infoCard = AppInfoCard(i["xmlInfo"]["soft"]["url"])
+            self.infoCard.setImg(f.illegalPath(i["SoftName"]), f"https://pc3.gtimg.com/softmgr/logo/48/{i['xmlInfo']['soft']['logo48']}")
             if i["xmlInfo"]["soft"]["@osbit"] == "2":
-                self.smallInfoCard.setTitle(f"{i['SoftName']} 64位")
+                self.infoCard.setTitle(f"{i['SoftName']} 64位")
             elif i["xmlInfo"]["soft"]["@osbit"] == "1":
-                self.smallInfoCard.setTitle(f"{i['SoftName']} 32位")
+                self.infoCard.setTitle(f"{i['SoftName']} 32位")
             else:
-                self.smallInfoCard.setTitle(f"{i['SoftName']}")
-            self.smallInfoCard.setInfo(i["xmlInfo"]["soft"]["feature"], 0)
-            self.smallInfoCard.setInfo(f"{eval('%.5g' % (eval(i['xmlInfo']['soft']['filesize']) / 1024 / 1024))} MB", 1)
-            self.smallInfoCard.setInfo(f"当前版本：{i['xmlInfo']['soft']['versionname']}", 2)
-            self.smallInfoCard.setInfo(f"更新日期：{i['xmlInfo']['soft']['publishdate']}", 3)
-            self.vBoxLayout.addWidget(self.smallInfoCard)
+                self.infoCard.setTitle(f"{i['SoftName']}")
+            self.infoCard.setInfo(i["xmlInfo"]["soft"]["feature"], 0)
+            self.infoCard.setInfo(f"{eval('%.2f' % eval('%.5g' % (eval(i['xmlInfo']['soft']['filesize']) / 1024 / 1024)))} MB", 1)
+            self.infoCard.setInfo(f"当前版本：{i['xmlInfo']['soft']['versionname']}", 2)
+            self.infoCard.setInfo(f"更新日期：{i['xmlInfo']['soft']['publishdate']}", 3)
+            self.vBoxLayout.addWidget(self.infoCard)
 
     def buttonDownloadClicked(self, data: str):
         webbrowser.open(data)

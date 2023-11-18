@@ -723,6 +723,15 @@ class Functions():
         else:
             return version2
 
+    def illegalPath(self, path: str) -> str:
+        """
+        去除路径中的非法字符
+        @param path: 路径
+        @return: 去除结果
+        """
+        import re
+        return re.sub('[\\\/:*?"<>|]', "", path)
+
     def xmlToJson(self, data: str) -> dict:
         """
         xml转json
