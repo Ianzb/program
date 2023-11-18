@@ -6,6 +6,9 @@ import shutil
 import threading
 import webbrowser
 import time
+import requests
+import bs4
+import lxml
 
 
 class MyThread(threading.Thread):
@@ -599,7 +602,6 @@ class Functions():
         获取Minecraft最新版本
         @return: 字符串
         """
-        import requests, bs4, lxml
         useful = ["{{v|java}}",
                   "{{v|java-experimental}}",
                   "{{v|java-snap}}",
@@ -649,7 +651,6 @@ class Functions():
         @param path: 下载路径
         """
         path = os.path.abspath(path)
-        import requests
         data = requests.get(link, headers=program.REQUEST_HEADER).content
         self.mkDir(self.splitPath(path, 3))
         with open(path, "wb") as file:
@@ -697,7 +698,6 @@ class Functions():
         获取程序最新版本
         @return: 程序最新版本
         """
-        import requests
         response = requests.get(program.UPDATE_URL, headers=program.REQUEST_HEADER, stream=True).text
         data = json.loads(response)["version"]
         return data
@@ -732,6 +732,21 @@ class Functions():
         import xmltodict
         data = xmltodict.parse(data)
         return data
+
+    def searchSoftware(self, name: str) -> list:
+        """
+        搜索软件
+        @param name: 名称
+        @return: 列表
+        """
+        data = requests.get(f"https://s.pcmgr.qq.com/tapi/web/searchcgi.php?type=search&keyword={name}&page=1&pernum=100", headers=program.REQUEST_HEADER, stream=True).text
+        data = json.loads(data)["list"]
+        for i in range(len(data)):
+            data[i]["xmlInfo"] = self.xmlToJson(data[i]["xmlInfo"])
+            if len(data[i]["xmlInfo"]["soft"]["feature"]) >= 20:
+                data[i]["xmlInfo"]["soft"]["feature"] = data[i]["xmlInfo"]["soft"]["feature"][:20] + "..."
+        return data
+
 
 f = Functions()
 # 切换运行路径
@@ -797,7 +812,6 @@ class NewThread(QThread):
             if f.compareVersion(data, program.PROGRAM_VERSION) == program.PROGRAM_VERSION:
                 self.signalDict.emit({"数量": len(data), "完成": "失败", "名称": "", "序号": 0})
                 return
-            import requests
             response = requests.get(program.UPDATE_URL, headers=program.REQUEST_HEADER, stream=True).text
             data = json.loads(response)["list"]
             for i in range(len(data)):
@@ -831,3 +845,5 @@ class NewThread(QThread):
             if not f.exists(self.data[1]):
                 f.downloadFile(self.data[0], self.data[1])
             self.signalBool.emit(True)
+        if self.mode == "搜索应用":
+            self.signalList.emit(f.searchSoftware(self.data))

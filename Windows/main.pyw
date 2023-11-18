@@ -141,7 +141,7 @@ class GamePage(BasicTabPage):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
 
-        self.card2 = NormalInfoCard()
+        self.card2 = SmallInfoCard()
         self.card2.setImg("mc.png", "https://static.wikia.nocookie.net/minecraft_zh_gamepedia/images/9/90/Minecraft_Wiki_header.svg/revision/latest/scale-to-width-down/300?cb=20211229051507")
         self.card2.setTitle("标题")
         self.card2.setInfo("左上", 0)

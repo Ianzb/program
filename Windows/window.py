@@ -76,11 +76,45 @@ class AppStoreTab(BasicTab):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.vBoxLayout.setSpacing(8)
+
+        self.lineEdit = SearchLineEdit(self)
+        self.lineEdit.setPlaceholderText("应用名称")
+        self.lineEdit.setToolTip("搜索应用")
+        self.lineEdit.installEventFilter(ToolTipFilter(self.lineEdit, 1000))
+        self.lineEdit.searchButton.clicked.connect(self.searchButtonClicked)
+
         self.card1 = GrayCard("搜索")
-        self.lindEdit = SearchLineEdit(self)
-        self.card1.addWidget(self.lindEdit)
+        self.card1.addWidget(self.lineEdit)
 
         self.vBoxLayout.addWidget(self.card1)
+
+    def searchButtonClicked(self):
+        if self.lineEdit.text():
+            for i in range(self.vBoxLayout.count())[1:]:
+                self.vBoxLayout.itemAt(i).widget().deleteLater()
+            self.thread = NewThread("搜索应用", self.lineEdit.text())
+            self.thread.signalList.connect(self.thread1)
+            self.thread.start()
+
+    def thread1(self, msg):
+        for i in msg:
+            self.smallInfoCard = AppInfoCard(i["xmlInfo"]["soft"]["url"])
+            self.smallInfoCard.setImg(i["SoftName"], f"https://pc3.gtimg.com/softmgr/logo/48/{i['xmlInfo']['soft']['logo48']}")
+            if i["xmlInfo"]["soft"]["@osbit"] == "2":
+                self.smallInfoCard.setTitle(f"{i['SoftName']} 64位")
+            elif i["xmlInfo"]["soft"]["@osbit"] == "1":
+                self.smallInfoCard.setTitle(f"{i['SoftName']} 32位")
+            else:
+                self.smallInfoCard.setTitle(f"{i['SoftName']}")
+            self.smallInfoCard.setInfo(i["xmlInfo"]["soft"]["feature"], 0)
+            self.smallInfoCard.setInfo(f"{eval('%.5g' % (eval(i['xmlInfo']['soft']['filesize']) / 1024 / 1024))} MB", 1)
+            self.smallInfoCard.setInfo(f"当前版本：{i['xmlInfo']['soft']['versionname']}", 2)
+            self.smallInfoCard.setInfo(f"更新日期：{i['xmlInfo']['soft']['publishdate']}", 3)
+            self.vBoxLayout.addWidget(self.smallInfoCard)
+
+    def buttonDownloadClicked(self, data: str):
+        webbrowser.open(data)
 
 
 class ThemeSettingCard(ExpandSettingCard):

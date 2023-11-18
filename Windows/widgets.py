@@ -287,14 +287,14 @@ class BigInfoCard(CardWidget):
         self.backButton = TransparentToolButton(FIF.RETURN, self)
         self.backButton.move(8, 8)
         self.backButton.setMaximumSize(32, 32)
-        self.backButton.clicked.connect(self.buttonClickedBack)
+        self.backButton.clicked.connect(self.buttonBackClicked)
 
         self.image = Image(self)
 
         self.titleLabel = TitleLabel(self)
 
         self.mainButton = PrimaryPushButton("下载", self)
-        self.mainButton.clicked.connect(self.buttonClickedMain)
+        self.mainButton.clicked.connect(self.buttonMainClicked)
         self.mainButton.setFixedWidth(160)
 
         self.infoLabel = BodyLabel(self)
@@ -346,10 +346,10 @@ class BigInfoCard(CardWidget):
         else:
             self.setStyleSheet("QLabel {background-color: transparent; color: black}")
 
-    def buttonClickedBack(self):
+    def buttonBackClicked(self):
         self.hide()
 
-    def buttonClickedMain(self):
+    def buttonMainClicked(self):
         pass
 
     def setTitle(self, text: str):
@@ -404,7 +404,7 @@ class BigInfoCard(CardWidget):
         self.hBoxLayout4.addWidget(self.tagButton, 0, Qt.AlignLeft)
 
 
-class NormalInfoCard(CardWidget):
+class SmallInfoCard(CardWidget):
     """
     普通信息卡片（搜索列表展示）
     """
@@ -425,7 +425,7 @@ class NormalInfoCard(CardWidget):
         self.contentLabel2.setTextColor("#606060", "#d2d2d2")
 
         self.mainButton = PushButton("进入", self, FIF.CHEVRON_RIGHT)
-        self.mainButton.clicked.connect(self.buttonClickedMain)
+        self.mainButton.clicked.connect(self.buttonMainClicked)
 
         self.vBoxLayout1 = QVBoxLayout()
 
@@ -461,7 +461,7 @@ class NormalInfoCard(CardWidget):
         else:
             self.setStyleSheet("QLabel {background-color: transparent; color: black}")
 
-    def buttonClickedMain(self):
+    def buttonMainClicked(self):
         pass
 
     def setTitle(self, text: str):
@@ -488,3 +488,18 @@ class NormalInfoCard(CardWidget):
         self.info[pos] = data
         self.contentLabel1.setText(f"{self.info[0]}\n{self.info[1]}")
         self.contentLabel2.setText(f"{self.info[2]}\n{self.info[3]}")
+
+
+class AppInfoCard(SmallInfoCard):
+    """
+    应用商店信息卡片
+    """
+
+    def __init__(self, url: str, parent: QWidget = None):
+        super().__init__(parent)
+        self.url = url
+        self.mainButton.setText("下载")
+        self.mainButton.setIcon(FIF.DOWNLOAD)
+
+    def buttonMainClicked(self):
+        webbrowser.open(self.url)
