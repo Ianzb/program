@@ -654,7 +654,7 @@ class Functions():
         with open(path, "wb") as file:
             file.write(data)
 
-    def createShortcut(self, old: str, new: str = program.DESKTOP_PATH, icon: str = "", arguments: str = ""):
+    def createShortcut(self, old: str, new: str, icon: str, arguments: str = ""):
         """
         创建快捷方式
         @param old: 源文件路径
@@ -671,12 +671,6 @@ class Functions():
         shortcut.IconLocation = icon
         shortcut.Arguments = arguments
         shortcut.save()
-
-    def addToStartMenu(self):
-        """
-        添加开始菜单快捷方式
-        """
-        self.createShortcut(program.PROGRAM_MAIN_FILE_PATH, f.pathJoin(program.USER_PATH, "AppData\Roaming\Microsoft\Windows\Start Menu\Programs", "zb小程序"), program.source("logo.ico"))
 
     def addToStartup(self, name: str, path: str, mode: bool = True):
         """
@@ -707,15 +701,15 @@ class Functions():
         data = json.loads(response)["version"]
         return data
 
-    def compareVersion(self, version1, version2):
+    def compareVersion(self, version1: str, version2: str) -> str:
         """
-        不带英文的版本号
+        比较版本号大小
         @param version1: 版本号1
         @param version2: 版本号2
-        @return: ver1< = >ver2返回-1/0/1
+        @return: 返回大的版本号
         """
-        list1 = str(version1).split(".")
-        list2 = str(version2).split(".")
+        list1 = version1.split(".")
+        list2 = version2.split(".")
         for i in range(len(list1)) if len(list1) < len(list2) else range(len(list2)):
             if int(list1[i]) == int(list2[i]):
                 pass
@@ -723,12 +717,10 @@ class Functions():
                 return version2
             else:
                 return version1
-        if len(list1) == len(list2):
+        if len(list1) >= len(list2):
             return version1
-        elif len(list1) < len(list2):
-            return version2
         else:
-            return version1
+            return version2
 
 
 f = Functions()
