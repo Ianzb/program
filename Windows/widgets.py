@@ -8,6 +8,7 @@ class BasicPage(ScrollArea):
     title = ""
     subtitle = ""
     signalStr = pyqtSignal(str)
+    signalInt = pyqtSignal(int)
     signalBool = pyqtSignal(bool)
     signalList = pyqtSignal(list)
     signalDict = pyqtSignal(dict)
@@ -174,14 +175,14 @@ class DisplayCard(ElevatedCardWidget):
         self.setFixedSize(168, 176)
         self.setStyleSheet("QLabel {background-color: rgba(0,0,0,0); border: none;}")
 
-        self.display = Image(self)
+        self.widget = Image(self)
 
         self.label = CaptionLabel(self)
 
         self.vBoxLayout = QVBoxLayout(self)
         self.vBoxLayout.setAlignment(Qt.AlignCenter)
         self.vBoxLayout.addStretch(1)
-        self.vBoxLayout.addWidget(self.display, 0, Qt.AlignCenter)
+        self.vBoxLayout.addWidget(self.widget, 0, Qt.AlignCenter)
         self.vBoxLayout.addStretch(1)
         self.vBoxLayout.addWidget(self.label, 0, Qt.AlignHCenter | Qt.AlignBottom)
 
@@ -219,8 +220,7 @@ class DisplayCard(ElevatedCardWidget):
         设置展示组件
         @param widget: 组件
         """
-        self.widget = widget
-        self.vBoxLayout.replaceWidget(self.display, self.widget)
+        self.vBoxLayout.replaceWidget(self.widget, widget)
 
 
 class GrayCard(QWidget):
@@ -488,18 +488,3 @@ class SmallInfoCard(CardWidget):
         self.info[pos] = data
         self.contentLabel1.setText(f"{self.info[0]}\n{self.info[1]}")
         self.contentLabel2.setText(f"{self.info[2]}\n{self.info[3]}")
-
-
-class AppInfoCard(SmallInfoCard):
-    """
-    应用商店信息卡片
-    """
-
-    def __init__(self, url: str, parent: QWidget = None):
-        super().__init__(parent)
-        self.url = url
-        self.mainButton.setText("下载")
-        self.mainButton.setIcon(FIF.DOWNLOAD)
-
-    def buttonMainClicked(self):
-        webbrowser.open(self.url)

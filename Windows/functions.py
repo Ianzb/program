@@ -159,6 +159,9 @@ class SettingFunctions():
             if name == "wechatPath":
                 setting.save("wechatPath", "")
                 return ""
+            if name == "downloadPath":
+                setting.save("downloadPath", program.DESKTOP_PATH)
+                return program.DESKTOP_PATH
 
     def save(self, name: str, data):
         """
@@ -784,6 +787,7 @@ class NewThread(QThread):
     多线程模块
     """
     signalStr = pyqtSignal(str)
+    signalInt = pyqtSignal(int)
     signalBool = pyqtSignal(bool)
     signalList = pyqtSignal(list)
     signalDict = pyqtSignal(dict)
@@ -793,6 +797,7 @@ class NewThread(QThread):
         super().__init__()
         self.mode = mode
         self.data = data
+        self.isCancel = False
 
     def run(self):
         if self.mode == "更新运行库":
@@ -854,5 +859,31 @@ class NewThread(QThread):
             if not f.exists(self.data[1]):
                 f.downloadFile(self.data[0], self.data[1])
             self.signalBool.emit(True)
+
         if self.mode == "搜索应用":
             self.signalList.emit(f.searchSoftware(self.data))
+
+        if self.mode == "下载文件":
+            path = f.pathJoin(setting.read("downloadPath"), self.data[0])
+            if f.exists(path):
+                i = 1
+                while f.exists(f.pathJoin(f.splitPath(path, 3), f.splitPath(path, 1) + " (" + str(i) + ")" + f.splitPath(path, 2))):
+                    i = i + 1
+                path = f.pathJoin(f.splitPath(path, 3), f.splitPath(path, 1) + " (" + str(i) + ")" + f.splitPath(path, 2))
+            url = self.data[1]
+            self.signalStr.emit(path)
+            response = requests.get(url, headers=program.REQUEST_HEADER, stream=True)
+            size = 0
+            file_size = int(response.headers["content-length"])
+            if response.status_code == 200:
+                with open(path, "wb") as file:
+                    for data in response.iter_content(1024):
+                        if self.isCancel:
+                            self.signalBool.emit(True)
+                            return
+                        file.write(data)
+                        size += len(data)
+                        self.signalInt.emit(int(100 * size / file_size))
+
+    def cancel(self):
+        self.isCancel = True

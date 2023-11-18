@@ -192,6 +192,7 @@ class SettingPage(BasicPage):
         self.shortcutSettingCard = ShortcutSettingCard()
 
         self.sortSettingCard = SortSettingCard()
+        self.downloadSettingCard = DownloadSettingCard()
 
         self.helpSettingCard = HelpSettingCard()
         self.updateSettingCard = UpdateSettingCard()
@@ -203,6 +204,7 @@ class SettingPage(BasicPage):
         self.settingCardGroup1.addSettingCard(self.shortcutSettingCard)
 
         self.settingCardGroup2.addSettingCard(self.sortSettingCard)
+        self.settingCardGroup2.addSettingCard(self.downloadSettingCard)
 
         self.settingCardGroup3.addSettingCard(self.helpSettingCard)
         self.settingCardGroup3.addSettingCard(self.updateSettingCard)

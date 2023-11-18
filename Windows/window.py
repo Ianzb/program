@@ -69,6 +69,57 @@ class Tray(QSystemTrayIcon):
         qApp.quit()
 
 
+class AppInfoCard(SmallInfoCard):
+    """
+    应用商店信息卡片
+    """
+
+    def __init__(self, data: dict, parent: QWidget = None):
+        super().__init__(parent)
+        self.data = data
+        self.mainButton.setText("下载")
+        self.mainButton.setIcon(FIF.DOWNLOAD)
+
+        self.setImg(f.illegalPath(self.data["SoftName"]), f"https://pc3.gtimg.com/softmgr/logo/48/{self.data['xmlInfo']['soft']['logo48']}")
+        if self.data["xmlInfo"]["soft"]["@osbit"] == "2":
+            self.setTitle(f"{self.data['SoftName']} 64位")
+        elif self.data["xmlInfo"]["soft"]["@osbit"] == "1":
+            self.setTitle(f"{self.data['SoftName']} 32位")
+        else:
+            self.setTitle(f"{self.data['SoftName']}")
+        self.setInfo(self.data["xmlInfo"]["soft"]["feature"], 0)
+        self.setInfo(f"{eval('%.2f' % eval('%.5g' % (eval(self.data['xmlInfo']['soft']['filesize']) / 1024 / 1024)))} MB", 1)
+        self.setInfo(f"当前版本：{self.data['xmlInfo']['soft']['versionname']}", 2)
+        self.setInfo(f"更新日期：{self.data['xmlInfo']['soft']['publishdate']}", 3)
+
+    def buttonMainClicked(self):
+        self.mainButton.setEnabled(False)
+        self.thread = NewThread("下载文件", (self.data["xmlInfo"]["soft"]["filename"], self.data["xmlInfo"]["soft"]["url"]))
+        self.thread.signalStr.connect(self.thread1)
+        self.thread.signalInt.connect(self.thread2)
+        self.thread.signalBool.connect(self.thread3)
+        self.thread.start()
+
+        self.stateTooltip = StateToolTip(f"正在下载文件：{self.data['xmlInfo']['soft']['filename']}", "正在连接到服务器...", self.parent().parent().parent().parent().parent())
+        self.stateTooltip.move(self.stateTooltip.getSuitablePos())
+        self.stateTooltip.closeButton.clicked.connect(self.thread.cancel)
+        self.stateTooltip.show()
+
+    def thread1(self, msg):
+        self.filePath = msg
+
+    def thread2(self, msg):
+        self.stateTooltip.setContent(f"下载中，当前进度{msg}%")
+        if msg == 100:
+            self.stateTooltip.setContent("下载成功")
+            self.stateTooltip.setState(True)
+            self.mainButton.setEnabled(True)
+
+    def thread3(self, msg):
+        f.delete(self.filePath)
+        self.mainButton.setEnabled(True)
+
+
 class AppStoreTab(BasicTab):
     """
     应用商店页面
@@ -82,6 +133,7 @@ class AppStoreTab(BasicTab):
         self.lineEdit.setPlaceholderText("应用名称")
         self.lineEdit.setToolTip("搜索应用")
         self.lineEdit.installEventFilter(ToolTipFilter(self.lineEdit, 1000))
+        self.lineEdit.setMaxLength(50)
         self.lineEdit.searchButton.clicked.connect(self.searchButtonClicked)
 
         self.card1 = GrayCard("搜索")
@@ -89,28 +141,28 @@ class AppStoreTab(BasicTab):
 
         self.vBoxLayout.addWidget(self.card1)
 
+        self.progressRing = IndeterminateProgressRing(self)
+
+        self.loadingCard = DisplayCard(self)
+        self.loadingCard.setText("搜索中...")
+        self.loadingCard.setDisplay(self.progressRing)
+        self.loadingCard.hide()
+
+        self.vBoxLayout.addWidget(self.loadingCard, 5, Qt.AlignCenter | Qt.AlignHCenter)
+
     def searchButtonClicked(self):
         if self.lineEdit.text():
-            for i in range(self.vBoxLayout.count())[1:]:
+            self.loadingCard.show()
+            for i in range(self.vBoxLayout.count())[2:]:
                 self.vBoxLayout.itemAt(i).widget().deleteLater()
             self.thread = NewThread("搜索应用", self.lineEdit.text())
             self.thread.signalList.connect(self.thread1)
             self.thread.start()
 
     def thread1(self, msg):
+        self.loadingCard.hide()
         for i in msg:
-            self.infoCard = AppInfoCard(i["xmlInfo"]["soft"]["url"])
-            self.infoCard.setImg(f.illegalPath(i["SoftName"]), f"https://pc3.gtimg.com/softmgr/logo/48/{i['xmlInfo']['soft']['logo48']}")
-            if i["xmlInfo"]["soft"]["@osbit"] == "2":
-                self.infoCard.setTitle(f"{i['SoftName']} 64位")
-            elif i["xmlInfo"]["soft"]["@osbit"] == "1":
-                self.infoCard.setTitle(f"{i['SoftName']} 32位")
-            else:
-                self.infoCard.setTitle(f"{i['SoftName']}")
-            self.infoCard.setInfo(i["xmlInfo"]["soft"]["feature"], 0)
-            self.infoCard.setInfo(f"{eval('%.2f' % eval('%.5g' % (eval(i['xmlInfo']['soft']['filesize']) / 1024 / 1024)))} MB", 1)
-            self.infoCard.setInfo(f"当前版本：{i['xmlInfo']['soft']['versionname']}", 2)
-            self.infoCard.setInfo(f"更新日期：{i['xmlInfo']['soft']['publishdate']}", 3)
+            self.infoCard = AppInfoCard(i)
             self.vBoxLayout.addWidget(self.infoCard)
 
     def buttonDownloadClicked(self, data: str):
@@ -403,6 +455,30 @@ class SortSettingCard(SettingCard):
         get = QFileDialog.getExistingDirectory(self, "选择微信WeChat Files文件夹目录", setting.read("wechatPath"))
         if f.exists(get):
             setting.save("wechatPath", str(get))
+
+
+class DownloadSettingCard(SettingCard):
+    """
+    下载文件设置卡片
+    """
+
+    def __init__(self, parent=None):
+        super().__init__(FIF.DOWNLOAD, "下载文件", "设置下载文件的目录", parent)
+        self.button1 = PushButton("下载目录", self, FIF.FOLDER_ADD)
+
+        self.button1.clicked.connect(self.buttonClicked1)
+
+        self.button1.setToolTip("设置下载文件夹目录")
+
+        self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
+
+        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
+        self.hBoxLayout.addSpacing(16)
+
+    def buttonClicked1(self):
+        get = QFileDialog.getExistingDirectory(self, "选择下载目录", setting.read("downloadPath"))
+        if f.exists(get):
+            setting.save("downloadPath", str(get))
 
 
 class HelpSettingCard(SettingCard):
