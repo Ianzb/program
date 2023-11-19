@@ -884,7 +884,7 @@ class NewThread(QThread):
             file_size = int(response.headers["content-length"])
             if response.status_code == 200:
                 with open(path, "wb") as file:
-                    for data in response.iter_content(1024):
+                    for data in response.iter_content(128):
                         if self.isCancel:
                             self.signalBool.emit(True)
                             return
