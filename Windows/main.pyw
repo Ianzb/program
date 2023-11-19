@@ -16,10 +16,10 @@ class MainPage(BasicPage):
         self.button2_1 = PushButton("重启文件资源管理器", self, FIF.SYNC)
         self.button3_1 = PushButton("查看Minecraft最新版本", self, FIF.CHECKBOX)
 
-        self.button1_1.clicked.connect(self.buttonClicked1_1)
-        self.button1_2.clicked.connect(self.buttonClicked1_2)
-        self.button2_1.clicked.connect(self.buttonClicked2_1)
-        self.button3_1.clicked.connect(self.buttonClicked3_1)
+        self.button1_1.clicked.connect(self.button1_1Clicked)
+        self.button1_2.clicked.connect(self.button1_2Clicked)
+        self.button2_1.clicked.connect(self.button2_1Clicked)
+        self.button3_1.clicked.connect(self.button3_1Clicked)
 
         self.button1_1.setToolTip("开始整理+清理文件，范围包括：\n  整理桌面文件\n  整理微信文件\n  清空回收站\n  清理系统缓存")
         self.button1_2.setToolTip("打开整理文件所在目录")
@@ -44,7 +44,7 @@ class MainPage(BasicPage):
         self.vBoxLayout.addWidget(self.card2, 0, Qt.AlignTop)
         self.vBoxLayout.addWidget(self.card3, 0, Qt.AlignTop)
 
-    def buttonClicked1_1(self):
+    def button1_1Clicked(self):
         if setting.read("sortPath") == "":
             self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", "当前未设置整理文件目录，无法整理！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self)
             self.infoBar.show()
@@ -74,11 +74,11 @@ class MainPage(BasicPage):
         else:
             self.stateTooltip.setContent("整理失败")
 
-    def buttonClicked1_2(self):
+    def button1_2Clicked(self):
         if setting.read("sortPath") != "":
             os.startfile(setting.read("sortPath"))
 
-    def buttonClicked2_1(self):
+    def button2_1Clicked(self):
         self.button2_1.setEnabled(False)
 
         self.thread = NewThread("重启文件资源管理器")
@@ -88,7 +88,7 @@ class MainPage(BasicPage):
     def thread2_1(self, msg):
         self.button2_1.setEnabled(True)
 
-    def buttonClicked3_1(self):
+    def button3_1Clicked(self):
         self.button3_1.setEnabled(False)
 
         self.thread = NewThread("Minecraft最新版本")
@@ -223,11 +223,8 @@ class Window(FluentWindow):
     def __init__(self):
         super().__init__()
 
-        self.setObjectName("主窗口")
-
         self.__initWindow()
         self.__initWidget()
-
         self.__initActivity()
 
     def __initWindow(self):
@@ -266,6 +263,7 @@ class Window(FluentWindow):
         self.addSubInterface(self.settingPage, FIF.SETTING, self.settingPage.title, NavigationItemPosition.BOTTOM)
 
     def __initActivity(self):
+        # 循环监测事件
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.repeatOpen)
         self.timer.start(100)

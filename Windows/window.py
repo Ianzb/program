@@ -13,15 +13,15 @@ class Tray(QSystemTrayIcon):
         self.setIcon(QIcon(program.source("logo.png")))
         self.setToolTip(program.PROGRAM_TITLE)
         self.installEventFilter(ToolTipFilter(self, 1000))
-        self.activated.connect(self.clickedIcon)
+        self.activated.connect(self.iconClicked)
         self.show()
 
         self.showMessage(program.PROGRAM_NAME, f"{program.PROGRAM_NAME}启动成功！", QIcon(program.source("logo.png")), 1)
 
-        self.action1 = Action(FIF.HOME, "打开", triggered=self.actionClicked1)
-        self.action2 = Action(FIF.ALIGNMENT, "整理", triggered=self.actionClicked2)
-        self.action3 = Action(FIF.LINK, "官网", triggered=self.actionClicked3)
-        self.action4 = Action(FIF.CLOSE, "退出", triggered=self.actionClicked4)
+        self.action1 = Action(FIF.HOME, "打开", triggered=self.action1Clicked)
+        self.action2 = Action(FIF.ALIGNMENT, "整理", triggered=self.action2Clicked)
+        self.action3 = Action(FIF.LINK, "官网", triggered=self.action3Clicked)
+        self.action4 = Action(FIF.CLOSE, "退出", triggered=self.action4Clicked)
 
         self.menu = RoundMenu()
 
@@ -32,7 +32,7 @@ class Tray(QSystemTrayIcon):
 
         self.window.mainPage.signalBool.connect(self.thread2)
 
-    def clickedIcon(self, reason):
+    def iconClicked(self, reason):
         if reason == 3:
             self.trayClickedEvent()
         elif reason == 1:
@@ -51,20 +51,20 @@ class Tray(QSystemTrayIcon):
     def contextMenuEvent(self):
         self.menu.exec(QCursor.pos(), ani=True, aniType=MenuAnimationType.PULL_UP)
 
-    def actionClicked1(self):
+    def action1Clicked(self):
         self.window.show()
 
-    def actionClicked2(self):
+    def action2Clicked(self):
         self.action2.setEnabled(False)
-        self.window.mainPage.buttonClicked1_1()
+        self.window.mainPage.button1_1Clicked()
 
     def thread2(self, msg):
         self.action2.setEnabled(msg)
 
-    def actionClicked3(self):
+    def action3Clicked(self):
         webbrowser.open(program.PROGRAM_URL)
 
-    def actionClicked4(self):
+    def action4Clicked(self):
         self.deleteLater()
         qApp.quit()
 
@@ -94,7 +94,7 @@ class AppInfoCard(SmallInfoCard):
         self.setInfo(f"当前版本：{self.data['xmlInfo']['soft']['versionname']}", 2)
         self.setInfo(f"更新日期：{self.data['xmlInfo']['soft']['publishdate']}", 3)
 
-    def buttonMainClicked(self):
+    def mainButtonClicked(self):
         self.mainButton.setEnabled(False)
 
         self.thread = NewThread("下载文件", (self.data["xmlInfo"]["soft"]["filename"], self.data["xmlInfo"]["soft"]["url"]))
@@ -220,7 +220,7 @@ class ThemeSettingCard(ExpandSettingCard):
         self.radioButton3.installEventFilter(ToolTipFilter(self.radioButton3, 1000))
 
         self.buttonGroup = QButtonGroup(self)
-        self.buttonGroup.buttonClicked.connect(self.buttonClicked)
+        self.buttonGroup.buttonClicked.connect(self.buttonGroupClicked)
 
         self.buttonGroup.addButton(self.radioButton1)
         self.buttonGroup.addButton(self.radioButton2)
@@ -245,7 +245,7 @@ class ThemeSettingCard(ExpandSettingCard):
 
         self._adjustViewSize()
 
-    def buttonClicked(self, button: RadioButton):
+    def buttonGroupClicked(self, button: RadioButton):
         if button.text() == self.label.text():
             return
         if button is self.radioButton1:
@@ -333,10 +333,10 @@ class ColorSettingCard(ExpandGroupSettingCard):
         self.label1.setText(self.buttonGroup.checkedButton().text())
         self.label1.adjustSize()
 
-        self.buttonGroup.buttonClicked.connect(self.__onbuttonClicked)
-        self.button3.clicked.connect(self.__showColorDialog)
+        self.buttonGroup.buttonClicked.connect(self.buttonGroupClicked)
+        self.button3.clicked.connect(self.showColorDialog)
 
-    def __onbuttonClicked(self, button: RadioButton):
+    def buttonGroupClicked(self, button: RadioButton):
         if button.text() == self.label1.text():
             return
 
@@ -352,7 +352,7 @@ class ColorSettingCard(ExpandGroupSettingCard):
             setting.save("themeColor", self.color.name())
             setThemeColor(self.color.name())
 
-    def __showColorDialog(self):
+    def showColorDialog(self):
         colorDialog = ColorDialog(setting.read("themeColor"), "选择颜色", self.window())
         colorDialog.colorChanged.connect(self.__colorChanged)
         colorDialog.exec()
@@ -377,9 +377,9 @@ class StartupSettingCard(SettingCard):
         self.checkBox2 = CheckBox("最小化启动", self)
         self.checkBox3 = CheckBox("开机自动更新", self)
 
-        self.checkBox1.clicked.connect(self.buttonClicked1)
-        self.checkBox2.clicked.connect(self.buttonClicked2)
-        self.checkBox3.clicked.connect(self.buttonClicked3)
+        self.checkBox1.clicked.connect(self.button1Clicked)
+        self.checkBox2.clicked.connect(self.button2Clicked)
+        self.checkBox3.clicked.connect(self.button3Clicked)
 
         self.checkBox1.setToolTip("设置程序开机自启动")
         self.checkBox2.setToolTip("设置程序在开机自启动时自动最小化窗口")
@@ -406,7 +406,7 @@ class StartupSettingCard(SettingCard):
         self.hBoxLayout.addWidget(self.checkBox3, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
-    def buttonClicked1(self):
+    def button1Clicked(self):
         if self.checkBox1.isChecked():
             setting.save("autoStartup", True)
             self.checkBox2.setEnabled(True)
@@ -418,10 +418,10 @@ class StartupSettingCard(SettingCard):
             self.checkBox3.setEnabled(False)
             f.addToStartup(program.PROGRAM_NAME, program.PROGRAM_MAIN_FILE_PATH, False)
 
-    def buttonClicked2(self):
+    def button2Clicked(self):
         setting.save("autoHide", self.checkBox2.isChecked())
 
-    def buttonClicked3(self):
+    def button3Clicked(self):
         setting.save("autoUpdate", self.checkBox3.isChecked())
 
 
@@ -459,8 +459,8 @@ class SortSettingCard(SettingCard):
         self.button1 = PushButton("整理目录", self, FIF.FOLDER_ADD)
         self.button2 = PushButton("微信目录", self, FIF.FOLDER_ADD)
 
-        self.button1.clicked.connect(self.buttonClicked1)
-        self.button2.clicked.connect(self.buttonClicked2)
+        self.button1.clicked.connect(self.button1Clicked)
+        self.button2.clicked.connect(self.button2Clicked)
 
         self.button1.setToolTip("设置整理文件夹目录")
         self.button2.setToolTip("设置微信WeChat Files文件夹目录")
@@ -472,12 +472,12 @@ class SortSettingCard(SettingCard):
         self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
-    def buttonClicked1(self):
+    def button1Clicked(self):
         get = QFileDialog.getExistingDirectory(self, "选择整理目录", setting.read("sortPath"))
         if f.exists(get):
             setting.save("sortPath", str(get))
 
-    def buttonClicked2(self):
+    def button2Clicked(self):
         get = QFileDialog.getExistingDirectory(self, "选择微信WeChat Files文件夹目录", setting.read("wechatPath"))
         if f.exists(get):
             setting.save("wechatPath", str(get))
@@ -492,7 +492,7 @@ class DownloadSettingCard(SettingCard):
         super().__init__(FIF.DOWNLOAD, "下载文件", "设置下载文件的目录", parent)
         self.button1 = PushButton("下载目录", self, FIF.FOLDER_ADD)
 
-        self.button1.clicked.connect(self.buttonClicked1)
+        self.button1.clicked.connect(self.button1Clicked)
 
         self.button1.setToolTip("设置下载文件夹目录")
 
@@ -501,7 +501,7 @@ class DownloadSettingCard(SettingCard):
         self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
-    def buttonClicked1(self):
+    def button1Clicked(self):
         get = QFileDialog.getExistingDirectory(self, "选择下载目录", setting.read("downloadPath"))
         if f.exists(get):
             setting.save("downloadPath", str(get))
@@ -546,8 +546,8 @@ class UpdateSettingCard(SettingCard):
         self.button1 = PushButton("更新运行库", self, FIF.LIBRARY)
         self.button2 = PrimaryPushButton("检查更新", self, FIF.DOWNLOAD)
 
-        self.button1.clicked.connect(self.buttonClicked1)
-        self.button2.clicked.connect(self.buttonClicked2)
+        self.button1.clicked.connect(self.button1Clicked)
+        self.button2.clicked.connect(self.button2Clicked)
 
         self.button1.setToolTip("更新程序运行库")
         self.button2.setToolTip("检查程序新版本更新")
@@ -585,7 +585,7 @@ class UpdateSettingCard(SettingCard):
         self.label.hide()
         self.progressBar.hide()
 
-    def buttonClicked1(self):
+    def button1Clicked(self):
         self.button1.setEnabled(False)
         self.button2.setEnabled(False)
 
@@ -614,7 +614,7 @@ class UpdateSettingCard(SettingCard):
             self.label.setText(f"{str(value)}% 正在更新 {msg['名称']}")
             self.progressBar.setValue(value)
 
-    def buttonClicked2(self):
+    def button2Clicked(self):
         if "beta" in program.PROGRAM_VERSION:
             self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", "当前版本为内测版无法更新！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
             self.infoBar.show()
@@ -631,7 +631,7 @@ class UpdateSettingCard(SettingCard):
             self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", f"检测到新版本{msg['版本']}！", Qt.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
 
             self.button3 = PushButton("立刻更新", self, FIF.DOWNLOAD)
-            self.button3.clicked.connect(self.buttonClicked3)
+            self.button3.clicked.connect(self.button3Clicked)
 
             self.infoBar.addWidget(self.button3)
             self.infoBar.show()
@@ -666,7 +666,7 @@ class UpdateSettingCard(SettingCard):
                 self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", "更新成功！", Qt.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
 
                 self.button4 = PushButton("重新启动", self, FIF.SYNC)
-                self.button4.clicked.connect(self.buttonClicked4)
+                self.button4.clicked.connect(self.button4Clicked)
 
                 self.infoBar.addWidget(self.button4)
             self.infoBar.show()
@@ -684,7 +684,7 @@ class UpdateSettingCard(SettingCard):
             self.label.setText(f"{str(value)}% 正在更新 {msg['名称']}")
             self.progressBar.setValue(value)
 
-    def buttonClicked4(self):
+    def button4Clicked(self):
         f.cmd(program.PROGRAM_MAIN_FILE_PATH)
         sys.exit()
 

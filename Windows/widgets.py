@@ -129,6 +129,10 @@ class StatisticsWidget(QWidget):
 
 
 class Image(QLabel):
+    """
+    图片组件（可实时下载）
+    """
+
     @singledispatchmethod
     def __init__(self, parent: QWidget = None):
         super().__init__(parent=parent)
@@ -196,9 +200,9 @@ class DisplayCard(ElevatedCardWidget):
             self.setStyleSheet("QLabel {background-color: transparent; color: black}")
 
     def mousePressEvent(self, event):
-        self.clickedFunction()
+        self.clicked()
 
-    def clickedFunction(self):
+    def clicked(self):
         pass
 
     def connect(self, functions):
@@ -206,7 +210,7 @@ class DisplayCard(ElevatedCardWidget):
         设置点击事件
         @param functions: 函数
         """
-        self.clickedFunction = functions
+        self.clicked = functions
 
     def setText(self, text: str):
         """
@@ -238,7 +242,6 @@ class GrayCard(QWidget):
         self.titleLabel = StrongBodyLabel(title, self)
 
         self.card = QFrame(self)
-        self.card.setObjectName("卡片")
 
         self.vBoxLayout = QVBoxLayout(self)
         self.vBoxLayout.setAlignment(Qt.AlignTop)
@@ -288,14 +291,14 @@ class BigInfoCard(CardWidget):
         self.backButton = TransparentToolButton(FIF.RETURN, self)
         self.backButton.move(8, 8)
         self.backButton.setMaximumSize(32, 32)
-        self.backButton.clicked.connect(self.buttonBackClicked)
+        self.backButton.clicked.connect(self.backButtonClicked)
 
         self.image = Image(self)
 
         self.titleLabel = TitleLabel(self)
 
         self.mainButton = PrimaryPushButton("下载", self)
-        self.mainButton.clicked.connect(self.buttonMainClicked)
+        self.mainButton.clicked.connect(self.mainButtonClicked)
         self.mainButton.setFixedWidth(160)
 
         self.infoLabel = BodyLabel(self)
@@ -347,10 +350,10 @@ class BigInfoCard(CardWidget):
         else:
             self.setStyleSheet("QLabel {background-color: transparent; color: black}")
 
-    def buttonBackClicked(self):
+    def backButtonClicked(self):
         self.hide()
 
-    def buttonMainClicked(self):
+    def mainButtonClicked(self):
         pass
 
     def setTitle(self, text: str):
@@ -429,7 +432,7 @@ class SmallInfoCard(CardWidget):
         self.contentLabel2.setAlignment(Qt.AlignRight)
 
         self.mainButton = PushButton("进入", self, FIF.CHEVRON_RIGHT)
-        self.mainButton.clicked.connect(self.buttonMainClicked)
+        self.mainButton.clicked.connect(self.mainButtonClicked)
 
         self.vBoxLayout1 = QVBoxLayout()
 
@@ -465,7 +468,7 @@ class SmallInfoCard(CardWidget):
         else:
             self.setStyleSheet("QLabel {background-color: transparent; color: black}")
 
-    def buttonMainClicked(self):
+    def mainButtonClicked(self):
         pass
 
     def setTitle(self, text: str):
