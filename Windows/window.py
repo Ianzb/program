@@ -1,3 +1,5 @@
+import logging
+
 from widgets import *
 
 
@@ -114,6 +116,7 @@ class AppInfoCard(SmallInfoCard):
     def thread2(self, msg):
         self.stateTooltip.setContent(f"下载中，当前进度{msg}%")
         if msg == 100:
+            f.move(self.filePath, self.filePath.replace(".zb.appstore.downloading", ""))
             self.stateTooltip.setContent("下载成功")
             self.stateTooltip.setState(True)
 
@@ -516,15 +519,15 @@ class HelpSettingCard(SettingCard):
         super().__init__(FIF.HELP, "帮助", "查看程序相关信息", parent)
         self.button1 = HyperlinkButton(program.PROGRAM_PATH, "程序安装路径", self, FIF.FOLDER)
         self.button2 = HyperlinkButton(program.PROGRAM_PATH, "程序数据路径", self, FIF.FOLDER)
-        self.button3 = HyperlinkButton(program.SETTING_FILE_PATH, "程序设置文件", self, FIF.SAVE_AS)
+        self.button3 = HyperlinkButton("", "清理程序缓存", self, FIF.BROOM)
 
         self.button1.clicked.connect(lambda: os.startfile(program.PROGRAM_PATH))
         self.button2.clicked.connect(lambda: os.startfile(program.PROGRAM_DATA_PATH))
-        self.button3.clicked.connect(lambda: os.startfile(program.SETTING_FILE_PATH))
+        self.button3.clicked.connect(f.clearProgramCache)
 
         self.button1.setToolTip("打开程序安装路径")
         self.button2.setToolTip("打开程序数据路径")
-        self.button3.setToolTip("打开程序设置文件")
+        self.button3.setToolTip("清理程序运行过程中生成的缓存文件")
 
         self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
         self.button2.installEventFilter(ToolTipFilter(self.button2, 1000))
@@ -708,3 +711,6 @@ class AboutSettingCard(SettingCard):
         self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
         self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
+
+
+logging.debug("windows.py初始化成功")

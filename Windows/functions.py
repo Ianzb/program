@@ -49,6 +49,7 @@ class ProgramInit():
     USER_PATH = os.path.expanduser("~")  # 系统用户路径
     PROGRAM_DATA_PATH = os.path.join(USER_PATH, "zb")  # 程序数据路径
     SETTING_FILE_PATH = os.path.join(PROGRAM_DATA_PATH, "settings.json")  # 程序设置文件路径
+    LOGGING_FILE_PATH = os.path.join(PROGRAM_DATA_PATH, "logging.log")  # 程序日志文件路径
     STARTUP_ARGUMENT = sys.argv[1:]  # 程序启动参数
     REQUEST_HEADER = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36 Edg/119.0.0.0"}  # 程序默认网络请求头
 
@@ -64,7 +65,12 @@ class ProgramInit():
                    ]
 
     def __init__(self):
-        pass
+        # 切换运行路径
+        os.chdir(self.PROGRAM_PATH)
+
+        # 设置任务栏
+        import ctypes
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(self.PROGRAM_NAME)
 
     @property
     def DESKTOP_PATH(self) -> str:
@@ -103,6 +109,66 @@ class ProgramInit():
 program = ProgramInit()
 
 
+class LoggingFunctions():
+    """
+    日志相关函数
+    """
+
+    def __init__(self):
+        import logging
+        self.log = logging.getLogger(program.PROGRAM_NAME)
+        self.log.setLevel(logging.DEBUG)
+        handler1 = logging.StreamHandler(sys.stderr)
+        handler1.setLevel(logging.INFO)
+        handler1.setFormatter(logging.Formatter("[%(levelname)s %(asctime)s %(filename)s %(process)d]:%(message)s"))
+
+        handler2 = logging.FileHandler(program.LOGGING_FILE_PATH)
+        handler2.setLevel(logging.DEBUG)
+        handler2.setFormatter(logging.Formatter("[%(levelname)s %(asctime)s %(filename)s %(process)d]:%(message)s"))
+
+        self.log.addHandler(handler1)
+        self.log.addHandler(handler2)
+
+    def debug(self, data: str):
+        """
+        调试日志
+        @param data: 数据
+        """
+        self.log.debug(data)
+
+    def info(self, data: str):
+        """
+        信息日志
+        @param data: 数据
+        """
+        self.log.info(data)
+
+    def warning(self, data: str):
+        """
+        警告日志
+        @param data: 数据
+        """
+        self.log.warning(data)
+
+    def error(self, data: str):
+        """
+        错误日志
+        @param data: 数据
+        """
+        self.log.error(data)
+
+    def critical(self, data: str):
+        """
+        异常日志
+        @param data: 数据
+        """
+        self.log.critical(data)
+
+
+logging = LoggingFunctions()
+logging.debug("日志初始化成功")
+
+
 class SettingFunctions():
     """
     设置相关函数
@@ -129,6 +195,8 @@ class SettingFunctions():
         @param name: 选项名称
         @return: 选项内容
         """
+        if name != "showWindow":
+            logging.debug(f"读取设置{name}")
         self.reload()
         with open(program.SETTING_FILE_PATH, "r+", encoding="utf-8") as file:
             settings = json.loads(file.read())
@@ -169,6 +237,7 @@ class SettingFunctions():
         @param name: 选项名称
         @param data: 选项数据
         """
+        logging.debug(f"保存设置{name}：{data}")
         self.reload()
         with open(program.SETTING_FILE_PATH, "r+", encoding="utf-8") as file:
             settings = json.loads(file.read())
@@ -256,11 +325,14 @@ class Functions():
         删除文件/目录
         @param path: 文件路径
         """
-        if self.isFile(path):
-            self.onlyRead(path, False)
-            os.remove(path)
-        if self.isDir(path):
-            shutil.rmtree(path)
+        try:
+            if self.isFile(path):
+                self.onlyRead(path, False)
+                os.remove(path)
+            if self.isDir(path):
+                shutil.rmtree(path)
+        except:
+            logging.warning(f"文件{path}无法删除")
 
     def getMD5(self, path: str) -> str:
         """
@@ -448,9 +520,13 @@ class Functions():
         清理文件夹3合1
         @param path: 文件夹路径
         """
-        self.clearEmptyFile(path)
-        self.clearEmptyDir(path)
-        self.clearRepeatFile(path)
+        try:
+            self.clearEmptyFile(path)
+            self.clearEmptyDir(path)
+            self.clearRepeatFile(path)
+            logging.debug(f"成功清理{path}文件夹")
+        except:
+            logging.warning(f"无法清理{path}文件夹")
 
     def sortDir(self, old: str, new: str, mode: int = 0):
         """
@@ -459,19 +535,23 @@ class Functions():
         @param new: 新文件夹路径
         @param mode: 模式：0 全部整理 1 仅文件 2 仅文件夹
         """
-        if mode in [0, 1]:
-            file_list = self.walkFile(old, 1)
-            if file_list:
-                for i in file_list:
-                    for j in range(len(self.SORT_FILE_DIR.values())):
-                        if self.splitPath(i, 2).lower() in list(self.SORT_FILE_DIR.values())[j]:
-                            self.move(i, self.pathJoin(new, list(self.SORT_FILE_DIR.keys())[j]))
-        if mode in [0, 2]:
-            file_list = self.walkDir(old, 1)
-            if file_list:
-                for i in file_list:
-                    if i[i.rfind("\ "[:-1]) + 1:] not in ["软件"]:
-                        self.move(i, self.pathJoin(new, "文件夹", i[i.rfind("\ "[:-1]) + 1:]))
+        try:
+            if mode in [0, 1]:
+                file_list = self.walkFile(old, 1)
+                if file_list:
+                    for i in file_list:
+                        for j in range(len(self.SORT_FILE_DIR.values())):
+                            if self.splitPath(i, 2).lower() in list(self.SORT_FILE_DIR.values())[j]:
+                                self.move(i, self.pathJoin(new, list(self.SORT_FILE_DIR.keys())[j]))
+            if mode in [0, 2]:
+                file_list = self.walkDir(old, 1)
+                if file_list:
+                    for i in file_list:
+                        if i[i.rfind("\ "[:-1]) + 1:] not in ["软件"]:
+                            self.move(i, self.pathJoin(new, "文件夹", i[i.rfind("\ "[:-1]) + 1:]))
+            logging.debug(f"成功整理{old}文件夹")
+        except:
+            logging.warning(f"无法整理{old}文件夹")
 
     def sortWechatFiles(self):
         """
@@ -491,8 +571,9 @@ class Functions():
                 self.sortDir(i, setting.read("sortPath"))
             for i in list:
                 self.sortDir(i, setting.read("sortPath"), 1)
+            logging.debug("成功整理微信文件")
         except:
-            pass
+            logging.warning("无法整理微信文件")
 
     def sortDesktopFiles(self):
         """
@@ -500,36 +581,30 @@ class Functions():
         """
         self.sortDir(program.DESKTOP_PATH, setting.read("sortPath"))
 
-    def clearCache(self):
+    def clearSystemCache(self):
         """
         清理系统缓存
         """
         try:
             path = os.getenv("TEMP")
             for i in self.walkDir(path, 1):
-                try:
-                    self.delete(i)
-                except:
-                    pass
+                self.delete(i)
             for i in self.walkFile(path, 1):
-                try:
-                    self.delete(i)
-                except:
-                    pass
+                self.delete(i)
         except:
             pass
+
+    def clearProgramCache(self):
+        """
+        清理本软件缓存
+        """
         try:
+            open(program.LOGGING_FILE_PATH, "w", encoding="utf-8").close()
             path = f.pathJoin(program.PROGRAM_DATA_PATH, "cache")
             for i in self.walkDir(path, 1):
-                try:
-                    self.delete(i)
-                except:
-                    pass
+                self.delete(i)
             for i in self.walkFile(path, 1):
-                try:
-                    self.delete(i)
-                except:
-                    pass
+                self.delete(i)
         except:
             pass
 
@@ -540,8 +615,9 @@ class Functions():
         import winshell
         try:
             winshell.recycle_bin().empty(confirm=False, show_progress=False, sound=False)
+            logging.debug("成功清空回收站")
         except:
-            pass
+            logging.warning("无法清空回收站")
 
     def urlJoin(self, *args):
         """
@@ -571,6 +647,7 @@ class Functions():
         pip安装运行库
         @param lib_name: 运行库名称
         """
+        logging.debug(f"pip安装{lib_name}")
         if type(lib_name) == str:
             self.cmd(f"pip install {lib_name} -i https://pypi.tuna.tsinghua.edu.cn/simple some-package", True)
         elif type(lib_name) == list:
@@ -582,6 +659,7 @@ class Functions():
         pip更新运行库
         @param lib_name: 运行库名称
         """
+        logging.debug(f"pip更新{lib_name}")
         if type(lib_name) == str:
             self.cmd(f"pip install --upgrade {lib_name} -i https://pypi.tuna.tsinghua.edu.cn/simple some-package", True)
         elif type(lib_name) == list:
@@ -623,6 +701,7 @@ class Functions():
         try:
             response = requests.get("https://zh.minecraft.wiki/w/Template:Version", stream=True, timeout=(30, 600)).text
         except:
+            logging.warning("无法连接至Minecraft Wiki服务器")
             return "无法连接至服务器"
         soup = bs4.BeautifulSoup(response, "lxml")
         data = soup.find_all(name="td")
@@ -645,6 +724,7 @@ class Functions():
                 v1[i] = "我的世界：地下城"
             if v3[i] in useful and v2[i] != "":
                 str1 += v1[i] + "版本：" + v2[i] + "\n"
+        logging.debug("成功获取我的世界最新版本")
         return str1
 
     def downloadFile(self, link: str, path: str):
@@ -659,8 +739,9 @@ class Functions():
             self.mkDir(self.splitPath(path, 3))
             with open(path, "wb") as file:
                 file.write(data)
+            logging.debug(f"文件{link}下载成功")
         except:
-            pass
+            logging.warning(f"文件{link}下载失败")
 
     def createShortcut(self, old: str, new: str, icon: str, arguments: str = ""):
         """
@@ -670,15 +751,19 @@ class Functions():
         @param icon: 图标
         @param arguments: 参数
         """
-        import win32com.client
-        if not new.endswith(".lnk"):
-            new += ".lnk"
-        shell = win32com.client.Dispatch("WScript.Shell")
-        shortcut = shell.CreateShortCut(new)
-        shortcut.Targetpath = old
-        shortcut.IconLocation = icon
-        shortcut.Arguments = arguments
-        shortcut.save()
+        try:
+            import win32com.client
+            if not new.endswith(".lnk"):
+                new += ".lnk"
+            shell = win32com.client.Dispatch("WScript.Shell")
+            shortcut = shell.CreateShortCut(new)
+            shortcut.Targetpath = old
+            shortcut.IconLocation = icon
+            shortcut.Arguments = arguments
+            shortcut.save()
+            logging.debug(f"快捷方式{new}添加成功")
+        except:
+            logging.warning("快捷方式添加失败")
 
     def addToStartup(self, name: str, path: str, mode: bool = True):
         """
@@ -693,11 +778,13 @@ class Functions():
             if mode:
                 win32api.RegSetValueEx(key, name, 0, win32con.REG_SZ, f"{path} startup")
                 win32api.RegCloseKey(key)
+                logging.debug("启动项添加成功")
             else:
                 win32api.RegDeleteValue(key, name)
                 win32api.RegCloseKey(key)
+                logging.debug("启动项删除成功")
         except:
-            pass
+            logging.warning("启动项编辑失败")
 
     def getNewestVersion(self) -> str:
         """
@@ -706,6 +793,7 @@ class Functions():
         """
         response = requests.get(program.UPDATE_URL, headers=program.REQUEST_HEADER, stream=True).text
         data = json.loads(response)["version"]
+        logging.info(f"程序最新版本：{data}")
         return data
 
     def compareVersion(self, version1: str, version2: str) -> str:
@@ -754,6 +842,7 @@ class Functions():
         @param name: 名称
         @return: 列表
         """
+        logging.debug(f"搜索应用{name}")
         data = requests.get(f"https://s.pcmgr.qq.com/tapi/web/searchcgi.php?type=search&keyword={name}&page=1&pernum=100", headers=program.REQUEST_HEADER, stream=True).text
         data = json.loads(data)["list"]
         for i in range(len(data)):
@@ -764,14 +853,6 @@ class Functions():
 
 
 f = Functions()
-# 切换运行路径
-
-os.chdir(program.PROGRAM_PATH)
-
-# 设置任务栏
-import ctypes
-
-ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(program.PROGRAM_NAME)
 
 # 重复运行检测
 if "python" in f.cmd(f"tasklist |findstr {setting.read('pid')}", True):
@@ -827,7 +908,7 @@ class NewThread(QThread):
                 self.signalDict.emit({"数量": 0, "完成": "失败", "名称": "", "序号": 0})
                 return
             if f.compareVersion(data, program.PROGRAM_VERSION) == program.PROGRAM_VERSION:
-                self.signalDict.emit({"数量": len(data), "完成": "失败", "名称": "", "序号": 0})
+                self.signalDict.emit({"数量": 0, "完成": "失败", "名称": "", "序号": 0})
                 return
             response = requests.get(program.UPDATE_URL, headers=program.REQUEST_HEADER, stream=True).text
             data = json.loads(response)["list"]
@@ -835,11 +916,12 @@ class NewThread(QThread):
                 self.signalDict.emit({"数量": len(data), "完成": False, "名称": data[i], "序号": i})
                 f.downloadFile(f.urlJoin(program.UPDATE_URL, data[i]), f.pathJoin(program.PROGRAM_PATH, data[i]))
             self.signalDict.emit({"数量": len(data), "完成": True, "名称": "", "序号": 0})
+            logging.debug(f"更新{data}成功")
 
         if self.mode == "一键整理+清理":
             try:
                 MyThread(lambda: f.clearRubbish())
-                MyThread(lambda: f.clearCache())
+                MyThread(lambda: f.clearSystemCache())
                 f.sortDesktopFiles()
                 if setting.read("wechatPath") != "":
                     f.sortWechatFiles()
@@ -847,13 +929,16 @@ class NewThread(QThread):
                 for i in list(f.SORT_FILE_DIR.keys()) + ["文件夹"]:
                     f.clearFile(f.pathJoin(setting.read("sortPath"), i))
                 self.signalBool.emit(True)
+                logging.debug("一键整理成功")
             except:
                 self.signalBool.emit(False)
+                logging.warning("一键整理失败")
 
         if self.mode == "重启文件资源管理器":
             f.cmd("taskkill /f /im explorer.exe", True)
             self.signalStr.emit("完成")
             f.cmd("start C:/windows/explorer.exe", True)
+            logging.debug("重启文件资源管理器")
 
         if self.mode == "Minecraft最新版本":
             self.signalStr.emit(f.getMC())
@@ -877,6 +962,8 @@ class NewThread(QThread):
                 while f.exists(f.pathJoin(f.splitPath(path, 3), f.splitPath(path, 1) + " (" + str(i) + ")" + f.splitPath(path, 2))):
                     i = i + 1
                 path = f.pathJoin(f.splitPath(path, 3), f.splitPath(path, 1) + " (" + str(i) + ")" + f.splitPath(path, 2))
+            logging.debug(f"开始下载文件{path}")
+            path += ".zb.appstore.downloading"
             url = self.data[1]
             self.signalStr.emit(path)
             response = requests.get(url, headers=program.REQUEST_HEADER, stream=True)
@@ -891,6 +978,11 @@ class NewThread(QThread):
                         file.write(data)
                         size += len(data)
                         self.signalInt.emit(int(100 * size / file_size))
+            logging.debug(f"文件{path}下载成功")
 
     def cancel(self):
+        logging.debug("取消下载")
         self.isCancel = True
+
+
+logging.debug("functions.py初始化成功")
