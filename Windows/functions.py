@@ -132,6 +132,9 @@ class LoggingFunctions():
             self.reset()
 
     def reset(self):
+        """
+        重置日志文件
+        """
         open(program.LOGGING_FILE_PATH, "w", encoding="utf-8").close()
 
     def debug(self, data: str):
