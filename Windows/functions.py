@@ -34,7 +34,7 @@ class ProgramInit():
     zb小程序信息类-处理信息
     """
     PROGRAM_NAME = "zb小程序"  # 程序名称
-    PROGRAM_VERSION = "3.1.0"  # 程序版本
+    PROGRAM_VERSION = "3.2.0"  # 程序版本
     PROGRAM_TITLE = f"{PROGRAM_NAME} {PROGRAM_VERSION}"  # 程序窗口标题
     AUTHOR_NAME = "Ianzb"  # 作者名称
     AUTHOR_URL = "https://ianzb.github.io/"  # 作者网址
@@ -128,6 +128,11 @@ class LoggingFunctions():
 
         self.log.addHandler(handler1)
         self.log.addHandler(handler2)
+        if os.path.getsize(program.LOGGING_FILE_PATH) / 1024 >= 128:
+            self.reset()
+
+    def reset(self):
+        open(program.LOGGING_FILE_PATH, "w", encoding="utf-8").close()
 
     def debug(self, data: str):
         """
@@ -173,6 +178,17 @@ class SettingFunctions():
     """
     设置相关函数
     """
+    DEFAULT_SETTING = {"theme": "Theme.AUTO",
+                       "themeColor": "#0078D4",
+                       "autoStartup": False,
+                       "autoHide": True,
+                       "autoUpdate": False,
+                       "pid": "0",
+                       "sortPath": "",
+                       "wechatPath": "",
+                       "downloadPath": program.DESKTOP_PATH,
+                       "showWindow": False
+                       }
 
     def __init__(self):
         pass
@@ -183,11 +199,11 @@ class SettingFunctions():
         """
         if not f.exists(program.SETTING_FILE_PATH):
             with open(program.SETTING_FILE_PATH, "w", encoding="utf-8") as file:
-                file.write("{}")
+                file.write(json.dumps(self.DEFAULT_SETTING))
         else:
-            with open(program.SETTING_FILE_PATH, "r+", encoding="utf-8") as file:
-                if not file.read():
-                    file.write("{}")
+            if not open(program.SETTING_FILE_PATH, "r+", encoding="utf-8").read():
+                with open(program.SETTING_FILE_PATH, "w", encoding="utf-8") as file:
+                    file.write(json.dumps(self.DEFAULT_SETTING))
 
     def read(self, name: str):
         """
@@ -203,33 +219,8 @@ class SettingFunctions():
         try:
             return settings[name]
         except:
-            if name == "theme":
-                setting.save("theme", "Theme.AUTO")
-                return "Theme.AUTO"
-            if name == "themeColor":
-                setting.save("themeColor", "#0078D4")
-                return "#0078D4"
-            if name == "autoStartup":
-                setting.save("autoStartup", False)
-                return False
-            if name == "autoHide":
-                setting.save("autoHide", True)
-                return True
-            if name == "autoUpdate":
-                setting.save("autoUpdate", False)
-                return False
-            if name == "pid":
-                setting.save("pid", "0")
-                return 0
-            if name == "sortPath":
-                setting.save("sortPath", "")
-                return ""
-            if name == "wechatPath":
-                setting.save("wechatPath", "")
-                return ""
-            if name == "downloadPath":
-                setting.save("downloadPath", program.DESKTOP_PATH)
-                return program.DESKTOP_PATH
+            setting.save(name, self.DEFAULT_SETTING[name])
+            return self.DEFAULT_SETTING[name]
 
     def save(self, name: str, data):
         """
@@ -599,7 +590,7 @@ class Functions():
         清理本软件缓存
         """
         try:
-            open(program.LOGGING_FILE_PATH, "w", encoding="utf-8").close()
+            logging.reset()
             path = f.pathJoin(program.PROGRAM_DATA_PATH, "cache")
             for i in self.walkDir(path, 1):
                 self.delete(i)
