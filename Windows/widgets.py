@@ -138,6 +138,7 @@ class Image(QLabel):
         super().__init__(parent=parent)
         self.setFixedSize(48, 48)
         self.setScaledContents(True)
+        self.loading = False
 
     @__init__.register
     def _(self, path: str = None, url: str = None, parent: QWidget = None):
@@ -151,6 +152,7 @@ class Image(QLabel):
 
     def thread1(self, msg):
         if msg:
+            self.loading = False
             self.setPixmap(QPixmap(self.path))
 
     def setImg(self, path: str, url: str = None):
@@ -160,12 +162,14 @@ class Image(QLabel):
         @param url: 链接
         """
         if url:
+            self.loading = True
             self.path = program.cache(path)
             self.url = url
             self.thread = NewThread("下载图片", [self.url, self.path])
             self.thread.signalBool.connect(self.thread1)
             self.thread.start()
         else:
+            self.loading = False
             self.setPixmap(QPixmap(path))
 
 

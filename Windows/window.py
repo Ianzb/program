@@ -164,9 +164,11 @@ class AppStoreTab(BasicTab):
     def searchButtonClicked(self):
         if self.lineEdit.text():
             for i in range(self.vBoxLayout.count())[2:]:
-                self.vBoxLayout.itemAt(i).widget().deleteLater()
+                self.vBoxLayout.itemAt(i).widget().hide()
+                if not self.vBoxLayout.itemAt(i).widget().image.loading:
+                    self.vBoxLayout.itemAt(i).widget().deleteLater()
 
-            self.lineEdit.searchButton.setEnabled(False)
+            self.lineEdit.setEnabled(False)
 
             self.loadingCard.setText("搜索中...")
             self.loadingCard.setDisplay(self.progressRingLoading)
@@ -187,7 +189,7 @@ class AppStoreTab(BasicTab):
         for i in msg:
             self.infoCard = AppInfoCard(i)
             self.vBoxLayout.addWidget(self.infoCard)
-        self.lineEdit.searchButton.setEnabled(True)
+        self.lineEdit.setEnabled(True)
 
     def thread2(self, msg):
         if not msg:
@@ -523,7 +525,7 @@ class HelpSettingCard(SettingCard):
 
         self.button1.clicked.connect(lambda: os.startfile(program.PROGRAM_PATH))
         self.button2.clicked.connect(lambda: os.startfile(program.PROGRAM_DATA_PATH))
-        self.button3.clicked.connect(f.clearProgramCache)
+        self.button3.clicked.connect(self.button3Clicked)
 
         self.button1.setToolTip("打开程序安装路径")
         self.button2.setToolTip("打开程序数据路径")
@@ -537,6 +539,23 @@ class HelpSettingCard(SettingCard):
         self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignRight)
         self.hBoxLayout.addWidget(self.button3, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
+
+    def button3Clicked(self):
+        self.button3.setEnabled(False)
+
+        self.thread = NewThread("清理程序缓存")
+        self.thread.signalBool.connect(self.thread3)
+        self.thread.start()
+
+    def thread3(self, msg):
+        self.button3.setEnabled(True)
+
+        if msg:
+            self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", "清理程序缓存成功！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+            self.infoBar.show()
+        else:
+            self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", "清理程序缓存失败！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+            self.infoBar.show()
 
 
 class UpdateSettingCard(SettingCard):

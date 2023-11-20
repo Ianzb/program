@@ -871,8 +871,8 @@ class NewThread(QThread):
     signalDict = pyqtSignal(dict)
     signalObject = pyqtSignal(object)
 
-    def __init__(self, mode: str, data=None):
-        super().__init__()
+    def __init__(self, mode: str, data=None, parent: QWidget = None):
+        super().__init__(parent=parent)
         self.mode = mode
         self.data = data
         self.isCancel = False
@@ -940,6 +940,10 @@ class NewThread(QThread):
         if self.mode == "下载图片":
             if not f.exists(self.data[1]):
                 f.downloadFile(self.data[0], self.data[1])
+            self.signalBool.emit(True)
+
+        if self.mode == "清理程序缓存":
+            f.clearProgramCache()
             self.signalBool.emit(True)
 
         if self.mode == "搜索应用":
