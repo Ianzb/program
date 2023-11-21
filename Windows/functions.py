@@ -862,8 +862,6 @@ class Functions():
                     list[-1]["名称"] += " 64位"
                 elif i["xmlInfo"]["soft"]["@osbit"] == "1":
                     list[-1]["名称"] += " 32位"
-                if len(list[-1]["介绍"]) >= 10:
-                    list[-1]["介绍"] = list[-1]["介绍"][:10]
         elif source == "360":
             data = requests.get(f"https://bapi.safe.360.cn/soft/search?keyword={name}&page=1", headers=program.REQUEST_HEADER, stream=True).text
             data = json.loads(data)["data"]["list"]
@@ -877,8 +875,9 @@ class Functions():
                              "文件名称": self.splitPath(i["soft_download"], 0),
                              "下载链接": i["soft_download"],
                              })
-                if len(list[-1]["介绍"]) >= 10:
-                    list[-1]["介绍"] = list[-1]["介绍"][:10]
+        for i in range(len(list)):
+            if len(list[i]["介绍"]) >= 25:
+                list[i]["介绍"] = f"{list[i]['介绍'][:25]}..."
         return list
 
 
@@ -983,8 +982,9 @@ class NewThread(QThread):
             self.signalBool.emit(True)
 
         if self.mode == "搜索应用":
+
             try:
-                data = f.searchSoftware(self.data)
+                data = f.searchSoftware(self.data[0], self.data[1])
                 self.signalList.emit(data)
             except:
                 self.signalBool.emit(False)
