@@ -522,6 +522,17 @@ class Functions():
         except:
             logging.warning(f"无法清理{path}文件夹")
 
+    def clearDir(self, path: str):
+        """
+        清空文件夹（无法删除则跳过）
+        @param path: 路径
+        """
+        if self.isDir(path):
+            for i in self.walkDir(path, 1):
+                self.delete(i)
+            for i in self.walkFile(path, 1):
+                self.delete(i)
+
     def sortDir(self, old: str, new: str, mode: int = 0):
         """
         整理文件
@@ -580,11 +591,7 @@ class Functions():
         清理系统缓存
         """
         try:
-            path = os.getenv("TEMP")
-            for i in self.walkDir(path, 1):
-                self.delete(i)
-            for i in self.walkFile(path, 1):
-                self.delete(i)
+            self.clearDir(os.getenv("TEMP"))
         except:
             pass
 
@@ -594,11 +601,7 @@ class Functions():
         """
         try:
             logging.reset()
-            path = f.pathJoin(program.PROGRAM_DATA_PATH, "cache")
-            for i in self.walkDir(path, 1):
-                self.delete(i)
-            for i in self.walkFile(path, 1):
-                self.delete(i)
+            self.clearDir(f.pathJoin(program.PROGRAM_DATA_PATH, "cache"))
         except:
             pass
 
@@ -830,20 +833,53 @@ class Functions():
         data = xmltodict.parse(data)
         return data
 
-    def searchSoftware(self, name: str) -> list:
+    def searchSoftware(self, name: str, source: str) -> list:
         """
         搜索软件
         @param name: 名称
         @return: 列表
         """
-        logging.debug(f"搜索应用{name}")
-        data = requests.get(f"https://s.pcmgr.qq.com/tapi/web/searchcgi.php?type=search&keyword={name}&page=1&pernum=100", headers=program.REQUEST_HEADER, stream=True).text
-        data = json.loads(data)["list"]
-        for i in range(len(data)):
-            data[i]["xmlInfo"] = self.xmlToJson(data[i]["xmlInfo"])
-            if len(data[i]["xmlInfo"]["soft"]["feature"]) >= 20:
-                data[i]["xmlInfo"]["soft"]["feature"] = data[i]["xmlInfo"]["soft"]["feature"][:20] + "..."
-        return data
+        logging.debug(f"在{source}搜索应用{name}")
+        list = []
+        if source == "腾讯":
+            data = requests.get(f"https://s.pcmgr.qq.com/tapi/web/searchcgi.php?type=search&keyword={name}&page=1&pernum=100", headers=program.REQUEST_HEADER, stream=True).text
+            data = json.loads(data)["list"]
+            for i in range(len(data)):
+                data[i]["xmlInfo"] = self.xmlToJson(data[i]["xmlInfo"])
+                if len(data[i]["xmlInfo"]["soft"]["feature"]) >= 20:
+                    data[i]["xmlInfo"]["soft"]["feature"] = data[i]["xmlInfo"]["soft"]["feature"][:20] + "..."
+            for i in data:
+                list.append({"名称": i["SoftName"],
+                             "图标": f"https://pc3.gtimg.com/softmgr/logo/48/{i['xmlInfo']['soft']['logo48']}",
+                             "介绍": i["xmlInfo"]["soft"]["feature"],
+                             "当前版本": i["xmlInfo"]["soft"]["versionname"],
+                             "更新日期": i["xmlInfo"]["soft"]["publishdate"],
+                             "文件大小": f"{eval('%.2f' % eval('%.5g' % (eval(i['xmlInfo']['soft']['filesize']) / 1024 / 1024)))} MB",
+                             "文件名称": i["xmlInfo"]["soft"]["filename"],
+                             "下载链接": i["xmlInfo"]["soft"]["url"],
+                             })
+                if i["xmlInfo"]["soft"]["@osbit"] == "2":
+                    list[-1]["名称"] += " 64位"
+                elif i["xmlInfo"]["soft"]["@osbit"] == "1":
+                    list[-1]["名称"] += " 32位"
+                if len(list[-1]["介绍"]) >= 10:
+                    list[-1]["介绍"] = list[-1]["介绍"][:10]
+        elif source == "360":
+            data = requests.get(f"https://bapi.safe.360.cn/soft/search?keyword={name}&page=1", headers=program.REQUEST_HEADER, stream=True).text
+            data = json.loads(data)["data"]["list"]
+            for i in data:
+                list.append({"名称": i["softname"],
+                             "图标": f"https:{i['logo']}",
+                             "介绍": i["desc"],
+                             "当前版本": i["version"],
+                             "更新日期": i["date"],
+                             "文件大小": i["size"],
+                             "文件名称": self.splitPath(i["soft_download"], 0),
+                             "下载链接": i["soft_download"],
+                             })
+                if len(list[-1]["介绍"]) >= 10:
+                    list[-1]["介绍"] = list[-1]["介绍"][:10]
+        return list
 
 
 f = Functions()

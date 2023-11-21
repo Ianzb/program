@@ -76,36 +76,31 @@ class AppInfoCard(SmallInfoCard):
     应用商店信息卡片
     """
 
-    def __init__(self, data: dict, parent: QWidget = None):
+    def __init__(self, data: dict, source: str, parent: QWidget = None):
         super().__init__(parent)
         self.data = data
+        self.source = source
 
         self.mainButton.setText("下载")
         self.mainButton.setIcon(FIF.DOWNLOAD)
+        self.setImg(f"{self.source}/{f.illegalPath(self.data['名称'])}", self.data["图标"])
+        self.setTitle(f"{self.data['名称']}")
 
-        self.setImg(f.illegalPath(self.data["SoftName"]), f"https://pc3.gtimg.com/softmgr/logo/48/{self.data['xmlInfo']['soft']['logo48']}")
-        if self.data["xmlInfo"]["soft"]["@osbit"] == "2":
-            self.setTitle(f"{self.data['SoftName']} 64位")
-        elif self.data["xmlInfo"]["soft"]["@osbit"] == "1":
-            self.setTitle(f"{self.data['SoftName']} 32位")
-        else:
-            self.setTitle(f"{self.data['SoftName']}")
-
-        self.setInfo(self.data["xmlInfo"]["soft"]["feature"], 0)
-        self.setInfo(f"{eval('%.2f' % eval('%.5g' % (eval(self.data['xmlInfo']['soft']['filesize']) / 1024 / 1024)))} MB", 1)
-        self.setInfo(f"当前版本：{self.data['xmlInfo']['soft']['versionname']}", 2)
-        self.setInfo(f"更新日期：{self.data['xmlInfo']['soft']['publishdate']}", 3)
+        self.setInfo(self.data["介绍"], 0)
+        self.setInfo(self.data["文件大小"], 1)
+        self.setInfo(f"当前版本：{self.data['当前版本']}", 2)
+        self.setInfo(f"更新日期：{self.data['更新日期']}", 3)
 
     def mainButtonClicked(self):
         self.mainButton.setEnabled(False)
 
-        self.thread = NewThread("下载文件", (self.data["xmlInfo"]["soft"]["filename"], self.data["xmlInfo"]["soft"]["url"]))
+        self.thread = NewThread("下载文件", (self.data["文件名称"], self.data["下载链接"]))
         self.thread.signalStr.connect(self.thread1)
         self.thread.signalInt.connect(self.thread2)
         self.thread.signalBool.connect(self.thread3)
         self.thread.start()
 
-        self.stateTooltip = StateToolTip(f"正在下载文件：{self.data['xmlInfo']['soft']['filename']}", "正在连接到服务器...", self.parent().parent().parent().parent())
+        self.stateTooltip = StateToolTip(f"正在下载软件：{self.data['名称']}", "正在连接到服务器...", self.parent().parent().parent().parent())
         self.stateTooltip.move(self.stateTooltip.getSuitablePos())
         self.stateTooltip.closeButton.clicked.connect(self.thread.cancel)
         self.stateTooltip.show()
@@ -144,8 +139,14 @@ class AppStoreTab(BasicTab):
         self.lineEdit.setMaxLength(50)
         self.lineEdit.searchButton.clicked.connect(self.searchButtonClicked)
 
+        self.comboBox = ComboBox(self)
+        self.comboBox.setPlaceholderText("应用来源")
+        self.comboBox.addItems(["腾讯", "360"])
+        self.comboBox.setCurrentIndex(0)
+
         self.card = GrayCard("搜索")
         self.card.addWidget(self.lineEdit)
+        self.card.addWidget(self.comboBox)
 
         self.progressRingLoading = IndeterminateProgressRing(self)
         self.progressRingLoading.hide()
@@ -169,6 +170,7 @@ class AppStoreTab(BasicTab):
                     self.vBoxLayout.itemAt(i).widget().deleteLater()
 
             self.lineEdit.setEnabled(False)
+            self.comboBox.setEnabled(False)
 
             self.loadingCard.setText("搜索中...")
             self.loadingCard.setDisplay(self.progressRingLoading)
@@ -176,7 +178,7 @@ class AppStoreTab(BasicTab):
             self.progressRingError.hide()
             self.loadingCard.show()
 
-            self.thread = NewThread("搜索应用", self.lineEdit.text())
+            self.thread = NewThread("搜索应用", [self.lineEdit.text(), self.comboBox.currentText()])
             self.thread.signalList.connect(self.thread1)
             self.thread.signalBool.connect(self.thread2)
             self.thread.start()
@@ -187,9 +189,10 @@ class AppStoreTab(BasicTab):
         self.progressRingError.hide()
 
         for i in msg:
-            self.infoCard = AppInfoCard(i)
+            self.infoCard = AppInfoCard(i, self.comboBox.currentText())
             self.vBoxLayout.addWidget(self.infoCard)
         self.lineEdit.setEnabled(True)
+        self.comboBox.setEnabled(True)
 
     def thread2(self, msg):
         if not msg:
@@ -198,6 +201,9 @@ class AppStoreTab(BasicTab):
             self.progressRingLoading.hide()
             self.progressRingError.show()
             self.loadingCard.show()
+
+            self.lineEdit.setEnabled(True)
+            self.comboBox.setEnabled(True)
 
 
 class ThemeSettingCard(ExpandSettingCard):
