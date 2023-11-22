@@ -134,14 +134,14 @@ class AppStoreTab(BasicTab):
 
         self.lineEdit = SearchLineEdit(self)
         self.lineEdit.setPlaceholderText("应用名称")
-        self.lineEdit.setToolTip("搜索应用，数据来源：腾讯软件中心")
+        self.lineEdit.setToolTip("搜索应用，数据来源：\n 360软件中心\n 腾讯软件中心")
         self.lineEdit.installEventFilter(ToolTipFilter(self.lineEdit, 1000))
         self.lineEdit.setMaxLength(50)
         self.lineEdit.searchButton.clicked.connect(self.searchButtonClicked)
 
         self.comboBox = ComboBox(self)
         self.comboBox.setPlaceholderText("应用来源")
-        self.comboBox.addItems(["腾讯", "360"])
+        self.comboBox.addItems(["360", "腾讯"])
         self.comboBox.setCurrentIndex(0)
 
         self.card = GrayCard("搜索")
