@@ -141,36 +141,6 @@ class GamePage(BasicTabPage):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
 
-        self.card2 = SmallInfoCard()
-        self.card2.setImg("mc.png", "https://static.wikia.nocookie.net/minecraft_zh_gamepedia/images/9/90/Minecraft_Wiki_header.svg/revision/latest/scale-to-width-down/300?cb=20211229051507")
-        self.card2.setTitle("标题")
-        self.card2.setInfo("左上", 0)
-        self.card2.setInfo("左下", 1)
-        self.card2.setInfo("右上", 2)
-        self.card2.setInfo("右下", 3)
-
-        self.card3 = DisplayCard(self)
-        self.card3.setFixedSize(500, 600)
-        self.image = Image("linger.png", "https://picdl.sunbangyan.cn/2023/11/14/774ab3fad42612dd6e7a1aa68aef5b09.jpg")
-        self.image.setFixedSize(50, 60)
-        self.card3.setDisplay(self.image)
-        self.card3.setText("123")
-
-        self.page1 = BasicTab()
-
-        self.card1 = BigInfoCard()
-        self.card1.setImg("mc.png", "https://static.wikia.nocookie.net/minecraft_zh_gamepedia/images/9/90/Minecraft_Wiki_header.svg/revision/latest/scale-to-width-down/300?cb=20211229051507")
-        self.card1.setInfo("介绍Info")
-        self.card1.setTitle("标题Title")
-        self.card1.addUrl("链接Url", program.UPDATE_URL)
-        self.card1.addData("数据Data", "值")
-        self.card1.addTag("标签Tag")
-
-        self.page1.vBoxLayout.addWidget(self.card1, 0, Qt.AlignTop)
-        self.page1.vBoxLayout.addWidget(self.card2, 0, Qt.AlignTop)
-        self.page1.vBoxLayout.addWidget(self.card3, 0, Qt.AlignTop)
-        self.addPage(self.page1, "Test", FIF.GAME)
-
 
 class SettingPage(BasicPage):
     """
@@ -192,6 +162,7 @@ class SettingPage(BasicPage):
         self.shortcutSettingCard = ShortcutSettingCard()
 
         self.sortSettingCard = SortSettingCard()
+        self.sortBlacklistSettingCard = SortBlacklistSettingCard()
         self.downloadSettingCard = DownloadSettingCard()
 
         self.helpSettingCard = HelpSettingCard()
@@ -204,6 +175,7 @@ class SettingPage(BasicPage):
         self.settingCardGroup1.addSettingCard(self.shortcutSettingCard)
 
         self.settingCardGroup2.addSettingCard(self.sortSettingCard)
+        self.settingCardGroup2.addSettingCard(self.sortBlacklistSettingCard)
         self.settingCardGroup2.addSettingCard(self.downloadSettingCard)
 
         self.settingCardGroup3.addSettingCard(self.helpSettingCard)
@@ -231,6 +203,7 @@ class Window(FluentWindow):
         """
         窗口初始化
         """
+
         # 外观调整
         setTheme(eval(setting.read("theme")))
         setThemeColor("#0078D4")
@@ -259,7 +232,7 @@ class Window(FluentWindow):
         self.addSubInterface(self.toolPage, FIF.DEVELOPER_TOOLS, self.toolPage.title, NavigationItemPosition.SCROLL)
         self.addSubInterface(self.gamePage, FIF.GAME, self.gamePage.title, NavigationItemPosition.SCROLL)
         self.navigationInterface.addSeparator(NavigationItemPosition.BOTTOM)
-        self.navigationInterface.addWidget("avatar", NavigationAvatarWidget(program.AUTHOR_NAME, program.source("zb.png")), self.avatorEvent, NavigationItemPosition.BOTTOM)
+        self.navigationInterface.addWidget("avatar", NavigationAvatarWidget(program.AUTHOR_NAME, program.source("zb.png")), None, NavigationItemPosition.BOTTOM)
         self.addSubInterface(self.settingPage, FIF.SETTING, self.settingPage.title, NavigationItemPosition.BOTTOM)
 
     def __initActivity(self):
@@ -273,16 +246,6 @@ class Window(FluentWindow):
 
         if setting.read("autoUpdate") and program.isStartup:
             self.settingPage.updateSettingCard.button3()
-
-    def avatorEvent(self):
-        """
-        头像点击事件
-        """
-        w = MessageBox(f"欢迎使用{program.PROGRAM_NAME}！", f"作者：{program.AUTHOR_NAME}", self)
-        w.yesButton.setText(f"{program.AUTHOR_NAME}的个人网站")
-        w.cancelButton.setText("关闭")
-        if w.exec():
-            webbrowser.open(program.AUTHOR_URL)
 
     def repeatOpen(self):
         """

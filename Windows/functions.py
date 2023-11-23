@@ -196,7 +196,8 @@ class SettingFunctions():
                        "sortPath": "",
                        "wechatPath": "",
                        "downloadPath": program.DESKTOP_PATH,
-                       "showWindow": False
+                       "showWindow": False,
+                       "sortBlacklist": [],
                        }
 
     def __init__(self):
@@ -276,8 +277,25 @@ class Functions():
         path = ""
         for i in data:
             path = os.path.join(path, i)
-        path = path.replace("//", r"\ "[:-1]).replace(r"\\ "[:-1], r"\ "[:-1]).replace("\/", r"\ "[:-1]).replace("/\ "[:-1], r"\ "[:-1]).replace("/", r"\ "[:-1])
-        return path
+        return self.normalPath(path)
+
+    def normalPath(self, path: str) -> str:
+        """
+        格式化路径
+        @param path: 路径
+        @return: 格式化结果
+        """
+        return os.path.normpath(path)
+
+    def sameFile(self, path1: str, path2: str) -> bool:
+        """
+        判断路径是否相同
+        @param path1: 路径1
+        @param path2: 路径2
+        @return: 是否相同
+        """
+
+        return self.normalPath(path1) == self.normalPath(path2)
 
     def exists(self, path: str) -> bool:
         """
@@ -552,14 +570,14 @@ class Functions():
                 if file_list:
                     for i in file_list:
                         for j in range(len(self.SORT_FILE_DIR.values())):
-                            if self.splitPath(i, 2).lower() in list(self.SORT_FILE_DIR.values())[j]:
+                            if self.splitPath(i, 2).lower() in list(self.SORT_FILE_DIR.values())[j] and self.splitPath(i, 0) not in self.getSortBlacklist():
                                 self.move(i, self.pathJoin(new, list(self.SORT_FILE_DIR.keys())[j]))
             if mode in [0, 2]:
                 file_list = self.walkDir(old, 1)
                 if file_list:
                     for i in file_list:
-                        if i[i.rfind("\ "[:-1]) + 1:] not in ["软件"]:
-                            self.move(i, self.pathJoin(new, "文件夹", i[i.rfind("\ "[:-1]) + 1:]))
+                        if self.splitPath(i, 0) not in self.getSortBlacklist():
+                            self.move(i, self.pathJoin(new, "文件夹", self.splitPath(i, 0)))
             logging.debug(f"成功整理{old}文件夹")
         except:
             logging.warning(f"无法整理{old}文件夹")
@@ -886,6 +904,22 @@ class Functions():
                 list[i]["介绍"] = f"{list[i]["介绍"][:25]}..."
         return list
 
+    def getSortBlacklist(self):
+        """
+        获取整理文件黑名单
+        @return: 整理文件黑名单列表
+        """
+        self.mkDir(setting.read("sortPath"))
+        data = setting.read("sortBlacklist")
+        if self.sameFile(setting.read("sortPath"), program.DESKTOP_PATH):
+            data += list(self.SORT_FILE_DIR.keys())
+        elif self.normalPath(program.DESKTOP_PATH) in self.normalPath(setting.read("sortPath")):
+            dirs = self.walkDir(program.DESKTOP_PATH, 1)
+            for i in dirs:
+                if self.normalPath(i) in self.normalPath(setting.read("sortPath")):
+                    data.append(i)
+        return data
+
 
 f = Functions()
 
@@ -952,15 +986,18 @@ class NewThread(QThread):
             logging.debug(f"更新{data}成功")
 
         if self.mode == "一键整理+清理":
+
             try:
                 MyThread(lambda: f.clearRubbish())
                 MyThread(lambda: f.clearSystemCache())
+
                 f.sortDesktopFiles()
                 if setting.read("wechatPath") != "":
                     f.sortWechatFiles()
-                f.clearFile(setting.read("sortPath"))
                 for i in list(f.SORT_FILE_DIR.keys()) + ["文件夹"]:
                     f.clearFile(f.pathJoin(setting.read("sortPath"), i))
+                f.clearFile(setting.read("sortPath"))
+
                 self.signalBool.emit(True)
                 logging.debug("一键整理成功")
             except:

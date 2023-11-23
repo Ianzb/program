@@ -310,7 +310,7 @@ class BigInfoCard(CardWidget):
 
         self.hBoxLayout1 = QHBoxLayout()
         self.hBoxLayout1.setContentsMargins(0, 0, 0, 0)
-        self.hBoxLayout1.addWidget(self.titleLabel)
+        self.hBoxLayout1.addWidget(self.titleLabel, 0, Qt.AlignLeft)
         self.hBoxLayout1.addWidget(self.mainButton, 0, Qt.AlignRight)
 
         self.hBoxLayout2 = QHBoxLayout()

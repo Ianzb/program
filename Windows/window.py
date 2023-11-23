@@ -71,6 +71,36 @@ class Tray(QSystemTrayIcon):
         qApp.quit()
 
 
+class BlackListEditMessageBox(MessageBoxBase):
+    """
+    可编辑黑名单的弹出框
+    """
+
+    def __init__(self, title: str, tip: str, parent=None):
+        super().__init__(parent)
+        self.titleLabel = SubtitleLabel(title, self)
+
+        self.textEdit = TextEdit(self)
+        self.textEdit.setPlaceholderText(tip)
+        self.textEdit.setText("\n".join(setting.read("sortBlacklist")))
+
+        self.viewLayout.addWidget(self.titleLabel)
+        self.viewLayout.addWidget(self.textEdit)
+
+        self.yesButton.setText("确定")
+        self.yesButton.clicked.connect(self.yesButtonClicked)
+
+        self.cancelButton.setText("取消")
+
+        self.widget.setMinimumWidth(350)
+
+    def yesButtonClicked(self):
+        setting.save("sortBlacklist", list(set([i.strip() for i in self.textEdit.toPlainText().split("\n") if i])))
+
+        self.accept()
+        self.accepted.emit()
+
+
 class AppInfoCard(SmallInfoCard):
     """
     应用商店信息卡片
@@ -83,6 +113,9 @@ class AppInfoCard(SmallInfoCard):
 
         self.mainButton.setText("下载")
         self.mainButton.setIcon(FIF.DOWNLOAD)
+        self.mainButton.setToolTip("下载软件")
+        self.mainButton.installEventFilter(ToolTipFilter(self.mainButton, 1000))
+
         self.setImg(f"{self.source}/{f.illegalPath(self.data["名称"])}", self.data["图标"])
         self.setTitle(f"{self.data["名称"]}")
 
@@ -137,12 +170,16 @@ class AppStoreTab(BasicTab):
         self.lineEdit.setToolTip("搜索应用，数据来源：\n 360软件中心\n 腾讯软件中心")
         self.lineEdit.installEventFilter(ToolTipFilter(self.lineEdit, 1000))
         self.lineEdit.setMaxLength(50)
+        self.lineEdit.textChanged.connect(self.lineEditChanged)
+        self.lineEdit.searchButton.setEnabled(False)
         self.lineEdit.searchButton.clicked.connect(self.searchButtonClicked)
 
         self.comboBox = ComboBox(self)
-        self.comboBox.setPlaceholderText("应用来源")
+        self.comboBox.setPlaceholderText("下载应用来源")
         self.comboBox.addItems(["360", "腾讯"])
         self.comboBox.setCurrentIndex(0)
+        self.comboBox.setToolTip("选择下载应用来源")
+        self.comboBox.installEventFilter(ToolTipFilter(self.comboBox, 1000))
 
         self.card = GrayCard("搜索")
         self.card.addWidget(self.lineEdit)
@@ -161,6 +198,9 @@ class AppStoreTab(BasicTab):
 
         self.vBoxLayout.addWidget(self.card)
         self.vBoxLayout.addWidget(self.loadingCard, 5, Qt.AlignCenter | Qt.AlignHCenter)
+
+    def lineEditChanged(self, text):
+        self.lineEdit.searchButton.setEnabled(bool(text))
 
     def searchButtonClicked(self):
         if self.lineEdit.text():
@@ -492,6 +532,29 @@ class SortSettingCard(SettingCard):
         get = QFileDialog.getExistingDirectory(self, "选择微信WeChat Files文件夹目录", setting.read("wechatPath"))
         if f.exists(get):
             setting.save("wechatPath", str(get))
+
+
+class SortBlacklistSettingCard(SettingCard):
+    """
+    下载文件设置卡片
+    """
+
+    def __init__(self, parent=None):
+        super().__init__(FIF.FOLDER, "整理文件黑名单", "设置整理文件时跳过的文件", parent)
+        self.button1 = PushButton("编辑黑名单", self, FIF.EDIT)
+
+        self.button1.clicked.connect(self.button1Clicked)
+
+        self.button1.setToolTip("编辑整理文件黑名单")
+
+        self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
+
+        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
+        self.hBoxLayout.addSpacing(16)
+
+    def button1Clicked(self):
+        self.lineEditMessageBox = BlackListEditMessageBox("编辑黑名单", "输入文件名称\n一行一个", self.parent().parent().parent().parent().parent().parent().parent())
+        self.lineEditMessageBox.show()
 
 
 class DownloadSettingCard(SettingCard):
