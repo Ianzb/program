@@ -41,7 +41,7 @@ class ProgramInit():
     PROGRAM_PID = os.getpid()  # 程序pid
     USER_PATH = os.path.expanduser("~")  # 系统用户路径
     PROGRAM_DATA_PATH = os.path.join(USER_PATH, "zb")  # 程序数据路径
-    PROGRAM_PATH = os.path.dirname(PROGRAM_DATA_PATH)  # 程序安装路径
+    PROGRAM_PATH = PROGRAM_DATA_PATH  # 程序安装路径
     SETTING_FILE_PATH = os.path.join(PROGRAM_DATA_PATH, "settings.json")  # 程序设置文件路径
     LOGGING_FILE_PATH = os.path.join(PROGRAM_DATA_PATH, "logging.log")  # 程序日志文件路径
     STARTUP_ARGUMENT = sys.argv[1:]  # 程序启动参数
@@ -107,6 +107,14 @@ class Functions():
         path = path.replace("//", r"\ "[:-1]).replace(r"\\ "[:-1], r"\ "[:-1]).replace("\/", r"\ "[:-1]).replace("/\ "[:-1], r"\ "[:-1]).replace("/", r"\ "[:-1])
         return path
 
+    def exists(self, path: str) -> bool:
+        """
+        文件是否存在
+        @param path: 文件路径
+        @return: bool
+        """
+        return os.path.exists(path)
+
     def splitPath(self, path: str, mode: int = 0) -> str:
         """
         分割路径信息
@@ -122,6 +130,14 @@ class Functions():
             return os.path.splitext(os.path.basename(path))[1]
         if mode == 3:
             return os.path.dirname(path)
+
+    def mkDir(self, path: str):
+        """
+        创建文件夹
+        @param path: 文件路径
+        """
+        if not self.exists(path):
+            os.makedirs(path)
 
     def downloadFile(self, link: str, path: str):
         """
