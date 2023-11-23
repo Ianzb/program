@@ -1,14 +1,20 @@
-from functools import singledispatchmethod
-import json
-import os
-import sys
-import shutil
-import threading
-import webbrowser
-import time
-import requests
-import bs4
-import lxml
+try:
+    from functools import singledispatchmethod
+    import json
+    import os
+    import sys
+    import shutil
+    import threading
+    import webbrowser
+    import time
+    import requests
+    import bs4
+    import lxml
+    from PyQt5.Qt import *
+    from qfluentwidgets import *
+    from qfluentwidgets import FluentIcon as FIF
+except:
+    os.popen("download.pyw error")
 
 
 class MyThread(threading.Thread):
@@ -850,11 +856,11 @@ class Functions():
                     data[i]["xmlInfo"]["soft"]["feature"] = data[i]["xmlInfo"]["soft"]["feature"][:20] + "..."
             for i in data:
                 list.append({"名称": i["SoftName"],
-                             "图标": f"https://pc3.gtimg.com/softmgr/logo/48/{i['xmlInfo']['soft']['logo48']}",
+                             "图标": f"https://pc3.gtimg.com/softmgr/logo/48/{i["xmlInfo"]["soft"]["logo48"]}",
                              "介绍": i["xmlInfo"]["soft"]["feature"],
                              "当前版本": i["xmlInfo"]["soft"]["versionname"],
                              "更新日期": i["xmlInfo"]["soft"]["publishdate"],
-                             "文件大小": f"{eval('%.2f' % eval('%.5g' % (eval(i['xmlInfo']['soft']['filesize']) / 1024 / 1024)))} MB",
+                             "文件大小": f"{eval("%.2f" % eval("%.5g" % (eval(i["xmlInfo"]["soft"]["filesize"]) / 1024 / 1024)))} MB",
                              "文件名称": i["xmlInfo"]["soft"]["filename"],
                              "下载链接": i["xmlInfo"]["soft"]["url"],
                              })
@@ -867,7 +873,7 @@ class Functions():
             data = json.loads(data)["data"]["list"]
             for i in data:
                 list.append({"名称": i["softname"],
-                             "图标": f"https:{i['logo']}",
+                             "图标": f"https:{i["logo"]}",
                              "介绍": i["desc"],
                              "当前版本": i["version"],
                              "更新日期": i["date"],
@@ -877,22 +883,20 @@ class Functions():
                              })
         for i in range(len(list)):
             if len(list[i]["介绍"]) >= 25:
-                list[i]["介绍"] = f"{list[i]['介绍'][:25]}..."
+                list[i]["介绍"] = f"{list[i]["介绍"][:25]}..."
         return list
 
 
 f = Functions()
 
 # 重复运行检测
-if "python" in f.cmd(f"tasklist |findstr {setting.read('pid')}", True):
+if "python" in f.cmd(f"tasklist |findstr {setting.read("pid")}", True):
     setting.save("showWindow", "1")
     sys.exit()
 setting.save("pid", str(program.PROGRAM_PID))
 
+
 # UI多线程
-from PyQt5.Qt import *
-from qfluentwidgets import *
-from qfluentwidgets import FluentIcon as FIF
 
 
 class NewThread(QThread):

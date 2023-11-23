@@ -5,6 +5,7 @@
         "window.py",
         "widgets.py",
         "functions.py",
+      "download.pyw",
         "img/logo.ico",
         "img/logo.png",
         "img/zb.png"
