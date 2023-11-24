@@ -285,7 +285,8 @@ class Functions():
         @param path: 路径
         @return: 格式化结果
         """
-        return os.path.normpath(path)
+        path = os.path.normpath(path).replace("//", "\ "[:-1]).replace("\\ "[:-1], "\ "[:-1])
+        return path
 
     def sameFile(self, path1: str, path2: str) -> bool:
         """
@@ -556,6 +557,18 @@ class Functions():
                 self.delete(i)
             for i in self.walkFile(path, 1):
                 self.delete(i)
+
+    def belongDir(self, path: str, parent: str) -> bool:
+        """
+        文件夹是否包含
+        @param path: 子文件夹
+        @param parent: 母文件夹
+        @return: 是否
+        """
+        path = os.path.abspath(path)
+        parent = os.path.abspath(parent)
+
+        return os.path.commonpath([parent]) == os.path.commonpath([parent, path])
 
     def sortDir(self, old: str, new: str, mode: int = 0):
         """
@@ -913,11 +926,11 @@ class Functions():
         data = setting.read("sortBlacklist")
         if self.sameFile(setting.read("sortPath"), program.DESKTOP_PATH):
             data += list(self.SORT_FILE_DIR.keys())
-        elif self.normalPath(program.DESKTOP_PATH) in self.normalPath(setting.read("sortPath")):
+        elif f.belongDir(setting.read("sortPath"), program.DESKTOP_PATH):
             dirs = self.walkDir(program.DESKTOP_PATH, 1)
             for i in dirs:
-                if self.normalPath(i) in self.normalPath(setting.read("sortPath")):
-                    data.append(i)
+                if f.belongDir(setting.read("sortPath"), i):
+                    data.append(self.splitPath(i))
         return data
 
 
