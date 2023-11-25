@@ -20,8 +20,8 @@
 ## [官网](https://ianzb.github.io/program/)
 
 ## 运行环境
-- Windows 7/8/8.1/10/11
-- Python 3.8/9/10/11
+- Windows 8/8.1/10/11
+- Python 3.11
 
 ## 截图
 <img src="https://picss.sunbangyan.cn/2023/11/12/3c98205d9e3910b83543c5d345808e14.png" width="25%" />
