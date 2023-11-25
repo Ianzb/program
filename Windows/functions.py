@@ -319,6 +319,22 @@ class ProcressFunctions():
         if pause:
             return value.read()
 
+    def downloadFile(self, link: str, path: str):
+        """
+        下载文件
+        @param link: 文件链接
+        @param path: 下载路径
+        """
+        try:
+            path = os.path.abspath(path)
+            data = requests.get(link, headers=program.REQUEST_HEADER).content
+            self.makeDir(self.splitPath(path, 3))
+            with open(path, "wb") as file:
+                file.write(data)
+            logging.debug(f"文件{link}下载成功")
+        except:
+            logging.warning(f"文件{link}下载失败")
+
 
 class FileFunctions(ProcressFunctions):
     """
@@ -770,22 +786,6 @@ class ProgramFunctions(FileFunctions):
         elif type(lib_name) == list:
             for i in lib_name:
                 self.cmd(f"pip install --upgrade {i} -i https://pypi.tuna.tsinghua.edu.cn/simple some-package", True)
-
-    def downloadFile(self, link: str, path: str):
-        """
-        下载文件
-        @param link: 文件链接
-        @param path: 下载路径
-        """
-        try:
-            path = os.path.abspath(path)
-            data = requests.get(link, headers=program.REQUEST_HEADER).content
-            self.makeDir(self.splitPath(path, 3))
-            with open(path, "wb") as file:
-                file.write(data)
-            logging.debug(f"文件{link}下载成功")
-        except:
-            logging.warning(f"文件{link}下载失败")
 
     def createShortcut(self, old: str, new: str, icon: str, arguments: str = ""):
         """
