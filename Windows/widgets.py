@@ -36,6 +36,7 @@ class BasicPage(ScrollArea):
         self.vBoxLayout.setContentsMargins(36, 20, 36, 36)
 
 
+
 class BasicTabPage(BasicPage):
     """
     有多标签页的页面模板
@@ -441,7 +442,7 @@ class SmallInfoCard(CardWidget):
 
         self.hBoxLayout = QHBoxLayout(self)
         self.hBoxLayout.setContentsMargins(20, 11, 11, 11)
-        self.hBoxLayout.setSpacing(15)
+        self.hBoxLayout.setSpacing(16)
         self.hBoxLayout.addWidget(self.image)
         self.hBoxLayout.addLayout(self.vBoxLayout1)
         self.hBoxLayout.addStretch(5)
@@ -486,6 +487,40 @@ class SmallInfoCard(CardWidget):
         self.info[pos] = data
         self.contentLabel1.setText(f"{self.info[0]}\n{self.info[1]}")
         self.contentLabel2.setText(f"{self.info[2]}\n{self.info[3]}")
+
+
+class CardGroup(QWidget):
+    """
+    卡片组
+    """
+
+    def __init__(self, title: str, parent=None):
+        super().__init__(parent=parent)
+        self.titleLabel = StrongBodyLabel(title, self)
+        self.vBoxLayout = QVBoxLayout(self)
+        self.cardLayout = ExpandLayout()
+
+        self.vBoxLayout.setContentsMargins(0, 0, 0, 0)
+        self.vBoxLayout.setAlignment(Qt.AlignTop)
+        self.vBoxLayout.setSpacing(0)
+        self.cardLayout.setContentsMargins(0, 0, 0, 0)
+        self.cardLayout.setSpacing(2)
+
+        self.vBoxLayout.addWidget(self.titleLabel)
+        self.vBoxLayout.addSpacing(12)
+        self.vBoxLayout.addLayout(self.cardLayout, 1)
+
+        FluentStyleSheet.SETTING_CARD_GROUP.apply(self)
+        self.titleLabel.adjustSize()
+
+    def addWidget(self, card: QWidget):
+        card.setParent(self)
+        self.cardLayout.addWidget(card)
+        self.adjustSize()
+
+    def adjustSize(self):
+        h = self.cardLayout.heightForWidth(self.width()) + 46
+        return self.resize(self.width(), h)
 
 
 logging.debug("widgets.py初始化成功")

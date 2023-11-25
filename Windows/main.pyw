@@ -148,9 +148,9 @@ class SettingPage(BasicPage):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
 
-        self.settingCardGroup1 = SettingCardGroup("个性化", self)
-        self.settingCardGroup2 = SettingCardGroup("功能", self)
-        self.settingCardGroup3 = SettingCardGroup("关于", self)
+        self.settingCardGroup1 = CardGroup("个性化", self)
+        self.settingCardGroup2 = CardGroup("功能", self)
+        self.settingCardGroup3 = CardGroup("关于", self)
 
         self.themeSettingCard = ThemeSettingCard()
         self.colorSettingCard = ColorSettingCard()
@@ -165,18 +165,18 @@ class SettingPage(BasicPage):
         self.updateSettingCard = UpdateSettingCard()
         self.aboutSettingCard = AboutSettingCard()
 
-        self.settingCardGroup1.addSettingCard(self.themeSettingCard)
-        self.settingCardGroup1.addSettingCard(self.colorSettingCard)
-        self.settingCardGroup1.addSettingCard(self.startupSettingCard)
-        self.settingCardGroup1.addSettingCard(self.shortcutSettingCard)
+        self.settingCardGroup1.addWidget(self.themeSettingCard)
+        self.settingCardGroup1.addWidget(self.colorSettingCard)
+        self.settingCardGroup1.addWidget(self.startupSettingCard)
+        self.settingCardGroup1.addWidget(self.shortcutSettingCard)
 
-        self.settingCardGroup2.addSettingCard(self.sortSettingCard)
-        self.settingCardGroup2.addSettingCard(self.sortBlacklistSettingCard)
-        self.settingCardGroup2.addSettingCard(self.downloadSettingCard)
+        self.settingCardGroup2.addWidget(self.sortSettingCard)
+        self.settingCardGroup2.addWidget(self.sortBlacklistSettingCard)
+        self.settingCardGroup2.addWidget(self.downloadSettingCard)
 
-        self.settingCardGroup3.addSettingCard(self.helpSettingCard)
-        self.settingCardGroup3.addSettingCard(self.updateSettingCard)
-        self.settingCardGroup3.addSettingCard(self.aboutSettingCard)
+        self.settingCardGroup3.addWidget(self.helpSettingCard)
+        self.settingCardGroup3.addWidget(self.updateSettingCard)
+        self.settingCardGroup3.addWidget(self.aboutSettingCard)
 
         self.vBoxLayout.addWidget(self.settingCardGroup1)
         self.vBoxLayout.addWidget(self.settingCardGroup2)
@@ -205,7 +205,7 @@ class Window(FluentWindow):
         setThemeColor("#0078D4")
         # 窗口属性
         self.resize(900, 700)
-        self.setMinimumSize(700, 500)
+        # self.setMinimumSize(700, 500)
         self.setWindowIcon(QIcon(program.source("logo.png")))
         self.setWindowTitle(program.PROGRAM_TITLE)
         self.navigationInterface.setReturnButtonVisible(False)

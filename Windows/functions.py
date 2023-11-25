@@ -961,8 +961,8 @@ class Functions(ProgramFunctions):
                              "下载链接": i["soft_download"],
                              })
         for i in range(len(list)):
-            if len(list[i]["介绍"]) >= 25:
-                list[i]["介绍"] = f"{list[i]["介绍"][:25]}..."
+            if len(list[i]["介绍"]) >= 20:
+                list[i]["介绍"] = f"{list[i]["介绍"][:20]}..."
         return list
 
 
