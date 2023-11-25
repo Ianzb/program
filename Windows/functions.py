@@ -275,6 +275,50 @@ class ProcressFunctions():
         import re
         return re.sub('[\\\/:*?"<>|]', "", path)
 
+    def compareVersion(self, version1: str, version2: str) -> str:
+        """
+        比较版本号大小
+        @param version1: 版本号1
+        @param version2: 版本号2
+        @return: 返回大的版本号
+        """
+        list1 = version1.split(".")
+        list2 = version2.split(".")
+        for i in range(len(list1)) if len(list1) < len(list2) else range(len(list2)):
+            if int(list1[i]) == int(list2[i]):
+                pass
+            elif int(list1[i]) < int(list2[i]):
+                return version2
+            else:
+                return version1
+        if len(list1) >= len(list2):
+            return version1
+        else:
+            return version2
+
+    def urlJoin(self, *args):
+        """
+        拼接网址
+        @param args: 网址
+        @return: 拼接结果
+        """
+        import urllib.parse
+        data = ""
+        for i in range(len(args)):
+            data = urllib.parse.urljoin(data, args[i])
+        return data
+
+    def cmd(self, command: str, pause: bool = False) -> str:
+        """
+        简单的使用cmd
+        @param command: 命令
+        @param pause: 是否返回输出结果
+        @return: 输出结果
+        """
+        value = os.popen(command)
+        if pause:
+            return value.read()
+
 
 class FileFunctions(ProcressFunctions):
     """
@@ -703,29 +747,6 @@ class ProgramFunctions(FileFunctions):
     def __init__(self):
         super().__init__()
 
-    def urlJoin(self, *args):
-        """
-        拼接网址
-        @param args: 网址
-        @return: 拼接结果
-        """
-        import urllib.parse
-        data = ""
-        for i in range(len(args)):
-            data = urllib.parse.urljoin(data, args[i])
-        return data
-
-    def cmd(self, command: str, pause: bool = False) -> str:
-        """
-        简单的使用cmd
-        @param command: 命令
-        @param pause: 是否返回输出结果
-        @return: 输出结果
-        """
-        value = os.popen(command)
-        if pause:
-            return value.read()
-
     def pipInstall(self, lib_name: str | list):
         """
         pip安装运行库
@@ -818,27 +839,6 @@ class ProgramFunctions(FileFunctions):
         data = json.loads(response)["version"]
         logging.info(f"程序最新版本：{data}")
         return data
-
-    def compareVersion(self, version1: str, version2: str) -> str:
-        """
-        比较版本号大小
-        @param version1: 版本号1
-        @param version2: 版本号2
-        @return: 返回大的版本号
-        """
-        list1 = version1.split(".")
-        list2 = version2.split(".")
-        for i in range(len(list1)) if len(list1) < len(list2) else range(len(list2)):
-            if int(list1[i]) == int(list2[i]):
-                pass
-            elif int(list1[i]) < int(list2[i]):
-                return version2
-            else:
-                return version1
-        if len(list1) >= len(list2):
-            return version1
-        else:
-            return version2
 
 
 class Functions(ProgramFunctions):
