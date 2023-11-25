@@ -3,74 +3,6 @@ import logging
 from widgets import *
 
 
-class Tray(QSystemTrayIcon):
-    """
-    系统托盘组件
-    """
-
-    def __init__(self, window):
-        super(Tray, self).__init__()
-        self.window = window
-
-        self.setIcon(QIcon(program.source("logo.png")))
-        self.setToolTip(program.PROGRAM_TITLE)
-        self.installEventFilter(ToolTipFilter(self, 1000))
-        self.activated.connect(self.iconClicked)
-        self.show()
-
-        self.showMessage(program.PROGRAM_NAME, f"{program.PROGRAM_NAME}启动成功！", QIcon(program.source("logo.png")), 1)
-
-        self.action1 = Action(FIF.HOME, "打开", triggered=self.action1Clicked)
-        self.action2 = Action(FIF.ALIGNMENT, "整理", triggered=self.action2Clicked)
-        self.action3 = Action(FIF.LINK, "官网", triggered=self.action3Clicked)
-        self.action4 = Action(FIF.CLOSE, "退出", triggered=self.action4Clicked)
-
-        self.menu = RoundMenu()
-
-        self.menu.addAction(self.action1)
-        self.menu.addAction(self.action2)
-        self.menu.addAction(self.action3)
-        self.menu.addAction(self.action4)
-
-        self.window.mainPage.signalBool.connect(self.thread2)
-
-    def iconClicked(self, reason):
-        if reason == 3:
-            self.trayClickedEvent()
-        elif reason == 1:
-            self.contextMenuEvent()
-
-    def trayClickedEvent(self):
-        if self.window.isHidden():
-            self.window.setHidden(False)
-            if self.window.windowState() == Qt.WindowMinimized:
-                self.window.showNormal()
-            self.window.raise_()
-            self.window.activateWindow()
-        else:
-            self.window.setHidden(True)
-
-    def contextMenuEvent(self):
-        self.menu.exec(QCursor.pos(), ani=True, aniType=MenuAnimationType.PULL_UP)
-
-    def action1Clicked(self):
-        self.window.show()
-
-    def action2Clicked(self):
-        self.action2.setEnabled(False)
-        self.window.mainPage.button1_1Clicked()
-
-    def thread2(self, msg):
-        self.action2.setEnabled(msg)
-
-    def action3Clicked(self):
-        webbrowser.open(program.PROGRAM_URL)
-
-    def action4Clicked(self):
-        self.deleteLater()
-        qApp.quit()
-
-
 class BlackListEditMessageBox(MessageBoxBase):
     """
     可编辑黑名单的弹出框
@@ -192,7 +124,11 @@ class AppStoreTab(BasicTab):
         self.loadingCard.setDisplay(self.progressRingLoading)
         self.loadingCard.hide()
 
+        self.titleLabel = StrongBodyLabel(self)
+        self.titleLabel.hide()
+
         self.vBoxLayout.addWidget(self.card)
+        self.vBoxLayout.addWidget(self.titleLabel)
         self.vBoxLayout.addWidget(self.loadingCard, 0, Qt.AlignCenter)
 
     def lineEditChanged(self, text):
@@ -203,11 +139,12 @@ class AppStoreTab(BasicTab):
 
     def searchButtonClicked(self):
         if self.lineEdit.text():
-            for i in range(self.vBoxLayout.count())[2:]:
+            for i in range(self.vBoxLayout.count())[3:]:
                 self.vBoxLayout.itemAt(i).widget().hide()
                 if not self.vBoxLayout.itemAt(i).widget().image.loading:
                     self.vBoxLayout.itemAt(i).widget().deleteLater()
 
+            self.titleLabel.hide()
             self.lineEdit.setEnabled(False)
             self.comboBox.setEnabled(False)
 
@@ -224,9 +161,12 @@ class AppStoreTab(BasicTab):
         for i in msg:
             self.infoCard = AppInfoCard(i, self.comboBox.currentText())
             self.vBoxLayout.addWidget(self.infoCard, 0, Qt.AlignTop)
-        if not msg:
-            self.loadingCard.setText("无搜索结果！")
-            self.loadingCard.show()
+        if msg:
+            self.titleLabel.setText(f"搜索结果（{len(msg)}个）")
+            self.titleLabel.show()
+        else:
+            self.titleLabel.setText(f"无搜索结果")
+            self.titleLabel.show()
         self.lineEdit.setEnabled(True)
         self.comboBox.setEnabled(True)
 
@@ -792,6 +732,74 @@ class AboutSettingCard(SettingCard):
         self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
         self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
+
+
+class Tray(QSystemTrayIcon):
+    """
+    系统托盘组件
+    """
+
+    def __init__(self, window):
+        super(Tray, self).__init__()
+        self.window = window
+
+        self.setIcon(QIcon(program.source("logo.png")))
+        self.setToolTip(program.PROGRAM_TITLE)
+        self.installEventFilter(ToolTipFilter(self, 1000))
+        self.activated.connect(self.iconClicked)
+        self.show()
+
+        self.showMessage(program.PROGRAM_NAME, f"{program.PROGRAM_NAME}启动成功！", QIcon(program.source("logo.png")), 1)
+
+        self.action1 = Action(FIF.HOME, "打开", triggered=self.action1Clicked)
+        self.action2 = Action(FIF.ALIGNMENT, "整理", triggered=self.action2Clicked)
+        self.action3 = Action(FIF.LINK, "官网", triggered=self.action3Clicked)
+        self.action4 = Action(FIF.CLOSE, "退出", triggered=self.action4Clicked)
+
+        self.menu = RoundMenu()
+
+        self.menu.addAction(self.action1)
+        self.menu.addAction(self.action2)
+        self.menu.addAction(self.action3)
+        self.menu.addAction(self.action4)
+
+        self.window.mainPage.signalBool.connect(self.thread2)
+
+    def iconClicked(self, reason):
+        if reason == 3:
+            self.trayClickedEvent()
+        elif reason == 1:
+            self.contextMenuEvent()
+
+    def trayClickedEvent(self):
+        if self.window.isHidden():
+            self.window.setHidden(False)
+            if self.window.windowState() == Qt.WindowMinimized:
+                self.window.showNormal()
+            self.window.raise_()
+            self.window.activateWindow()
+        else:
+            self.window.setHidden(True)
+
+    def contextMenuEvent(self):
+        self.menu.exec(QCursor.pos(), ani=True, aniType=MenuAnimationType.PULL_UP)
+
+    def action1Clicked(self):
+        self.window.show()
+
+    def action2Clicked(self):
+        self.action2.setEnabled(False)
+        self.window.mainPage.button1_1Clicked()
+
+    def thread2(self, msg):
+        self.action2.setEnabled(msg)
+
+    def action3Clicked(self):
+        webbrowser.open(program.PROGRAM_URL)
+
+    def action4Clicked(self):
+        self.deleteLater()
+        qApp.quit()
 
 
 logging.debug("windows.py初始化成功")
