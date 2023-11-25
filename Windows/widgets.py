@@ -203,19 +203,6 @@ class DisplayCard(ElevatedCardWidget):
         else:
             self.setStyleSheet("QLabel {background-color: transparent; color: black}")
 
-    def mousePressEvent(self, event):
-        self.clicked()
-
-    def clicked(self):
-        pass
-
-    def connect(self, functions):
-        """
-        设置点击事件
-        @param functions: 函数
-        """
-        self.clicked = functions
-
     def setText(self, text: str):
         """
         设置文本

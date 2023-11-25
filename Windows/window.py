@@ -95,7 +95,7 @@ class BlackListEditMessageBox(MessageBoxBase):
         self.widget.setMinimumWidth(350)
 
     def yesButtonClicked(self):
-        setting.save("sortBlacklist", list(set([i.strip() for i in self.textEdit.toPlainText().split("\n") if i])))
+        setting.save("sortBlacklist", sorted(list(set([i.strip() for i in f.removeIllegalPath(self.textEdit.toPlainText()).split("\n") if i]))))
 
         self.accept()
         self.accepted.emit()
@@ -171,6 +171,7 @@ class AppStoreTab(BasicTab):
         self.lineEdit.installEventFilter(ToolTipFilter(self.lineEdit, 1000))
         self.lineEdit.setMaxLength(50)
         self.lineEdit.textChanged.connect(self.lineEditChanged)
+        self.lineEdit.returnPressed.connect(self.lineEditReturnPressed)
         self.lineEdit.searchButton.setEnabled(False)
         self.lineEdit.searchButton.clicked.connect(self.searchButtonClicked)
 
@@ -186,21 +187,19 @@ class AppStoreTab(BasicTab):
         self.card.addWidget(self.comboBox)
 
         self.progressRingLoading = IndeterminateProgressRing(self)
-        self.progressRingLoading.hide()
-
-        self.progressRingError = ProgressRing(self)
-        self.progressRingError.setValue(100)
-        self.progressRingError.setFormat("")
-        self.progressRingError.hide()
 
         self.loadingCard = DisplayCard(self)
+        self.loadingCard.setDisplay(self.progressRingLoading)
         self.loadingCard.hide()
 
         self.vBoxLayout.addWidget(self.card)
-        self.vBoxLayout.addWidget(self.loadingCard, 5, Qt.AlignCenter | Qt.AlignHCenter)
+        self.vBoxLayout.addWidget(self.loadingCard, 0, Qt.AlignCenter)
 
     def lineEditChanged(self, text):
         self.lineEdit.searchButton.setEnabled(bool(text))
+
+    def lineEditReturnPressed(self):
+        self.lineEdit.searchButton.click()
 
     def searchButtonClicked(self):
         if self.lineEdit.text():
@@ -213,9 +212,6 @@ class AppStoreTab(BasicTab):
             self.comboBox.setEnabled(False)
 
             self.loadingCard.setText("搜索中...")
-            self.loadingCard.setDisplay(self.progressRingLoading)
-            self.progressRingLoading.show()
-            self.progressRingError.hide()
             self.loadingCard.show()
 
             self.thread = NewThread("搜索应用", [self.lineEdit.text(), self.comboBox.currentText()])
@@ -225,21 +221,18 @@ class AppStoreTab(BasicTab):
 
     def thread1(self, msg):
         self.loadingCard.hide()
-        self.progressRingLoading.hide()
-        self.progressRingError.hide()
-
         for i in msg:
             self.infoCard = AppInfoCard(i, self.comboBox.currentText())
-            self.vBoxLayout.addWidget(self.infoCard)
+            self.vBoxLayout.addWidget(self.infoCard, 0, Qt.AlignTop)
+        if not msg:
+            self.loadingCard.setText("无搜索结果！")
+            self.loadingCard.show()
         self.lineEdit.setEnabled(True)
         self.comboBox.setEnabled(True)
 
     def thread2(self, msg):
         if not msg:
             self.loadingCard.setText("网络连接失败！")
-            self.loadingCard.setDisplay(self.progressRingError)
-            self.progressRingLoading.hide()
-            self.progressRingError.show()
             self.loadingCard.show()
 
             self.lineEdit.setEnabled(True)
