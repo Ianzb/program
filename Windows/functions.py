@@ -754,6 +754,14 @@ class FileFunctions(ProcressFunctions):
                     data.append(self.splitPath(i))
         return data
 
+    def startFile(self, path: str):
+        """
+        在文件资源管理器中打开目录
+        @param path: 路径
+        """
+        if path and self.existPath(path):
+            os.startfile(path)
+
 
 class ProgramFunctions(FileFunctions):
     """

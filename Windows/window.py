@@ -525,8 +525,8 @@ class HelpSettingCard(SettingCard):
         self.button2 = HyperlinkButton(program.PROGRAM_PATH, "程序数据路径", self, FIF.FOLDER)
         self.button3 = HyperlinkButton("", "清理程序缓存", self, FIF.BROOM)
 
-        self.button1.clicked.connect(lambda: os.startfile(program.PROGRAM_PATH))
-        self.button2.clicked.connect(lambda: os.startfile(program.PROGRAM_DATA_PATH))
+        self.button1.clicked.connect(lambda: f.startFile(program.PROGRAM_PATH))
+        self.button2.clicked.connect(lambda: f.startFile(program.PROGRAM_DATA_PATH))
         self.button3.clicked.connect(self.button3Clicked)
 
         self.button1.setToolTip("打开程序安装路径")

@@ -17,7 +17,7 @@ class MainPage(BasicPage):
         self.button3_1 = PushButton("查看Minecraft最新版本", self, FIF.CHECKBOX)
 
         self.button1_1.clicked.connect(self.button1_1Clicked)
-        self.button1_2.clicked.connect(self.button1_2Clicked)
+        self.button1_2.clicked.connect(lambda: f.startFile(setting.read("sortPath")))
         self.button2_1.clicked.connect(self.button2_1Clicked)
         self.button3_1.clicked.connect(self.button3_1Clicked)
 
@@ -73,10 +73,6 @@ class MainPage(BasicPage):
             self.stateTooltip.setContent("整理成功")
         else:
             self.stateTooltip.setContent("整理失败")
-
-    def button1_2Clicked(self):
-        if setting.read("sortPath") != "":
-            os.startfile(setting.read("sortPath"))
 
     def button2_1Clicked(self):
         self.button2_1.setEnabled(False)
