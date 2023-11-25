@@ -134,7 +134,7 @@ class LoggingFunctions():
 
         self.log.addHandler(handler1)
         self.log.addHandler(handler2)
-        if os.path.getsize(program.LOGGING_FILE_PATH) / 1024 >= 128:
+        if self.getSize(program.LOGGING_FILE_PATH) / 1024 >= 128:
             self.reset()
 
     def reset(self):
@@ -207,7 +207,7 @@ class SettingFunctions():
         """
         重新读取设置文件
         """
-        if not f.exists(program.SETTING_FILE_PATH):
+        if not f.existPath(program.SETTING_FILE_PATH):
             with open(program.SETTING_FILE_PATH, "w", encoding="utf-8") as file:
                 file.write(json.dumps(self.DEFAULT_SETTING))
         else:
@@ -250,9 +250,37 @@ class SettingFunctions():
 setting = SettingFunctions()
 
 
-class Functions():
+class ProcressFunctions():
     """
-    程序相关函数
+    数据处理函数
+    """
+
+    def __init__(self):
+        pass
+
+    def xmlToJson(self, data: str) -> dict:
+        """
+        xml转json
+        @param data: xml字符串
+        @return: 字典格式json数据
+        """
+        import xmltodict
+        data = xmltodict.parse(data)
+        return data
+
+    def removeIllegalPath(self, path: str) -> str:
+        """
+        去除路径中的非法字符（[\\\/:*?"<>|]）
+        @param path: 路径
+        @return: 去除非法字符后的字符串
+        """
+        import re
+        return re.sub('[\\\/:*?"<>|]', "", path)
+
+
+class FileFunctions(ProcressFunctions):
+    """
+    文件处理函数
     """
     SORT_FILE_DIR = {"PPT": [".ppt", ".pptx"],
                      "文档": [".doc", ".docx", ".txt", ".pdf"],
@@ -266,7 +294,16 @@ class Functions():
                      }
 
     def __init__(self):
-        pass
+        super().__init__()
+
+    def formatPath(self, path: str) -> str:
+        """
+        格式化路径
+        @param path: 路径
+        @return: 格式化结果
+        """
+        path = os.path.normpath(path).replace("//", "\ "[:-1]).replace("\\ "[:-1], "\ "[:-1])
+        return path
 
     def pathJoin(self, *data) -> str:
         """
@@ -277,18 +314,9 @@ class Functions():
         path = ""
         for i in data:
             path = os.path.join(path, i)
-        return self.normalPath(path)
+        return self.formatPath(path)
 
-    def normalPath(self, path: str) -> str:
-        """
-        格式化路径
-        @param path: 路径
-        @return: 格式化结果
-        """
-        path = os.path.normpath(path).replace("//", "\ "[:-1]).replace("\\ "[:-1], "\ "[:-1])
-        return path
-
-    def sameFile(self, path1: str, path2: str) -> bool:
+    def isSameFile(self, path1: str, path2: str) -> bool:
         """
         判断路径是否相同
         @param path1: 路径1
@@ -296,9 +324,9 @@ class Functions():
         @return: 是否相同
         """
 
-        return self.normalPath(path1) == self.normalPath(path2)
+        return self.formatPath(path1) == self.formatPath(path2)
 
-    def exists(self, path: str) -> bool:
+    def existPath(self, path: str) -> bool:
         """
         文件是否存在
         @param path: 文件路径
@@ -312,7 +340,7 @@ class Functions():
         @param path: 文件路径
         @return: bool
         """
-        if not self.exists(path):
+        if not self.existPath(path):
             return False
         return os.path.isfile(path)
 
@@ -322,15 +350,15 @@ class Functions():
         @param path: 文件路径
         @return: bool
         """
-        if not self.exists(path):
+        if not self.existPath(path):
             return False
         return os.path.isdir(path)
 
-    def onlyRead(self, path: str, enable: bool):
+    def setOnlyRead(self, path: str, enable: bool):
         """
         只读权限
         @param path: 文件路径
-        @param enable: 是否开启
+        @param enable: 启用/禁用
         """
         from stat import S_IREAD, S_IWRITE
         if self.isFile(path):
@@ -346,7 +374,7 @@ class Functions():
         """
         try:
             if self.isFile(path):
-                self.onlyRead(path, False)
+                self.setOnlyRead(path, False)
                 os.remove(path)
             if self.isDir(path):
                 shutil.rmtree(path)
@@ -361,8 +389,7 @@ class Functions():
         """
         from hashlib import md5
         if self.isFile(path):
-            with open(path, "rb") as file:
-                data = file.read()
+            data = open(path, "rb").read()
             return md5(data).hexdigest()
 
     def splitPath(self, path: str, mode: int = 0) -> str:
@@ -381,12 +408,12 @@ class Functions():
         if mode == 3:
             return os.path.dirname(path)
 
-    def mkDir(self, path: str):
+    def makeDir(self, path: str):
         """
         创建文件夹
         @param path: 文件路径
         """
-        if not self.exists(path):
+        if not self.existPath(path):
             os.makedirs(path)
 
     def getSize(self, path: str) -> int:
@@ -442,7 +469,7 @@ class Functions():
             list = []
         return list
 
-    def copy(self, old: str, new: str):
+    def copyFile(self, old: str, new: str):
         """
         复制文件
         @param old: 旧文件（夹）路径
@@ -450,22 +477,22 @@ class Functions():
         """
         if self.isFile(old):
             if self.isDir(new) or "." not in new:
-                self.mkDir(new)
+                self.makeDir(new)
                 new = self.pathJoin(new, self.splitPath(old))
-            if self.exists(new):
+            if self.existPath(new):
                 i = 1
-                while self.exists(self.pathJoin(self.splitPath(new, 3), self.splitPath(new, 1) + " (" + str(i) + ")" + self.splitPath(new, 2))):
+                while self.existPath(self.pathJoin(self.splitPath(new, 3), self.splitPath(new, 1) + " (" + str(i) + ")" + self.splitPath(new, 2))):
                     i = i + 1
                 new = self.pathJoin(self.splitPath(new, 3), self.splitPath(new, 1) + " (" + str(i) + ")" + self.splitPath(new, 2))
             try:
                 shutil.copy(self.pathJoin(old), self.pathJoin(new))
             except:
-                self.onlyRead(old, False)
+                self.setOnlyRead(old, False)
                 shutil.copy(self.pathJoin(old), self.pathJoin(new))
         if self.isDir(old):
-            if self.exists(new):
+            if self.existPath(new):
                 i = 1
-                while self.exists(new + " (" + str(i) + ")"):
+                while self.existPath(new + " (" + str(i) + ")"):
                     i = i + 1
                 new = new + " (" + str(i) + ")"
             try:
@@ -473,19 +500,19 @@ class Functions():
             except:
                 try:
                     for i in self.walkFile(old):
-                        self.onlyRead(i, False)
+                        self.setOnlyRead(i, False)
                     shutil.copytree(self.pathJoin(old), self.pathJoin(new))
                 except:
                     pass
 
-    def move(self, old: str, new: str):
+    def moveFile(self, old: str, new: str):
         """
         移动文件
         @param old: 旧文件（夹）路径
         @param new: 新文件（夹）路径
         """
-        self.copy(old, new)
-        if self.exists(old):
+        self.copyFile(old, new)
+        if self.existPath(old):
             self.delete(old)
 
     def clearEmptyFile(self, path: str):
@@ -526,7 +553,7 @@ class Functions():
                 return
             names.sort(key=lambda i: len(i))
             for i in names:
-                if os.path.getsize(i) / 1024 / 1024 >= 128:
+                if self.getSize(i) / 1024 / 1024 >= 128:
                     continue
                 md5 = self.getMD5(i)
                 if md5 in sizes:
@@ -558,6 +585,17 @@ class Functions():
             for i in self.walkFile(path, 1):
                 self.delete(i)
 
+
+class Functions(FileFunctions):
+    """
+    程序相关函数
+    """
+
+    def __init__(self):
+        super().__init__()
+
+    # TODO
+
     def belongDir(self, path: str, parent: str) -> bool:
         """
         文件夹是否包含
@@ -584,13 +622,13 @@ class Functions():
                     for i in file_list:
                         for j in range(len(self.SORT_FILE_DIR.values())):
                             if self.splitPath(i, 2).lower() in list(self.SORT_FILE_DIR.values())[j] and self.splitPath(i, 0) not in self.getSortBlacklist():
-                                self.move(i, self.pathJoin(new, list(self.SORT_FILE_DIR.keys())[j]))
+                                self.moveFile(i, self.pathJoin(new, list(self.SORT_FILE_DIR.keys())[j]))
             if mode in [0, 2]:
                 file_list = self.walkDir(old, 1)
                 if file_list:
                     for i in file_list:
                         if self.splitPath(i, 0) not in self.getSortBlacklist():
-                            self.move(i, self.pathJoin(new, "文件夹", self.splitPath(i, 0)))
+                            self.moveFile(i, self.pathJoin(new, "文件夹", self.splitPath(i, 0)))
             logging.debug(f"成功整理{old}文件夹")
         except:
             logging.warning(f"无法整理{old}文件夹")
@@ -603,7 +641,7 @@ class Functions():
             list = []
             list2 = []
             for i in self.walkDir(setting.read("wechatPath"), 1):
-                if self.exists(self.pathJoin(i, "FileStorage/File")):
+                if self.existPath(self.pathJoin(i, "FileStorage/File")):
                     list.append(self.pathJoin(i, "FileStorage/File"))
             for i in list:
                 if self.walkDir(i, 1) == None:
@@ -770,7 +808,7 @@ class Functions():
         try:
             path = os.path.abspath(path)
             data = requests.get(link, headers=program.REQUEST_HEADER).content
-            self.mkDir(self.splitPath(path, 3))
+            self.makeDir(self.splitPath(path, 3))
             with open(path, "wb") as file:
                 file.write(data)
             logging.debug(f"文件{link}下载成功")
@@ -851,25 +889,6 @@ class Functions():
         else:
             return version2
 
-    def illegalPath(self, path: str) -> str:
-        """
-        去除路径中的非法字符
-        @param path: 路径
-        @return: 去除结果
-        """
-        import re
-        return re.sub('[\\\/:*?"<>|]', "", path)
-
-    def xmlToJson(self, data: str) -> dict:
-        """
-        xml转json
-        @param data: xml字符串
-        @return: 转换字典
-        """
-        import xmltodict
-        data = xmltodict.parse(data)
-        return data
-
     def searchSoftware(self, name: str, source: str) -> list:
         """
         搜索软件
@@ -922,9 +941,9 @@ class Functions():
         获取整理文件黑名单
         @return: 整理文件黑名单列表
         """
-        self.mkDir(setting.read("sortPath"))
+        self.makeDir(setting.read("sortPath"))
         data = setting.read("sortBlacklist")
-        if self.sameFile(setting.read("sortPath"), program.DESKTOP_PATH):
+        if self.isSameFile(setting.read("sortPath"), program.DESKTOP_PATH):
             data += list(self.SORT_FILE_DIR.keys())
         elif f.belongDir(setting.read("sortPath"), program.DESKTOP_PATH):
             dirs = self.walkDir(program.DESKTOP_PATH, 1)
@@ -1027,7 +1046,7 @@ class NewThread(QThread):
             self.signalStr.emit(f.getMC())
 
         if self.mode == "下载图片":
-            if not f.exists(self.data[1]):
+            if not f.existPath(self.data[1]):
                 f.downloadFile(self.data[0], self.data[1])
             self.signalBool.emit(True)
 
@@ -1045,9 +1064,9 @@ class NewThread(QThread):
 
         if self.mode == "下载文件":
             path = f.pathJoin(setting.read("downloadPath"), self.data[0])
-            if f.exists(path):
+            if f.existPath(path):
                 i = 1
-                while f.exists(f.pathJoin(f.splitPath(path, 3), f.splitPath(path, 1) + " (" + str(i) + ")" + f.splitPath(path, 2))):
+                while f.existPath(f.pathJoin(f.splitPath(path, 3), f.splitPath(path, 1) + " (" + str(i) + ")" + f.splitPath(path, 2))):
                     i = i + 1
                 path = f.pathJoin(f.splitPath(path, 3), f.splitPath(path, 1) + " (" + str(i) + ")" + f.splitPath(path, 2))
             logging.debug(f"开始下载文件{path}")

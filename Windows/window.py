@@ -116,7 +116,7 @@ class AppInfoCard(SmallInfoCard):
         self.mainButton.setToolTip("下载软件")
         self.mainButton.installEventFilter(ToolTipFilter(self.mainButton, 1000))
 
-        self.setImg(f"{self.source}/{f.illegalPath(self.data["名称"])}", self.data["图标"])
+        self.setImg(f"{self.source}/{f.removeIllegalPath(self.data["名称"])}", self.data["图标"])
         self.setTitle(f"{self.data["名称"]}")
 
         self.setInfo(self.data["介绍"], 0)
@@ -144,7 +144,7 @@ class AppInfoCard(SmallInfoCard):
     def thread2(self, msg):
         self.stateTooltip.setContent(f"下载中，当前进度{msg}%")
         if msg == 100:
-            f.move(self.filePath, self.filePath.replace(".zb.appstore.downloading", ""))
+            f.moveFile(self.filePath, self.filePath.replace(".zb.appstore.downloading", ""))
             self.stateTooltip.setContent("下载成功")
             self.stateTooltip.setState(True)
 
@@ -525,12 +525,12 @@ class SortSettingCard(SettingCard):
 
     def button1Clicked(self):
         get = QFileDialog.getExistingDirectory(self, "选择整理目录", setting.read("sortPath"))
-        if f.exists(get):
+        if f.existPath(get):
             setting.save("sortPath", str(get))
 
     def button2Clicked(self):
         get = QFileDialog.getExistingDirectory(self, "选择微信WeChat Files文件夹目录", setting.read("wechatPath"))
-        if f.exists(get):
+        if f.existPath(get):
             setting.save("wechatPath", str(get))
 
 
@@ -577,7 +577,7 @@ class DownloadSettingCard(SettingCard):
 
     def button1Clicked(self):
         get = QFileDialog.getExistingDirectory(self, "选择下载目录", setting.read("downloadPath"))
-        if f.exists(get):
+        if f.existPath(get):
             setting.save("downloadPath", str(get))
 
 
