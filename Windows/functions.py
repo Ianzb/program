@@ -750,77 +750,6 @@ class ProgramFunctions(FileFunctions):
             for i in lib_name:
                 self.cmd(f"pip install --upgrade {i} -i https://pypi.tuna.tsinghua.edu.cn/simple some-package", True)
 
-
-class Functions(ProgramFunctions):
-    """
-    程序相关函数
-    """
-
-    def __init__(self):
-        super().__init__()
-
-
-    def changeList(self, data: list, index: dict):
-        """
-        批量替换元素
-        @param data: 数据列表
-        @param index: 替换字典{键值替换键名}
-        @return:
-        """
-        for i in range(len(data)):
-            for k, v in index.items():
-                data[i] = data[i].replace(k, v)
-        return data
-
-    def getMC(self) -> str:
-        """
-        获取Minecraft最新版本
-        @return: 字符串
-        """
-        useful = ["{{v|java}}",
-                  "{{v|java-experimental}}",
-                  "{{v|java-snap}}",
-                  "{{v|bedrock}}",
-                  "{{v|bedrock-beta}}",
-                  "{{v|bedrock-preview}}",
-                  "{{v|dungeons}}",
-                  "{{v|legends-win}}",
-                  "{{v|launcher}}",
-                  "{{v|launcher-beta}}",
-                  "{{v|education}}",
-                  "{{v|education-beta}}",
-                  "{{v|china-win}}",
-                  "{{v|china-android}}",
-                  ]
-        try:
-            response = requests.get("https://zh.minecraft.wiki/w/Template:Version", stream=True, timeout=(30, 600)).text
-        except:
-            logging.warning("无法连接至Minecraft Wiki服务器")
-            return "无法连接至服务器"
-        soup = bs4.BeautifulSoup(response, "lxml")
-        data = soup.find_all(name="td")
-        l1 = [n.text.replace("\n", "") for n in data]
-        v1 = l1[::3]
-        v2 = l1[1::3]
-        v3 = l1[2::3]
-        str1 = ""
-        v1 = self.changeList(v1, {"（": "", "）": ""})
-        for i in range(len(v1)):
-            if v1[i][-1] == "版":
-                v1[i] = v1[i] + "正式版"
-            if v3[i] == "{{v|china-win}}":
-                v1[i] = "中国版端游"
-            if v3[i] == "{{v|china-android}}":
-                v1[i] = "中国版手游"
-            if v3[i] == "{{v|legends-win}}":
-                v1[i] = "我的世界：传奇"
-            if v3[i] == "{{v|dungeons}}":
-                v1[i] = "我的世界：地下城"
-            if v3[i] in useful and v2[i] != "":
-                str1 += v1[i] + "版本：" + v2[i] + "\n"
-        logging.debug("成功获取我的世界最新版本")
-        return str1
-
     def downloadFile(self, link: str, path: str):
         """
         下载文件
@@ -910,6 +839,76 @@ class Functions(ProgramFunctions):
             return version1
         else:
             return version2
+
+
+class Functions(ProgramFunctions):
+    """
+    程序相关函数
+    """
+
+    def __init__(self):
+        super().__init__()
+
+    def changeList(self, data: list, index: dict):
+        """
+        批量替换元素
+        @param data: 数据列表
+        @param index: 替换字典{键值替换键名}
+        @return:
+        """
+        for i in range(len(data)):
+            for k, v in index.items():
+                data[i] = data[i].replace(k, v)
+        return data
+
+    def getMC(self) -> str:
+        """
+        获取Minecraft最新版本
+        @return: 字符串
+        """
+        useful = ["{{v|java}}",
+                  "{{v|java-experimental}}",
+                  "{{v|java-snap}}",
+                  "{{v|bedrock}}",
+                  "{{v|bedrock-beta}}",
+                  "{{v|bedrock-preview}}",
+                  "{{v|dungeons}}",
+                  "{{v|legends-win}}",
+                  "{{v|launcher}}",
+                  "{{v|launcher-beta}}",
+                  "{{v|education}}",
+                  "{{v|education-beta}}",
+                  "{{v|china-win}}",
+                  "{{v|china-android}}",
+                  ]
+        try:
+            response = requests.get("https://zh.minecraft.wiki/w/Template:Version", stream=True, timeout=(30, 600)).text
+        except:
+            logging.warning("无法连接至Minecraft Wiki服务器")
+            return "无法连接至服务器"
+        soup = bs4.BeautifulSoup(response, "lxml")
+        data = soup.find_all(name="td")
+        l1 = [n.text.replace("\n", "") for n in data]
+        v1 = l1[::3]
+        v2 = l1[1::3]
+        v3 = l1[2::3]
+        str1 = ""
+        v1 = self.changeList(v1, {"（": "", "）": ""})
+        for i in range(len(v1)):
+            if v1[i][-1] == "版":
+                v1[i] = v1[i] + "正式版"
+            if v3[i] == "{{v|china-win}}":
+                v1[i] = "中国版端游"
+            if v3[i] == "{{v|china-android}}":
+                v1[i] = "中国版手游"
+            if v3[i] == "{{v|legends-win}}":
+                v1[i] = "我的世界：传奇"
+            if v3[i] == "{{v|dungeons}}":
+                v1[i] = "我的世界：地下城"
+            if v3[i] in useful and v2[i] != "":
+                str1 += v1[i] + "版本：" + v2[i] + "\n"
+        logging.debug("成功获取我的世界最新版本")
+        return str1
 
     def searchSoftware(self, name: str, source: str) -> list:
         """
