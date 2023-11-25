@@ -134,8 +134,6 @@ class LoggingFunctions():
 
         self.log.addHandler(handler1)
         self.log.addHandler(handler2)
-        if self.getSize(program.LOGGING_FILE_PATH) / 1024 >= 128:
-            self.reset()
 
     def reset(self):
         """
@@ -585,17 +583,6 @@ class FileFunctions(ProcressFunctions):
             for i in self.walkFile(path, 1):
                 self.delete(i)
 
-
-class Functions(FileFunctions):
-    """
-    程序相关函数
-    """
-
-    def __init__(self):
-        super().__init__()
-
-    # TODO
-
     def belongDir(self, path: str, parent: str) -> bool:
         """
         文件夹是否包含
@@ -691,6 +678,31 @@ class Functions(FileFunctions):
         except:
             logging.warning("无法清空回收站")
 
+    def getSortBlacklist(self):
+        """
+        获取整理文件黑名单
+        @return: 整理文件黑名单列表
+        """
+        self.makeDir(setting.read("sortPath"))
+        data = setting.read("sortBlacklist")
+        if self.isSameFile(setting.read("sortPath"), program.DESKTOP_PATH):
+            data += list(self.SORT_FILE_DIR.keys())
+        elif f.belongDir(setting.read("sortPath"), program.DESKTOP_PATH):
+            dirs = self.walkDir(program.DESKTOP_PATH, 1)
+            for i in dirs:
+                if f.belongDir(setting.read("sortPath"), i):
+                    data.append(self.splitPath(i))
+        return data
+
+
+class ProgramFunctions(FileFunctions):
+    """
+    应用函数
+    """
+
+    def __init__(self):
+        super().__init__()
+
     def urlJoin(self, *args):
         """
         拼接网址
@@ -737,6 +749,16 @@ class Functions(FileFunctions):
         elif type(lib_name) == list:
             for i in lib_name:
                 self.cmd(f"pip install --upgrade {i} -i https://pypi.tuna.tsinghua.edu.cn/simple some-package", True)
+
+
+class Functions(ProgramFunctions):
+    """
+    程序相关函数
+    """
+
+    def __init__(self):
+        super().__init__()
+
 
     def changeList(self, data: list, index: dict):
         """
@@ -936,22 +958,6 @@ class Functions(FileFunctions):
                 list[i]["介绍"] = f"{list[i]["介绍"][:25]}..."
         return list
 
-    def getSortBlacklist(self):
-        """
-        获取整理文件黑名单
-        @return: 整理文件黑名单列表
-        """
-        self.makeDir(setting.read("sortPath"))
-        data = setting.read("sortBlacklist")
-        if self.isSameFile(setting.read("sortPath"), program.DESKTOP_PATH):
-            data += list(self.SORT_FILE_DIR.keys())
-        elif f.belongDir(setting.read("sortPath"), program.DESKTOP_PATH):
-            dirs = self.walkDir(program.DESKTOP_PATH, 1)
-            for i in dirs:
-                if f.belongDir(setting.read("sortPath"), i):
-                    data.append(self.splitPath(i))
-        return data
-
 
 f = Functions()
 
@@ -960,6 +966,10 @@ if "python" in f.cmd(f"tasklist |findstr {setting.read("pid")}", True):
     setting.save("showWindow", "1")
     sys.exit()
 setting.save("pid", str(program.PROGRAM_PID))
+
+# 日志过大检测
+if f.getSize(program.LOGGING_FILE_PATH) / 1024 >= 128:
+    logging.reset()
 
 
 # UI多线程
