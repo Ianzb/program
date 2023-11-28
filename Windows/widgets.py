@@ -531,7 +531,6 @@ class CardGroup(QWidget):
         self.card = card
         self.card.setParent(self)
         self.cardLayout.addWidget(self.card)
-        # self.cardLayout.addItem(self.card)
 
     def setTitle(self, text: str):
         """
