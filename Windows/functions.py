@@ -256,6 +256,15 @@ class ProcressFunctions():
     def __init__(self):
         pass
 
+    def clearString(self, data: str) -> str:
+        """
+        清理字符串\n\r空格符号
+        @param data: 源字符串
+        @return: 处理结果
+        """
+        data = data.replace("\n", "").replace("\r", "").replace(" ", "")
+        return data
+
     def xmlToJson(self, data: str) -> dict:
         """
         xml转json
@@ -958,16 +967,13 @@ class Functions(ProgramFunctions):
             for i in data:
                 list.append({"名称": i["softname"],
                              "图标": f"https:{i["logo"]}",
-                             "介绍": i["desc"],
+                             "介绍": f.clearString(i["desc"]),
                              "当前版本": i["version"],
                              "更新日期": i["date"],
                              "文件大小": i["size"],
                              "文件名称": self.splitPath(i["soft_download"], 0),
                              "下载链接": i["soft_download"],
                              })
-        for i in range(len(list)):
-            if len(list[i]["介绍"]) >= 20:
-                list[i]["介绍"] = f"{list[i]["介绍"][:20]}..."
         return list
 
 

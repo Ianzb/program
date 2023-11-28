@@ -499,11 +499,12 @@ class CardGroup(QWidget):
     卡片组
     """
 
-    def __init__(self, title: str, parent=None):
+    @singledispatchmethod
+    def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.setMinimumSize(0, 0)
 
-        self.titleLabel = StrongBodyLabel(title, self)
+        self.titleLabel = StrongBodyLabel(self)
         self.vBoxLayout = QVBoxLayout(self)
         self.cardLayout = ExpandLayout()
 
@@ -520,9 +521,17 @@ class CardGroup(QWidget):
         FluentStyleSheet.SETTING_CARD_GROUP.apply(self)
         self.titleLabel.adjustSize()
 
+    @__init__.register
+    def _(self, title: str = None, parent=None):
+        self.__init__(parent)
+        if title:
+            self.titleLabel.setText(title)
+
     def addWidget(self, card: QWidget):
-        card.setParent(self)
-        self.cardLayout.addWidget(card)
+        self.card = card
+        self.card.setParent(self)
+        self.cardLayout.addWidget(self.card)
+        # self.cardLayout.addItem(self.card)
 
     def setTitle(self, text: str):
         """
@@ -536,7 +545,7 @@ class CardGroup(QWidget):
         是否展示标题
         @param enabled: 是否
         """
-        self.titleLabel.setEnabled(enabled)
+        self.titleLabel.setHidden(not enabled)
 
 
 logging.debug("widgets.py初始化成功")
