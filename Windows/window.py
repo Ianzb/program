@@ -114,7 +114,7 @@ class AppStoreTab(BasicTab):
         self.comboBox.setToolTip("选择下载应用来源")
         self.comboBox.installEventFilter(ToolTipFilter(self.comboBox, 1000))
 
-        self.card = GrayCard("搜索")
+        self.card = GrayCard()
         self.card.addWidget(self.lineEdit)
         self.card.addWidget(self.comboBox)
 
@@ -163,10 +163,9 @@ class AppStoreTab(BasicTab):
             self.vBoxLayout.addWidget(self.infoCard, 0, Qt.AlignTop)
         if msg:
             self.titleLabel.setText(f"搜索结果（{len(msg)}个）")
-            self.titleLabel.show()
         else:
             self.titleLabel.setText(f"无搜索结果")
-            self.titleLabel.show()
+        self.titleLabel.show()
         self.lineEdit.setEnabled(True)
         self.comboBox.setEnabled(True)
 
