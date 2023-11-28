@@ -148,9 +148,9 @@ class SettingPage(BasicPage):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
 
-        self.settingCardGroup1 = CardGroup("个性化", self)
-        self.settingCardGroup2 = CardGroup("功能", self)
-        self.settingCardGroup3 = CardGroup("关于", self)
+        self.cardGroup1 = CardGroup("个性化", self)
+        self.cardGroup2 = CardGroup("功能", self)
+        self.cardGroup3 = CardGroup("关于", self)
 
         self.themeSettingCard = ThemeSettingCard()
         self.colorSettingCard = ColorSettingCard()
@@ -165,22 +165,22 @@ class SettingPage(BasicPage):
         self.updateSettingCard = UpdateSettingCard()
         self.aboutSettingCard = AboutSettingCard()
 
-        self.settingCardGroup1.addWidget(self.themeSettingCard)
-        self.settingCardGroup1.addWidget(self.colorSettingCard)
-        self.settingCardGroup1.addWidget(self.startupSettingCard)
-        self.settingCardGroup1.addWidget(self.shortcutSettingCard)
+        self.cardGroup1.addWidget(self.themeSettingCard)
+        self.cardGroup1.addWidget(self.colorSettingCard)
+        self.cardGroup1.addWidget(self.startupSettingCard)
+        self.cardGroup1.addWidget(self.shortcutSettingCard)
 
-        self.settingCardGroup2.addWidget(self.sortSettingCard)
-        self.settingCardGroup2.addWidget(self.sortBlacklistSettingCard)
-        self.settingCardGroup2.addWidget(self.downloadSettingCard)
+        self.cardGroup2.addWidget(self.sortSettingCard)
+        self.cardGroup2.addWidget(self.sortBlacklistSettingCard)
+        self.cardGroup2.addWidget(self.downloadSettingCard)
 
-        self.settingCardGroup3.addWidget(self.helpSettingCard)
-        self.settingCardGroup3.addWidget(self.updateSettingCard)
-        self.settingCardGroup3.addWidget(self.aboutSettingCard)
+        self.cardGroup3.addWidget(self.helpSettingCard)
+        self.cardGroup3.addWidget(self.updateSettingCard)
+        self.cardGroup3.addWidget(self.aboutSettingCard)
 
-        self.vBoxLayout.addWidget(self.settingCardGroup1)
-        self.vBoxLayout.addWidget(self.settingCardGroup2)
-        self.vBoxLayout.addWidget(self.settingCardGroup3)
+        self.vBoxLayout.addWidget(self.cardGroup1)
+        self.vBoxLayout.addWidget(self.cardGroup2)
+        self.vBoxLayout.addWidget(self.cardGroup3)
 
 
 class Window(FluentWindow):

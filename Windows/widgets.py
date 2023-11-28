@@ -501,6 +501,8 @@ class CardGroup(QWidget):
 
     def __init__(self, title: str, parent=None):
         super().__init__(parent=parent)
+        self.setMinimumSize(0, 0)
+
         self.titleLabel = StrongBodyLabel(title, self)
         self.vBoxLayout = QVBoxLayout(self)
         self.cardLayout = ExpandLayout()
@@ -521,11 +523,20 @@ class CardGroup(QWidget):
     def addWidget(self, card: QWidget):
         card.setParent(self)
         self.cardLayout.addWidget(card)
-        self.adjustSize()
 
-    def adjustSize(self):
-        h = self.cardLayout.heightForWidth(self.width()) + 46
-        return self.resize(self.width(), h)
+    def setTitle(self, text: str):
+        """
+        设置标题
+        @param text: 文本
+        """
+        self.titleLabel.setText(text)
+
+    def setTitleEnabled(self, enabled: bool):
+        """
+        是否展示标题
+        @param enabled: 是否
+        """
+        self.titleLabel.setEnabled(enabled)
 
 
 logging.debug("widgets.py初始化成功")
