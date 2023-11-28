@@ -224,13 +224,17 @@ class GrayCard(QWidget):
     灰色背景组件卡片
     """
 
-    def __init__(self, title: str, parent: QWidget = None, alignment=Qt.AlignLeft):
+    def __init__(self, title: str = None, parent: QWidget = None, alignment=Qt.AlignLeft):
         """
         @param title: 标题
         """
         super().__init__(parent=parent)
 
-        self.titleLabel = StrongBodyLabel(title, self)
+        self.titleLabel = StrongBodyLabel(self)
+        if title:
+            self.titleLabel.setText(title)
+        else:
+            self.titleLabel.hide()
 
         self.card = QFrame(self)
 
