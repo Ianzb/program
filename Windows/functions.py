@@ -652,8 +652,11 @@ class FileFunctions(ProcressFunctions):
         """
         path = os.path.abspath(path)
         parent = os.path.abspath(parent)
-
-        return os.path.commonpath([parent]) == os.path.commonpath([parent, path])
+        try:
+            data = os.path.commonpath([parent]) == os.path.commonpath([parent, path])
+        except:
+            data = False
+        return data
 
     def sortDir(self, old: str, new: str, mode: int = 0):
         """
@@ -662,6 +665,7 @@ class FileFunctions(ProcressFunctions):
         @param new: 新文件夹路径
         @param mode: 模式：0 全部整理 1 仅文件 2 仅文件夹
         """
+
         try:
             if mode in [0, 1]:
                 file_list = self.walkFile(old, 1)
@@ -745,6 +749,7 @@ class FileFunctions(ProcressFunctions):
         """
         self.makeDir(setting.read("sortPath"))
         data = setting.read("sortBlacklist")
+
         if self.isSameFile(setting.read("sortPath"), program.DESKTOP_PATH):
             data += list(self.SORT_FILE_DIR.keys())
         elif f.belongDir(setting.read("sortPath"), program.DESKTOP_PATH):
@@ -967,7 +972,6 @@ class Functions(ProgramFunctions):
 
 
 f = Functions()
-
 # 重复运行检测
 if "python" in f.cmd(f"tasklist |findstr {setting.read("pid")}", True):
     setting.save("showWindow", "1")

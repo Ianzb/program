@@ -36,7 +36,6 @@ class BasicPage(ScrollArea):
         self.vBoxLayout.setContentsMargins(36, 20, 36, 36)
 
 
-
 class BasicTabPage(BasicPage):
     """
     有多标签页的页面模板
@@ -487,6 +486,8 @@ class SmallInfoCard(CardWidget):
         self.info[pos] = data
         self.contentLabel1.setText(f"{self.info[0]}\n{self.info[1]}")
         self.contentLabel2.setText(f"{self.info[2]}\n{self.info[3]}")
+
+        self.contentLabel1.adjustSize()
 
 
 class CardGroup(QWidget):
