@@ -95,6 +95,7 @@ class AppStoreTab(BasicTab):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+
         self.vBoxLayout.setSpacing(8)
 
         self.lineEdit = SearchLineEdit(self)
@@ -124,12 +125,11 @@ class AppStoreTab(BasicTab):
         self.loadingCard.setDisplay(self.progressRingLoading)
         self.loadingCard.hide()
 
-        self.titleLabel = StrongBodyLabel(self)
-        self.titleLabel.hide()
-
         self.vBoxLayout.addWidget(self.card)
-        self.vBoxLayout.addWidget(self.titleLabel)
         self.vBoxLayout.addWidget(self.loadingCard, 0, Qt.AlignCenter)
+
+        self.cardGroup = CardGroup(self.view)
+        self.vBoxLayout.addWidget(self.cardGroup)
 
     def lineEditChanged(self, text):
         self.lineEdit.searchButton.setEnabled(bool(text))
@@ -139,12 +139,11 @@ class AppStoreTab(BasicTab):
 
     def searchButtonClicked(self):
         if self.lineEdit.text():
-            for i in range(self.vBoxLayout.count())[3:]:
-                self.vBoxLayout.itemAt(i).widget().hide()
-                if not self.vBoxLayout.itemAt(i).widget().image.loading:
-                    self.vBoxLayout.itemAt(i).widget().deleteLater()
+            self.vBoxLayout.itemAt(2).widget().deleteLater()
+            self.cardGroup = CardGroup(self.view)
+            self.vBoxLayout.addWidget(self.cardGroup)
 
-            self.titleLabel.hide()
+            self.cardGroup.setTitleEnabled(False)
             self.lineEdit.setEnabled(False)
             self.comboBox.setEnabled(False)
 
@@ -161,11 +160,12 @@ class AppStoreTab(BasicTab):
         for i in msg:
             self.infoCard = AppInfoCard(i, self.comboBox.currentText())
             self.vBoxLayout.addWidget(self.infoCard, 0, Qt.AlignTop)
+            self.cardGroup.addWidget(self.infoCard)
         if msg:
-            self.titleLabel.setText(f"搜索结果（{len(msg)}个）")
+            self.cardGroup.setTitle(f"搜索结果（{len(msg)}个）")
         else:
-            self.titleLabel.setText(f"无搜索结果")
-        self.titleLabel.show()
+            self.cardGroup.setTitle(f"无搜索结果")
+        self.cardGroup.setTitleEnabled(True)
         self.lineEdit.setEnabled(True)
         self.comboBox.setEnabled(True)
 
