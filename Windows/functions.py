@@ -365,14 +365,6 @@ class FileFunctions(ProcressFunctions):
         path = os.path.normpath(path).replace("//", "\ "[:-1]).replace("\\ "[:-1], "\ "[:-1])
         return path
 
-    def isLink(self, path: str) -> bool:
-        """
-        判断路径是否为链接
-        @param path: 路径
-        @return: 是否
-        """
-        return os.path.islink(path)
-
     def pathJoin(self, *data) -> str:
         """
         拼接路径
@@ -682,8 +674,9 @@ class FileFunctions(ProcressFunctions):
                 if file_list:
                     for i in file_list:
                         for j in range(len(self.SORT_FILE_DIR.values())):
-                            if self.splitPath(i, 2).lower() in list(self.SORT_FILE_DIR.values())[j] and self.splitPath(i, 0) not in self.getSortBlacklist():
-                                self.moveFile(i, self.pathJoin(new, list(self.SORT_FILE_DIR.keys())[j]))
+                            if self.splitPath(i, 2).lower() in list(self.SORT_FILE_DIR.values())[j]:
+                                if self.splitPath(i, 0) not in self.getSortBlacklist():
+                                    self.moveFile(i, self.pathJoin(new, list(self.SORT_FILE_DIR.keys())[j]))
             if mode in [0, 2]:
                 file_list = self.walkDir(old, 1)
                 if file_list:
@@ -715,12 +708,6 @@ class FileFunctions(ProcressFunctions):
             logging.debug("成功整理微信文件")
         except:
             logging.warning("无法整理微信文件")
-
-    def sortDesktopFiles(self):
-        """
-        整理桌面文件
-        """
-        self.sortDir(program.DESKTOP_PATH, setting.read("sortPath"))
 
     def clearSystemCache(self):
         """
@@ -998,7 +985,7 @@ class Init():
         # 关闭SSL证书验证
         import ssl
 
-        ssl._create_default_https_context = ssl._create_unverified_context
+        ssl._create_default_https_context = ssl._create_unverified_context()
 
         # 重复运行检测
         if "python" in f.cmd(f"tasklist |findstr {setting.read("pid")}", True):
@@ -1012,5 +999,4 @@ class Init():
 
 
 Init()
-
 logging.debug("functions.py初始化成功")
