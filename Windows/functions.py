@@ -13,7 +13,7 @@ try:
     from PyQt5.Qt import *
     from qfluentwidgets import *
     from qfluentwidgets import FluentIcon as FIF
-except:
+except ImportError:
     os.popen("download.pyw error")
 
 
@@ -422,8 +422,8 @@ class FileFunctions(ProcressFunctions):
                 os.remove(path)
             if self.isDir(path):
                 shutil.rmtree(path)
-        except:
-            logging.warning(f"文件{path}无法删除")
+        except Exception as ex:
+            logging.warning(f"文件{path}无法删除{ex}")
 
     def getMD5(self, path: str) -> str:
         """
@@ -615,8 +615,8 @@ class FileFunctions(ProcressFunctions):
             self.clearEmptyDir(path)
             self.clearRepeatFile(path)
             logging.debug(f"成功清理{path}文件夹")
-        except:
-            logging.warning(f"无法清理{path}文件夹")
+        except Exception as ex:
+            logging.warning(f"无法清理{path}文件夹{ex}")
 
     def clearDir(self, path: str):
         """
@@ -668,8 +668,8 @@ class FileFunctions(ProcressFunctions):
                         if self.splitPath(i, 0) not in self.getSortBlacklist():
                             self.moveFile(i, self.pathJoin(new, "文件夹", self.splitPath(i, 0)))
             logging.debug(f"成功整理{old}文件夹")
-        except:
-            logging.warning(f"无法整理{old}文件夹")
+        except Exception as ex:
+            logging.warning(f"无法整理{old}文件夹{ex}")
 
     def sortWechatFiles(self):
         """
@@ -690,8 +690,8 @@ class FileFunctions(ProcressFunctions):
             for i in list:
                 self.sortDir(i, setting.read("sortPath"), 1)
             logging.debug("成功整理微信文件")
-        except:
-            logging.warning("无法整理微信文件")
+        except Exception as ex:
+            logging.warning(f"无法整理微信文件{ex}")
 
     def clearSystemCache(self):
         """
@@ -720,8 +720,8 @@ class FileFunctions(ProcressFunctions):
         try:
             winshell.recycle_bin().empty(confirm=False, show_progress=False, sound=False)
             logging.debug("成功清空回收站")
-        except:
-            logging.warning("无法清空回收站")
+        except Exception as ex:
+            logging.warning(f"无法清空回收站{ex}")
 
     def getSortBlacklist(self):
         """
@@ -800,8 +800,8 @@ class ProgramFunctions(FileFunctions):
             shortcut.Arguments = arguments
             shortcut.save()
             logging.debug(f"快捷方式{new}添加成功")
-        except:
-            logging.warning("快捷方式添加失败")
+        except Exception as ex:
+            logging.warning(f"快捷方式添加失败{ex}")
 
     def addToStartup(self, name: str, path: str, mode: bool = True):
         """
@@ -821,8 +821,8 @@ class ProgramFunctions(FileFunctions):
                 win32api.RegDeleteValue(key, name)
                 win32api.RegCloseKey(key)
                 logging.debug("启动项删除成功")
-        except:
-            logging.warning("启动项编辑失败")
+        except  Exception as ex:
+            logging.warning(f"启动项编辑失败{ex}")
 
     def getNewestVersion(self) -> str:
         """
@@ -877,8 +877,8 @@ class Functions(ProgramFunctions):
                   ]
         try:
             response = requests.get("https://zh.minecraft.wiki/w/Template:Version", stream=True, timeout=(30, 600)).text
-        except:
-            logging.warning("无法连接至Minecraft Wiki服务器")
+        except Exception as ex:
+            logging.warning(f"无法连接至Minecraft Wiki服务器{ex}")
             return "无法连接至服务器"
         soup = bs4.BeautifulSoup(response, "lxml")
         data = soup.find_all(name="td")

@@ -26,12 +26,12 @@ class NewThread(QThread):
             for i in range(len(program.REQUIRE_LIB)):
                 self.signalDict.emit({"名称": program.REQUIRE_LIB[i], "序号": i, "完成": False})
                 f.pipUpdate(program.REQUIRE_LIB[i])
-            self.signalDict.emit({"名称": "", "序号": 0, "完成": True})
+            self.signalDict.emit({"完成": True})
 
         if self.mode == "检查更新":
             try:
                 data = f.getNewestVersion()
-            except:
+            except Exception as ex:
                 self.signalDict.emit({"更新": False})
                 return
             if f.compareVersion(data, program.PROGRAM_VERSION) == program.PROGRAM_VERSION:
@@ -43,17 +43,17 @@ class NewThread(QThread):
             try:
                 data = f.getNewestVersion()
             except:
-                self.signalDict.emit({"数量": 0, "完成": "失败", "名称": "", "序号": 0})
+                self.signalDict.emit({"更新": False})
                 return
             if f.compareVersion(data, program.PROGRAM_VERSION) == program.PROGRAM_VERSION:
-                self.signalDict.emit({"数量": 0, "完成": "失败", "名称": "", "序号": 0})
+                self.signalDict.emit({"更新": False})
                 return
             response = requests.get(program.UPDATE_URL, headers=program.REQUEST_HEADER, stream=True).text
             data = json.loads(response)["list"]
             for i in range(len(data)):
-                self.signalDict.emit({"数量": len(data), "完成": False, "名称": data[i], "序号": i})
+                self.signalDict.emit({"更新": True, "数量": len(data), "完成": False, "名称": data[i], "序号": i})
                 f.downloadFile(f.urlJoin(program.UPDATE_URL, data[i]), f.pathJoin(program.PROGRAM_PATH, data[i]))
-            self.signalDict.emit({"数量": len(data), "完成": True, "名称": "", "序号": 0})
+            self.signalDict.emit({"更新": True, "完成": True})
             logging.debug(f"更新{data}成功")
 
         if self.mode == "一键整理+清理":
@@ -71,7 +71,7 @@ class NewThread(QThread):
 
                 self.signalBool.emit(True)
                 logging.debug("一键整理成功")
-            except:
+            except Exception as ex:
                 self.signalBool.emit(False)
                 logging.warning("一键整理失败")
 
@@ -98,7 +98,7 @@ class NewThread(QThread):
             try:
                 data = f.searchSoftware(self.data[0], self.data[1])
                 self.signalList.emit(data)
-            except:
+            except Exception as ex:
                 self.signalBool.emit(False)
 
         if self.mode == "下载文件":
