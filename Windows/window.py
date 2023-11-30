@@ -664,7 +664,7 @@ class UpdateSettingCard(SettingCard):
         self.button1.setEnabled(True)
         self.button2.setEnabled(True)
 
-    def button3(self):
+    def button3Clicked(self):
         if "beta" in program.PROGRAM_VERSION:
             self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", "当前版本为内测版无法更新！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
             self.infoBar.show()
