@@ -141,7 +141,7 @@ class Image(QLabel):
         self.loading = False
 
     @__init__.register
-    def _(self, path: str = None, url: str = None, parent: QWidget = None):
+    def _(self, path: str, url: str = None, parent: QWidget = None):
         """
         @param path: 路径
         @param url: 链接
