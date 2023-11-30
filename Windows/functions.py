@@ -1020,7 +1020,7 @@ class NewThread(QThread):
             try:
                 data = f.getNewestVersion()
             except:
-                self.signalDict.emit({"更新": False, "版本": data})
+                self.signalDict.emit({"更新": False, "版本": None})
                 return
             if f.compareVersion(data, program.PROGRAM_VERSION) == program.PROGRAM_VERSION:
                 self.signalDict.emit({"更新": False, "版本": data})
