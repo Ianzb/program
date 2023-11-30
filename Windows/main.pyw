@@ -242,6 +242,8 @@ class Window(FluentWindow):
 
         if setting.read("autoUpdate") and program.isStartup:
             self.settingPage.updateSettingCard.button3()
+        if program.PYTHON_VERSION.split(".")[1] != "12":
+            QMessageBox(QMessageBox.Warning, "警告", f"当前Python版本为{program.PYTHON_VERSION}，{program.PROGRAM_NAME}推荐使用Python3.12版本！").exec()
 
     def repeatOpen(self):
         """

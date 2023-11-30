@@ -17,7 +17,7 @@ except:
     os.popen("download.pyw error")
 
 
-class MyThread(threading.Thread):
+class Thread(threading.Thread):
     """
     多线程优化
     """
@@ -35,9 +35,9 @@ class MyThread(threading.Thread):
         self.func(*self.args)
 
 
-class ProgramInit():
+class Program():
     """
-    zb小程序信息类-处理信息
+    程序信息
     """
     PROGRAM_NAME = "zb小程序"  # 程序名称
     PROGRAM_VERSION = "3.2.0"  # 程序版本
@@ -57,6 +57,7 @@ class ProgramInit():
     SETTING_FILE_PATH = os.path.join(PROGRAM_DATA_PATH, "settings.json")  # 程序设置文件路径
     LOGGING_FILE_PATH = os.path.join(PROGRAM_DATA_PATH, "logging.log")  # 程序日志文件路径
     STARTUP_ARGUMENT = sys.argv[1:]  # 程序启动参数
+    PYTHON_VERSION = sys.version[:sys.version.find(" ")]  # Python版本
     REQUEST_HEADER = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36 Edg/119.0.0.0"}  # 程序默认网络请求头
 
     REQUIRE_LIB = ["PyQt-Fluent-Widgets",
@@ -69,19 +70,6 @@ class ProgramInit():
                    "winshell",
                    "xmltodict",
                    ]
-
-    def __init__(self):
-        # 切换运行路径
-        os.chdir(self.PROGRAM_PATH)
-
-        # 设置任务栏
-        import ctypes
-        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(self.PROGRAM_NAME)
-
-        #关闭SSL证书验证
-        import ssl
-        ssl._create_default_https_context = ssl._create_unverified_context
-
 
     @property
     def DESKTOP_PATH(self) -> str:
@@ -117,7 +105,7 @@ class ProgramInit():
         return f.pathJoin(program.PROGRAM_DATA_PATH, "cache", name)
 
 
-program = ProgramInit()
+program = Program()
 
 
 class LoggingFunctions():
@@ -376,6 +364,14 @@ class FileFunctions(ProcressFunctions):
         """
         path = os.path.normpath(path).replace("//", "\ "[:-1]).replace("\\ "[:-1], "\ "[:-1])
         return path
+
+    def isLink(self, path: str) -> bool:
+        """
+        判断路径是否为链接
+        @param path: 路径
+        @return: 是否
+        """
+        return os.path.islink(path)
 
     def pathJoin(self, *data) -> str:
         """
@@ -983,145 +979,38 @@ class Functions(ProgramFunctions):
 
 
 f = Functions()
-# 重复运行检测
-if "python" in f.cmd(f"tasklist |findstr {setting.read("pid")}", True):
-    setting.save("showWindow", "1")
-    sys.exit()
-setting.save("pid", str(program.PROGRAM_PID))
-
-# 日志过大检测
-if f.getSize(program.LOGGING_FILE_PATH) / 1024 >= 128:
-    logging.reset()
 
 
-# UI多线程
-
-
-class NewThread(QThread):
+class Init():
     """
-    多线程模块
+    初始化程序
     """
-    signalStr = pyqtSignal(str)
-    signalInt = pyqtSignal(int)
-    signalBool = pyqtSignal(bool)
-    signalList = pyqtSignal(list)
-    signalDict = pyqtSignal(dict)
-    signalObject = pyqtSignal(object)
 
-    def __init__(self, mode: str, data=None, parent: QWidget = None):
-        super().__init__(parent=parent)
-        self.mode = mode
-        self.data = data
-        self.isCancel = False
+    def __init__(self):
+        # 切换运行路径
+        os.chdir(program.PROGRAM_PATH)
 
-    def run(self):
-        if self.mode == "更新运行库":
-            for i in range(len(program.REQUIRE_LIB)):
-                self.signalDict.emit({"名称": program.REQUIRE_LIB[i], "序号": i, "完成": False})
-                f.pipUpdate(program.REQUIRE_LIB[i])
-            self.signalDict.emit({"名称": "", "序号": 0, "完成": True})
+        # 设置任务栏
+        import ctypes
 
-        if self.mode == "检查更新":
-            try:
-                data = f.getNewestVersion()
-            except:
-                self.signalDict.emit({"更新": False})
-                return
-            if f.compareVersion(data, program.PROGRAM_VERSION) == program.PROGRAM_VERSION:
-                self.signalDict.emit({"更新": False})
-            else:
-                self.signalDict.emit({"更新": True, "版本": data})
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(program.PROGRAM_NAME)
 
-        if self.mode == "立刻更新":
-            try:
-                data = f.getNewestVersion()
-            except:
-                self.signalDict.emit({"数量": 0, "完成": "失败", "名称": "", "序号": 0})
-                return
-            if f.compareVersion(data, program.PROGRAM_VERSION) == program.PROGRAM_VERSION:
-                self.signalDict.emit({"数量": 0, "完成": "失败", "名称": "", "序号": 0})
-                return
-            response = requests.get(program.UPDATE_URL, headers=program.REQUEST_HEADER, stream=True).text
-            data = json.loads(response)["list"]
-            for i in range(len(data)):
-                self.signalDict.emit({"数量": len(data), "完成": False, "名称": data[i], "序号": i})
-                f.downloadFile(f.urlJoin(program.UPDATE_URL, data[i]), f.pathJoin(program.PROGRAM_PATH, data[i]))
-            self.signalDict.emit({"数量": len(data), "完成": True, "名称": "", "序号": 0})
-            logging.debug(f"更新{data}成功")
+        # 关闭SSL证书验证
+        import ssl
 
-        if self.mode == "一键整理+清理":
+        ssl._create_default_https_context = ssl._create_unverified_context
 
-            try:
-                MyThread(lambda: f.clearRubbish())
-                MyThread(lambda: f.clearSystemCache())
+        # 重复运行检测
+        if "python" in f.cmd(f"tasklist |findstr {setting.read("pid")}", True):
+            setting.save("showWindow", "1")
+            sys.exit()
+        setting.save("pid", str(program.PROGRAM_PID))
 
-                f.sortDesktopFiles()
-                if setting.read("wechatPath") != "":
-                    f.sortWechatFiles()
-                for i in list(f.SORT_FILE_DIR.keys()) + ["文件夹"]:
-                    f.clearFile(f.pathJoin(setting.read("sortPath"), i))
-                f.clearFile(setting.read("sortPath"))
+        # 日志过大检测
+        if f.getSize(program.LOGGING_FILE_PATH) / 1024 >= 32:
+            logging.reset()
 
-                self.signalBool.emit(True)
-                logging.debug("一键整理成功")
-            except:
-                self.signalBool.emit(False)
-                logging.warning("一键整理失败")
 
-        if self.mode == "重启文件资源管理器":
-            f.cmd("taskkill /f /im explorer.exe", True)
-            self.signalStr.emit("完成")
-            f.cmd("start C:/windows/explorer.exe", True)
-            logging.debug("重启文件资源管理器")
-
-        if self.mode == "Minecraft最新版本":
-            self.signalStr.emit(f.getMC())
-
-        if self.mode == "下载图片":
-            if not f.existPath(self.data[1]):
-                f.downloadFile(self.data[0], self.data[1])
-            self.signalBool.emit(True)
-
-        if self.mode == "清理程序缓存":
-            f.clearProgramCache()
-            self.signalBool.emit(True)
-
-        if self.mode == "搜索应用":
-
-            try:
-                data = f.searchSoftware(self.data[0], self.data[1])
-                self.signalList.emit(data)
-            except:
-                self.signalBool.emit(False)
-
-        if self.mode == "下载文件":
-            path = f.pathJoin(setting.read("downloadPath"), self.data[0])
-            if f.existPath(path):
-                i = 1
-                while f.existPath(f.pathJoin(f.splitPath(path, 3), f.splitPath(path, 1) + " (" + str(i) + ")" + f.splitPath(path, 2))):
-                    i = i + 1
-                path = f.pathJoin(f.splitPath(path, 3), f.splitPath(path, 1) + " (" + str(i) + ")" + f.splitPath(path, 2))
-            logging.debug(f"开始下载文件{path}")
-            path += ".zb.appstore.downloading"
-            url = self.data[1]
-            self.signalStr.emit(path)
-            response = requests.get(url, headers=program.REQUEST_HEADER, stream=True)
-            size = 0
-            file_size = int(response.headers["content-length"])
-            if response.status_code == 200:
-                with open(path, "wb") as file:
-                    for data in response.iter_content(256):
-                        if self.isCancel:
-                            self.signalBool.emit(True)
-                            return
-                        file.write(data)
-                        size += len(data)
-                        self.signalInt.emit(int(100 * size / file_size))
-            logging.debug(f"文件{path}下载成功")
-
-    def cancel(self):
-        logging.debug("取消下载")
-        self.isCancel = True
-
+Init()
 
 logging.debug("functions.py初始化成功")
