@@ -321,22 +321,6 @@ class ProcressFunctions():
         if pause:
             return value.read()
 
-    def downloadFile(self, link: str, path: str):
-        """
-        下载文件
-        @param link: 文件链接
-        @param path: 下载路径
-        """
-        try:
-            path = os.path.abspath(path)
-            data = requests.get(link, headers=program.REQUEST_HEADER).content
-            self.makeDir(self.splitPath(path, 3))
-            with open(path, "wb") as file:
-                file.write(data)
-            logging.debug(f"文件{link}下载成功")
-        except:
-            logging.warning(f"文件{link}下载失败")
-
 
 class FileFunctions(ProcressFunctions):
     """
@@ -920,6 +904,22 @@ class Functions(ProgramFunctions):
         logging.debug("成功获取我的世界最新版本")
         return str1
 
+    def downloadFile(self, link: str, path: str):
+        """
+        下载文件
+        @param link: 文件链接
+        @param path: 下载路径
+        """
+        try:
+            path = os.path.abspath(path)
+            data = requests.get(link, headers=program.REQUEST_HEADER).content
+            self.makeDir(self.splitPath(path, 3))
+            with open(path, "wb") as file:
+                file.write(data)
+            logging.debug(f"文件{link}下载成功")
+        except Exception as ex:
+            logging.warning(f"文件{link}下载失败{ex}")
+
     def searchSoftware(self, name: str, source: str) -> list:
         """
         搜索软件
@@ -954,7 +954,7 @@ class Functions(ProgramFunctions):
             data = json.loads(data)["data"]["list"]
             for i in data:
                 list.append({"名称": i["softname"],
-                             "图标": f"https:{i["logo"]}",
+                             "图标": i["logo"] if "https:" in i["logo"] else f"https:{i["logo"]}",
                              "介绍": f.clearString(i["desc"]),
                              "当前版本": i["version"],
                              "更新日期": i["date"],
