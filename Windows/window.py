@@ -666,13 +666,14 @@ class UpdateSettingCard(SettingCard):
 
     def button3Clicked(self):
         if not self.infoBar.destroyed:
-            self.infoBar.deleteLater()
+            self.infoBar.hide()
         if "beta" in program.PROGRAM_VERSION:
             self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", "当前版本为内测版无法更新！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
             self.infoBar.show()
             return
         self.button1.setEnabled(False)
         self.button2.setEnabled(False)
+        self.button3.setEnabled(False)
 
         self.label.setText("正在连接服务器")
 
