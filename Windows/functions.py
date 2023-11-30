@@ -78,6 +78,11 @@ class ProgramInit():
         import ctypes
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(self.PROGRAM_NAME)
 
+        #关闭SSL证书验证
+        import ssl
+        ssl._create_default_https_context = ssl._create_unverified_context
+
+
     @property
     def DESKTOP_PATH(self) -> str:
         """
