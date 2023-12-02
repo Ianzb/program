@@ -36,7 +36,6 @@ class Thread(threading.Thread):
         self.func(*self.args)
 
 
-# noinspection PyMethodMayBeStatic
 class Program:
     """
     程序信息
@@ -120,7 +119,6 @@ class Program:
 program = Program()
 
 
-# noinspection PyMethodMayBeStatic
 class LoggingFunctions:
     """
     日志相关函数
