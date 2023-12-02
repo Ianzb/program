@@ -215,7 +215,7 @@ class Window(FluentWindow):
         setThemeColor("#0078D4")
         # 窗口属性
         self.resize(900, 700)
-        # self.setMinimumSize(700, 500)
+        self.setMinimumSize(700, 500)
         self.setWindowIcon(QIcon(program.source("logo.png")))
         self.setWindowTitle(f"{program.PROGRAM_TITLE} {setting.read("updateChannel")}")
         self.navigationInterface.setReturnButtonVisible(False)
