@@ -207,7 +207,7 @@ class Window(FluentWindow):
         self.resize(900, 700)
         # self.setMinimumSize(700, 500)
         self.setWindowIcon(QIcon(program.source("logo.png")))
-        self.setWindowTitle(program.PROGRAM_TITLE)
+        self.setWindowTitle(f"{program.PROGRAM_TITLE} {setting.read("updateChannel")}")
         self.navigationInterface.setReturnButtonVisible(False)
         # 窗口居中
         desktop = QApplication.desktop().availableGeometry()
