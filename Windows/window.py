@@ -581,11 +581,12 @@ class UpdateSettingCard(SettingCard):
         self.comboBox = ComboBox(self)
         self.comboBox.setPlaceholderText("更新通道")
         self.comboBox.addItems(["正式版", "测试版"])
+        self.comboBox.currentIndexChanged.connect(self.comboBoxIndexChanged)
         self.comboBox.setToolTip("选择更新通道")
         self.comboBox.installEventFilter(ToolTipFilter(self.comboBox, 1000))
-        if setting.read("updateChannel") == "release":
+        if setting.read("updateChannel") == "正式版":
             self.comboBox.setCurrentIndex(0)
-        elif setting.read("updateChannel") == "beta":
+        elif setting.read("updateChannel") == "测试版":
             self.comboBox.setCurrentIndex(1)
         else:
             self.comboBox.setCurrentIndex(0)
@@ -621,7 +622,10 @@ class UpdateSettingCard(SettingCard):
         self.label.hide()
         self.progressBar.hide()
 
+    def comboBoxIndexChanged(self):
+        setting.save("updateChannel", self.comboBox.currentText())
     def button1Clicked(self):
+        self.comboBox.setEnabled(False)
         self.button1.setEnabled(False)
         self.button2.setEnabled(False)
 
@@ -643,6 +647,7 @@ class UpdateSettingCard(SettingCard):
             self.label.setText("")
             self.progressBar.setValue(0)
 
+            self.comboBox.setEnabled(True)
             self.button1.setEnabled(True)
             self.button2.setEnabled(True)
         else:
@@ -655,6 +660,7 @@ class UpdateSettingCard(SettingCard):
             self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", "当前版本为内测版无法更新！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
             self.infoBar.show()
             return
+        self.comboBox.setEnabled(False)
         self.button1.setEnabled(False)
         self.button2.setEnabled(False)
 
@@ -674,6 +680,7 @@ class UpdateSettingCard(SettingCard):
         else:
             self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"{program.PROGRAM_VERSION}已为最新版本！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
             self.infoBar.show()
+        self.comboBox.setEnabled(True)
         self.button1.setEnabled(True)
         self.button2.setEnabled(True)
 
@@ -682,6 +689,7 @@ class UpdateSettingCard(SettingCard):
             self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", "当前版本为内测版无法更新！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
             self.infoBar.show()
             return
+        self.comboBox.setEnabled(False)
         self.button1.setEnabled(False)
         self.button2.setEnabled(False)
         self.button3.setEnabled(False)
@@ -712,6 +720,7 @@ class UpdateSettingCard(SettingCard):
                 self.label.setText("")
                 self.progressBar.setValue(0)
 
+                self.comboBox.setEnabled(True)
                 self.button1.setEnabled(True)
                 self.button2.setEnabled(True)
             else:
@@ -729,6 +738,7 @@ class UpdateSettingCard(SettingCard):
             self.label.setText("")
             self.progressBar.setValue(0)
 
+            self.comboBox.setEnabled(True)
             self.button1.setEnabled(True)
             self.button2.setEnabled(True)
 
@@ -743,7 +753,7 @@ class AboutSettingCard(SettingCard):
     """
 
     def __init__(self, parent=None):
-        super().__init__(FIF.INFO, "关于", f"© 2022-2023 Ianzb. GPLv3 License.\n当前版本 {program.PROGRAM_VERSION}", parent)
+        super().__init__(FIF.INFO, "关于", f"© 2022-2023 Ianzb. GPLv3 License.\n当前版本 {program.PROGRAM_VERSION} {setting.read("updateChannel")}", parent)
         self.button1 = HyperlinkButton(program.PROGRAM_URL, "程序官网", self, FIF.LINK)
         self.button2 = HyperlinkButton(program.GITHUB_URL, "GitHub", self, FIF.GITHUB)
 
