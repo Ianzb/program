@@ -1,12 +1,13 @@
+import functools
+import json
+import os
+import sys
+import shutil
+import threading
+import webbrowser
+import time
+
 try:
-    from functools import singledispatchmethod
-    import json
-    import os
-    import sys
-    import shutil
-    import threading
-    import webbrowser
-    import time
     import requests
     import bs4
     import lxml
@@ -35,7 +36,8 @@ class Thread(threading.Thread):
         self.func(*self.args)
 
 
-class Program():
+# noinspection PyMethodMayBeStatic
+class Program:
     """
     程序信息
     """
@@ -108,7 +110,8 @@ class Program():
 program = Program()
 
 
-class LoggingFunctions():
+# noinspection PyMethodMayBeStatic
+class LoggingFunctions:
     """
     日志相关函数
     """
@@ -174,7 +177,7 @@ logging = LoggingFunctions()
 logging.debug("日志初始化成功")
 
 
-class SettingFunctions():
+class SettingFunctions:
     """
     设置相关函数
     """
@@ -241,7 +244,7 @@ class SettingFunctions():
 setting = SettingFunctions()
 
 
-class ProcressFunctions():
+class ProcessFunctions:
     """
     数据处理函数
     """
@@ -322,7 +325,7 @@ class ProcressFunctions():
             return value.read()
 
 
-class FileFunctions(ProcressFunctions):
+class FileFunctions(ProcessFunctions):
     """
     文件处理函数
     """
@@ -476,20 +479,20 @@ class FileFunctions(ProcressFunctions):
         @param mode: 模式：0 包含所有层级文件夹 1 仅包含次级文件夹
         @return: 文件夹路径列表
         """
-        list = []
+        list1 = []
         if mode == 0:
             if self.isDir(path):
                 paths = os.walk(path)
                 for path, dir_lst, file_lst in paths:
                     for dir_name in dir_lst:
-                        list.append(self.pathJoin(path, dir_name))
+                        list1.append(self.pathJoin(path, dir_name))
         if mode == 1:
             for i in os.listdir(path):
                 if self.isDir(self.pathJoin(path, i)):
-                    list.append(self.pathJoin(path, i))
-        if not list:
-            list = []
-        return list
+                    list1.append(self.pathJoin(path, i))
+        if not list1:
+            list1 = []
+        return list1
 
     def walkFile(self, path: str, mode=0) -> list:
         """
@@ -498,20 +501,20 @@ class FileFunctions(ProcressFunctions):
         @param mode: 模式：0 包含所有层级文件 1 仅包含次级文件
         @return: 文件路径列表
         """
-        list = []
+        list1 = []
         if mode == 0:
             paths = os.walk(path)
             if self.isDir(path):
                 for path, dir_lst, file_lst in paths:
                     for file_name in file_lst:
-                        list.append(self.pathJoin(path, file_name))
+                        list1.append(self.pathJoin(path, file_name))
         if mode == 1:
             for i in os.listdir(path):
                 if self.isFile(self.pathJoin(path, i)):
-                    list.append(self.pathJoin(path, i))
-        if not list:
-            list = []
-        return list
+                    list1.append(self.pathJoin(path, i))
+        if not list1:
+            list1 = []
+        return list1
 
     def copyFile(self, old: str, new: str):
         """
@@ -676,18 +679,18 @@ class FileFunctions(ProcressFunctions):
         整理微信文件
         """
         try:
-            list = []
+            list1 = []
             list2 = []
             for i in self.walkDir(setting.read("wechatPath"), 1):
                 if self.existPath(self.pathJoin(i, "FileStorage/File")):
-                    list.append(self.pathJoin(i, "FileStorage/File"))
-            for i in list:
+                    list1.append(self.pathJoin(i, "FileStorage/File"))
+            for i in list1:
                 if self.walkDir(i, 1) == None:
                     return
                 list2 = list2 + self.walkDir(i, 1)
             for i in list2:
                 self.sortDir(i, setting.read("sortPath"))
-            for i in list:
+            for i in list1:
                 self.sortDir(i, setting.read("sortPath"), 1)
             logging.debug("成功整理微信文件")
         except Exception as ex:
@@ -763,9 +766,9 @@ class ProgramFunctions(FileFunctions):
         @param lib_name: 运行库名称
         """
         logging.debug(f"pip安装{lib_name}")
-        if type(lib_name) == str:
+        if type(lib_name) is str:
             self.cmd(f"pip install {lib_name} -i https://pypi.tuna.tsinghua.edu.cn/simple some-package", True)
-        elif type(lib_name) == list:
+        elif type(lib_name) is list:
             for i in lib_name:
                 self.cmd(f"pip install {i} -i https://pypi.tuna.tsinghua.edu.cn/simple some-package", True)
 
@@ -775,9 +778,9 @@ class ProgramFunctions(FileFunctions):
         @param lib_name: 运行库名称
         """
         logging.debug(f"pip更新{lib_name}")
-        if type(lib_name) == str:
+        if type(lib_name) is str:
             self.cmd(f"pip install --upgrade {lib_name} -i https://pypi.tuna.tsinghua.edu.cn/simple some-package", True)
-        elif type(lib_name) == list:
+        elif type(lib_name) is list:
             for i in lib_name:
                 self.cmd(f"pip install --upgrade {i} -i https://pypi.tuna.tsinghua.edu.cn/simple some-package", True)
 

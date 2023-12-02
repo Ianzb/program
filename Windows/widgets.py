@@ -263,7 +263,7 @@ class Image(QLabel):
     图片组件（可实时下载）
     """
 
-    @singledispatchmethod
+    @functools.singledispatchmethod
     def __init__(self, parent: QWidget = None):
         super().__init__(parent=parent)
         self.setFixedSize(48, 48)
@@ -629,7 +629,7 @@ class CardGroup(QWidget):
     卡片组
     """
 
-    @singledispatchmethod
+    @functools.singledispatchmethod
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.setMinimumSize(0, 0)
