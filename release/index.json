@@ -1,0 +1,13 @@
+{
+  "version": "3.2.0",
+    "list": [
+        "main.pyw",
+        "window.py",
+        "widgets.py",
+        "functions.py",
+      "download.pyw",
+        "img/logo.ico",
+        "img/logo.png",
+        "img/zb.png"
+    ]
+}
