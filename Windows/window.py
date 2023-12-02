@@ -843,7 +843,6 @@ class ChatFriendCard(SmallInfoCard):
     def __init__(self, username: str, parent: QWidget = None):
         super().__init__(parent)
         self.username = username
-        # TODO: 添加GUI实现
 
 
 
