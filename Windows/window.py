@@ -578,6 +578,18 @@ class UpdateSettingCard(SettingCard):
         self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
         self.button2.installEventFilter(ToolTipFilter(self.button2, 1000))
 
+        self.comboBox = ComboBox(self)
+        self.comboBox.setPlaceholderText("更新通道")
+        self.comboBox.addItems(["正式版", "测试版"])
+        self.comboBox.setToolTip("选择更新通道")
+        self.comboBox.installEventFilter(ToolTipFilter(self.comboBox, 1000))
+        if setting.read("updateChannel") == "release":
+            self.comboBox.setCurrentIndex(0)
+        elif setting.read("updateChannel") == "beta":
+            self.comboBox.setCurrentIndex(1)
+        else:
+            self.comboBox.setCurrentIndex(0)
+
         self.label = QLabel(self)
         self.label.setAlignment(Qt.AlignCenter)
         self.label.setFont(QFont())
@@ -601,6 +613,7 @@ class UpdateSettingCard(SettingCard):
 
         self.hBoxLayout.addLayout(self.vBoxLayout2)
         self.hBoxLayout.addSpacing(8)
+        self.hBoxLayout.addWidget(self.comboBox, 0, Qt.AlignRight)
         self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
         self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)

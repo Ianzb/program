@@ -46,9 +46,8 @@ class Program:
     PROGRAM_TITLE = f"{PROGRAM_NAME} {PROGRAM_VERSION}"  # 程序窗口标题
     AUTHOR_NAME = "Ianzb"  # 作者名称
     AUTHOR_URL = "https://ianzb.github.io/"  # 作者网址
-    PROGRAM_URL = "https://ianzb.github.io/program/"  # 程序网址
+    PROGRAM_URL = "https://ianzb.github.io/project/"  # 程序网址
     GITHUB_URL = "https://github.com/Ianzb/program/"  # Github网址
-    UPDATE_URL = "https://ianzb.github.io/program/Windows/index.json"  # 更新网址
     PROGRAM_MAIN_FILE_PATH = sys.argv[0]  # 程序主文件路径
     PROGRAM_PATH = os.path.dirname(PROGRAM_MAIN_FILE_PATH)  # 程序安装路径
     SOURCE_PATH = os.path.join(PROGRAM_PATH, "img")  # 程序资源文件路径
@@ -81,6 +80,17 @@ class Program:
         """
         import winreg
         return winreg.QueryValueEx(winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders"), "Desktop")[0]
+
+    @property
+    def UPDATE_URL(self) -> str:
+        """
+        获得更新网址
+        @return: 网址
+        """
+        if setting.read("updateChannel") == "release":
+            return "https://ianzb.github.io/program/release/index.json"
+        elif setting.read("updateChannel") == "beta":
+            return "https://ianzb.github.io/program/Windows/index.json"
 
     @property
     def isStartup(self) -> bool:
@@ -192,6 +202,7 @@ class SettingFunctions:
                        "downloadPath": program.DESKTOP_PATH,
                        "showWindow": False,
                        "sortBlacklist": [],
+                       "updateChannel": "release",
                        }
 
     def __init__(self):
