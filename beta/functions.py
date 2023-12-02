@@ -81,6 +81,13 @@ class Program:
         return winreg.QueryValueEx(winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders"), "Desktop")[0]
 
     @property
+    def PROGRAM_ICON(self) -> str:
+        if setting.read("updateChannel") == "正式版":
+            return program.source("program.png")
+        elif setting.read("updateChannel") == "测试版":
+            return program.source("programbeta.png")
+
+    @property
     def UPDATE_URL(self) -> str:
         """
         获得更新网址

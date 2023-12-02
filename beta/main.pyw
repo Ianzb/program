@@ -214,7 +214,7 @@ class Window(FluentWindow):
         # 窗口属性
         self.resize(900, 700)
         self.setMinimumSize(700, 500)
-        self.setWindowIcon(QIcon(program.source("program.png")))
+        self.setWindowIcon(QIcon(program.PROGRAM_ICON))
         self.setWindowTitle(f"{program.PROGRAM_TITLE} {setting.read("updateChannel")}")
         self.navigationInterface.setReturnButtonVisible(False)
         # 窗口居中

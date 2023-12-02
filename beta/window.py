@@ -418,8 +418,8 @@ class ShortcutSettingCard(SettingCard):
         self.button1 = HyperlinkButton("", "桌面", self)
         self.button2 = HyperlinkButton("", "开始菜单", self)
 
-        self.button1.clicked.connect(lambda: f.createShortcut(program.PROGRAM_MAIN_FILE_PATH, f.pathJoin(program.DESKTOP_PATH, "zb小程序.lnk"), program.source("logo.ico")))
-        self.button2.clicked.connect(lambda: f.createShortcut(program.PROGRAM_MAIN_FILE_PATH, f.pathJoin(program.USER_PATH, "AppData\Roaming\Microsoft\Windows\Start Menu\Programs", "zb小程序.lnk"), program.source("logo.ico")))
+        self.button1.clicked.connect(lambda: f.createShortcut(program.PROGRAM_MAIN_FILE_PATH, f.pathJoin(program.DESKTOP_PATH, "zb小程序.lnk"), program.source("program.ico")))
+        self.button2.clicked.connect(lambda: f.createShortcut(program.PROGRAM_MAIN_FILE_PATH, f.pathJoin(program.USER_PATH, "AppData\Roaming\Microsoft\Windows\Start Menu\Programs", "zb小程序.lnk"), program.source("program.ico")))
 
         self.button1.setToolTip("将程序添加到桌面快捷方式")
         self.button2.setToolTip("将程序添加到开始菜单列表")
@@ -776,13 +776,13 @@ class Tray(QSystemTrayIcon):
         super(Tray, self).__init__()
         self.window = window
 
-        self.setIcon(QIcon(program.source("logo.png")))
+        self.setIcon(QIcon(program.PROGRAM_ICON))
         self.setToolTip(program.PROGRAM_TITLE)
         self.installEventFilter(ToolTipFilter(self, 1000))
         self.activated.connect(self.iconClicked)
         self.show()
 
-        self.showMessage(program.PROGRAM_NAME, f"{program.PROGRAM_NAME}启动成功！", QIcon(program.source("program.png")), 1)
+        self.showMessage(program.PROGRAM_NAME, f"{program.PROGRAM_NAME}启动成功！", QIcon(program.PROGRAM_ICON), 1)
 
         self.action1 = Action(FIF.HOME, "打开", triggered=self.action1Clicked)
         self.action2 = Action(FIF.ALIGNMENT, "整理", triggered=self.action2Clicked)
