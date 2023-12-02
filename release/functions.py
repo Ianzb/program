@@ -89,7 +89,7 @@ class Program:
         if setting.read("updateChannel") == "正式版":
             return "https://ianzb.github.io/program/release/index.json"
         elif setting.read("updateChannel") == "测试版":
-            return "https://ianzb.github.io/program/Windows/index.json"
+            return "https://ianzb.github.io/program/beta/index.json"
 
     @property
     def isStartup(self) -> bool:
