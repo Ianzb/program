@@ -191,8 +191,6 @@ class ChatPage(BasicPage):
         super().__init__(parent)
 
 
-
-
 class Window(FluentWindow):
     """
     主窗口
@@ -216,7 +214,7 @@ class Window(FluentWindow):
         # 窗口属性
         self.resize(900, 700)
         self.setMinimumSize(700, 500)
-        self.setWindowIcon(QIcon(program.source("logo.png")))
+        self.setWindowIcon(QIcon(program.source("program.png")))
         self.setWindowTitle(f"{program.PROGRAM_TITLE} {setting.read("updateChannel")}")
         self.navigationInterface.setReturnButtonVisible(False)
         # 窗口居中
@@ -253,7 +251,7 @@ class Window(FluentWindow):
         self.tray = Tray(self)
 
         if setting.read("autoUpdate") and program.isStartup:
-            self.settingPage.updateSettingCard.button3()
+            self.settingPage.updateSettingCard.button3Clicked()
         if program.PYTHON_VERSION.split(".")[1] != "12":
             QMessageBox(QMessageBox.Warning, "警告", f"当前Python版本为{program.PYTHON_VERSION}，{program.PROGRAM_NAME}推荐使用Python3.12版本！").exec()
 

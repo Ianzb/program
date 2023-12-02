@@ -624,6 +624,7 @@ class UpdateSettingCard(SettingCard):
 
     def comboBoxIndexChanged(self):
         setting.save("updateChannel", self.comboBox.currentText())
+
     def button1Clicked(self):
         self.comboBox.setEnabled(False)
         self.button1.setEnabled(False)
@@ -685,15 +686,13 @@ class UpdateSettingCard(SettingCard):
         self.button2.setEnabled(True)
 
     def button3Clicked(self):
-        if "beta" in program.PROGRAM_VERSION:
-            self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", "当前版本为内测版无法更新！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
-            self.infoBar.show()
-            return
         self.comboBox.setEnabled(False)
         self.button1.setEnabled(False)
         self.button2.setEnabled(False)
-        self.button3.setEnabled(False)
-
+        try:
+            self.button3.setEnabled(False)
+        except:
+            pass
         self.label.setText("正在连接服务器")
 
         self.label.show()
@@ -783,7 +782,7 @@ class Tray(QSystemTrayIcon):
         self.activated.connect(self.iconClicked)
         self.show()
 
-        self.showMessage(program.PROGRAM_NAME, f"{program.PROGRAM_NAME}启动成功！", QIcon(program.source("logo.png")), 1)
+        self.showMessage(program.PROGRAM_NAME, f"{program.PROGRAM_NAME}启动成功！", QIcon(program.source("program.png")), 1)
 
         self.action1 = Action(FIF.HOME, "打开", triggered=self.action1Clicked)
         self.action2 = Action(FIF.ALIGNMENT, "整理", triggered=self.action2Clicked)
@@ -840,11 +839,10 @@ class ChatFriendCard(SmallInfoCard):
     """
     聊天列表朋友卡片
     """
+
     def __init__(self, username: str, parent: QWidget = None):
         super().__init__(parent)
         self.username = username
-
-
 
 
 logging.debug("windows.py初始化成功")
