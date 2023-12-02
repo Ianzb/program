@@ -48,13 +48,13 @@ class AppInfoCard(SmallInfoCard):
         self.mainButton.setToolTip("下载软件")
         self.mainButton.installEventFilter(ToolTipFilter(self.mainButton, 1000))
 
-        self.setImg(f"{self.source}/{f.removeIllegalPath(self.data["名称"])}", self.data["图标"])
-        self.setTitle(f"{self.data["名称"]}")
+        self.setImg(f"{self.source}/{f.removeIllegalPath(self.data['名称'])}", self.data["图标"])
+        self.setTitle(f"{self.data['名称']}")
 
         self.setInfo(self.data["介绍"], 0)
         self.setInfo(self.data["文件大小"], 1)
-        self.setInfo(f"当前版本：{self.data["当前版本"]}", 2)
-        self.setInfo(f"更新日期：{self.data["更新日期"]}", 3)
+        self.setInfo(f"当前版本：{self.data['当前版本']}", 2)
+        self.setInfo(f"更新日期：{self.data['更新日期']}", 3)
 
     def mainButtonClicked(self):
         self.mainButton.setEnabled(False)
@@ -65,7 +65,7 @@ class AppInfoCard(SmallInfoCard):
         self.thread.signalBool.connect(self.thread3)
         self.thread.start()
 
-        self.stateTooltip = StateToolTip(f"正在下载软件：{self.data["名称"]}", "正在连接到服务器...", self.parent().parent().parent().parent())
+        self.stateTooltip = StateToolTip(f"正在下载软件：{self.data['名称']}", "正在连接到服务器...", self.parent().parent().parent().parent())
         self.stateTooltip.move(self.stateTooltip.getSuitablePos())
         self.stateTooltip.closeButton.clicked.connect(self.thread.cancel)
         self.stateTooltip.show()
@@ -419,7 +419,7 @@ class ShortcutSettingCard(SettingCard):
         self.button2 = HyperlinkButton("", "开始菜单", self)
 
         self.button1.clicked.connect(lambda: f.createShortcut(program.PROGRAM_MAIN_FILE_PATH, f.pathJoin(program.DESKTOP_PATH, "zb小程序.lnk"), program.source("logo.ico")))
-        self.button2.clicked.connect(lambda: f.createShortcut(program.PROGRAM_MAIN_FILE_PATH, f.pathJoin(program.USER_PATH, "AppData\Roaming\Microsoft\Windows\Start Menu\Programs", "zb小程序.lnk"), program.source("logo.ico")))
+        self.button2.clicked.connect(lambda: f.createShortcut(program.PROGRAM_MAIN_FILE_PATH, f.pathJoin(program.USER_PATH, r"AppData\Roaming\Microsoft\Windows\Start Menu\Programs", "zb小程序.lnk"), program.source("logo.ico")))
 
         self.button1.setToolTip("将程序添加到桌面快捷方式")
         self.button2.setToolTip("将程序添加到开始菜单列表")
@@ -634,7 +634,7 @@ class UpdateSettingCard(SettingCard):
             self.button2.setEnabled(True)
         else:
             value = int(msg["序号"] / len(program.REQUIRE_LIB) * 100)
-            self.label.setText(f"{str(value)}% 正在更新 {msg["名称"]}")
+            self.label.setText(f"{str(value)}% 正在更新 {msg['名称']}")
             self.progressBar.setValue(value)
 
     def button2Clicked(self):
@@ -651,7 +651,7 @@ class UpdateSettingCard(SettingCard):
 
     def thread2(self, msg):
         if msg["更新"]:
-            self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", f"检测到新版本{msg["版本"]}！", Qt.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+            self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", f"检测到新版本{msg['版本']}！", Qt.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
 
             self.button3 = PushButton("立刻更新", self, FIF.DOWNLOAD)
             self.button3.clicked.connect(self.button3Clicked)
@@ -704,7 +704,7 @@ class UpdateSettingCard(SettingCard):
             self.button2.setEnabled(True)
         else:
             value = int(msg["序号"] / msg["数量"] * 100)
-            self.label.setText(f"{str(value)}% 正在更新 {msg["名称"]}")
+            self.label.setText(f"{str(value)}% 正在更新 {msg['名称']}")
             self.progressBar.setValue(value)
 
     def button4Clicked(self):

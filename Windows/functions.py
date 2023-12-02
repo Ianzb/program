@@ -253,7 +253,7 @@ class SettingFunctions():
 setting = SettingFunctions()
 
 
-class ProcressFunctions():
+class ProcessFunctions:
     """
     数据处理函数
     """
@@ -281,13 +281,13 @@ class ProcressFunctions():
         return data
 
     def removeIllegalPath(self, path: str) -> str:
-        """
+        r"""
         去除路径中的非法字符（[\\\/:*?"<>|]）
         @param path: 路径
         @return: 去除非法字符后的字符串
         """
         import re
-        return re.sub('[\\\/:*?"<>|]', "", path)
+        return re.sub(r'[\\\/:*?"<>|]', "", path)
 
     def compareVersion(self, version1: str, version2: str) -> str:
         """
@@ -350,7 +350,7 @@ class ProcressFunctions():
             logging.warning(f"文件{link}下载失败")
 
 
-class FileFunctions(ProcressFunctions):
+class FileFunctions(ProcessFunctions):
     """
     文件处理函数
     """
@@ -374,7 +374,7 @@ class FileFunctions(ProcressFunctions):
         @param path: 路径
         @return: 格式化结果
         """
-        path = os.path.normpath(path).replace("//", "\ "[:-1]).replace("\\ "[:-1], "\ "[:-1])
+        path = os.path.normpath(path).replace("//", r"\ "[:-1]).replace("\\ "[:-1], r"\ "[:-1])
         return path
 
     def pathJoin(self, *data) -> str:
