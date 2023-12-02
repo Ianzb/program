@@ -6,6 +6,7 @@
         "widgets.py",
         "functions.py",
       "download.pyw",
+      "chatapi.py",
         "img/logo.ico",
         "img/logo.png",
         "img/zb.png"
