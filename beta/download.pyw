@@ -50,14 +50,6 @@ class ProgramInit():
                    "xmltodict",
                    ]
 
-    def __init__(self):
-        # 切换运行路径
-        os.chdir(self.PROGRAM_PATH)
-
-        # 设置任务栏
-        import ctypes
-        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(self.PROGRAM_NAME)
-
     @property
     def DESKTOP_PATH(self) -> str:
         """
