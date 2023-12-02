@@ -89,7 +89,7 @@ class Program:
         if setting.read("updateChannel") == "正式版":
             return "https://ianzb.github.io/program/release/index.json"
         elif setting.read("updateChannel") == "测试版":
-            return "https://ianzb.github.io/program/Windows/index.json"
+            return "https://ianzb.github.io/program/beta/index.json"
 
     @property
     def isStartup(self) -> bool:
@@ -113,7 +113,7 @@ class Program:
         @param name: 文件名
         @return: 文件路径
         """
-        return f.pathJoin(program.PROGRAM_DATA_PATH, "cache", name)
+        return f.pathJoin(self.PROGRAM_DATA_PATH, "cache", name)
 
 
 program = Program()
@@ -257,9 +257,6 @@ class ProcessFunctions:
     """
     数据处理函数
     """
-
-    def __init__(self):
-        pass
 
     def clearString(self, data: str) -> str:
         """
@@ -833,7 +830,7 @@ class ProgramFunctions(FileFunctions):
                 win32api.RegDeleteValue(key, name)
                 win32api.RegCloseKey(key)
                 logging.debug("启动项删除成功")
-        except  Exception as ex:
+        except Exception as ex:
             logging.warning(f"启动项编辑失败{ex}")
 
     def getNewestVersion(self) -> str:

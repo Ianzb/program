@@ -29,21 +29,13 @@ class ProgramInit():
     zb小程序信息类-处理信息
     """
     PROGRAM_NAME = "zb小程序"  # 程序名称
-    PROGRAM_VERSION = "3.2.0"  # 程序版本
+    PROGRAM_VERSION = "安装器"  # 程序版本
     PROGRAM_TITLE = f"{PROGRAM_NAME} {PROGRAM_VERSION}"  # 程序窗口标题
-    AUTHOR_NAME = "Ianzb"  # 作者名称
-    AUTHOR_URL = "https://ianzb.github.io/"  # 作者网址
-    PROGRAM_URL = "https://ianzb.github.io/program/"  # 程序网址
-    GITHUB_URL = "https://github.com/Ianzb/program/"  # Github网址
-    UPDATE_URL = "https://ianzb.github.io/program/Windows/index.json"  # 更新网址
+    UPDATE_URL = "https://ianzb.github.io/program/release/index.json"  # 更新网址
     PROGRAM_MAIN_FILE_PATH = sys.argv[0]  # 程序主文件路径
-    FILE_NAME = os.path.basename(PROGRAM_MAIN_FILE_PATH)  # 当前程序文件名称
-    PROGRAM_PID = os.getpid()  # 程序pid
     USER_PATH = os.path.expanduser("~")  # 系统用户路径
-    PROGRAM_DATA_PATH = os.path.join(USER_PATH, "zb")  # 程序数据路径
-    PROGRAM_PATH = PROGRAM_DATA_PATH  # 程序安装路径
-    SETTING_FILE_PATH = os.path.join(PROGRAM_DATA_PATH, "settings.json")  # 程序设置文件路径
-    LOGGING_FILE_PATH = os.path.join(PROGRAM_DATA_PATH, "logging.log")  # 程序日志文件路径
+    PROGRAM_PATH = os.path.join(USER_PATH, "zb")  # 程序安装路径
+    SOURCE_PATH = os.path.join(PROGRAM_PATH, "img")  # 程序资源文件路径
     STARTUP_ARGUMENT = sys.argv[1:]  # 程序启动参数
     REQUEST_HEADER = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36 Edg/119.0.0.0"}  # 程序默认网络请求头
 
@@ -83,6 +75,14 @@ class ProgramInit():
         """
         return "startup" in self.STARTUP_ARGUMENT
 
+    def source(self, name: str) -> str:
+        """
+        快捷获取程序资源文件路径
+        @param name: 文件名
+        @return: 文件路径
+        """
+        return f.pathJoin(self.SOURCE_PATH, name)
+
 
 program = ProgramInit()
 
@@ -92,8 +92,14 @@ class Functions():
     程序相关函数
     """
 
-    def __init__(self):
-        pass
+    def formatPath(self, path: str) -> str:
+        """
+        格式化路径
+        @param path: 路径
+        @return: 格式化结果
+        """
+        path = os.path.normpath(path).replace("//", "\ "[:-1]).replace("\\ "[:-1], "\ "[:-1])
+        return path
 
     def pathJoin(self, *data) -> str:
         """
@@ -104,10 +110,9 @@ class Functions():
         path = ""
         for i in data:
             path = os.path.join(path, i)
-        path = path.replace("//", r"\ "[:-1]).replace(r"\\ "[:-1], r"\ "[:-1]).replace("\/", r"\ "[:-1]).replace("/\ "[:-1], r"\ "[:-1]).replace("/", r"\ "[:-1])
-        return path
+        return self.formatPath(path)
 
-    def exists(self, path: str) -> bool:
+    def existPath(self, path: str) -> bool:
         """
         文件是否存在
         @param path: 文件路径
@@ -131,12 +136,12 @@ class Functions():
         if mode == 3:
             return os.path.dirname(path)
 
-    def mkDir(self, path: str):
+    def makeDir(self, path: str):
         """
         创建文件夹
         @param path: 文件路径
         """
-        if not self.exists(path):
+        if not self.existPath(path):
             os.makedirs(path)
 
     def downloadFile(self, link: str, path: str):
@@ -149,7 +154,7 @@ class Functions():
             import requests
             path = os.path.abspath(path)
             data = requests.get(link, headers=program.REQUEST_HEADER).content
-            self.mkDir(self.splitPath(path, 3))
+            self.makeDir(self.splitPath(path, 3))
             with open(path, "wb") as file:
                 file.write(data)
         except:
@@ -186,9 +191,9 @@ class Functions():
         button1.config(state=DISABLED)
         button2.config(state=DISABLED)
         button3.config(state=DISABLED)
-        if type(lib_name) == str:
+        if type(lib_name) is str:
             self.cmd(f"pip install {lib_name} -i https://pypi.tuna.tsinghua.edu.cn/simple some-package", True)
-        elif type(lib_name) == list:
+        elif type(lib_name) is list:
             for i in range(len(lib_name)):
                 self.cmd(f"pip install {lib_name[i]} -i https://pypi.tuna.tsinghua.edu.cn/simple some-package", True)
                 progress.set(int(100 * (i + 1) / len(lib_name)))
@@ -203,20 +208,28 @@ class Functions():
         """
         安装应用
         """
+
         if not askyesno(f"是否要安装{program.PROGRAM_NAME}", f"当前设置的安装目录为：\n{program.PROGRAM_PATH}"):
             return
         button1.config(state=DISABLED)
         button2.config(state=DISABLED)
         button3.config(state=DISABLED)
+
         try:
             import requests
             response = requests.get(program.UPDATE_URL, headers=program.REQUEST_HEADER, stream=True).text
             data = json.loads(response)["list"]
             for i in range(len(data)):
-                f.downloadFile(f.urlJoin(program.UPDATE_URL, data[i]), f.pathJoin(program.PROGRAM_PATH, data[i]))
+                self.downloadFile(f.urlJoin(program.UPDATE_URL, data[i]), f.pathJoin(program.PROGRAM_PATH, data[i]))
                 progress.set(int(100 * (i + 1) / len(data)))
             progress.set(100)
-            showinfo("提示", f"{program.PROGRAM_NAME}安装成功！")
+            try:
+                self.createShortcut(program.PROGRAM_MAIN_FILE_PATH, self.pathJoin(program.DESKTOP_PATH, "zb小程序.lnk"), program.source("logo.ico"))
+                self.createShortcut(program.PROGRAM_MAIN_FILE_PATH, self.pathJoin(program.USER_PATH, "AppData\Roaming\Microsoft\Windows\Start Menu\Programs", "zb小程序.lnk"), program.source("logo.ico"))
+                showinfo("提示", f"{program.PROGRAM_NAME}安装成功，已添加快捷方式图标！")
+            except:
+                showinfo("提示", f"{program.PROGRAM_NAME}安装成功，但快捷方式添加失败！")
+
             progress.set(0)
         except:
             showerror("提示", f"{program.PROGRAM_NAME}无法正常安装，可能是由于运行库缺失，请您在安装前先安装运行库！")
@@ -236,12 +249,53 @@ class Functions():
         button2.config(state=NORMAL)
         button3.config(state=NORMAL)
 
+    def createShortcut(self, old: str, new: str, icon: str, arguments: str = ""):
+        """
+        创建快捷方式
+        @param old: 源文件路径
+        @param new: 新文件路径
+        @param icon: 图标
+        @param arguments: 参数
+        """
+        try:
+            import win32com.client
+            if not new.endswith(".lnk"):
+                new += ".lnk"
+            shell = win32com.client.Dispatch("WScript.Shell")
+            shortcut = shell.CreateShortCut(new)
+            shortcut.Targetpath = old
+            shortcut.IconLocation = icon
+            shortcut.Arguments = arguments
+            shortcut.save()
+        except:
+            pass
+
+    def addToStartup(self, name: str, path: str, mode: bool = True):
+        """
+        添加开机自启动
+        @param name: 启动项名字
+        @param path: 文件路径
+        @param mode: True添加/False删除
+        """
+        import win32api, win32con
+        key = win32api.RegOpenKey(win32con.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Run", 0, win32con.KEY_ALL_ACCESS)
+        try:
+            if mode:
+                win32api.RegSetValueEx(key, name, 0, win32con.REG_SZ, f"{path} startup")
+                win32api.RegCloseKey(key)
+                logging.debug("启动项添加成功")
+            else:
+                win32api.RegDeleteValue(key, name)
+                win32api.RegCloseKey(key)
+                logging.debug("启动项删除成功")
+        except:
+            pass
+
 
 f = Functions()
 if "error" in program.STARTUP_ARGUMENT:
     showerror("提示", f"{program.PROGRAM_NAME}无法正常运行，可能是由于运行库缺失，现已自动启动安装器，请您自行点击安装运行库！")
 
-# 窗口初始化
 tk = Tk()
 tk.title(f"{program.PROGRAM_NAME}安装器")
 x = 500
@@ -251,8 +305,6 @@ tk.resizable(False, False)
 tk.wm_attributes("-topmost", 1)
 st = Style()
 st.configure("TButton")
-
-# 控件
 
 progress = IntVar()
 progress.set(0)
