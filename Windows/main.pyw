@@ -183,6 +183,16 @@ class SettingPage(BasicPage):
         self.vBoxLayout.addWidget(self.cardGroup3)
 
 
+class ChatPage(BasicPage):
+    title = "PyChat"
+    subtitle = "Python实现的在线聊天"
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+
+
+
 class Window(FluentWindow):
     """
     主窗口
@@ -222,11 +232,13 @@ class Window(FluentWindow):
         self.toolPage = ToolPage(self)
         self.gamePage = GamePage(self)
         self.settingPage = SettingPage(self)
+        self.chatPage = ChatPage(self)
 
         self.addSubInterface(self.mainPage, FIF.HOME, self.mainPage.title, NavigationItemPosition.TOP)
         self.navigationInterface.addSeparator(NavigationItemPosition.TOP)
         self.addSubInterface(self.toolPage, FIF.DEVELOPER_TOOLS, self.toolPage.title, NavigationItemPosition.SCROLL)
         self.addSubInterface(self.gamePage, FIF.GAME, self.gamePage.title, NavigationItemPosition.SCROLL)
+        self.addSubInterface(self.chatPage, FIF.CHAT, self.chatPage.title, NavigationItemPosition.SCROLL)
         self.navigationInterface.addSeparator(NavigationItemPosition.BOTTOM)
         self.navigationInterface.addWidget("avatar", NavigationAvatarWidget(program.AUTHOR_NAME, program.source("zb.png")), None, NavigationItemPosition.BOTTOM)
         self.addSubInterface(self.settingPage, FIF.SETTING, self.settingPage.title, NavigationItemPosition.BOTTOM)

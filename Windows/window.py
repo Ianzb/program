@@ -836,4 +836,15 @@ class Tray(QSystemTrayIcon):
         qApp.quit()
 
 
+class ChatFriendCard(SmallInfoCard):
+    """
+    聊天列表朋友卡片
+    """
+    def __init__(self, username: str, parent: QWidget = None):
+        super().__init__(parent)
+        self.username = username
+
+
+
+
 logging.debug("windows.py初始化成功")
