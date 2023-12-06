@@ -1,3 +1,5 @@
+import time
+
 from .function import *
 
 

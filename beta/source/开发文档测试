@@ -1,6 +1,6 @@
 插件开发文档
 插件开头需要from ..custom import *
 页面组件为class AddonTab(BasicTab):
-AddonTab：
+AddonTab规范：
 self.setObjectName("插件名称")
 self.addonIcon=FIF.插件图标
