@@ -43,6 +43,8 @@ class BasicTabPage(BasicPage):
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
+        self.loading = False
+
         self.toolBar.deleteLater()
 
         self.vBoxLayout = QVBoxLayout(self)
@@ -65,15 +67,26 @@ class BasicTabPage(BasicPage):
             self.pivot.setCurrentItem(widget.objectName())
 
     def addAddon(self, name):
-        self.thread = NewThread("下载插件", name)
-        self.thread.signalStr.connect(self.thread1)
-        self.thread.start()
+        if not self.loading:
+            self.loading = True
+            self.thread = NewThread("下载插件", name)
+            self.thread.signalStr.connect(self.thread1)
+            self.thread.start()
+        else:
+            self.timer = QTimer(self)
+            self.timer.timeout.connect(lambda: self.timer1(name))
+            self.timer.start(100)
 
     def thread1(self, msg):
         import importlib
         lib = importlib.import_module(f"source.addon.{msg}")
         self.page = lib.AddonTab()
         self.addPage(self.page, self.page.objectName(), self.page.addonIcon)
+        self.loading = False
+
+    def timer1(self, msg):
+        if not self.loading:
+            self.addAddon(msg)
 
     def onCurrentIndexChanged(self, index):
         widget = self.stackedWidget.widget(index)
