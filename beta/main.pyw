@@ -1,3 +1,4 @@
+from appstore import *
 from window import *
 
 

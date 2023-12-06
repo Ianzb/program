@@ -27,7 +27,6 @@ class NewThread(QThread):
                 self.signalDict.emit({"名称": program.REQUIRE_LIB[i], "序号": i, "完成": False})
                 f.pipUpdate(program.REQUIRE_LIB[i])
             self.signalDict.emit({"完成": True})
-
         if self.mode == "检查更新":
             try:
                 data = f.getNewestVersion()
@@ -38,7 +37,6 @@ class NewThread(QThread):
                 self.signalDict.emit({"更新": False})
             else:
                 self.signalDict.emit({"更新": True, "版本": data})
-
         if self.mode == "立刻更新":
             try:
                 data = f.getNewestVersion()
@@ -55,52 +53,41 @@ class NewThread(QThread):
                 f.downloadFile(f.urlJoin(program.UPDATE_URL, data[i]), f.pathJoin(program.PROGRAM_PATH, data[i]))
             self.signalDict.emit({"更新": True, "完成": True})
             logging.debug(f"更新{data}成功")
-
         if self.mode == "一键整理+清理":
-
             try:
                 Thread(lambda: f.clearRubbish())
                 Thread(lambda: f.clearSystemCache())
-
                 f.sortDir(program.DESKTOP_PATH, setting.read("sortPath"))
                 if setting.read("wechatPath") != "":
                     f.sortWechatFiles()
                 for i in list(f.SORT_FILE_DIR.keys()) + ["文件夹"]:
                     f.clearFile(f.pathJoin(setting.read("sortPath"), i))
                 f.clearFile(setting.read("sortPath"))
-
                 self.signalBool.emit(True)
                 logging.debug("一键整理成功")
             except Exception as ex:
                 self.signalBool.emit(False)
                 logging.warning("一键整理失败")
-
         if self.mode == "重启文件资源管理器":
             f.cmd("taskkill /f /im explorer.exe", True)
             self.signalStr.emit("完成")
             f.cmd("start C:/windows/explorer.exe", True)
             logging.debug("重启文件资源管理器")
-
         if self.mode == "Minecraft最新版本":
             self.signalStr.emit(f.getMC())
-
         if self.mode == "下载图片":
             if not f.existPath(self.data[1]):
                 f.downloadFile(self.data[0], self.data[1])
             self.signalBool.emit(True)
-
         if self.mode == "清理程序缓存":
             f.clearProgramCache()
             self.signalBool.emit(True)
-
         if self.mode == "搜索应用":
-
             try:
                 data = f.searchSoftware(self.data[0], self.data[1])
                 self.signalList.emit(data)
             except Exception as ex:
                 self.signalBool.emit(False)
-
         if self.mode == "下载文件":
             path = f.pathJoin(setting.read("downloadPath"), self.data[0])
             if f.existPath(path):
