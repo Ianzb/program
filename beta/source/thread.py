@@ -1,4 +1,4 @@
-from .functions import *
+from .function import *
 
 
 class NewThread(QThread):
