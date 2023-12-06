@@ -123,6 +123,7 @@ class ToolPage(BasicTabPage):
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
+        from .addon.appstore import AppStoreTab
         self.page1 = AppStoreTab()
         self.addPage(self.page1, "应用商店", FIF.SHOPPING_CART)
 
