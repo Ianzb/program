@@ -64,6 +64,17 @@ class BasicTabPage(BasicPage):
             self.stackedWidget.setCurrentWidget(widget)
             self.pivot.setCurrentItem(widget.objectName())
 
+    def addAddon(self, name):
+        self.thread = NewThread("下载插件", name)
+        self.thread.signalStr.connect(self.thread1)
+        self.thread.start()
+
+    def thread1(self, msg):
+        import importlib
+        lib = importlib.import_module(f"source.addon.{msg}")
+        self.page = lib.AddonTab()
+        self.addPage(self.page, self.page.objectName(), self.page.addonIcon)
+
     def onCurrentIndexChanged(self, index):
         widget = self.stackedWidget.widget(index)
         self.pivot.setCurrentItem(widget.objectName())

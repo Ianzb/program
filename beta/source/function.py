@@ -32,6 +32,7 @@ class Program:
     PROGRAM_MAIN_FILE_PATH = sys.argv[0]  # 程序主文件路径
     PROGRAM_PATH = os.path.dirname(PROGRAM_MAIN_FILE_PATH)  # 程序安装路径
     SOURCE_PATH = os.path.join(PROGRAM_PATH, "img")  # 程序资源文件路径
+    ADDON_PATH = os.path.join(PROGRAM_PATH, "source", "addon")  # 插件路径
     FILE_NAME = os.path.basename(PROGRAM_MAIN_FILE_PATH)  # 当前程序文件名称
     PROGRAM_PID = os.getpid()  # 程序pid
     USER_PATH = os.path.expanduser("~")  # 系统用户路径
@@ -103,6 +104,14 @@ class Program:
         @return: 文件路径
         """
         return f.pathJoin(self.PROGRAM_DATA_PATH, "cache", name)
+
+    def addon(self, name: str) -> str:
+        """
+        快捷获取程序插件文件路径
+        @param name: 文件名
+        @return: 文件路径
+        """
+        return f.pathJoin(self.ADDON_PATH, f"{name}.py")
 
 
 class LoggingFunctions:

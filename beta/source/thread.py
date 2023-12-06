@@ -27,7 +27,7 @@ class NewThread(QThread):
         if self.mode == "检查更新":
             try:
                 data = f.getNewestVersion()
-            except Exception as ex:
+            except:
                 self.signalDict.emit({"更新": False})
                 return
             if f.compareVersion(data, program.PROGRAM_VERSION) == program.PROGRAM_VERSION:
@@ -76,6 +76,9 @@ class NewThread(QThread):
             if not f.existPath(self.data[1]):
                 f.downloadFile(self.data[0], self.data[1])
             self.signalBool.emit(True)
+        if self.mode == "下载插件":
+            f.downloadFile(f.urlJoin(program.UPDATE_URL, f"source/{self.data}.py"), program.addon(self.data))
+            self.signalStr.emit(self.data)
         if self.mode == "清理程序缓存":
             f.clearProgramCache()
             self.signalBool.emit(True)

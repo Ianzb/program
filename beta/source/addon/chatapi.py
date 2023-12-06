@@ -7,6 +7,8 @@ import hashlib
 import os
 import warnings
 
+from ..custom import *
+
 SERVER_IP = "124.221.74.246"
 PORT = 82
 APP_ID = ""
@@ -15,7 +17,7 @@ PROTOCOL = "http"
 
 
 class ChatAPI:
-    def __init__(self, server_ip=None, port=None, app_id=None, app_key = None):
+    def __init__(self, server_ip=None, port=None, app_id=None, app_key=None):
         self.server_ip = server_ip if server_ip else SERVER_IP
         self.port = port if port else PORT
         self.app_id = app_id if app_id else APP_ID
@@ -140,3 +142,11 @@ if __name__ == '__main__':
     print(api_test.get_user_info('test'))
     time.sleep(100)
 
+
+class AddonTab(BasicTab):
+    """
+    插件主页面
+    """
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
