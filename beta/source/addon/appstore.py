@@ -1,4 +1,4 @@
-from beta.source.widgets import *
+from beta.source.custom import *
 
 
 class AppInfoCard(SmallInfoCard):
