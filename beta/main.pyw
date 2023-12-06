@@ -1,4 +1,4 @@
-from beta.source.appstore import *
+from beta.source.addon.appstore import *
 from beta.source.window import *
 
 

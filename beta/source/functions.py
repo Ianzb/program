@@ -18,24 +18,6 @@ except ImportError:
     os.popen("download.pyw error")
 
 
-class Thread(threading.Thread):
-    """
-    多线程优化
-    """
-
-    def __init__(self, func, *args):
-        super().__init__()
-
-        self.func = func
-        self.args = args
-
-        self.daemon = True
-        self.start()
-
-    def run(self):
-        self.func(*self.args)
-
-
 class Program:
     """
     程序信息
@@ -49,7 +31,7 @@ class Program:
     GITHUB_URL = "https://github.com/Ianzb/program/"  # Github网址
     PROGRAM_MAIN_FILE_PATH = sys.argv[0]  # 程序主文件路径
     PROGRAM_PATH = os.path.dirname(PROGRAM_MAIN_FILE_PATH)  # 程序安装路径
-    SOURCE_PATH = os.path.join(PROGRAM_PATH, "../img")  # 程序资源文件路径
+    SOURCE_PATH = os.path.join(PROGRAM_PATH, "img")  # 程序资源文件路径
     FILE_NAME = os.path.basename(PROGRAM_MAIN_FILE_PATH)  # 当前程序文件名称
     PROGRAM_PID = os.getpid()  # 程序pid
     USER_PATH = os.path.expanduser("~")  # 系统用户路径
@@ -123,9 +105,6 @@ class Program:
         return f.pathJoin(self.PROGRAM_DATA_PATH, "cache", name)
 
 
-program = Program()
-
-
 class LoggingFunctions:
     """
     日志相关函数
@@ -188,30 +167,25 @@ class LoggingFunctions:
         self.log.critical(data)
 
 
-logging = LoggingFunctions()
-logging.debug("日志初始化成功")
-
-
 class SettingFunctions:
     """
     设置相关函数
     """
-    DEFAULT_SETTING = {"theme": "Theme.AUTO",
-                       "themeColor": "#0078D4",
-                       "autoStartup": False,
-                       "autoHide": True,
-                       "autoUpdate": False,
-                       "pid": "0",
-                       "sortPath": "",
-                       "wechatPath": "",
-                       "downloadPath": program.DESKTOP_PATH,
-                       "showWindow": False,
-                       "sortBlacklist": [],
-                       "updateChannel": "正式版",
-                       }
 
     def __init__(self):
-        pass
+        self.DEFAULT_SETTING = {"theme": "Theme.AUTO",
+                                "themeColor": "#0078D4",
+                                "autoStartup": False,
+                                "autoHide": True,
+                                "autoUpdate": False,
+                                "pid": "0",
+                                "sortPath": "",
+                                "wechatPath": "",
+                                "downloadPath": program.DESKTOP_PATH,
+                                "showWindow": False,
+                                "sortBlacklist": [],
+                                "updateChannel": "正式版",
+                                }
 
     def reload(self):
         """
@@ -255,9 +229,6 @@ class SettingFunctions:
         settings[name] = data
         with open(program.SETTING_FILE_PATH, "w", encoding="utf-8") as file:
             file.write(json.dumps(settings))
-
-
-setting = SettingFunctions()
 
 
 class ProcessFunctions:
@@ -981,6 +952,9 @@ class Functions(ProgramFunctions):
         return list
 
 
+program = Program()
+logging = LoggingFunctions()
+setting = SettingFunctions()
 f = Functions()
 
 
@@ -1015,4 +989,24 @@ class Init():
 
 
 Init()
+
+
+class Thread(threading.Thread):
+    """
+    多线程优化
+    """
+
+    def __init__(self, func, *args):
+        super().__init__()
+
+        self.func = func
+        self.args = args
+
+        self.daemon = True
+        self.start()
+
+    def run(self):
+        self.func(*self.args)
+
+
 logging.debug("functions.py初始化成功")
