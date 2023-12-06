@@ -77,7 +77,7 @@ class NewThread(QThread):
                 f.downloadFile(self.data[0], self.data[1])
             self.signalBool.emit(True)
         if self.mode == "下载插件":
-            f.downloadFile(f.urlJoin(program.UPDATE_URL, f"source/{self.data}.py"), program.addon(self.data))
+            f.downloadFile(f.urlJoin(program.UPDATE_URL, f"source/addon/{self.data}.py"), program.addon(self.data))
             self.signalStr.emit(self.data)
         if self.mode == "清理程序缓存":
             f.clearProgramCache()

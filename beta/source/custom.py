@@ -68,10 +68,6 @@ class BasicTabPage(BasicPage):
         self.thread = NewThread("下载插件", name)
         self.thread.signalStr.connect(self.thread1)
         self.thread.start()
-        import importlib
-        lib = importlib.import_module(f"source.addon.{name}")
-        self.page = lib.AddonTab()
-        self.addPage(self.page, self.page.objectName(), self.page.addonIcon)
 
     def thread1(self, msg):
         import importlib
