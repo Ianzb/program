@@ -1,5 +1,5 @@
-from appstore import *
-from window import *
+from beta.source.appstore import *
+from beta.source.window import *
 
 
 class MainPage(BasicPage):
