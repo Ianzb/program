@@ -10,6 +10,7 @@
         import sys, os<br>
         sys.path = [os.path.dirname(sys.argv[0])] + sys.path<br>
         from source.custom import *<br>
+        os.chdir(__file__)<br>
         其他运行库自行导入即可<br>
         页面组件为class AddonTab(BasicTab):<br>
         AddonTab需要配置如下选项：<br>
