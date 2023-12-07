@@ -850,6 +850,7 @@ class ProgramFunctions(FileFunctions):
         """
         response = requests.get(program.ADDON_URL, headers=program.REQUEST_HEADER, stream=True).text
         data = json.loads(response)
+        logging.debug("插件信息获取成功")
         return data
 
     def getAddonInfo(self, url: str) -> dict:
@@ -863,13 +864,22 @@ class ProgramFunctions(FileFunctions):
         response = requests.get(self.urlJoin(url, "addon.json"), headers=program.REQUEST_HEADER, stream=True).text
         data = json.loads(response)
         data["url"] = url
+        logging.debug(f"插件{data["name"]}信息获取成功")
         return data
 
     def downloadAddon(self, data: dict):
+        """
+        下载插件
+        @param data: 插件信息
+        """
         if "__init__.py" not in data["file"]:
             open(self.pathJoin(program.ADDON_PATH, data["id"], "__init__.py"), "w", encoding="utf-8").close()
         for i in data["file"]:
             self.downloadFile(self.urlJoin(data["url"], i), self.pathJoin(program.ADDON_PATH, data["id"], i))
+        for i in data["lib"]:
+            self.pipInstall(i)
+            self.pipUpdate(i)
+        logging.debug(f"插件{data["name"]}下载成功")
 
 
 class Functions(ProgramFunctions):

@@ -4,5 +4,8 @@
     "version": "1.0.0",
     "file": [
         "init.py"
+    ],
+    "lib": [
+        "pyqt-fluent-widgets"
     ]
 }
