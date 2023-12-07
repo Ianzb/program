@@ -5,7 +5,6 @@ try:
 except:
     sys.path = [os.path.dirname(sys.argv[0])] + sys.path
     from source.custom import *
-    from chatapi import *
 
 
 def searchSoftware(name: str, source: str) -> list:

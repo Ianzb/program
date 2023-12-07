@@ -5,7 +5,7 @@ try:
 except:
     sys.path = [os.path.dirname(sys.argv[0])] + sys.path
     from source.custom import *
-    from chatapi import *
+from chatapi import *
 
 
 class AddonTab(BasicTab):

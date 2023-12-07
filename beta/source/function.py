@@ -872,6 +872,7 @@ class ProgramFunctions(FileFunctions):
         下载插件
         @param data: 插件信息
         """
+        self.makeDir(self.pathJoin(program.ADDON_PATH, data["id"]))
         if "__init__.py" not in data["file"]:
             open(self.pathJoin(program.ADDON_PATH, data["id"], "__init__.py"), "w", encoding="utf-8").close()
         for i in data["file"]:
