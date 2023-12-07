@@ -1,5 +1,7 @@
-from beta.source.custom import *
+import sys, os
 
+sys.path = [os.path.dirname(sys.argv[0])] + sys.path
+from source.custom import *
 
 class AppInfoCard(SmallInfoCard):
     """

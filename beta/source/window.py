@@ -130,7 +130,7 @@ class ToolPage(BasicTabPage):
     def thread1(self, msg):
         import importlib
         for k, v in msg.items():
-            lib = importlib.import_module(f"{k}.{v["file"][0]}")
+            lib = importlib.import_module(k)
             self.page = lib.AddonTab()
             self.addPage(self.page, v["name"])
 

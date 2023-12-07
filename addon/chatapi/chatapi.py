@@ -143,11 +143,3 @@ if __name__ == '__main__':
     time.sleep(100)
 
 
-class AddonTab(BasicTab):
-    """
-    插件主页面
-    """
-
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setIcon(FIF.SHOPPING_CART)

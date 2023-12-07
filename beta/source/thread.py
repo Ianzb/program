@@ -18,7 +18,6 @@ class NewThread(QThread):
         super().__init__(parent=parent)
         self.mode = mode
         self.data = data
-        self.isCancel = False
 
     def run(self):
         if self.mode == "更新运行库":
@@ -87,37 +86,3 @@ class NewThread(QThread):
         if self.mode == "清理程序缓存":
             f.clearProgramCache()
             self.signalBool.emit(True)
-        if self.mode == "搜索应用":
-            try:
-                data = f.searchSoftware(self.data[0], self.data[1])
-                self.signalList.emit(data)
-            except Exception as ex:
-                self.signalBool.emit(False)
-        if self.mode == "下载文件":
-            path = f.pathJoin(setting.read("downloadPath"), self.data[0])
-            if f.existPath(path):
-                i = 1
-                while f.existPath(f.pathJoin(f.splitPath(path, 3), f.splitPath(path, 1) + " (" + str(i) + ")" + f.splitPath(path, 2))):
-                    i = i + 1
-                path = f.pathJoin(f.splitPath(path, 3), f.splitPath(path, 1) + " (" + str(i) + ")" + f.splitPath(path, 2))
-            logging.debug(f"开始下载文件{path}")
-            path += ".zb.appstore.downloading"
-            url = self.data[1]
-            self.signalStr.emit(path)
-            response = requests.get(url, headers=program.REQUEST_HEADER, stream=True)
-            size = 0
-            file_size = int(response.headers["content-length"])
-            if response.status_code == 200:
-                with open(path, "wb") as file:
-                    for data in response.iter_content(256):
-                        if self.isCancel:
-                            self.signalBool.emit(True)
-                            return
-                        file.write(data)
-                        size += len(data)
-                        self.signalInt.emit(int(100 * size / file_size))
-            logging.debug(f"文件{path}下载成功")
-
-    def cancel(self):
-        logging.debug("取消下载")
-        self.isCancel = True
