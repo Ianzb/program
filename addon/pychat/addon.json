@@ -1,6 +1,6 @@
 {
     "id": "chatapi",
-    "name": "PyChat聊天",
+    "name": "PyChat",
     "version": "1.0.0",
     "file": [
         "init.py",
