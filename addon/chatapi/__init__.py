@@ -1,8 +1,11 @@
 import sys, os
 
-sys.path = [os.path.dirname(sys.argv[0])] + sys.path
-from source.custom import *
-from chatapi import *
+if "developing" in sys.argv:
+    from beta.source.custom import *
+else:
+    sys.path = [os.path.dirname(sys.argv[0])] + sys.path
+    from source.custom import *
+    from chatapi import *
 
 
 class AddonTab(BasicTab):
