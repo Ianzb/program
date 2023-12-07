@@ -783,6 +783,9 @@ class ProgramFunctions(FileFunctions):
             self.makeDir(self.splitPath(path, 3))
             with open(path, "wb") as file:
                 file.write(data)
+            if data.find("<h1>404</h1>") != -1:
+                open(path, "wb").close()
+
             logging.debug(f"文件{link}下载成功")
         except Exception as ex:
             logging.warning(f"文件{link}下载失败{ex}")
@@ -866,7 +869,7 @@ class ProgramFunctions(FileFunctions):
         if "__init__.py" not in data["file"]:
             open(self.pathJoin(program.ADDON_PATH, data["id"], "__init__.py"), "w", encoding="utf-8").close()
         for i in data["file"]:
-            self.downloadFile(self.urlJoin(data["url"], i), self.pathJoin(program.ADDON_PATH, data["id"], i))
+            self.downloadFile(self.urlJoin(data["url"], i), self.pathJoin(program.ADDON_PATH, data["id"], "__init__.py") if i == "init.py" else self.pathJoin(program.ADDON_PATH, data["id"], i))
 
 
 class Functions(ProgramFunctions):

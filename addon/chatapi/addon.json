@@ -3,7 +3,7 @@
     "name": "PyChat聊天",
     "version": "1.0.0",
     "file": [
-        "__init__.py",
+        "init.py",
         "chatapi.py"
     ]
 }
