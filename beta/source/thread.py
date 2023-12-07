@@ -81,7 +81,8 @@ class NewThread(QThread):
             data = f.getAddonDict()
             for k, v in data.items():
                 data[k] = f.getAddonInfo(v)
-                f.downloadAddon(data[k])
+                if "developing" not in program.STARTUP_ARGUMENT:
+                    f.downloadAddon(data[k])
             self.signalDict.emit(data)
         if self.mode == "清理程序缓存":
             f.clearProgramCache()
