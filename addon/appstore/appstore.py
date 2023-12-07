@@ -64,8 +64,7 @@ class AddonTab(BasicTab):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setObjectName("应用商店")
-        self.addonIcon = FIF.SHOPPING_CART
+        self.setIcon(FIF.SHOPPING_CART)
 
         self.vBoxLayout.setSpacing(8)
 

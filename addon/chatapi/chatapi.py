@@ -150,5 +150,4 @@ class AddonTab(BasicTab):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setObjectName("PyChat")
-        self.addonIcon = FIF.CHAT
+        self.setIcon(FIF.SHOPPING_CART)

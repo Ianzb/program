@@ -56,25 +56,14 @@ class BasicTabPage(BasicPage):
         self.stackedWidget.currentChanged.connect(self.onCurrentIndexChanged)
         self.vBoxLayout.addWidget(self.stackedWidget)
 
-        self.thread = NewThread("下载插件")
-        self.thread.signalDict.connect(self.thread1)
-        self.thread.start()
-
-    def addPage(self, widget, name, icon=None):
+    def addPage(self, widget, name):
         widget.setObjectName(name)
         widget.setAlignment(Qt.AlignCenter)
         self.stackedWidget.addWidget(widget)
-        self.pivot.addItem(name, name, lambda: self.stackedWidget.setCurrentWidget(widget), icon)
+        self.pivot.addItem(name, name, lambda: self.stackedWidget.setCurrentWidget(widget), widget.icon)
         if self.stackedWidget.count() == 1:
             self.stackedWidget.setCurrentWidget(widget)
             self.pivot.setCurrentItem(widget.objectName())
-
-    def thread1(self, msg):
-        import importlib
-        for k, v in msg.items():
-            lib = importlib.import_module(f.pathJoin(k))
-            self.page = lib.AddonTab()
-            self.addPage(self.page, self.page.objectName(), self.page.addonIcon)
 
     def onCurrentIndexChanged(self, index):
         widget = self.stackedWidget.widget(index)
@@ -90,6 +79,10 @@ class BasicTab(BasicPage):
         super().__init__(parent=parent)
         self.toolBar.deleteLater()
         self.setViewportMargins(0, 0, 0, 0)
+        self.icon = None
+
+    def setIcon(self, icon):
+        self.icon = icon
 
 
 class ToolBar(QWidget):
