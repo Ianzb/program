@@ -778,12 +778,12 @@ class ProgramFunctions(FileFunctions):
         @param path: 下载路径
         """
         try:
-            path = os.path.abspath(path)
+            path = os.path.abspath(path).replace("init.py", "__init__.py")
             data = requests.get(link, headers=program.REQUEST_HEADER).content
             self.makeDir(self.splitPath(path, 3))
             with open(path, "wb") as file:
                 file.write(data)
-            if data.find("<h1>404</h1>") != -1:
+            if str(data).find(r"<h1>404</h1>") != -1:
                 open(path, "wb").close()
 
             logging.debug(f"文件{link}下载成功")
@@ -869,7 +869,7 @@ class ProgramFunctions(FileFunctions):
         if "__init__.py" not in data["file"]:
             open(self.pathJoin(program.ADDON_PATH, data["id"], "__init__.py"), "w", encoding="utf-8").close()
         for i in data["file"]:
-            self.downloadFile(self.urlJoin(data["url"], i), self.pathJoin(program.ADDON_PATH, data["id"], "__init__.py") if i == "init.py" else self.pathJoin(program.ADDON_PATH, data["id"], i))
+            self.downloadFile(self.urlJoin(data["url"], i), self.pathJoin(program.ADDON_PATH, data["id"], i))
 
 
 class Functions(ProgramFunctions):
