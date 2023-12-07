@@ -5,7 +5,7 @@ try:
 except:
     sys.path = [os.path.dirname(sys.argv[0])] + sys.path
     from source.custom import *
-os.chdir(__file__)
+os.chdir(os.path.dirname(__file__))
 from chatapi import *
 
 
