@@ -3,7 +3,6 @@
     "name": "应用商店",
     "version": "1.0.0",
     "file": [
-        "__init__.py",
         "appstore.py"
     ]
 }

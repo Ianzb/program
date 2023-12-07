@@ -855,6 +855,8 @@ class ProgramFunctions(FileFunctions):
         @param data: 链接
         @return: 信息
         """
+        if not url.endswith("/"):
+            url += "/"
         response = requests.get(self.urlJoin(url, "addon.json"), headers=program.REQUEST_HEADER, stream=True).text
         data = json.loads(response)
         data["url"] = url

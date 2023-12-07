@@ -81,7 +81,7 @@ class NewThread(QThread):
         if self.mode == "下载插件":
             data = f.getAddonDict()
             for k, v in data.items():
-                data[k] = f.getAddonInfo()
+                data[k] = f.getAddonInfo(v)
                 f.downloadAddon(data[k])
             self.signalDict.emit(data)
         if self.mode == "清理程序缓存":
