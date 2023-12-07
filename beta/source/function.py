@@ -1009,8 +1009,7 @@ class Init():
     """
 
     def __init__(self):
-        # 添加插件目录
-        sys.path = [program.ADDON_PATH] + sys.path
+
         # 切换运行路径
         os.chdir(program.PROGRAM_PATH)
 

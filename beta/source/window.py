@@ -128,6 +128,7 @@ class ToolPage(BasicTabPage):
         self.thread.start()
 
     def thread1(self, msg):
+        sys.path = [program.ADDON_PATH] + sys.path
         import importlib
         for k, v in msg.items():
             lib = importlib.import_module(k)
