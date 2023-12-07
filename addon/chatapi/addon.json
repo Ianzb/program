@@ -1,0 +1,8 @@
+{
+    "id": "chatapi",
+    "name": "PyChat聊天",
+    "version": "1.0.0",
+    "file": [
+        "chatapi.py"
+    ]
+}

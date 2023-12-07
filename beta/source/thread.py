@@ -79,9 +79,11 @@ class NewThread(QThread):
                 f.downloadFile(self.data[0], self.data[1])
             self.signalBool.emit(True)
         if self.mode == "下载插件":
-            if "developing" not in program.STARTUP_ARGUMENT:
-                f.downloadFile(f.urlJoin(program.UPDATE_URL, f"source/addon/{self.data}.py"), program.addon(self.data))
-            self.signalStr.emit(self.data)
+            data = f.getAddonDict()
+            for k, v in data.items():
+                data[k] = f.getAddonInfo()
+                f.downloadAddon(data[k])
+            self.signalDict.emit(data)
         if self.mode == "清理程序缓存":
             f.clearProgramCache()
             self.signalBool.emit(True)
@@ -119,4 +121,3 @@ class NewThread(QThread):
     def cancel(self):
         logging.debug("取消下载")
         self.isCancel = True
-

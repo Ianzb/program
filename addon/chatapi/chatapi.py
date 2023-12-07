@@ -7,7 +7,7 @@ import hashlib
 import os
 import warnings
 
-from ..custom import *
+from beta.source.custom import *
 
 SERVER_IP = "124.221.74.246"
 PORT = 82

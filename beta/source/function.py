@@ -32,16 +32,18 @@ class Program:
     PROGRAM_MAIN_FILE_PATH = sys.argv[0]  # 程序主文件路径
     PROGRAM_PATH = os.path.dirname(PROGRAM_MAIN_FILE_PATH)  # 程序安装路径
     SOURCE_PATH = os.path.join(PROGRAM_PATH, "img")  # 程序资源文件路径
-    ADDON_PATH = os.path.join(PROGRAM_PATH, "source", "addon")  # 插件路径
     FILE_NAME = os.path.basename(PROGRAM_MAIN_FILE_PATH)  # 当前程序文件名称
     PROGRAM_PID = os.getpid()  # 程序pid
     USER_PATH = os.path.expanduser("~")  # 系统用户路径
     PROGRAM_DATA_PATH = os.path.join(USER_PATH, "zb")  # 程序数据路径
     SETTING_FILE_PATH = os.path.join(PROGRAM_DATA_PATH, "settings.json")  # 程序设置文件路径
     LOGGING_FILE_PATH = os.path.join(PROGRAM_DATA_PATH, "logging.log")  # 程序日志文件路径
+    ADDON_PATH = os.path.join(PROGRAM_DATA_PATH, "addon")  # 程序插件路径
+    ADDON_URL = "https://ianzb.github.io/program/addon/addon.json"  # 插件信息网址
     STARTUP_ARGUMENT = sys.argv[1:]  # 程序启动参数
     PYTHON_VERSION = sys.version[:sys.version.find(" ")]  # Python版本
-    REQUEST_HEADER = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36 Edg/119.0.0.0"}  # 程序默认网络请求头
+    REQUEST_HEADER = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36 Edg/119.0.0.0",
+                      "zbprogram": PROGRAM_VERSION}  # 程序默认网络请求头
 
     REQUIRE_LIB = ["PyQt-Fluent-Widgets",
                    "qt5_tools",
@@ -104,14 +106,6 @@ class Program:
         @return: 文件路径
         """
         return f.pathJoin(self.PROGRAM_DATA_PATH, "cache", name)
-
-    def addon(self, name: str) -> str:
-        """
-        快捷获取程序插件文件路径
-        @param name: 文件名
-        @return: 文件路径
-        """
-        return f.pathJoin(self.ADDON_PATH, f"{name}.py")
 
 
 class LoggingFunctions:
@@ -777,6 +771,22 @@ class ProgramFunctions(FileFunctions):
             for i in lib_name:
                 self.cmd(f"pip install --upgrade {i} -i https://pypi.tuna.tsinghua.edu.cn/simple some-package", True)
 
+    def downloadFile(self, link: str, path: str):
+        """
+        下载文件
+        @param link: 文件链接
+        @param path: 下载路径
+        """
+        try:
+            path = os.path.abspath(path)
+            data = requests.get(link, headers=program.REQUEST_HEADER).content
+            self.makeDir(self.splitPath(path, 3))
+            with open(path, "wb") as file:
+                file.write(data)
+            logging.debug(f"文件{link}下载成功")
+        except Exception as ex:
+            logging.warning(f"文件{link}下载失败{ex}")
+
     def createShortcut(self, old: str, new: str, icon: str, arguments: str = ""):
         """
         创建快捷方式
@@ -829,6 +839,32 @@ class ProgramFunctions(FileFunctions):
         data = json.loads(response)["version"]
         logging.info(f"程序最新版本：{data}")
         return data
+
+    def getAddonDict(self) -> dict:
+        """
+        获取插件字典
+        @return: 字典
+        """
+        response = requests.get(program.ADDON_URL, headers=program.REQUEST_HEADER, stream=True).text
+        data = json.loads(response)
+        return data
+
+    def getAddonInfo(self, url: str) -> dict:
+        """
+        获取指定插件信息
+        @param data: 链接
+        @return: 信息
+        """
+        response = requests.get(self.urlJoin(url, "addon.json"), headers=program.REQUEST_HEADER, stream=True).text
+        data = json.loads(response)
+        data["url"] = url
+        return data
+
+    def downloadAddon(self, data: dict):
+        if "__init__.py" not in data["file"]:
+            open(self.pathJoin(program.ADDON_PATH, data["id"], "__init__.py"), "w", encoding="utf-8").close()
+        for i in data["file"]:
+            self.downloadFile(self.urlJoin(data["url"], i), self.pathJoin(program.ADDON_PATH, data["id"], i))
 
 
 class Functions(ProgramFunctions):
@@ -900,22 +936,6 @@ class Functions(ProgramFunctions):
         logging.debug("成功获取我的世界最新版本")
         return str1
 
-    def downloadFile(self, link: str, path: str):
-        """
-        下载文件
-        @param link: 文件链接
-        @param path: 下载路径
-        """
-        try:
-            path = os.path.abspath(path)
-            data = requests.get(link, headers=program.REQUEST_HEADER).content
-            self.makeDir(self.splitPath(path, 3))
-            with open(path, "wb") as file:
-                file.write(data)
-            logging.debug(f"文件{link}下载成功")
-        except Exception as ex:
-            logging.warning(f"文件{link}下载失败{ex}")
-
     def searchSoftware(self, name: str, source: str) -> list:
         """
         搜索软件
@@ -973,6 +993,7 @@ class Init():
     """
 
     def __init__(self):
+        sys.path = [program.ADDON_PATH] + sys.path
         # 切换运行路径
         os.chdir(program.PROGRAM_PATH)
 

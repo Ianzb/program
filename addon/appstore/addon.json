@@ -1,0 +1,8 @@
+{
+    "id": "appstore",
+    "name": "应用商店",
+    "version": "1.0.0",
+    "file": [
+        "appstore.py"
+    ]
+}
