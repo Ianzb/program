@@ -886,7 +886,13 @@ class ProgramFunctions(FileFunctions):
         if "__init__.py" not in data["file"]:
             open(self.pathJoin(program.ADDON_PATH, data["id"], "__init__.py"), "w", encoding="utf-8").close()
         for i in data["file"]:
-            self.downloadFile(self.urlJoin(data["url"], i), self.pathJoin(program.ADDON_PATH, data["id"], i))
+            if self.splitPath(self.pathJoin(program.ADDON_PATH, data["id"], i), 2) == ".zip":
+                self.downloadFile(self.urlJoin(data["url"], i), self.pathJoin(program.ADDON_PATH, i))
+                f.extractZip(self.pathJoin(program.ADDON_PATH, i), program.ADDON_PATH)
+                self.delete(self.pathJoin(program.ADDON_PATH, i))
+            else:
+                self.downloadFile(self.urlJoin(data["url"], i), self.pathJoin(program.ADDON_PATH, data["id"], i))
+
         for i in data["lib"]:
             self.pipInstall(i)
             self.pipUpdate(i)

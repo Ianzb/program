@@ -4,7 +4,7 @@
     "version": "1.0.0",
     "pos": "tool",
     "file": [
-        "init.py"
+        "appstore.zip"
     ],
     "lib": []
 }

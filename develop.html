@@ -6,6 +6,7 @@
         插件为文件夹形式<br>
         文件夹下有addon.json文件，格式为，不可缺项，如果网页不允许__init__.py（如githubpages）可改名为init.py（程序自动转换）<br>
         {"id": "英文小写","name": "随意，建议中文，会在程序中展示","version": "如1.0.0","pos":"tool/game/page（插件页面的位置）","file": ["必有__init__.py"],"lib": [可留空]}<br>
+        插件文件也可以打包成一个压缩包，注意要将整个插件所在文件夹添加到压缩包而不是将里面的文件添加到压缩包，也就是压缩包里面要套着一个名为插件id的文件夹<br>
         __init__.py开头需要：<br>
         import sys, os<br>
         sys.path = [os.path.dirname(sys.argv[0])] + sys.path<br>
