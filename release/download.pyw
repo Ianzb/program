@@ -149,7 +149,7 @@ class Functions():
             self.makeDir(self.splitPath(path, 3))
             with open(path, "wb") as file:
                 file.write(data.content)
-            if "<h1>404</h1>" in data.text:
+            if "<h1>404</h1>" in data.text and program.UPDATE_URL in link and "__init__.py" in link:
                 open(path, "wb").close()
         except:
             showerror("提示", f"{program.PROGRAM_NAME}无法正常安装，可能是由于运行库缺失，请您在安装前先安装运行库！")
