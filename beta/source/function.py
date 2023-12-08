@@ -889,6 +889,8 @@ class ProgramFunctions(FileFunctions):
         self.makeDir(self.pathJoin(program.ADDON_PATH, data["id"]))
         if "__init__.py" not in data["file"]:
             open(self.pathJoin(program.ADDON_PATH, data["id"], "__init__.py"), "w", encoding="utf-8").close()
+        if "addon.json" not in data["file"]:
+            data["file"].append("addon.json")
         for i in data["file"]:
             if self.splitPath(self.pathJoin(program.ADDON_PATH, data["id"], i), 2) == ".zip":
                 self.downloadFile(self.urlJoin(data["url"], i), self.pathJoin(program.ADDON_PATH, i))
