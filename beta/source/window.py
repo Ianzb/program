@@ -270,21 +270,21 @@ class Window(FluentWindow):
     def thread1(self, msg):
         sys.path = [program.ADDON_PATH] + sys.path
         import importlib
-        for k, v in msg.items():
-            try:
-                lib = importlib.import_module(k)
-
-                if v["pos"] == "tool":
-                    self.page = lib.AddonTab()
-                    self.toolPage.addPage(self.page, v["name"])
-                elif v["pos"] == "game":
-                    self.page = lib.AddonTab()
-                    self.gamePage.addPage(self.page, v["name"])
-                elif v["pos"] == "page":
-                    self.page = lib.AddonPage()
-                    self.addPage(self.page, "scroll")
-            except Exception as ex:
-                logging.warning(f"插件下载失败{ex}")
+        try:
+            lib = importlib.import_module(msg["id"])
+            if msg["pos"] == "tool":
+                self.page = lib.AddonTab()
+                self.toolPage.addPage(self.page, msg["name"])
+            elif msg["pos"] == "game":
+                self.page = lib.AddonTab()
+                self.gamePage.addPage(self.page, msg["name"])
+            elif msg["pos"] == "page":
+                self.page = lib.AddonPage()
+                if not self.page.title:
+                    self.page.title = msg["name"]
+                self.addPage(self.page, "scroll")
+        except Exception as ex:
+            logging.warning(f"插件{msg["name"]}装载失败{ex}")
 
     def repeatOpen(self):
         """
