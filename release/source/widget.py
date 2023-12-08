@@ -642,7 +642,7 @@ class Tray(QSystemTrayIcon):
         self.action3 = Action(FIF.LINK, "官网", triggered=self.action3Clicked)
         self.action4 = Action(FIF.CLOSE, "退出", triggered=self.action4Clicked)
 
-        self.menu = RoundMenu()
+        self.menu = SystemTrayMenu()
 
         self.menu.addAction(self.action1)
         self.menu.addAction(self.action2)
@@ -655,7 +655,7 @@ class Tray(QSystemTrayIcon):
         if reason == 3:
             self.trayClickedEvent()
         elif reason == 1:
-            self.contextMenuEvent()
+            self.menu.show()
 
     def trayClickedEvent(self):
         if self.window.isHidden():
@@ -666,9 +666,6 @@ class Tray(QSystemTrayIcon):
             self.window.activateWindow()
         else:
             self.window.setHidden(True)
-
-    def contextMenuEvent(self):
-        self.menu.exec(QCursor.pos(), ani=True, aniType=MenuAnimationType.PULL_UP)
 
     def action1Clicked(self):
         self.window.show()
