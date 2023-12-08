@@ -144,11 +144,13 @@ class Functions():
         """
         try:
             import requests
-            path = os.path.abspath(path)
-            data = requests.get(link, headers=program.REQUEST_HEADER).content
+            path = os.path.abspath(path).replace("init.py", "__init__.py")
+            data = requests.get(link, headers=program.REQUEST_HEADER)
             self.makeDir(self.splitPath(path, 3))
             with open(path, "wb") as file:
-                file.write(data)
+                file.write(data.content)
+            if "<h1>404</h1>" in data.text:
+                open(path, "wb").close()
         except:
             showerror("提示", f"{program.PROGRAM_NAME}无法正常安装，可能是由于运行库缺失，请您在安装前先安装运行库！")
 
