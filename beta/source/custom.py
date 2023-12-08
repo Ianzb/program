@@ -34,6 +34,10 @@ class BasicPage(ScrollArea):
         self.vBoxLayout.setSpacing(30)
         self.vBoxLayout.setAlignment(Qt.AlignTop)
         self.vBoxLayout.setContentsMargins(36, 20, 36, 36)
+        self.icon = None
+
+    def setIcon(self, icon):
+        self.icon = icon
 
 
 class BasicTabPage(BasicPage):
@@ -79,10 +83,6 @@ class BasicTab(BasicPage):
         super().__init__(parent=parent)
         self.toolBar.deleteLater()
         self.setViewportMargins(0, 0, 0, 0)
-        self.icon = None
-
-    def setIcon(self, icon):
-        self.icon = icon
 
 
 class ToolBar(QWidget):

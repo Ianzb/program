@@ -1,5 +1,3 @@
-import time
-
 from .function import *
 
 
@@ -78,11 +76,14 @@ class NewThread(QThread):
                 f.downloadFile(self.data[0], self.data[1])
             self.signalBool.emit(True)
         if self.mode == "下载插件":
-            data = f.getAddonDict()
-            for k, v in data.items():
-                data[k] = f.getAddonInfo(v)
-                f.downloadAddon(data[k])
-            self.signalDict.emit(data)
+            try:
+                data = f.getAddonDict()
+                for k, v in data.items():
+                    data[k] = f.getAddonInfo(v)
+                    f.downloadAddon(data[k])
+                self.signalDict.emit(data)
+            except Exception as ex:
+                logging.warning(f"插件下载失败{ex}")
         if self.mode == "清理程序缓存":
             f.clearProgramCache()
             self.signalBool.emit(True)

@@ -10,6 +10,7 @@ class MainPage(BasicPage):
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
+        self.setIcon(FIF.HOME)
 
         self.button1_1 = PrimaryPushButton("开始整理+清理", self, FIF.ALIGNMENT)
         self.button1_2 = ToolButton(FIF.FOLDER, self)
@@ -123,17 +124,19 @@ class ToolPage(BasicTabPage):
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
-        self.thread = NewThread("下载插件")
-        self.thread.signalDict.connect(self.thread1)
-        self.thread.start()
+        self.setIcon(FIF.DEVELOPER_TOOLS)
 
-    def thread1(self, msg):
-        sys.path = [program.ADDON_PATH] + sys.path
-        import importlib
-        for k, v in msg.items():
-            lib = importlib.import_module(k)
-            self.page = lib.AddonTab()
-            self.addPage(self.page, v["name"])
+
+class GamePage(BasicTabPage):
+    """
+    游戏页面
+    """
+    title = "游戏"
+    subtitle = "游戏功能"
+
+    def __init__(self, parent=None):
+        super().__init__(parent=parent)
+        self.setIcon(FIF.GAME)
 
 
 class SettingPage(BasicPage):
@@ -145,6 +148,7 @@ class SettingPage(BasicPage):
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
+        self.setIcon(FIF.SETTING)
 
         self.cardGroup1 = CardGroup("个性化", self)
         self.cardGroup2 = CardGroup("功能", self)
@@ -218,14 +222,31 @@ class Window(FluentWindow):
         """
         self.mainPage = MainPage(self)
         self.toolPage = ToolPage(self)
+        self.gamePage = GamePage(self)
         self.settingPage = SettingPage(self)
 
-        self.addSubInterface(self.mainPage, FIF.HOME, self.mainPage.title, NavigationItemPosition.TOP)
-        self.navigationInterface.addSeparator(NavigationItemPosition.TOP)
-        self.addSubInterface(self.toolPage, FIF.DEVELOPER_TOOLS, self.toolPage.title, NavigationItemPosition.SCROLL)
-        self.navigationInterface.addSeparator(NavigationItemPosition.BOTTOM)
+        self.addPage(self.mainPage, "top")
+        self.addSeparator("top")
+        self.addPage(self.toolPage, "scroll")
+        self.addPage(self.gamePage, "scroll")
+        self.addSeparator("bottom")
         self.navigationInterface.addWidget("avatar", NavigationAvatarWidget(program.AUTHOR_NAME, program.source("zb.png")), None, NavigationItemPosition.BOTTOM)
-        self.addSubInterface(self.settingPage, FIF.SETTING, self.settingPage.title, NavigationItemPosition.BOTTOM)
+        self.addPage(self.settingPage, "bottom")
+
+    def addPage(self, page: QWidget, pos: str):
+        """
+        添加导航栏页面简易版
+        @param page: 页面对象
+        @param pos: 位置top/scroll/bottom
+        """
+        self.addSubInterface(page, page.icon, page.title, eval(f"NavigationItemPosition.{pos.upper()}"))
+
+    def addSeparator(self, pos: str):
+        """
+        添加导航栏分割线简易版
+        @param pos: 位置top/scroll/bottom
+        """
+        self.navigationInterface.addSeparator(eval(f"NavigationItemPosition.{pos.upper()}"))
 
     def __initActivity(self):
         # 循环监测事件
@@ -240,6 +261,30 @@ class Window(FluentWindow):
             self.settingPage.updateSettingCard.button3Clicked()
         if program.PYTHON_VERSION.split(".")[1] != "12":
             QMessageBox(QMessageBox.Warning, "警告", f"当前Python版本为{program.PYTHON_VERSION}，{program.PROGRAM_NAME}推荐使用Python3.12版本！").exec()
+
+        # 插件下载
+        self.thread = NewThread("下载插件")
+        self.thread.signalDict.connect(self.thread1)
+        self.thread.start()
+
+    def thread1(self, msg):
+        sys.path = [program.ADDON_PATH] + sys.path
+        import importlib
+        for k, v in msg.items():
+            try:
+                lib = importlib.import_module(k)
+
+                if v["pos"] == "tool":
+                    self.page = lib.AddonTab()
+                    self.toolPage.addPage(self.page, v["name"])
+                elif v["pos"] == "game":
+                    self.page = lib.AddonTab()
+                    self.gamePage.addPage(self.page, v["name"])
+                elif v["pos"] == "page":
+                    self.page = lib.AddonPage()
+                    self.addPage(self.page, "scroll")
+            except Exception as ex:
+                logging.warning(f"插件下载失败{ex}")
 
     def repeatOpen(self):
         """
