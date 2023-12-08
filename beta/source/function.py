@@ -746,8 +746,12 @@ class FileFunctions(ProcessFunctions):
         """
         import zipfile
         if self.existPath(path):
-            file = zipfile.ZipFile(path)
-            file.extractall(goal)
+            try:
+                file = zipfile.ZipFile(path)
+                file.extractall(goal)
+                logging.debug(f"{path}解压成功")
+            except Exception as ex:
+                logging.warning(f"{path}解压失败{ex}")
 
 
 class ProgramFunctions(FileFunctions):
