@@ -217,7 +217,7 @@ class Functions():
             progress.set(100)
             try:
                 self.createShortcut(program.PROGRAM_MAIN_FILE_PATH, self.pathJoin(program.DESKTOP_PATH, "zb小程序.lnk"), program.source("logo.ico"))
-                self.createShortcut(program.PROGRAM_MAIN_FILE_PATH, self.pathJoin(program.USER_PATH, "AppData\Roaming\Microsoft\Windows\Start Menu\Programs", "zb小程序.lnk"), program.source("logo.ico"))
+                self.createShortcut(program.PROGRAM_MAIN_FILE_PATH, self.pathJoin(program.USER_PATH, r"AppData\Roaming\Microsoft\Windows\Start Menu\Programs", "zb小程序.lnk"), program.source("logo.ico"))
                 showinfo("提示", f"{program.PROGRAM_NAME}安装成功，已添加快捷方式图标！")
             except:
                 showinfo("提示", f"{program.PROGRAM_NAME}安装成功，但快捷方式添加失败！")
@@ -249,18 +249,15 @@ class Functions():
         @param icon: 图标
         @param arguments: 参数
         """
-        try:
-            import win32com.client
-            if not new.endswith(".lnk"):
-                new += ".lnk"
-            shell = win32com.client.Dispatch("WScript.Shell")
-            shortcut = shell.CreateShortCut(new)
-            shortcut.Targetpath = old
-            shortcut.IconLocation = icon
-            shortcut.Arguments = arguments
-            shortcut.save()
-        except:
-            pass
+        import win32com.client
+        if not new.endswith(".lnk"):
+            new += ".lnk"
+        shell = win32com.client.Dispatch("WScript.Shell")
+        shortcut = shell.CreateShortCut(new)
+        shortcut.Targetpath = old
+        shortcut.IconLocation = icon
+        shortcut.Arguments = arguments
+        shortcut.save()
 
     def addToStartup(self, name: str, path: str, mode: bool = True):
         """
@@ -271,17 +268,12 @@ class Functions():
         """
         import win32api, win32con
         key = win32api.RegOpenKey(win32con.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Run", 0, win32con.KEY_ALL_ACCESS)
-        try:
-            if mode:
-                win32api.RegSetValueEx(key, name, 0, win32con.REG_SZ, f"{path} startup")
-                win32api.RegCloseKey(key)
-                logging.debug("启动项添加成功")
-            else:
-                win32api.RegDeleteValue(key, name)
-                win32api.RegCloseKey(key)
-                logging.debug("启动项删除成功")
-        except:
-            pass
+        if mode:
+            win32api.RegSetValueEx(key, name, 0, win32con.REG_SZ, f"{path} startup")
+            win32api.RegCloseKey(key)
+        else:
+            win32api.RegDeleteValue(key, name)
+            win32api.RegCloseKey(key)
 
 
 f = Functions()

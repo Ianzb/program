@@ -779,13 +779,12 @@ class ProgramFunctions(FileFunctions):
         """
         try:
             path = os.path.abspath(path).replace("init.py", "__init__.py")
-            data = requests.get(link, headers=program.REQUEST_HEADER).content
+            data = requests.get(link, headers=program.REQUEST_HEADER)
             self.makeDir(self.splitPath(path, 3))
             with open(path, "wb") as file:
-                file.write(data)
-            if str(data).find(r"<h1>404</h1>") != -1:
+                file.write(data.content)
+            if "<h1>404</h1>" in data.text:
                 open(path, "wb").close()
-
             logging.debug(f"文件{link}下载成功")
         except Exception as ex:
             logging.warning(f"文件{link}下载失败{ex}")

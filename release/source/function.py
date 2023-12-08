@@ -18,30 +18,12 @@ except ImportError:
     os.popen("download.pyw error")
 
 
-class Thread(threading.Thread):
-    """
-    多线程优化
-    """
-
-    def __init__(self, func, *args):
-        super().__init__()
-
-        self.func = func
-        self.args = args
-
-        self.daemon = True
-        self.start()
-
-    def run(self):
-        self.func(*self.args)
-
-
 class Program:
     """
     程序信息
     """
     PROGRAM_NAME = "zb小程序"  # 程序名称
-    PROGRAM_VERSION = "3.2.0"  # 程序版本
+    PROGRAM_VERSION = "3.3.0"  # 程序版本
     PROGRAM_TITLE = f"{PROGRAM_NAME} {PROGRAM_VERSION}"  # 程序窗口标题
     AUTHOR_NAME = "Ianzb"  # 作者名称
     AUTHOR_URL = "https://ianzb.github.io/"  # 作者网址
@@ -56,9 +38,12 @@ class Program:
     PROGRAM_DATA_PATH = os.path.join(USER_PATH, "zb")  # 程序数据路径
     SETTING_FILE_PATH = os.path.join(PROGRAM_DATA_PATH, "settings.json")  # 程序设置文件路径
     LOGGING_FILE_PATH = os.path.join(PROGRAM_DATA_PATH, "logging.log")  # 程序日志文件路径
+    ADDON_PATH = os.path.join(PROGRAM_DATA_PATH, "addon")  # 程序插件路径
+    ADDON_URL = "https://ianzb.github.io/program/addon/addon.json"  # 插件信息网址
     STARTUP_ARGUMENT = sys.argv[1:]  # 程序启动参数
     PYTHON_VERSION = sys.version[:sys.version.find(" ")]  # Python版本
-    REQUEST_HEADER = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36 Edg/119.0.0.0"}  # 程序默认网络请求头
+    REQUEST_HEADER = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36 Edg/119.0.0.0",
+                      "zbprogram": PROGRAM_VERSION}  # 程序默认网络请求头
 
     REQUIRE_LIB = ["PyQt-Fluent-Widgets",
                    "qt5_tools",
@@ -79,6 +64,13 @@ class Program:
         """
         import winreg
         return winreg.QueryValueEx(winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders"), "Desktop")[0]
+
+    @property
+    def PROGRAM_ICON(self) -> str:
+        if setting.read("updateChannel") == "正式版":
+            return program.source("program.png")
+        elif setting.read("updateChannel") == "测试版":
+            return program.source("programbeta.png")
 
     @property
     def UPDATE_URL(self) -> str:
@@ -113,10 +105,7 @@ class Program:
         @param name: 文件名
         @return: 文件路径
         """
-        return f.pathJoin(program.PROGRAM_DATA_PATH, "cache", name)
-
-
-program = Program()
+        return f.pathJoin(self.PROGRAM_DATA_PATH, "cache", name)
 
 
 class LoggingFunctions:
@@ -181,30 +170,25 @@ class LoggingFunctions:
         self.log.critical(data)
 
 
-logging = LoggingFunctions()
-logging.debug("日志初始化成功")
-
-
 class SettingFunctions:
     """
     设置相关函数
     """
-    DEFAULT_SETTING = {"theme": "Theme.AUTO",
-                       "themeColor": "#0078D4",
-                       "autoStartup": False,
-                       "autoHide": True,
-                       "autoUpdate": False,
-                       "pid": "0",
-                       "sortPath": "",
-                       "wechatPath": "",
-                       "downloadPath": program.DESKTOP_PATH,
-                       "showWindow": False,
-                       "sortBlacklist": [],
-                       "updateChannel": "正式版",
-                       }
 
     def __init__(self):
-        pass
+        self.DEFAULT_SETTING = {"theme": "Theme.AUTO",
+                                "themeColor": "#0078D4",
+                                "autoStartup": False,
+                                "autoHide": True,
+                                "autoUpdate": False,
+                                "pid": "0",
+                                "sortPath": "",
+                                "wechatPath": "",
+                                "downloadPath": program.DESKTOP_PATH,
+                                "showWindow": False,
+                                "sortBlacklist": [],
+                                "updateChannel": "正式版",
+                                }
 
     def reload(self):
         """
@@ -250,16 +234,10 @@ class SettingFunctions:
             file.write(json.dumps(settings))
 
 
-setting = SettingFunctions()
-
-
 class ProcessFunctions:
     """
     数据处理函数
     """
-
-    def __init__(self):
-        pass
 
     def clearString(self, data: str) -> str:
         """
@@ -793,6 +771,24 @@ class ProgramFunctions(FileFunctions):
             for i in lib_name:
                 self.cmd(f"pip install --upgrade {i} -i https://pypi.tuna.tsinghua.edu.cn/simple some-package", True)
 
+    def downloadFile(self, link: str, path: str):
+        """
+        下载文件
+        @param link: 文件链接
+        @param path: 下载路径
+        """
+        try:
+            path = os.path.abspath(path).replace("init.py", "__init__.py")
+            data = requests.get(link, headers=program.REQUEST_HEADER)
+            self.makeDir(self.splitPath(path, 3))
+            with open(path, "wb") as file:
+                file.write(data.content)
+            if "<h1>404</h1>" in data.text:
+                open(path, "wb").close()
+            logging.debug(f"文件{link}下载成功")
+        except Exception as ex:
+            logging.warning(f"文件{link}下载失败{ex}")
+
     def createShortcut(self, old: str, new: str, icon: str, arguments: str = ""):
         """
         创建快捷方式
@@ -833,7 +829,7 @@ class ProgramFunctions(FileFunctions):
                 win32api.RegDeleteValue(key, name)
                 win32api.RegCloseKey(key)
                 logging.debug("启动项删除成功")
-        except  Exception as ex:
+        except Exception as ex:
             logging.warning(f"启动项编辑失败{ex}")
 
     def getNewestVersion(self) -> str:
@@ -845,6 +841,45 @@ class ProgramFunctions(FileFunctions):
         data = json.loads(response)["version"]
         logging.info(f"程序最新版本：{data}")
         return data
+
+    def getAddonDict(self) -> dict:
+        """
+        获取插件字典
+        @return: 字典
+        """
+        response = requests.get(program.ADDON_URL, headers=program.REQUEST_HEADER, stream=True).text
+        data = json.loads(response)
+        logging.debug("插件信息获取成功")
+        return data
+
+    def getAddonInfo(self, url: str) -> dict:
+        """
+        获取指定插件信息
+        @param data: 链接
+        @return: 信息
+        """
+        if not url.endswith("/"):
+            url += "/"
+        response = requests.get(self.urlJoin(url, "addon.json"), headers=program.REQUEST_HEADER, stream=True).text
+        data = json.loads(response)
+        data["url"] = url
+        logging.debug(f"插件{data["name"]}信息获取成功")
+        return data
+
+    def downloadAddon(self, data: dict):
+        """
+        下载插件
+        @param data: 插件信息
+        """
+        self.makeDir(self.pathJoin(program.ADDON_PATH, data["id"]))
+        if "__init__.py" not in data["file"]:
+            open(self.pathJoin(program.ADDON_PATH, data["id"], "__init__.py"), "w", encoding="utf-8").close()
+        for i in data["file"]:
+            self.downloadFile(self.urlJoin(data["url"], i), self.pathJoin(program.ADDON_PATH, data["id"], i))
+        for i in data["lib"]:
+            self.pipInstall(i)
+            self.pipUpdate(i)
+        logging.debug(f"插件{data["name"]}下载成功")
 
 
 class Functions(ProgramFunctions):
@@ -916,22 +951,6 @@ class Functions(ProgramFunctions):
         logging.debug("成功获取我的世界最新版本")
         return str1
 
-    def downloadFile(self, link: str, path: str):
-        """
-        下载文件
-        @param link: 文件链接
-        @param path: 下载路径
-        """
-        try:
-            path = os.path.abspath(path)
-            data = requests.get(link, headers=program.REQUEST_HEADER).content
-            self.makeDir(self.splitPath(path, 3))
-            with open(path, "wb") as file:
-                file.write(data)
-            logging.debug(f"文件{link}下载成功")
-        except Exception as ex:
-            logging.warning(f"文件{link}下载失败{ex}")
-
     def searchSoftware(self, name: str, source: str) -> list:
         """
         搜索软件
@@ -977,6 +996,9 @@ class Functions(ProgramFunctions):
         return list
 
 
+program = Program()
+logging = LoggingFunctions()
+setting = SettingFunctions()
 f = Functions()
 
 
@@ -986,6 +1008,7 @@ class Init():
     """
 
     def __init__(self):
+
         # 切换运行路径
         os.chdir(program.PROGRAM_PATH)
 
@@ -1011,4 +1034,24 @@ class Init():
 
 
 Init()
+
+
+class Thread(threading.Thread):
+    """
+    多线程优化
+    """
+
+    def __init__(self, func, *args):
+        super().__init__()
+
+        self.func = func
+        self.args = args
+
+        self.daemon = True
+        self.start()
+
+    def run(self):
+        self.func(*self.args)
+
+
 logging.debug("functions.py初始化成功")
