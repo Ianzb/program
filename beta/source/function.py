@@ -738,6 +738,17 @@ class FileFunctions(ProcessFunctions):
         if path and self.existPath(path):
             os.startfile(path)
 
+    def extractZip(self, path: str, goal: str):
+        """
+        解压zip文件
+        @param path: zip文件路径
+        @param goal: 解压到的目录路径
+        """
+        import zipfile
+        if self.existPath(path):
+            file = zipfile.ZipFile(path)
+            file.extractall(goal)
+
 
 class ProgramFunctions(FileFunctions):
     """
