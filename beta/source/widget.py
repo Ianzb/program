@@ -39,8 +39,24 @@ class AddonEditMessageBox(MessageBoxBase):
     def __init__(self, title: str, parent=None):
         super().__init__(parent)
         self.titleLabel = SubtitleLabel(title, self)
+        self.loadingCard = LoadingCard()
+
+        self.tableView = TableWidget(self)
+
+        self.tableView.setBorderVisible(True)
+        self.tableView.setBorderRadius(8)
+        self.tableView.setWordWrap(False)
+        self.tableView.setRowCount(60)
+        self.tableView.setColumnCount(5)
+
+        self.tableView.verticalHeader().hide()
+        self.tableView.setHorizontalHeaderLabels(["ID", "名称", "本地版本号", "在线版本号"])
+        self.tableView.resizeColumnsToContents()
+        self.tableView.hide()
 
         self.viewLayout.addWidget(self.titleLabel)
+        self.viewLayout.addWidget(self.tableView)
+        self.viewLayout.addWidget(self.loadingCard, 0, Qt.AlignCenter)
 
         self.yesButton.setText("确定")
         self.yesButton.clicked.connect(self.yesButtonClicked)
@@ -49,9 +65,36 @@ class AddonEditMessageBox(MessageBoxBase):
 
         self.widget.setMinimumWidth(350)
 
+        self.thread1 = NewThread("云端插件信息")
+        self.thread1.signalDict.connect(self.threadEvent1)
+        self.thread1.start()
+
+        self.thread2 = NewThread("本地插件信息")
+        self.thread2.signalDict.connect(self.threadEvent2)
+        self.thread2.start()
+
+
+
+
     def yesButtonClicked(self):
         self.accept()
         self.accepted.emit()
+
+    def threadEvent1(self, msg):
+        for i, v in (range(len(msg.values())), msg.values()):
+            self.tableView.setItem(i, 0, QTableWidgetItem(v["id"]))
+            self.tableView.setItem(i, 1, QTableWidgetItem(v["name"]))
+            self.tableView.setItem(i, 3, QTableWidgetItem(v["version"]))
+        self.tableView.show()
+        self.loadingCard.hide()
+
+    def threadEvent2(self, msg):
+        for i, v in (range(len(msg.values())), msg.values()):
+            self.tableView.setItem(i, 0, QTableWidgetItem(v["id"]))
+            self.tableView.setItem(i, 1, QTableWidgetItem(v["name"]))
+            self.tableView.setItem(i, 2, QTableWidgetItem(v["version"]))
+        self.tableView.show()
+        self.loadingCard.hide()
 
 
 class ThemeSettingCard(ExpandSettingCard):
@@ -436,11 +479,11 @@ class UpdateSettingCard(SettingCard):
         self.label.show()
         self.progressBar.show()
 
-        self.thread = NewThread("更新运行库")
-        self.thread.signalDict.connect(self.thread1)
-        self.thread.start()
+        self.thread1 = NewThread("更新运行库")
+        self.thread1.signalDict.connect(self.threadEvent1)
+        self.thread1.start()
 
-    def thread1(self, msg):
+    def threadEvent1(self, msg):
         if msg["完成"]:
             self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", "运行库安装成功！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
             self.infoBar.show()
@@ -468,11 +511,11 @@ class UpdateSettingCard(SettingCard):
         self.button1.setEnabled(False)
         self.button2.setEnabled(False)
 
-        self.thread = NewThread("检查更新")
-        self.thread.signalDict.connect(self.thread2)
-        self.thread.start()
+        self.thread2 = NewThread("检查更新")
+        self.thread2.signalDict.connect(self.threadEvent2)
+        self.thread2.start()
 
-    def thread2(self, msg):
+    def threadEvent2(self, msg):
         if msg["更新"]:
             self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", f"检测到新版本{msg["版本"]}！", Qt.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
 
@@ -501,11 +544,11 @@ class UpdateSettingCard(SettingCard):
         self.label.show()
         self.progressBar.show()
 
-        self.thread = NewThread("立刻更新")
-        self.thread.signalDict.connect(self.thread3)
-        self.thread.start()
+        self.thread3 = NewThread("立刻更新")
+        self.thread3.signalDict.connect(self.threadEvent3)
+        self.thread3.start()
 
-    def thread3(self, msg):
+    def threadEvent3(self, msg):
         if msg["更新"]:
             if msg["完成"]:
                 self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", "更新成功！", Qt.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
@@ -580,11 +623,11 @@ class HelpSettingCard(SettingCard):
     def button3Clicked(self):
         self.button3.setEnabled(False)
 
-        self.thread = NewThread("清理程序缓存")
-        self.thread.signalBool.connect(self.thread3)
-        self.thread.start()
+        self.thread3 = NewThread("清理程序缓存")
+        self.thread3.signalBool.connect(self.threadEvent3)
+        self.thread3.start()
 
-    def thread3(self, msg):
+    def threadEvent3(self, msg):
         self.button3.setEnabled(True)
 
         if msg:

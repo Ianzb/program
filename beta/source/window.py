@@ -62,11 +62,11 @@ class MainPage(BasicPage):
         self.stateTooltip.move(self.stateTooltip.getSuitablePos())
         self.stateTooltip.show()
 
-        self.thread = NewThread("一键整理+清理")
-        self.thread.signalBool.connect(self.thread1_1)
-        self.thread.start()
+        self.thread1_1 = NewThread("一键整理+清理")
+        self.thread1_1.signalBool.connect(self.threadEvent1_1)
+        self.thread1_1.start()
 
-    def thread1_1(self, msg):
+    def threadEvent1_1(self, msg):
         self.stateTooltip.setState(True)
         self.button1_1.setEnabled(True)
         self.signalBool.emit(True)
@@ -78,19 +78,19 @@ class MainPage(BasicPage):
     def button2_1Clicked(self):
         self.button2_1.setEnabled(False)
 
-        self.thread = NewThread("重启文件资源管理器")
-        self.thread.signalStr.connect(self.thread2_1)
-        self.thread.start()
+        self.thread2_1 = NewThread("重启文件资源管理器")
+        self.thread2_1.signalStr.connect(self.threadEvent2_1)
+        self.thread2_1.start()
 
-    def thread2_1(self, msg):
+    def threadEvent2_1(self, msg):
         self.button2_1.setEnabled(True)
 
     def button3_1Clicked(self):
         self.button3_1.setEnabled(False)
 
-        self.thread = NewThread("Minecraft最新版本")
-        self.thread.signalStr.connect(self.thread3_1)
-        self.thread.start()
+        self.thread3_1 = NewThread("Minecraft最新版本")
+        self.thread3_1.signalStr.connect(self.threadEvent3_1)
+        self.thread3_1.start()
         self.flyout1 = Flyout(FlyoutViewBase())
         self.flyout1.create(
             icon=InfoBarIcon.INFORMATION,
@@ -101,7 +101,7 @@ class MainPage(BasicPage):
             isClosable=False,
         )
 
-    def thread3_1(self, msg):
+    def threadEvent3_1(self, msg):
         self.button3_1.setEnabled(True)
 
         self.flyout2 = Flyout(FlyoutViewBase())
@@ -283,9 +283,9 @@ class Window(FluentWindow):
             QMessageBox(QMessageBox.Warning, "警告", f"当前Python版本为{program.PYTHON_VERSION}，{program.PROGRAM_NAME}推荐使用Python3.12版本！").exec()
 
         # 插件下载
-        self.thread = NewThread("下载插件")
-        self.thread.signalDict.connect(self.thread1)
-        self.thread.start()
+        self.thread1 = NewThread("下载插件")
+        self.thread1.signalDict.connect(self.threadEvent1)
+        self.thread1.start()
 
     def repeatOpen(self):
         """
@@ -310,7 +310,7 @@ class Window(FluentWindow):
         QCloseEvent.ignore()
         self.hide()
 
-    def thread1(self, msg):
+    def threadEvent1(self, msg):
         sys.path = [program.ADDON_PATH] + sys.path
         import importlib
         try:

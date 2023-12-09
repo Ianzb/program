@@ -30,7 +30,7 @@ class Tray(QSystemTrayIcon):
         self.menu.addAction(self.action3)
         self.menu.addAction(self.action4)
 
-        self.window.mainPage.signalBool.connect(self.thread2)
+        self.window.mainPage.signalBool.connect(self.threadEvent2)
 
     def iconClicked(self, reason):
         if reason == 3:
@@ -58,7 +58,7 @@ class Tray(QSystemTrayIcon):
         self.action2.setEnabled(False)
         self.window.mainPage.button1_1Clicked()
 
-    def thread2(self, msg):
+    def threadEvent2(self, msg):
         self.action2.setEnabled(msg)
 
     def action3Clicked(self):
@@ -223,7 +223,7 @@ class Image(QLabel):
         if path:
             self.setImg(path, url)
 
-    def thread1(self, msg):
+    def threadEvent1(self, msg):
         if msg:
             self.loading = False
             self.setPixmap(QPixmap(self.path))
@@ -238,9 +238,9 @@ class Image(QLabel):
             self.loading = True
             self.path = program.cache(path)
             self.url = url
-            self.thread = NewThread("下载图片", [self.url, self.path])
-            self.thread.signalBool.connect(self.thread1)
-            self.thread.start()
+            self.thread1 = NewThread("下载图片", [self.url, self.path])
+            self.thread1.signalBool.connect(self.threadEvent1)
+            self.thread1.start()
         else:
             self.loading = False
             self.setPixmap(QPixmap(path))
