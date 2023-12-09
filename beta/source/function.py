@@ -798,8 +798,6 @@ class ProgramFunctions(FileFunctions):
             self.makeDir(self.splitPath(path, 3))
             with open(path, "wb") as file:
                 file.write(data.content)
-            if "<h1>404</h1>" in data.text and program.UPDATE_URL in link and "__init__.py" in link:
-                open(path, "wb").close()
             logging.debug(f"文件{link}下载成功")
         except Exception as ex:
             logging.warning(f"文件{link}下载失败{ex}")

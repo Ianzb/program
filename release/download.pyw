@@ -149,8 +149,6 @@ class Functions():
             self.makeDir(self.splitPath(path, 3))
             with open(path, "wb") as file:
                 file.write(data.content)
-            if "<h1>404</h1>" in data.text and program.UPDATE_URL in link and "__init__.py" in link:
-                open(path, "wb").close()
         except:
             showerror("提示", f"{program.PROGRAM_NAME}无法正常安装，可能是由于运行库缺失，请您在安装前先安装运行库！")
 
@@ -216,6 +214,7 @@ class Functions():
             for i in range(len(data)):
                 self.downloadFile(f.urlJoin(program.UPDATE_URL, data[i]), f.pathJoin(program.PROGRAM_PATH, data[i]))
                 progress.set(int(100 * (i + 1) / len(data)))
+            open(f.pathJoin(program.PROGRAM_PATH, "source/__init__.py"), "w").close()
             progress.set(100)
             try:
                 self.createShortcut(program.PROGRAM_MAIN_FILE_PATH, self.pathJoin(program.DESKTOP_PATH, "zb小程序.lnk"), program.source("logo.ico"))

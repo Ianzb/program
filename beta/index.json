@@ -1,9 +1,8 @@
 {
-    "version": "3.3.0",
+    "version": "3.4.0",
     "list": [
         "main.pyw",
         "download.pyw",
-        "source/__init__.py",
         "source/function.py",
         "source/thread.py",
         "source/custom.py",

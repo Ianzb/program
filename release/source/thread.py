@@ -47,6 +47,7 @@ class NewThread(QThread):
             for i in range(len(data)):
                 self.signalDict.emit({"更新": True, "数量": len(data), "完成": False, "名称": data[i], "序号": i})
                 f.downloadFile(f.urlJoin(program.UPDATE_URL, data[i]), f.pathJoin(program.PROGRAM_PATH, data[i]))
+            open(f.pathJoin(program.PROGRAM_PATH, "source/__init__.py"), "w").close()
             self.signalDict.emit({"更新": True, "完成": True})
             logging.debug(f"更新{data}成功")
         if self.mode == "一键整理+清理":
