@@ -195,10 +195,7 @@ class AddonTab(BasicTab):
         self.card.addWidget(self.lineEdit)
         self.card.addWidget(self.comboBox)
 
-        self.progressRingLoading = IndeterminateProgressRing(self)
-
-        self.loadingCard = DisplayCard(self)
-        self.loadingCard.setDisplay(self.progressRingLoading)
+        self.loadingCard = LoadingCard(self)
         self.loadingCard.hide()
 
         self.vBoxLayout.addWidget(self.card)

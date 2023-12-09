@@ -152,37 +152,56 @@ class SettingPage(BasicPage):
 
         self.cardGroup1 = CardGroup("个性化", self)
         self.cardGroup2 = CardGroup("功能", self)
-        self.cardGroup3 = CardGroup("关于", self)
 
         self.themeSettingCard = ThemeSettingCard()
         self.colorSettingCard = ColorSettingCard()
         self.startupSettingCard = StartupSettingCard()
-        self.shortcutSettingCard = ShortcutSettingCard()
 
         self.sortSettingCard = SortSettingCard()
         self.sortBlacklistSettingCard = SortBlacklistSettingCard()
         self.downloadSettingCard = DownloadSettingCard()
 
-        self.helpSettingCard = HelpSettingCard()
-        self.updateSettingCard = UpdateSettingCard()
-        self.aboutSettingCard = AboutSettingCard()
-
         self.cardGroup1.addWidget(self.themeSettingCard)
         self.cardGroup1.addWidget(self.colorSettingCard)
         self.cardGroup1.addWidget(self.startupSettingCard)
-        self.cardGroup1.addWidget(self.shortcutSettingCard)
 
         self.cardGroup2.addWidget(self.sortSettingCard)
         self.cardGroup2.addWidget(self.sortBlacklistSettingCard)
         self.cardGroup2.addWidget(self.downloadSettingCard)
 
-        self.cardGroup3.addWidget(self.helpSettingCard)
-        self.cardGroup3.addWidget(self.updateSettingCard)
-        self.cardGroup3.addWidget(self.aboutSettingCard)
+        self.vBoxLayout.addWidget(self.cardGroup1)
+        self.vBoxLayout.addWidget(self.cardGroup2)
+
+
+class AboutPage(BasicPage):
+    """
+    关于页面
+    """
+    title = "关于"
+    subtitle = "关于程序"
+
+    def __init__(self, parent=None):
+        super().__init__(parent=parent)
+        self.setIcon(FIF.INFO)
+        self.cardGroup1 = CardGroup("关于", self)
+        self.cardGroup2 = CardGroup("插件", self)
+
+        self.updateSettingCard = UpdateSettingCard()
+        self.helpSettingCard = HelpSettingCard()
+        self.shortcutSettingCard = ShortcutSettingCard()
+        self.aboutSettingCard = AboutSettingCard()
+
+        self.addonSettingCard = AddonSettingCard()
+
+        self.cardGroup1.addWidget(self.updateSettingCard)
+        self.cardGroup1.addWidget(self.helpSettingCard)
+        self.cardGroup1.addWidget(self.shortcutSettingCard)
+        self.cardGroup1.addWidget(self.aboutSettingCard)
+
+        self.cardGroup2.addWidget(self.addonSettingCard)
 
         self.vBoxLayout.addWidget(self.cardGroup1)
         self.vBoxLayout.addWidget(self.cardGroup2)
-        self.vBoxLayout.addWidget(self.cardGroup3)
 
 
 class Window(FluentWindow):
@@ -224,14 +243,15 @@ class Window(FluentWindow):
         self.toolPage = ToolPage(self)
         self.gamePage = GamePage(self)
         self.settingPage = SettingPage(self)
+        self.aboutPage = AboutPage(self)
 
         self.addPage(self.mainPage, "top")
         self.addSeparator("top")
         self.addPage(self.toolPage, "scroll")
         self.addPage(self.gamePage, "scroll")
         self.addSeparator("bottom")
-        self.navigationInterface.addWidget("avatar", NavigationAvatarWidget(program.AUTHOR_NAME, program.source("zb.png")), None, NavigationItemPosition.BOTTOM)
         self.addPage(self.settingPage, "bottom")
+        self.addPage(self.aboutPage, "bottom")
 
     def addPage(self, page: QWidget, pos: str):
         """
@@ -267,25 +287,6 @@ class Window(FluentWindow):
         self.thread.signalDict.connect(self.thread1)
         self.thread.start()
 
-    def thread1(self, msg):
-        sys.path = [program.ADDON_PATH] + sys.path
-        import importlib
-        try:
-            lib = importlib.import_module(msg["id"])
-            if msg["pos"] == "tool":
-                self.page = lib.AddonTab()
-                self.toolPage.addPage(self.page, msg["name"])
-            elif msg["pos"] == "game":
-                self.page = lib.AddonTab()
-                self.gamePage.addPage(self.page, msg["name"])
-            elif msg["pos"] == "page":
-                self.page = lib.AddonPage()
-                if not self.page.title:
-                    self.page.title = msg["name"]
-                self.addPage(self.page, "scroll")
-        except Exception as ex:
-            logging.warning(f"插件{msg["name"]}装载失败{ex}")
-
     def repeatOpen(self):
         """
         重复运行展示窗口
@@ -308,3 +309,22 @@ class Window(FluentWindow):
         """
         QCloseEvent.ignore()
         self.hide()
+
+    def thread1(self, msg):
+        sys.path = [program.ADDON_PATH] + sys.path
+        import importlib
+        try:
+            lib = importlib.import_module(msg["id"])
+            if msg["pos"] == "tool":
+                self.page = lib.AddonTab()
+                self.toolPage.addPage(self.page, msg["name"])
+            elif msg["pos"] == "game":
+                self.page = lib.AddonTab()
+                self.gamePage.addPage(self.page, msg["name"])
+            elif msg["pos"] == "page":
+                self.page = lib.AddonPage()
+                if not self.page.title:
+                    self.page.title = msg["name"]
+                self.addPage(self.page, "scroll")
+        except Exception as ex:
+            logging.warning(f"插件{msg["name"]}装载失败{ex}")
