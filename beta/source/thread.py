@@ -80,9 +80,10 @@ class NewThread(QThread):
             try:
                 data = f.getAddonDict()
                 for k, v in data.items():
-                    data[k] = f.getAddonInfo(v)
-                    f.downloadAddon(data[k])
-                    self.signalDict.emit(data[k])
+                    if k in self.data:
+                        data[k] = f.getAddonInfo(v)
+                        f.downloadAddon(data[k])
+                        self.signalDict.emit(data[k])
             except Exception as ex:
                 logging.warning(f"插件下载失败{ex}")
         if self.mode == "云端插件信息":

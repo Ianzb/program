@@ -307,6 +307,7 @@ class ProcessFunctions:
         @param pause: 是否返回输出结果
         @return: 输出结果
         """
+        logging.debug(f"cmd执行命令{command}")
         value = os.popen(command)
         if pause:
             return value.read()

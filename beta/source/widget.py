@@ -46,24 +46,29 @@ class AddonEditMessageBox(MessageBoxBase):
         self.tableView.setBorderVisible(True)
         self.tableView.setBorderRadius(8)
         self.tableView.setWordWrap(False)
-        self.tableView.setRowCount(60)
-        self.tableView.setColumnCount(5)
+        self.tableView.setColumnCount(4)
+        self.tableView.setEditTriggers(QAbstractItemView.NoEditTriggers)
 
         self.tableView.verticalHeader().hide()
         self.tableView.setHorizontalHeaderLabels(["ID", "名称", "本地版本号", "在线版本号"])
         self.tableView.resizeColumnsToContents()
+        self.tableView.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.tableView.hide()
 
         self.viewLayout.addWidget(self.titleLabel)
-        self.viewLayout.addWidget(self.tableView)
+        self.viewLayout.addWidget(self.tableView, 0, Qt.AlignTop)
         self.viewLayout.addWidget(self.loadingCard, 0, Qt.AlignCenter)
 
-        self.yesButton.setText("确定")
+        self.yesButton.setText("安装选中")
         self.yesButton.clicked.connect(self.yesButtonClicked)
+
+        self.removeButton = PrimaryPushButton("删除选中", self.buttonGroup)
+        self.removeButton.clicked.connect(self.removeButtonClicked)
+        self.buttonLayout.insertWidget(1, self.removeButton, 1, Qt.AlignVCenter)
 
         self.cancelButton.setText("取消")
 
-        self.widget.setMinimumWidth(350)
+        self.widget.setMinimumWidth(500)
 
         self.thread1 = NewThread("云端插件信息")
         self.thread1.signalDict.connect(self.threadEvent1)
@@ -73,28 +78,47 @@ class AddonEditMessageBox(MessageBoxBase):
         self.thread2.signalDict.connect(self.threadEvent2)
         self.thread2.start()
 
-
-
-
     def yesButtonClicked(self):
-        self.accept()
-        self.accepted.emit()
+        list = [self.tableView.itemFromIndex(i).text() for i in self.tableView.selectedIndexes()[::4]]
+        self.thread3 = NewThread("下载插件", list)
+        self.thread3.signalDict.connect(self.threadEvent3_1)
+        self.thread3.start()
+
+    def removeButtonClicked(self):
+        list = [self.tableView.itemFromIndex(i).text() for i in self.tableView.selectedIndexes()[::4]]
+        for i in list:
+            self.parent().threadEvent2({"id", i})
 
     def threadEvent1(self, msg):
-        for i, v in (range(len(msg.values())), msg.values()):
+        self.tableView.show()
+        i = 0
+        self.tableView.setRowCount(len(msg.values()))
+        for v in msg.values():
             self.tableView.setItem(i, 0, QTableWidgetItem(v["id"]))
             self.tableView.setItem(i, 1, QTableWidgetItem(v["name"]))
             self.tableView.setItem(i, 3, QTableWidgetItem(v["version"]))
-        self.tableView.show()
+            if not self.tableView.item(i, 2):
+                self.tableView.setItem(i, 2, QTableWidgetItem("未安装"))
+            i += 1
         self.loadingCard.hide()
 
     def threadEvent2(self, msg):
-        for i, v in (range(len(msg.values())), msg.values()):
+        self.tableView.show()
+        i = 0
+        self.tableView.setRowCount(len(msg.values()))
+        for v in msg.values():
             self.tableView.setItem(i, 0, QTableWidgetItem(v["id"]))
             self.tableView.setItem(i, 1, QTableWidgetItem(v["name"]))
             self.tableView.setItem(i, 2, QTableWidgetItem(v["version"]))
-        self.tableView.show()
+            if not self.tableView.item(i, 3):
+                self.tableView.setItem(i, 3, QTableWidgetItem("加载中..."))
+            i += 1
         self.loadingCard.hide()
+
+    def threadEvent3_1(self, msg):
+        self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{msg["name"]}安装成功！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().aboutPage)
+        self.infoBar.show()
+        self.parent().threadEvent1(msg)
 
 
 class ThemeSettingCard(ExpandSettingCard):

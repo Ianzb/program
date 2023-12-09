@@ -283,9 +283,11 @@ class Window(FluentWindow):
             QMessageBox(QMessageBox.Warning, "警告", f"当前Python版本为{program.PYTHON_VERSION}，{program.PROGRAM_NAME}推荐使用Python3.12版本！").exec()
 
         # 插件下载
-        self.thread1 = NewThread("下载插件")
+        self.thread1 = NewThread("本地插件信息")
         self.thread1.signalDict.connect(self.threadEvent1)
         self.thread1.start()
+
+        self.threadEvent2({"id": "appstore"})
 
     def repeatOpen(self):
         """
@@ -311,20 +313,46 @@ class Window(FluentWindow):
         self.hide()
 
     def threadEvent1(self, msg):
+        if "id" in msg.keys():
+            self.addAddon(msg)
+        else:
+            for v in msg.values():
+                self.addAddon(v)
+
+    def threadEvent2(self, msg):
+        if "id" in msg.keys():
+            self.removeAddon(msg)
+        else:
+            for v in msg.values():
+                self.removeAddon(v)
+
+    def addAddon(self, data):
+        """
+        添加插件
+        @param data: 数据
+        """
         sys.path = [program.ADDON_PATH] + sys.path
         import importlib
         try:
-            lib = importlib.import_module(msg["id"])
-            if msg["pos"] == "tool":
+            lib = importlib.import_module(data["id"])
+            if data["pos"] == "tool":
                 self.page = lib.AddonTab()
-                self.toolPage.addPage(self.page, msg["name"])
-            elif msg["pos"] == "game":
+                self.toolPage.addPage(self.page, data["name"])
+            elif data["pos"] == "game":
                 self.page = lib.AddonTab()
-                self.gamePage.addPage(self.page, msg["name"])
-            elif msg["pos"] == "page":
+                self.gamePage.addPage(self.page, data["name"])
+            elif data["pos"] == "page":
                 self.page = lib.AddonPage()
                 if not self.page.title:
-                    self.page.title = msg["name"]
+                    self.page.title = data["name"]
                 self.addPage(self.page, "scroll")
         except Exception as ex:
-            logging.warning(f"插件{msg["name"]}装载失败{ex}")
+            logging.warning(f"插件{data["name"]}装载失败{ex}")
+
+    def removeAddon(self, data):
+        """
+        移除插件
+        @param data: 数据
+        """
+        print(data)
+        f.cmd(f"del /F /Q {f.pathJoin(program.ADDON_PATH, data["id"])}", True)
