@@ -84,6 +84,7 @@ class NewThread(QThread):
                         data[k] = f.getAddonInfo(v)
                         f.downloadAddon(data[k])
                         self.signalDict.emit(data[k])
+                self.signalBool.emit(True)
             except Exception as ex:
                 logging.warning(f"插件下载失败{ex}")
         if self.mode == "云端插件信息":
@@ -94,14 +95,6 @@ class NewThread(QThread):
                 self.signalDict.emit(data)
             except Exception as ex:
                 logging.warning(f"插件信息获取败{ex}")
-        if self.mode == "本地插件信息":
-            try:
-                data = {}
-                for i in f.walkDir(program.ADDON_PATH, 1):
-                    if f.existPath(f.pathJoin(i, "addon.json")):
-                        with open(f.pathJoin(i, "addon.json"), encoding="utf-8") as file:
-                            data[f.splitPath(i)] = json.loads(file.read())
-                self.signalDict.emit(data)
             except Exception as ex:
                 logging.warning(f"插件信息获取败{ex}")
         if self.mode == "清理程序缓存":

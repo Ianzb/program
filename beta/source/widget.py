@@ -74,32 +74,46 @@ class AddonEditMessageBox(MessageBoxBase):
         self.thread1.signalDict.connect(self.threadEvent1)
         self.thread1.start()
 
-        self.thread2 = NewThread("本地插件信息")
-        self.thread2.signalDict.connect(self.threadEvent2)
-        self.thread2.start()
-
     def yesButtonClicked(self):
+        self.parent().aboutPage.addonSettingCard.button1.setEnabled(False)
+        self.parent().aboutPage.addonSettingCard.progressBarLoading.show()
+
         list = [self.tableView.itemFromIndex(i).text() for i in self.tableView.selectedIndexes()[::4]]
         self.thread3 = NewThread("下载插件", list)
         self.thread3.signalDict.connect(self.threadEvent3_1)
+        self.thread3.signalBool.connect(self.threadEvent3_2)
         self.thread3.start()
 
     def removeButtonClicked(self):
-        list = [self.tableView.itemFromIndex(i).text() for i in self.tableView.selectedIndexes()[::4]]
-        for i in list:
-            self.parent().threadEvent2({"id", i})
+        self.parent().aboutPage.addonSettingCard.button1.setEnabled(False)
+        self.parent().aboutPage.addonSettingCard.progressBarLoading.show()
+
+        id_list = [self.tableView.itemFromIndex(i).text() for i in self.tableView.selectedIndexes()[::4]]
+        name_list = [self.tableView.itemFromIndex(i).text() for i in self.tableView.selectedIndexes()[1::4]]
+        installed_version_list = [self.tableView.itemFromIndex(i).text() for i in self.tableView.selectedIndexes()[2::4]]
+        for i in range(len(id_list)):
+            if installed_version_list[i] != "未安装":
+                self.parent().removeAddon({"id": id_list[i], "name": name_list[i]})
+
+        self.accept()
+        self.accepted.emit()
+        self.parent().aboutPage.addonSettingCard.button1.setEnabled(True)
+        self.parent().aboutPage.addonSettingCard.progressBarLoading.hide()
 
     def threadEvent1(self, msg):
-        self.tableView.show()
         i = 0
         self.tableView.setRowCount(len(msg.values()))
+        installed = f.getInstalledAddonInfo()
         for v in msg.values():
             self.tableView.setItem(i, 0, QTableWidgetItem(v["id"]))
             self.tableView.setItem(i, 1, QTableWidgetItem(v["name"]))
-            self.tableView.setItem(i, 3, QTableWidgetItem(v["version"]))
-            if not self.tableView.item(i, 2):
+            if v["id"] in installed.keys():
+                self.tableView.setItem(i, 2, QTableWidgetItem(installed[v["id"]]["version"]))
+            else:
                 self.tableView.setItem(i, 2, QTableWidgetItem("未安装"))
+            self.tableView.setItem(i, 3, QTableWidgetItem(v["version"]))
             i += 1
+        self.tableView.show()
         self.loadingCard.hide()
 
     def threadEvent2(self, msg):
@@ -118,7 +132,12 @@ class AddonEditMessageBox(MessageBoxBase):
     def threadEvent3_1(self, msg):
         self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{msg["name"]}安装成功！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().aboutPage)
         self.infoBar.show()
-        self.parent().threadEvent1(msg)
+        self.parent().addAddon(msg)
+
+    def threadEvent3_2(self, msg):
+        if msg:
+            self.parent().aboutPage.addonSettingCard.button1.setEnabled(True)
+            self.parent().aboutPage.addonSettingCard.progressBarLoading.hide()
 
 
 class ThemeSettingCard(ExpandSettingCard):
@@ -714,11 +733,17 @@ class AddonSettingCard(SettingCard):
 
     def __init__(self, parent=None):
         super().__init__(FIF.ADD, "插件", f"管理{program.PROGRAM_NAME}的插件", parent)
+        self.progressBarLoading = IndeterminateProgressBar(self)
+        self.progressBarLoading.setMaximumWidth(200)
+        self.progressBarLoading.hide()
+
         self.button1 = PushButton("管理插件", self, FIF.EDIT)
         self.button1.clicked.connect(self.button1Clicked)
         self.button1.setToolTip("管理程序插件")
         self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
 
+        self.hBoxLayout.addWidget(self.progressBarLoading, Qt.AlignRight)
+        self.hBoxLayout.addSpacing(8)
         self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
 

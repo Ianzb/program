@@ -903,6 +903,18 @@ class ProgramFunctions(FileFunctions):
             self.pipUpdate(i)
         logging.debug(f"插件{data["name"]}下载成功")
 
+    def getInstalledAddonInfo(self) -> dict:
+        """
+        获取本地插件信息
+        @return: 信息
+        """
+        data = {}
+        for i in f.walkDir(program.ADDON_PATH, 1):
+            if f.existPath(f.pathJoin(i, "addon.json")):
+                with open(f.pathJoin(i, "addon.json"), encoding="utf-8") as file:
+                    data[f.splitPath(i)] = json.loads(file.read())
+        return data
+
 
 class Functions(ProgramFunctions):
     """

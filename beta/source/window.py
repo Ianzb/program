@@ -1,3 +1,5 @@
+import sys
+
 from .widget import *
 
 
@@ -282,12 +284,8 @@ class Window(FluentWindow):
         if program.PYTHON_VERSION.split(".")[1] != "12":
             QMessageBox(QMessageBox.Warning, "警告", f"当前Python版本为{program.PYTHON_VERSION}，{program.PROGRAM_NAME}推荐使用Python3.12版本！").exec()
 
-        # 插件下载
-        self.thread1 = NewThread("本地插件信息")
-        self.thread1.signalDict.connect(self.threadEvent1)
-        self.thread1.start()
-
-        self.threadEvent2({"id": "appstore"})
+        # 插件安装
+        self.addAddon(f.getInstalledAddonInfo())
 
     def repeatOpen(self):
         """
@@ -312,21 +310,21 @@ class Window(FluentWindow):
         QCloseEvent.ignore()
         self.hide()
 
-    def threadEvent1(self, msg):
+    def addAddon(self, msg):
         if "id" in msg.keys():
-            self.addAddon(msg)
+            self.__addAddon(msg)
         else:
             for v in msg.values():
-                self.addAddon(v)
+                self.__addAddon(v)
 
-    def threadEvent2(self, msg):
+    def removeAddon(self, msg):
         if "id" in msg.keys():
-            self.removeAddon(msg)
+            self.__removeAddon(msg)
         else:
             for v in msg.values():
-                self.removeAddon(v)
+                self.__removeAddon(v)
 
-    def addAddon(self, data):
+    def __addAddon(self, data):
         """
         添加插件
         @param data: 数据
@@ -347,12 +345,24 @@ class Window(FluentWindow):
                     self.page.title = data["name"]
                 self.addPage(self.page, "scroll")
         except Exception as ex:
-            logging.warning(f"插件{data["name"]}装载失败{ex}")
+            logging.warning(f"插件{data["name"]}安装失败{ex}")
 
-    def removeAddon(self, data):
+    def __removeAddon(self, data):
         """
         移除插件
         @param data: 数据
         """
-        print(data)
         f.cmd(f"del /F /Q {f.pathJoin(program.ADDON_PATH, data["id"])}", True)
+        logging.info(f"插件{data["name"]}删除成功")
+
+        self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{data["name"]}删除成功！", Qt.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.aboutPage)
+
+        self.button1 = PushButton("重新启动", self, FIF.SYNC)
+        self.button1.clicked.connect(self.button1Clicked)
+
+        self.infoBar.addWidget(self.button1)
+        self.infoBar.show()
+
+    def button1Clicked(self):
+        f.cmd(program.PROGRAM_MAIN_FILE_PATH)
+        sys.exit()
