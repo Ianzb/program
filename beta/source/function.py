@@ -118,7 +118,7 @@ class LoggingFunctions:
         self.log = logging.getLogger(program.PROGRAM_NAME)
         self.log.setLevel(logging.DEBUG)
         handler1 = logging.StreamHandler(sys.stderr)
-        handler1.setLevel(logging.INFO)
+        handler1.setLevel(logging.DEBUG)
         handler1.setFormatter(logging.Formatter("[%(levelname)s %(asctime)s %(filename)s %(process)d]:%(message)s"))
 
         handler2 = logging.FileHandler(program.LOGGING_FILE_PATH)

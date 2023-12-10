@@ -255,21 +255,6 @@ class Window(FluentWindow):
         self.addPage(self.settingPage, "bottom")
         self.addPage(self.aboutPage, "bottom")
 
-    def addPage(self, page: QWidget, pos: str):
-        """
-        添加导航栏页面简易版
-        @param page: 页面对象
-        @param pos: 位置top/scroll/bottom
-        """
-        self.addSubInterface(page, page.icon, page.title, eval(f"NavigationItemPosition.{pos.upper()}"))
-
-    def addSeparator(self, pos: str):
-        """
-        添加导航栏分割线简易版
-        @param pos: 位置top/scroll/bottom
-        """
-        self.navigationInterface.addSeparator(eval(f"NavigationItemPosition.{pos.upper()}"))
-
     def __initActivity(self):
         # 循环监测事件
         self.timer = QTimer(self)
@@ -280,7 +265,7 @@ class Window(FluentWindow):
         self.tray = Tray(self)
 
         if setting.read("autoUpdate") and program.isStartup:
-            self.settingPage.updateSettingCard.button3Clicked()
+            self.aboutPage.updateSettingCard.button3Clicked()
         if program.PYTHON_VERSION.split(".")[1] != "12":
             QMessageBox(QMessageBox.Warning, "警告", f"当前Python版本为{program.PYTHON_VERSION}，{program.PROGRAM_NAME}推荐使用Python3.12版本！").exec()
 
@@ -310,7 +295,26 @@ class Window(FluentWindow):
         QCloseEvent.ignore()
         self.hide()
 
+    def addPage(self, page: QWidget, pos: str):
+        """
+        添加导航栏页面简易版
+        @param page: 页面对象
+        @param pos: 位置top/scroll/bottom
+        """
+        self.addSubInterface(page, page.icon, page.title, eval(f"NavigationItemPosition.{pos.upper()}"))
+
+    def addSeparator(self, pos: str):
+        """
+        添加导航栏分割线简易版
+        @param pos: 位置top/scroll/bottom
+        """
+        self.navigationInterface.addSeparator(eval(f"NavigationItemPosition.{pos.upper()}"))
+
     def addAddon(self, msg):
+        """
+        添加插件
+        @param data: 数据
+        """
         if "id" in msg.keys():
             self.__addAddon(msg)
         else:
@@ -318,6 +322,10 @@ class Window(FluentWindow):
                 self.__addAddon(v)
 
     def removeAddon(self, msg):
+        """
+        移除插件
+        @param data: 数据
+        """
         if "id" in msg.keys():
             self.__removeAddon(msg)
         else:
