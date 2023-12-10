@@ -94,8 +94,7 @@ class NewThread(QThread):
                     data[k] = f.getAddonInfo(v)
                 self.signalDict.emit(data)
             except Exception as ex:
-                logging.warning(f"插件信息获取败{ex}")
-            except Exception as ex:
+                self.signalBool.emit(False)
                 logging.warning(f"插件信息获取败{ex}")
         if self.mode == "清理程序缓存":
             f.clearProgramCache()

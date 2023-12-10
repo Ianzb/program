@@ -71,7 +71,8 @@ class AddonEditMessageBox(MessageBoxBase):
         self.widget.setMinimumWidth(500)
 
         self.thread1 = NewThread("云端插件信息")
-        self.thread1.signalDict.connect(self.threadEvent1)
+        self.thread1.signalDict.connect(self.threadEvent1_1)
+        self.thread1.signalBool.connect(self.threadEvent1_2)
         self.thread1.start()
 
     def yesButtonClicked(self):
@@ -100,7 +101,7 @@ class AddonEditMessageBox(MessageBoxBase):
         self.parent().aboutPage.addonSettingCard.button1.setEnabled(True)
         self.parent().aboutPage.addonSettingCard.progressBarLoading.hide()
 
-    def threadEvent1(self, msg):
+    def threadEvent1_1(self, msg):
         i = 0
         self.tableView.setRowCount(len(msg.values()))
         installed = f.getInstalledAddonInfo()
@@ -115,6 +116,10 @@ class AddonEditMessageBox(MessageBoxBase):
             i += 1
         self.tableView.show()
         self.loadingCard.hide()
+
+    def threadEvent1_2(self, msg):
+        if not msg:
+            self.loadingCard.setText("网络连接失败！")
 
     def threadEvent2(self, msg):
         self.tableView.show()
