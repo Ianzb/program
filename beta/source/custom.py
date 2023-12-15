@@ -16,8 +16,6 @@ class Tray(QSystemTrayIcon):
         self.activated.connect(self.iconClicked)
         self.show()
 
-        self.showMessage(program.PROGRAM_NAME, f"{program.PROGRAM_NAME}启动成功！", QIcon(program.PROGRAM_ICON), 1)
-
         self.action1 = Action(FIF.HOME, "打开", triggered=self.action1Clicked)
         self.action2 = Action(FIF.ALIGNMENT, "整理", triggered=self.action2Clicked)
         self.action3 = Action(FIF.LINK, "官网", triggered=self.action3Clicked)
@@ -31,6 +29,9 @@ class Tray(QSystemTrayIcon):
         self.menu.addAction(self.action4)
 
         self.window.mainPage.signalBool.connect(self.threadEvent2)
+
+    def showTrayMessage(self, title, msg):
+        super().showMessage(title, msg, QIcon(program.PROGRAM_ICON))
 
     def iconClicked(self, reason):
         if reason == 3:

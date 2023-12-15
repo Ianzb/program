@@ -152,11 +152,13 @@ class SettingPage(BasicPage):
         super().__init__(parent=parent)
         self.setIcon(FIF.SETTING)
 
-        self.cardGroup1 = CardGroup("个性化", self)
-        self.cardGroup2 = CardGroup("功能", self)
+        self.cardGroup1 = CardGroup("外观", self)
+        self.cardGroup2 = CardGroup("行为", self)
+        self.cardGroup3 = CardGroup("功能", self)
 
         self.themeSettingCard = ThemeSettingCard()
         self.colorSettingCard = ColorSettingCard()
+
         self.startupSettingCard = StartupSettingCard()
 
         self.sortSettingCard = SortSettingCard()
@@ -165,14 +167,16 @@ class SettingPage(BasicPage):
 
         self.cardGroup1.addWidget(self.themeSettingCard)
         self.cardGroup1.addWidget(self.colorSettingCard)
-        self.cardGroup1.addWidget(self.startupSettingCard)
 
-        self.cardGroup2.addWidget(self.sortSettingCard)
-        self.cardGroup2.addWidget(self.sortBlacklistSettingCard)
-        self.cardGroup2.addWidget(self.downloadSettingCard)
+        self.cardGroup2.addWidget(self.startupSettingCard)
 
-        self.vBoxLayout.addWidget(self.cardGroup1)
-        self.vBoxLayout.addWidget(self.cardGroup2)
+        self.cardGroup3.addWidget(self.sortSettingCard)
+        self.cardGroup3.addWidget(self.sortBlacklistSettingCard)
+        self.cardGroup3.addWidget(self.downloadSettingCard)
+
+        self.vBoxLayout.addWidget(self.cardGroup1, 0, Qt.AlignTop)
+        self.vBoxLayout.addWidget(self.cardGroup2, 0, Qt.AlignTop)
+        self.vBoxLayout.addWidget(self.cardGroup3, 0, Qt.AlignTop)
 
 
 class AboutPage(BasicPage):
@@ -185,25 +189,26 @@ class AboutPage(BasicPage):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.setIcon(FIF.INFO)
-        self.cardGroup1 = CardGroup("关于", self)
-        self.cardGroup2 = CardGroup("插件", self)
+
+        self.cardGroup1 = CardGroup("插件", self)
+        self.cardGroup2 = CardGroup("关于", self)
+
+        self.addonSettingCard = AddonSettingCard()
 
         self.updateSettingCard = UpdateSettingCard()
         self.helpSettingCard = HelpSettingCard()
         self.shortcutSettingCard = ShortcutSettingCard()
         self.aboutSettingCard = AboutSettingCard()
 
-        self.addonSettingCard = AddonSettingCard()
+        self.cardGroup1.addWidget(self.addonSettingCard)
 
-        self.cardGroup1.addWidget(self.updateSettingCard)
-        self.cardGroup1.addWidget(self.helpSettingCard)
-        self.cardGroup1.addWidget(self.shortcutSettingCard)
-        self.cardGroup1.addWidget(self.aboutSettingCard)
+        self.cardGroup2.addWidget(self.updateSettingCard)
+        self.cardGroup2.addWidget(self.helpSettingCard)
+        self.cardGroup2.addWidget(self.shortcutSettingCard)
+        self.cardGroup2.addWidget(self.aboutSettingCard)
 
-        self.cardGroup2.addWidget(self.addonSettingCard)
-
-        self.vBoxLayout.addWidget(self.cardGroup1)
-        self.vBoxLayout.addWidget(self.cardGroup2)
+        self.vBoxLayout.addWidget(self.cardGroup1, 0, Qt.AlignTop)
+        self.vBoxLayout.addWidget(self.cardGroup2, 0, Qt.AlignTop)
 
 
 class Window(FluentWindow):

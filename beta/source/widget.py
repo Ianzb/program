@@ -453,6 +453,32 @@ class DownloadSettingCard(SettingCard):
             setting.save("downloadPath", str(get))
 
 
+class AddonSettingCard(SettingCard):
+    """
+    插件设置卡片
+    """
+
+    def __init__(self, parent=None):
+        super().__init__(FIF.ADD, "插件", f"管理{program.PROGRAM_NAME}的插件", parent)
+        self.progressBarLoading = IndeterminateProgressBar(self)
+        self.progressBarLoading.setMaximumWidth(200)
+        self.progressBarLoading.hide()
+
+        self.button1 = PushButton("管理插件", self, FIF.EDIT)
+        self.button1.clicked.connect(self.button1Clicked)
+        self.button1.setToolTip("管理程序插件")
+        self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
+
+        self.hBoxLayout.addWidget(self.progressBarLoading, Qt.AlignRight)
+        self.hBoxLayout.addSpacing(8)
+        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
+        self.hBoxLayout.addSpacing(16)
+
+    def button1Clicked(self):
+        self.addonEditMessageBox = AddonEditMessageBox("管理插件", self.parent().parent().parent().parent().parent().parent().parent())
+        self.addonEditMessageBox.show()
+
+
 class UpdateSettingCard(SettingCard):
     """
     更新设置卡片
@@ -730,31 +756,6 @@ class AboutSettingCard(SettingCard):
         self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
-
-class AddonSettingCard(SettingCard):
-    """
-    插件设置卡片
-    """
-
-    def __init__(self, parent=None):
-        super().__init__(FIF.ADD, "插件", f"管理{program.PROGRAM_NAME}的插件", parent)
-        self.progressBarLoading = IndeterminateProgressBar(self)
-        self.progressBarLoading.setMaximumWidth(200)
-        self.progressBarLoading.hide()
-
-        self.button1 = PushButton("管理插件", self, FIF.EDIT)
-        self.button1.clicked.connect(self.button1Clicked)
-        self.button1.setToolTip("管理程序插件")
-        self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
-
-        self.hBoxLayout.addWidget(self.progressBarLoading, Qt.AlignRight)
-        self.hBoxLayout.addSpacing(8)
-        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
-        self.hBoxLayout.addSpacing(16)
-
-    def button1Clicked(self):
-        self.addonEditMessageBox = AddonEditMessageBox("管理插件", self.parent().parent().parent().parent().parent().parent().parent())
-        self.addonEditMessageBox.show()
 
 
 logging.debug("windows.py初始化成功")
