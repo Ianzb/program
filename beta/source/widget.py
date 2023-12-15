@@ -757,5 +757,4 @@ class AboutSettingCard(SettingCard):
         self.hBoxLayout.addSpacing(16)
 
 
-
 logging.debug("windows.py初始化成功")

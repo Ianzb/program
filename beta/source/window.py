@@ -156,14 +156,14 @@ class SettingPage(BasicPage):
         self.cardGroup2 = CardGroup("行为", self)
         self.cardGroup3 = CardGroup("功能", self)
 
-        self.themeSettingCard = ThemeSettingCard()
-        self.colorSettingCard = ColorSettingCard()
+        self.themeSettingCard = ThemeSettingCard(self)
+        self.colorSettingCard = ColorSettingCard(self)
 
-        self.startupSettingCard = StartupSettingCard()
+        self.startupSettingCard = StartupSettingCard(self)
 
-        self.sortSettingCard = SortSettingCard()
-        self.sortBlacklistSettingCard = SortBlacklistSettingCard()
-        self.downloadSettingCard = DownloadSettingCard()
+        self.sortSettingCard = SortSettingCard(self)
+        self.sortBlacklistSettingCard = SortBlacklistSettingCard(self)
+        self.downloadSettingCard = DownloadSettingCard(self)
 
         self.cardGroup1.addWidget(self.themeSettingCard)
         self.cardGroup1.addWidget(self.colorSettingCard)
@@ -193,12 +193,12 @@ class AboutPage(BasicPage):
         self.cardGroup1 = CardGroup("插件", self)
         self.cardGroup2 = CardGroup("关于", self)
 
-        self.addonSettingCard = AddonSettingCard()
+        self.addonSettingCard = AddonSettingCard(self)
 
-        self.updateSettingCard = UpdateSettingCard()
-        self.helpSettingCard = HelpSettingCard()
-        self.shortcutSettingCard = ShortcutSettingCard()
-        self.aboutSettingCard = AboutSettingCard()
+        self.updateSettingCard = UpdateSettingCard(self)
+        self.helpSettingCard = HelpSettingCard(self)
+        self.shortcutSettingCard = ShortcutSettingCard(self)
+        self.aboutSettingCard = AboutSettingCard(self)
 
         self.cardGroup1.addWidget(self.addonSettingCard)
 
