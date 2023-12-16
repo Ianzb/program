@@ -199,6 +199,7 @@ class AboutPage(BasicPage):
 
         self.updateSettingCard = UpdateSettingCard(self)
         self.helpSettingCard = HelpSettingCard(self)
+        self.controlSettingCard = ControlSettingCard(self)
         self.shortcutSettingCard = ShortcutSettingCard(self)
         self.aboutSettingCard = AboutSettingCard(self)
 
@@ -206,6 +207,7 @@ class AboutPage(BasicPage):
 
         self.cardGroup2.addWidget(self.updateSettingCard)
         self.cardGroup2.addWidget(self.helpSettingCard)
+        self.cardGroup2.addWidget(self.controlSettingCard)
         self.cardGroup2.addWidget(self.shortcutSettingCard)
         self.cardGroup2.addWidget(self.aboutSettingCard)
 

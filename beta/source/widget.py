@@ -733,13 +733,45 @@ class HelpSettingCard(SettingCard):
             self.infoBar.show()
 
 
+class ControlSettingCard(SettingCard):
+    """
+    控制设置卡片
+    """
+
+    def __init__(self, parent=None):
+        super().__init__(FIF.CONSTRACT, "控制", "", parent)
+        self.button1 = PushButton("关闭", self, FIF.CLOSE)
+        self.button2 = PushButton("重新启动", self, FIF.SYNC)
+
+        self.button1.clicked.connect(self.button1Clicked)
+        self.button2.clicked.connect(self.button2Clicked)
+
+        self.button1.setToolTip("关闭程序")
+        self.button2.setToolTip("重新启动程序")
+
+        self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
+        self.button2.installEventFilter(ToolTipFilter(self.button2, 1000))
+
+        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
+        self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignRight)
+        self.hBoxLayout.addSpacing(16)
+
+    def button1Clicked(self):
+        pass
+        sys.exit()
+
+    def button2Clicked(self):
+        f.cmd(program.PROGRAM_MAIN_FILE_PATH)
+        sys.exit()
+
+
 class ShortcutSettingCard(SettingCard):
     """
     快捷方式设置卡片
     """
 
     def __init__(self, parent=None):
-        super().__init__(FIF.ADD_TO, "添加快捷方式", "向计算机中添加程序的快捷方式", parent)
+        super().__init__(FIF.ADD_TO, "添加快捷方式", "", parent)
         self.button1 = HyperlinkButton("", "桌面", self)
         self.button2 = HyperlinkButton("", "开始菜单", self)
 
