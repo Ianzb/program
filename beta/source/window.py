@@ -161,6 +161,8 @@ class SettingPage(BasicPage):
         self.micaEffectSettingCard = MicaEffectSettingCard(self)
 
         self.startupSettingCard = StartupSettingCard(self)
+        self.traySettingCard = TraySettingCard(self)
+        self.hideSettingCard = HideSettingCard(self)
 
         self.sortSettingCard = SortSettingCard(self)
         self.sortBlacklistSettingCard = SortBlacklistSettingCard(self)
@@ -171,6 +173,8 @@ class SettingPage(BasicPage):
         self.cardGroup1.addWidget(self.micaEffectSettingCard)
 
         self.cardGroup2.addWidget(self.startupSettingCard)
+        self.cardGroup2.addWidget(self.traySettingCard)
+        self.cardGroup2.addWidget(self.hideSettingCard)
 
         self.cardGroup3.addWidget(self.sortSettingCard)
         self.cardGroup3.addWidget(self.sortBlacklistSettingCard)
@@ -278,6 +282,7 @@ class Window(FluentWindow):
 
         # 托盘组件
         self.tray = Tray(self)
+        self.tray.setVisible(setting.read("showTray"))
 
         self.setMicaEffectEnabled(setting.read("micaEffect"))
         if setting.read("autoUpdate") and program.isStartup:
@@ -302,14 +307,18 @@ class Window(FluentWindow):
         """
         # Esc键
         if QKeyEvent.key() == Qt.Key_Escape:
-            self.hide()
+            if setting.read("hideWhenClose"):
+                self.hide()
 
     def closeEvent(self, QCloseEvent):
         """
         自定义关闭事件
         """
         QCloseEvent.ignore()
-        self.hide()
+        if setting.read("hideWhenClose"):
+            self.hide()
+        else:
+            sys.exit()
 
     def addPage(self, page: QWidget, pos: str):
         """

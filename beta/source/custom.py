@@ -14,7 +14,6 @@ class Tray(QSystemTrayIcon):
         self.setToolTip(program.PROGRAM_TITLE)
         self.installEventFilter(ToolTipFilter(self, 1000))
         self.activated.connect(self.iconClicked)
-        self.show()
 
         self.action1 = Action(FIF.HOME, "打开", triggered=self.action1Clicked)
         self.action2 = Action(FIF.ALIGNMENT, "整理", triggered=self.action2Clicked)

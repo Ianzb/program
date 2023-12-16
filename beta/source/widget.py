@@ -401,6 +401,47 @@ class StartupSettingCard(SettingCard):
         setting.save("autoUpdate", self.checkBox3.isChecked())
 
 
+class TraySettingCard(SettingCard):
+    """
+    托盘设置卡片
+    """
+
+    def __init__(self, parent=None):
+        super().__init__(FIF.ZOOM, "展示托盘图标", "", parent)
+        self.button1 = SwitchButton(self, IndicatorPosition.RIGHT)
+        self.button1.setChecked(setting.read("showTray"))
+        self.button1.checkedChanged.connect(self.button1Clicked)
+        self.button1.setToolTip("在系统托盘展示软件图标")
+        self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
+
+        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
+        self.hBoxLayout.addSpacing(16)
+
+    def button1Clicked(self):
+        setting.save("showTray", self.button1.checked)
+        self.parent().parent().parent().parent().parent().parent().parent().tray.setVisible(self.button1.checked)
+
+
+class HideSettingCard(SettingCard):
+    """
+    隐藏后台设置卡片
+    """
+
+    def __init__(self, parent=None):
+        super().__init__(FIF.EMBED, "自动驻留后台", "", parent)
+        self.button1 = SwitchButton(self, IndicatorPosition.RIGHT)
+        self.button1.setChecked(setting.read("hideWhenClose"))
+        self.button1.checkedChanged.connect(self.button1Clicked)
+        self.button1.setToolTip("关闭窗口时程序自动隐藏")
+        self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
+
+        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
+        self.hBoxLayout.addSpacing(16)
+
+    def button1Clicked(self):
+        setting.save("hideWhenClose", self.button1.checked)
+
+
 class SortSettingCard(SettingCard):
     """
     整理文件设置卡片
@@ -747,7 +788,7 @@ class ControlSettingCard(SettingCard):
     """
 
     def __init__(self, parent=None):
-        super().__init__(FIF.CONSTRACT, "控制", "", parent)
+        super().__init__(FIF.ALBUM, "控制", "", parent)
         self.button1 = PushButton("关闭", self, FIF.CLOSE)
         self.button2 = PushButton("重新启动", self, FIF.SYNC)
 
