@@ -369,7 +369,7 @@ class Window(FluentWindow):
                     self.page.title = data["name"]
                 self.addPage(self.page, "scroll")
         except Exception as ex:
-            self.signalStr.emit(data["name"])
+            self.signalStr.emit(data["id"])
             logging.warning(f"插件{data["name"]}安装失败{ex}")
 
     def __removeAddon(self, data):

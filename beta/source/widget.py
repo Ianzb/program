@@ -36,8 +36,9 @@ class AddonEditMessageBox(MessageBoxBase):
     可编辑插件的弹出框
     """
 
-    def __init__(self, title: str, parent=None):
+    def __init__(self, title: str, parent=None, error: list = []):
         super().__init__(parent)
+        self.errorAddonList = error
         self.titleLabel = SubtitleLabel(title, self)
         self.loadingCard = LoadingCard()
 
@@ -112,6 +113,8 @@ class AddonEditMessageBox(MessageBoxBase):
                 self.tableView.setItem(i, 2, QTableWidgetItem(installed[v["id"]]["version"]))
             else:
                 self.tableView.setItem(i, 2, QTableWidgetItem("未安装"))
+            if v["id"] in self.errorAddonList:
+                self.tableView.setItem(i, 2, QTableWidgetItem("安装失败"))
             self.tableView.setItem(i, 3, QTableWidgetItem(v["version"]))
             i += 1
         self.tableView.show()
@@ -138,6 +141,8 @@ class AddonEditMessageBox(MessageBoxBase):
         self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{msg["name"]}安装成功！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().aboutPage)
         self.infoBar.show()
         self.parent().addAddon(msg)
+        if msg["id"] in self.parent().aboutPage.addonSettingCard.errorAddonList:
+            self.parent().aboutPage.addonSettingCard.errorAddonList.remove(msg["id"])
 
     def threadEvent3_2(self, msg):
         if msg:
@@ -481,6 +486,8 @@ class AddonSettingCard(SettingCard):
 
     def __init__(self, parent=None):
         super().__init__(FIF.ADD, "插件", f"管理{program.PROGRAM_NAME}的插件", parent)
+        self.errorAddonList = []
+
         self.progressBarLoading = IndeterminateProgressBar(self)
         self.progressBarLoading.setMaximumWidth(200)
         self.progressBarLoading.hide()
@@ -495,9 +502,14 @@ class AddonSettingCard(SettingCard):
         self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
+        self.parent().parent().signalStr.connect(self.errorAddonEvent)
+
     def button1Clicked(self):
-        self.addonEditMessageBox = AddonEditMessageBox("管理插件", self.parent().parent().parent().parent().parent().parent().parent())
+        self.addonEditMessageBox = AddonEditMessageBox("管理插件", self.parent().parent().parent().parent().parent().parent().parent(), self.errorAddonList)
         self.addonEditMessageBox.show()
+
+    def errorAddonEvent(self, msg):
+        self.errorAddonList.append(msg)
 
 
 class UpdateSettingCard(SettingCard):
