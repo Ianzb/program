@@ -219,6 +219,12 @@ class Window(FluentWindow):
     """
     主窗口
     """
+    signalStr = pyqtSignal(str)
+    signalInt = pyqtSignal(int)
+    signalBool = pyqtSignal(bool)
+    signalList = pyqtSignal(list)
+    signalDict = pyqtSignal(dict)
+    signalObject = pyqtSignal(object)
 
     def __init__(self):
         super().__init__()
@@ -363,6 +369,7 @@ class Window(FluentWindow):
                     self.page.title = data["name"]
                 self.addPage(self.page, "scroll")
         except Exception as ex:
+            self.signalStr.emit(data["name"])
             logging.warning(f"插件{data["name"]}安装失败{ex}")
 
     def __removeAddon(self, data):
@@ -376,11 +383,7 @@ class Window(FluentWindow):
         self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{data["name"]}删除成功！", Qt.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.aboutPage)
 
         self.button1 = PushButton("重新启动", self, FIF.SYNC)
-        self.button1.clicked.connect(self.button1Clicked)
+        self.button1.clicked.connect(self.aboutPage.controlSettingCard.button2Clicked)
 
         self.infoBar.addWidget(self.button1)
         self.infoBar.show()
-
-    def button1Clicked(self):
-        f.cmd(program.PROGRAM_MAIN_FILE_PATH)
-        sys.exit()

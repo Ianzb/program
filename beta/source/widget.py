@@ -649,7 +649,7 @@ class UpdateSettingCard(SettingCard):
                 self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", "更新成功！", Qt.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
 
                 self.button4 = PushButton("重新启动", self, FIF.SYNC)
-                self.button4.clicked.connect(self.button4Clicked)
+                self.button4.clicked.connect(self.parent().parent().parent().parent().parent().parent().parent().aboutPage.controlSettingCard.button2Clicked)
 
                 self.infoBar.addWidget(self.button4)
                 self.infoBar.show()
@@ -681,10 +681,6 @@ class UpdateSettingCard(SettingCard):
             self.comboBox.setEnabled(True)
             self.button1.setEnabled(True)
             self.button2.setEnabled(True)
-
-    def button4Clicked(self):
-        f.cmd(program.PROGRAM_MAIN_FILE_PATH)
-        sys.exit()
 
 
 class HelpSettingCard(SettingCard):
