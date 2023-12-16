@@ -188,6 +188,7 @@ class SettingFunctions:
                                 "showWindow": False,
                                 "sortBlacklist": [],
                                 "updateChannel": "正式版",
+                                "micaEffect": True,
                                 }
 
     def reload(self):

@@ -314,6 +314,27 @@ class ColorSettingCard(ExpandGroupSettingCard):
         self.colorChanged.emit(color)
 
 
+class MicaEffectSettingCard(SettingCard):
+    """
+    云母效果设置卡片
+    """
+
+    def __init__(self, parent=None):
+        super().__init__(FIF.TRANSPARENT, "云母效果", "", parent)
+        self.button1 = SwitchButton(self, IndicatorPosition.RIGHT)
+        self.button1.setChecked(setting.read("micaEffect"))
+        self.button1.checkedChanged.connect(self.button1Clicked)
+        self.button1.setToolTip("开启Windows11的窗口模糊效果")
+        self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
+
+        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
+        self.hBoxLayout.addSpacing(16)
+
+    def button1Clicked(self):
+        setting.save("micaEffect", self.button1.checked)
+        self.parent().parent().parent().parent().parent().parent().parent().setMicaEffectEnabled(self.button1.checked)
+
+
 class StartupSettingCard(SettingCard):
     """
     开机自启动设置卡片

@@ -158,6 +158,7 @@ class SettingPage(BasicPage):
 
         self.themeSettingCard = ThemeSettingCard(self)
         self.colorSettingCard = ColorSettingCard(self)
+        self.micaEffectSettingCard = MicaEffectSettingCard(self)
 
         self.startupSettingCard = StartupSettingCard(self)
 
@@ -167,6 +168,7 @@ class SettingPage(BasicPage):
 
         self.cardGroup1.addWidget(self.themeSettingCard)
         self.cardGroup1.addWidget(self.colorSettingCard)
+        self.cardGroup1.addWidget(self.micaEffectSettingCard)
 
         self.cardGroup2.addWidget(self.startupSettingCard)
 
@@ -269,6 +271,7 @@ class Window(FluentWindow):
         # 托盘组件
         self.tray = Tray(self)
 
+        self.setMicaEffectEnabled(setting.read("micaEffect"))
         if setting.read("autoUpdate") and program.isStartup:
             self.aboutPage.updateSettingCard.button3Clicked()
         if program.PYTHON_VERSION.split(".")[1] != "12":
