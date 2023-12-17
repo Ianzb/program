@@ -4,6 +4,7 @@
         "main.pyw",
         "download.pyw",
         "source/function.py",
+        "source/init.py",
         "source/thread.py",
         "source/custom.py",
         "source/widget.py",

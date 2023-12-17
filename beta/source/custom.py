@@ -638,4 +638,4 @@ class CardGroup(QWidget):
         self.titleLabel.setHidden(not enabled)
 
 
-logging.debug("widgets.py初始化成功")
+logging.debug("custom.py初始化成功")

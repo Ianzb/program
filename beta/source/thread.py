@@ -1,9 +1,27 @@
-from .function import *
+from .init import *
+
+
+class Thread(threading.Thread):
+    """
+    threading多线程优化
+    """
+
+    def __init__(self, func, *args):
+        super().__init__()
+
+        self.func = func
+        self.args = args
+
+        self.daemon = True
+        self.start()
+
+    def run(self):
+        self.func(*self.args)
 
 
 class NewThread(QThread):
     """
-    多线程模块
+    QThread多线程模块
     """
     signalStr = pyqtSignal(str)
     signalInt = pyqtSignal(int)
@@ -99,3 +117,6 @@ class NewThread(QThread):
         if self.mode == "清理程序缓存":
             f.clearProgramCache()
             self.signalBool.emit(True)
+
+
+logging.debug("thread.py初始化成功")

@@ -859,4 +859,4 @@ class AboutSettingCard(SettingCard):
         self.hBoxLayout.addSpacing(16)
 
 
-logging.debug("windows.py初始化成功")
+logging.debug("widget.py初始化成功")

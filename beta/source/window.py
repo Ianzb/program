@@ -396,3 +396,6 @@ class Window(FluentWindow):
 
         self.infoBar.addWidget(self.button1)
         self.infoBar.show()
+
+
+logging.debug("window.py初始化成功")
