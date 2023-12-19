@@ -181,7 +181,7 @@ class SettingFunctions:
                                 "autoStartup": False,
                                 "autoHide": True,
                                 "autoUpdate": False,
-                                "pid": "0",
+                                "pid": "1000",
                                 "sortPath": "",
                                 "wechatPath": "",
                                 "downloadPath": program.DESKTOP_PATH,
