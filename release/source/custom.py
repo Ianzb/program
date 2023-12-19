@@ -1,6 +1,74 @@
 from .thread import *
 
 
+class Tray(QSystemTrayIcon):
+    """
+    系统托盘组件
+    """
+
+    def __init__(self, window):
+        super(Tray, self).__init__()
+        self.window = window
+
+        self.setIcon(QIcon(program.PROGRAM_ICON))
+        self.setToolTip(program.PROGRAM_TITLE)
+        self.installEventFilter(ToolTipFilter(self, 1000))
+        self.activated.connect(self.iconClicked)
+
+        self.action1 = Action(FIF.HOME, "打开", triggered=self.action1Clicked)
+        self.action2 = Action(FIF.ALIGNMENT, "整理", triggered=self.action2Clicked)
+        self.action3 = Action(FIF.LINK, "官网", triggered=self.action3Clicked)
+        self.action4 = Action(FIF.CLOSE, "退出", triggered=self.action4Clicked)
+
+        self.menu = RoundMenu()
+
+        self.menu.addAction(self.action1)
+        self.menu.addAction(self.action2)
+        self.menu.addAction(self.action3)
+        self.menu.addAction(self.action4)
+
+        self.window.mainPage.signalBool.connect(self.threadEvent2)
+
+    def showTrayMessage(self, title, msg):
+        super().showMessage(title, msg, QIcon(program.PROGRAM_ICON))
+
+    def iconClicked(self, reason):
+        if reason == 3:
+            self.trayClickedEvent()
+        elif reason == 1:
+            self.contextMenuEvent()
+
+    def trayClickedEvent(self):
+        if self.window.isHidden():
+            self.window.setHidden(False)
+            if self.window.windowState() == Qt.WindowMinimized:
+                self.window.showNormal()
+            self.window.raise_()
+            self.window.activateWindow()
+        else:
+            self.window.setHidden(True)
+
+    def contextMenuEvent(self):
+        self.menu.exec(QCursor.pos(), ani=True, aniType=MenuAnimationType.PULL_UP)
+
+    def action1Clicked(self):
+        self.window.show()
+
+    def action2Clicked(self):
+        self.action2.setEnabled(False)
+        self.window.mainPage.button1_1Clicked()
+
+    def threadEvent2(self, msg):
+        self.action2.setEnabled(msg)
+
+    def action3Clicked(self):
+        webbrowser.open(program.PROGRAM_URL)
+
+    def action4Clicked(self):
+        self.deleteLater()
+        qApp.quit()
+
+
 class BasicPage(ScrollArea):
     """
     页面模板（优化样式的滚动区域）
@@ -155,7 +223,7 @@ class Image(QLabel):
         if path:
             self.setImg(path, url)
 
-    def thread1(self, msg):
+    def threadEvent1(self, msg):
         if msg:
             self.loading = False
             self.setPixmap(QPixmap(self.path))
@@ -170,9 +238,9 @@ class Image(QLabel):
             self.loading = True
             self.path = program.cache(path)
             self.url = url
-            self.thread = NewThread("下载图片", [self.url, self.path])
-            self.thread.signalBool.connect(self.thread1)
-            self.thread.start()
+            self.thread1 = NewThread("下载图片", [self.url, self.path])
+            self.thread1.signalBool.connect(self.threadEvent1)
+            self.thread1.start()
         else:
             self.loading = False
             self.setPixmap(QPixmap(path))
@@ -222,6 +290,18 @@ class DisplayCard(ElevatedCardWidget):
         """
         self.widget = widget
         self.vBoxLayout.replaceWidget(self.vBoxLayout.itemAt(1).widget(), self.widget)
+
+
+class LoadingCard(DisplayCard):
+    """
+    加载中卡片
+    """
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.progressRingLoading = IndeterminateProgressRing(self)
+        self.setDisplay(self.progressRingLoading)
+        self.setText("加载中...")
 
 
 class GrayCard(QWidget):
@@ -544,6 +624,12 @@ class CardGroup(QWidget):
         """
         self.titleLabel.setText(text)
 
+    def deleteTitle(self):
+        """
+        删除标题
+        """
+        self.titleLabel.deleteLater()
+
     def setTitleEnabled(self, enabled: bool):
         """
         是否展示标题
@@ -552,4 +638,4 @@ class CardGroup(QWidget):
         self.titleLabel.setHidden(not enabled)
 
 
-logging.debug("widgets.py初始化成功")
+logging.debug("custom.py初始化成功")

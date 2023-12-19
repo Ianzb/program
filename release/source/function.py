@@ -23,7 +23,7 @@ class Program:
     程序信息
     """
     PROGRAM_NAME = "zb小程序"  # 程序名称
-    PROGRAM_VERSION = "3.3.0"  # 程序版本
+    PROGRAM_VERSION = "3.4.0"  # 程序版本
     PROGRAM_TITLE = f"{PROGRAM_NAME} {PROGRAM_VERSION}"  # 程序窗口标题
     AUTHOR_NAME = "Ianzb"  # 作者名称
     AUTHOR_URL = "https://ianzb.github.io/"  # 作者网址
@@ -42,7 +42,7 @@ class Program:
     ADDON_URL = "https://ianzb.github.io/program/addon/addon.json"  # 插件信息网址
     STARTUP_ARGUMENT = sys.argv[1:]  # 程序启动参数
     PYTHON_VERSION = sys.version[:sys.version.find(" ")]  # Python版本
-    REQUEST_HEADER = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36 Edg/119.0.0.0",
+    REQUEST_HEADER = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0",
                       "zbprogram": PROGRAM_VERSION}  # 程序默认网络请求头
 
     REQUIRE_LIB = ["PyQt-Fluent-Widgets",
@@ -118,7 +118,7 @@ class LoggingFunctions:
         self.log = logging.getLogger(program.PROGRAM_NAME)
         self.log.setLevel(logging.DEBUG)
         handler1 = logging.StreamHandler(sys.stderr)
-        handler1.setLevel(logging.INFO)
+        handler1.setLevel(logging.DEBUG)
         handler1.setFormatter(logging.Formatter("[%(levelname)s %(asctime)s %(filename)s %(process)d]:%(message)s"))
 
         handler2 = logging.FileHandler(program.LOGGING_FILE_PATH)
@@ -181,13 +181,16 @@ class SettingFunctions:
                                 "autoStartup": False,
                                 "autoHide": True,
                                 "autoUpdate": False,
-                                "pid": "0",
+                                "pid": "1000",
                                 "sortPath": "",
                                 "wechatPath": "",
                                 "downloadPath": program.DESKTOP_PATH,
                                 "showWindow": False,
                                 "sortBlacklist": [],
                                 "updateChannel": "正式版",
+                                "micaEffect": True,
+                                "showTray": True,
+                                "hideWhenClose": True,
                                 }
 
     def reload(self):
@@ -307,6 +310,7 @@ class ProcessFunctions:
         @param pause: 是否返回输出结果
         @return: 输出结果
         """
+        logging.debug(f"cmd执行命令{command}")
         value = os.popen(command)
         if pause:
             return value.read()
@@ -467,18 +471,19 @@ class FileFunctions(ProcessFunctions):
         @return: 文件夹路径列表
         """
         list1 = []
-        if mode == 0:
-            if self.isDir(path):
-                paths = os.walk(path)
-                for path, dir_lst, file_lst in paths:
-                    for dir_name in dir_lst:
-                        list1.append(self.pathJoin(path, dir_name))
-        if mode == 1:
-            for i in os.listdir(path):
-                if self.isDir(self.pathJoin(path, i)):
-                    list1.append(self.pathJoin(path, i))
-        if not list1:
-            list1 = []
+        if self.existPath(path):
+            if mode == 0:
+                if self.isDir(path):
+                    paths = os.walk(path)
+                    for path, dir_lst, file_lst in paths:
+                        for dir_name in dir_lst:
+                            list1.append(self.pathJoin(path, dir_name))
+            if mode == 1:
+                for i in os.listdir(path):
+                    if self.isDir(self.pathJoin(path, i)):
+                        list1.append(self.pathJoin(path, i))
+            if not list1:
+                list1 = []
         return list1
 
     def walkFile(self, path: str, mode=0) -> list:
@@ -489,18 +494,19 @@ class FileFunctions(ProcessFunctions):
         @return: 文件路径列表
         """
         list1 = []
-        if mode == 0:
-            paths = os.walk(path)
-            if self.isDir(path):
-                for path, dir_lst, file_lst in paths:
-                    for file_name in file_lst:
-                        list1.append(self.pathJoin(path, file_name))
-        if mode == 1:
-            for i in os.listdir(path):
-                if self.isFile(self.pathJoin(path, i)):
-                    list1.append(self.pathJoin(path, i))
-        if not list1:
-            list1 = []
+        if self.existPath(path):
+            if mode == 0:
+                paths = os.walk(path)
+                if self.isDir(path):
+                    for path, dir_lst, file_lst in paths:
+                        for file_name in file_lst:
+                            list1.append(self.pathJoin(path, file_name))
+            if mode == 1:
+                for i in os.listdir(path):
+                    if self.isFile(self.pathJoin(path, i)):
+                        list1.append(self.pathJoin(path, i))
+            if not list1:
+                list1 = []
         return list1
 
     def copyFile(self, old: str, new: str):
@@ -738,6 +744,21 @@ class FileFunctions(ProcessFunctions):
         if path and self.existPath(path):
             os.startfile(path)
 
+    def extractZip(self, path: str, goal: str):
+        """
+        解压zip文件
+        @param path: zip文件路径
+        @param goal: 解压到的目录路径
+        """
+        import zipfile
+        if self.existPath(path):
+            try:
+                file = zipfile.ZipFile(path)
+                file.extractall(goal)
+                logging.debug(f"{path}解压成功")
+            except Exception as ex:
+                logging.warning(f"{path}解压失败{ex}")
+
 
 class ProgramFunctions(FileFunctions):
     """
@@ -872,12 +893,32 @@ class ProgramFunctions(FileFunctions):
         self.makeDir(self.pathJoin(program.ADDON_PATH, data["id"]))
         if "__init__.py" not in data["file"]:
             open(self.pathJoin(program.ADDON_PATH, data["id"], "__init__.py"), "w", encoding="utf-8").close()
+        if "addon.json" not in data["file"]:
+            data["file"].append("addon.json")
         for i in data["file"]:
-            self.downloadFile(self.urlJoin(data["url"], i), self.pathJoin(program.ADDON_PATH, data["id"], i))
+            if self.splitPath(self.pathJoin(program.ADDON_PATH, data["id"], i), 2) == ".zip":
+                self.downloadFile(self.urlJoin(data["url"], i), self.pathJoin(program.ADDON_PATH, i))
+                f.extractZip(self.pathJoin(program.ADDON_PATH, i), program.ADDON_PATH)
+                self.delete(self.pathJoin(program.ADDON_PATH, i))
+            else:
+                self.downloadFile(self.urlJoin(data["url"], i), self.pathJoin(program.ADDON_PATH, data["id"], i))
+
         for i in data["lib"]:
             self.pipInstall(i)
             self.pipUpdate(i)
         logging.debug(f"插件{data["name"]}下载成功")
+
+    def getInstalledAddonInfo(self) -> dict:
+        """
+        获取本地插件信息
+        @return: 信息
+        """
+        data = {}
+        for i in f.walkDir(program.ADDON_PATH, 1):
+            if f.existPath(f.pathJoin(i, "addon.json")):
+                with open(f.pathJoin(i, "addon.json"), encoding="utf-8") as file:
+                    data[f.splitPath(i)] = json.loads(file.read())
+        return data
 
 
 class Functions(ProgramFunctions):
@@ -998,58 +1039,3 @@ program = Program()
 logging = LoggingFunctions()
 setting = SettingFunctions()
 f = Functions()
-
-
-class Init():
-    """
-    初始化程序
-    """
-
-    def __init__(self):
-
-        # 切换运行路径
-        os.chdir(program.PROGRAM_PATH)
-
-        # 设置任务栏
-        import ctypes
-
-        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(program.PROGRAM_NAME)
-
-        # 关闭SSL证书验证
-        import ssl
-
-        ssl._create_default_https_context = ssl._create_unverified_context()
-
-        # 重复运行检测
-        if "python" in f.cmd(f"tasklist |findstr {setting.read("pid")}", True):
-            setting.save("showWindow", "1")
-            sys.exit()
-        setting.save("pid", str(program.PROGRAM_PID))
-
-        # 日志过大检测
-        if f.getSize(program.LOGGING_FILE_PATH) / 1024 >= 32:
-            logging.reset()
-
-
-Init()
-
-
-class Thread(threading.Thread):
-    """
-    多线程优化
-    """
-
-    def __init__(self, func, *args):
-        super().__init__()
-
-        self.func = func
-        self.args = args
-
-        self.daemon = True
-        self.start()
-
-    def run(self):
-        self.func(*self.args)
-
-
-logging.debug("functions.py初始化成功")

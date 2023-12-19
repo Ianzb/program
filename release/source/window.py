@@ -1,3 +1,5 @@
+import sys
+
 from .widget import *
 
 
@@ -62,11 +64,11 @@ class MainPage(BasicPage):
         self.stateTooltip.move(self.stateTooltip.getSuitablePos())
         self.stateTooltip.show()
 
-        self.thread = NewThread("一键整理+清理")
-        self.thread.signalBool.connect(self.thread1_1)
-        self.thread.start()
+        self.thread1_1 = NewThread("一键整理+清理")
+        self.thread1_1.signalBool.connect(self.threadEvent1_1)
+        self.thread1_1.start()
 
-    def thread1_1(self, msg):
+    def threadEvent1_1(self, msg):
         self.stateTooltip.setState(True)
         self.button1_1.setEnabled(True)
         self.signalBool.emit(True)
@@ -78,19 +80,19 @@ class MainPage(BasicPage):
     def button2_1Clicked(self):
         self.button2_1.setEnabled(False)
 
-        self.thread = NewThread("重启文件资源管理器")
-        self.thread.signalStr.connect(self.thread2_1)
-        self.thread.start()
+        self.thread2_1 = NewThread("重启文件资源管理器")
+        self.thread2_1.signalStr.connect(self.threadEvent2_1)
+        self.thread2_1.start()
 
-    def thread2_1(self, msg):
+    def threadEvent2_1(self, msg):
         self.button2_1.setEnabled(True)
 
     def button3_1Clicked(self):
         self.button3_1.setEnabled(False)
 
-        self.thread = NewThread("Minecraft最新版本")
-        self.thread.signalStr.connect(self.thread3_1)
-        self.thread.start()
+        self.thread3_1 = NewThread("Minecraft最新版本")
+        self.thread3_1.signalStr.connect(self.threadEvent3_1)
+        self.thread3_1.start()
         self.flyout1 = Flyout(FlyoutViewBase())
         self.flyout1.create(
             icon=InfoBarIcon.INFORMATION,
@@ -101,7 +103,7 @@ class MainPage(BasicPage):
             isClosable=False,
         )
 
-    def thread3_1(self, msg):
+    def threadEvent3_1(self, msg):
         self.button3_1.setEnabled(True)
 
         self.flyout2 = Flyout(FlyoutViewBase())
@@ -150,45 +152,83 @@ class SettingPage(BasicPage):
         super().__init__(parent=parent)
         self.setIcon(FIF.SETTING)
 
-        self.cardGroup1 = CardGroup("个性化", self)
-        self.cardGroup2 = CardGroup("功能", self)
-        self.cardGroup3 = CardGroup("关于", self)
+        self.cardGroup1 = CardGroup("外观", self)
+        self.cardGroup2 = CardGroup("行为", self)
+        self.cardGroup3 = CardGroup("功能", self)
 
-        self.themeSettingCard = ThemeSettingCard()
-        self.colorSettingCard = ColorSettingCard()
-        self.startupSettingCard = StartupSettingCard()
-        self.shortcutSettingCard = ShortcutSettingCard()
+        self.themeSettingCard = ThemeSettingCard(self)
+        self.colorSettingCard = ColorSettingCard(self)
+        self.micaEffectSettingCard = MicaEffectSettingCard(self)
 
-        self.sortSettingCard = SortSettingCard()
-        self.sortBlacklistSettingCard = SortBlacklistSettingCard()
-        self.downloadSettingCard = DownloadSettingCard()
+        self.startupSettingCard = StartupSettingCard(self)
+        self.traySettingCard = TraySettingCard(self)
+        self.hideSettingCard = HideSettingCard(self)
 
-        self.helpSettingCard = HelpSettingCard()
-        self.updateSettingCard = UpdateSettingCard()
-        self.aboutSettingCard = AboutSettingCard()
+        self.sortSettingCard = SortSettingCard(self)
+        self.sortBlacklistSettingCard = SortBlacklistSettingCard(self)
+        self.downloadSettingCard = DownloadSettingCard(self)
 
         self.cardGroup1.addWidget(self.themeSettingCard)
         self.cardGroup1.addWidget(self.colorSettingCard)
-        self.cardGroup1.addWidget(self.startupSettingCard)
-        self.cardGroup1.addWidget(self.shortcutSettingCard)
+        self.cardGroup1.addWidget(self.micaEffectSettingCard)
 
-        self.cardGroup2.addWidget(self.sortSettingCard)
-        self.cardGroup2.addWidget(self.sortBlacklistSettingCard)
-        self.cardGroup2.addWidget(self.downloadSettingCard)
+        self.cardGroup2.addWidget(self.startupSettingCard)
+        self.cardGroup2.addWidget(self.traySettingCard)
+        self.cardGroup2.addWidget(self.hideSettingCard)
 
-        self.cardGroup3.addWidget(self.helpSettingCard)
-        self.cardGroup3.addWidget(self.updateSettingCard)
-        self.cardGroup3.addWidget(self.aboutSettingCard)
+        self.cardGroup3.addWidget(self.sortSettingCard)
+        self.cardGroup3.addWidget(self.sortBlacklistSettingCard)
+        self.cardGroup3.addWidget(self.downloadSettingCard)
 
-        self.vBoxLayout.addWidget(self.cardGroup1)
-        self.vBoxLayout.addWidget(self.cardGroup2)
-        self.vBoxLayout.addWidget(self.cardGroup3)
+        self.vBoxLayout.addWidget(self.cardGroup1, 0, Qt.AlignTop)
+        self.vBoxLayout.addWidget(self.cardGroup2, 0, Qt.AlignTop)
+        self.vBoxLayout.addWidget(self.cardGroup3, 0, Qt.AlignTop)
+
+
+class AboutPage(BasicPage):
+    """
+    关于页面
+    """
+    title = "关于"
+    subtitle = "关于程序"
+
+    def __init__(self, parent=None):
+        super().__init__(parent=parent)
+        self.setIcon(FIF.INFO)
+
+        self.cardGroup1 = CardGroup("插件", self)
+        self.cardGroup2 = CardGroup("关于", self)
+
+        self.addonSettingCard = AddonSettingCard(self)
+
+        self.updateSettingCard = UpdateSettingCard(self)
+        self.helpSettingCard = HelpSettingCard(self)
+        self.controlSettingCard = ControlSettingCard(self)
+        self.shortcutSettingCard = ShortcutSettingCard(self)
+        self.aboutSettingCard = AboutSettingCard(self)
+
+        self.cardGroup1.addWidget(self.addonSettingCard)
+
+        self.cardGroup2.addWidget(self.updateSettingCard)
+        self.cardGroup2.addWidget(self.helpSettingCard)
+        self.cardGroup2.addWidget(self.controlSettingCard)
+        self.cardGroup2.addWidget(self.shortcutSettingCard)
+        self.cardGroup2.addWidget(self.aboutSettingCard)
+
+        self.vBoxLayout.addWidget(self.cardGroup1, 0, Qt.AlignTop)
+        self.vBoxLayout.addWidget(self.cardGroup2, 0, Qt.AlignTop)
 
 
 class Window(FluentWindow):
     """
     主窗口
     """
+    signalStr = pyqtSignal(str)
+    signalInt = pyqtSignal(int)
+    signalBool = pyqtSignal(bool)
+    signalList = pyqtSignal(list)
+    signalDict = pyqtSignal(dict)
+    signalObject = pyqtSignal(object)
 
     def __init__(self):
         super().__init__()
@@ -224,14 +264,61 @@ class Window(FluentWindow):
         self.toolPage = ToolPage(self)
         self.gamePage = GamePage(self)
         self.settingPage = SettingPage(self)
+        self.aboutPage = AboutPage(self)
 
         self.addPage(self.mainPage, "top")
         self.addSeparator("top")
         self.addPage(self.toolPage, "scroll")
         self.addPage(self.gamePage, "scroll")
         self.addSeparator("bottom")
-        self.navigationInterface.addWidget("avatar", NavigationAvatarWidget(program.AUTHOR_NAME, program.source("zb.png")), None, NavigationItemPosition.BOTTOM)
         self.addPage(self.settingPage, "bottom")
+        self.addPage(self.aboutPage, "bottom")
+
+    def __initActivity(self):
+        # 循环监测事件
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.repeatOpen)
+        self.timer.start(100)
+
+        # 托盘组件
+        self.tray = Tray(self)
+        self.tray.setVisible(setting.read("showTray"))
+
+        self.setMicaEffectEnabled(setting.read("micaEffect"))
+        if setting.read("autoUpdate") and program.isStartup:
+            self.aboutPage.updateSettingCard.button3Clicked()
+        if program.PYTHON_VERSION.split(".")[1] != "12":
+            QMessageBox(QMessageBox.Warning, "警告", f"当前Python版本为{program.PYTHON_VERSION}，{program.PROGRAM_NAME}推荐使用Python3.12版本！").exec()
+
+        # 插件安装
+        self.addAddon(f.getInstalledAddonInfo())
+
+    def repeatOpen(self):
+        """
+        重复运行展示窗口
+        """
+        if setting.read("showWindow") == "1":
+            setting.save("showWindow", "0")
+            self.show()
+
+    def keyPressEvent(self, QKeyEvent):
+        """
+        自定义按键事件
+        """
+        # Esc键
+        if QKeyEvent.key() == Qt.Key_Escape:
+            if setting.read("hideWhenClose"):
+                self.hide()
+
+    def closeEvent(self, QCloseEvent):
+        """
+        自定义关闭事件
+        """
+        QCloseEvent.ignore()
+        if setting.read("hideWhenClose"):
+            self.hide()
+        else:
+            sys.exit()
 
     def addPage(self, page: QWidget, pos: str):
         """
@@ -248,63 +335,67 @@ class Window(FluentWindow):
         """
         self.navigationInterface.addSeparator(eval(f"NavigationItemPosition.{pos.upper()}"))
 
-    def __initActivity(self):
-        # 循环监测事件
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(self.repeatOpen)
-        self.timer.start(100)
+    def addAddon(self, msg):
+        """
+        添加插件
+        @param data: 数据
+        """
+        if "id" in msg.keys():
+            self.__addAddon(msg)
+        else:
+            for v in msg.values():
+                self.__addAddon(v)
 
-        # 托盘组件
-        self.tray = Tray(self)
+    def removeAddon(self, msg):
+        """
+        移除插件
+        @param data: 数据
+        """
+        if "id" in msg.keys():
+            self.__removeAddon(msg)
+        else:
+            for v in msg.values():
+                self.__removeAddon(v)
 
-        if setting.read("autoUpdate") and program.isStartup:
-            self.settingPage.updateSettingCard.button3Clicked()
-        if program.PYTHON_VERSION.split(".")[1] != "12":
-            QMessageBox(QMessageBox.Warning, "警告", f"当前Python版本为{program.PYTHON_VERSION}，{program.PROGRAM_NAME}推荐使用Python3.12版本！").exec()
-
-        # 插件下载
-        self.thread = NewThread("下载插件")
-        self.thread.signalDict.connect(self.thread1)
-        self.thread.start()
-
-    def thread1(self, msg):
+    def __addAddon(self, data):
+        """
+        添加插件
+        @param data: 数据
+        """
         sys.path = [program.ADDON_PATH] + sys.path
         import importlib
         try:
-            lib = importlib.import_module(msg["id"])
-            if msg["pos"] == "tool":
+            lib = importlib.import_module(data["id"])
+            if data["pos"] == "tool":
                 self.page = lib.AddonTab()
-                self.toolPage.addPage(self.page, msg["name"])
-            elif msg["pos"] == "game":
+                self.toolPage.addPage(self.page, data["name"])
+            elif data["pos"] == "game":
                 self.page = lib.AddonTab()
-                self.gamePage.addPage(self.page, msg["name"])
-            elif msg["pos"] == "page":
+                self.gamePage.addPage(self.page, data["name"])
+            elif data["pos"] == "page":
                 self.page = lib.AddonPage()
                 if not self.page.title:
-                    self.page.title = msg["name"]
+                    self.page.title = data["name"]
                 self.addPage(self.page, "scroll")
         except Exception as ex:
-            logging.warning(f"插件{msg["name"]}装载失败{ex}")
+            self.signalStr.emit(data["id"])
+            logging.warning(f"插件{data["name"]}安装失败{ex}")
 
-    def repeatOpen(self):
+    def __removeAddon(self, data):
         """
-        重复运行展示窗口
+        移除插件
+        @param data: 数据
         """
-        if setting.read("showWindow") == "1":
-            setting.save("showWindow", "0")
-            self.show()
+        f.cmd(f"del /F /Q {f.pathJoin(program.ADDON_PATH, data["id"])}", True)
+        logging.info(f"插件{data["name"]}删除成功")
 
-    def keyPressEvent(self, QKeyEvent):
-        """
-        自定义按键事件
-        """
-        # Esc键
-        if QKeyEvent.key() == Qt.Key_Escape:
-            self.hide()
+        self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{data["name"]}删除成功！", Qt.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.aboutPage)
 
-    def closeEvent(self, QCloseEvent):
-        """
-        自定义关闭事件
-        """
-        QCloseEvent.ignore()
-        self.hide()
+        self.button1 = PushButton("重新启动", self, FIF.SYNC)
+        self.button1.clicked.connect(self.aboutPage.controlSettingCard.button2Clicked)
+
+        self.infoBar.addWidget(self.button1)
+        self.infoBar.show()
+
+
+logging.debug("window.py初始化成功")

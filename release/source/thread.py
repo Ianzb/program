@@ -1,9 +1,27 @@
-from .function import *
+from .init import *
+
+
+class Thread(threading.Thread):
+    """
+    threading多线程优化
+    """
+
+    def __init__(self, func, *args):
+        super().__init__()
+
+        self.func = func
+        self.args = args
+
+        self.daemon = True
+        self.start()
+
+    def run(self):
+        self.func(*self.args)
 
 
 class NewThread(QThread):
     """
-    多线程模块
+    QThread多线程模块
     """
     signalStr = pyqtSignal(str)
     signalInt = pyqtSignal(int)
@@ -80,11 +98,25 @@ class NewThread(QThread):
             try:
                 data = f.getAddonDict()
                 for k, v in data.items():
-                    data[k] = f.getAddonInfo(v)
-                    f.downloadAddon(data[k])
-                    self.signalDict.emit(data[k])
+                    if k in self.data:
+                        data[k] = f.getAddonInfo(v)
+                        f.downloadAddon(data[k])
+                        self.signalDict.emit(data[k])
+                self.signalBool.emit(True)
             except Exception as ex:
                 logging.warning(f"插件下载失败{ex}")
+        if self.mode == "云端插件信息":
+            try:
+                data = f.getAddonDict()
+                for k, v in data.items():
+                    data[k] = f.getAddonInfo(v)
+                self.signalDict.emit(data)
+            except Exception as ex:
+                self.signalBool.emit(False)
+                logging.warning(f"插件信息获取败{ex}")
         if self.mode == "清理程序缓存":
             f.clearProgramCache()
             self.signalBool.emit(True)
+
+
+logging.debug("thread.py初始化成功")

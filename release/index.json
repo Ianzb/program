@@ -1,16 +1,16 @@
 {
-    "version": "3.3.0",
+    "version": "3.4.0",
     "list": [
         "main.pyw",
         "download.pyw",
         "source/function.py",
+        "source/init.py",
         "source/thread.py",
         "source/custom.py",
         "source/widget.py",
         "source/window.py",
         "img/program.ico",
         "img/program.png",
-        "img/programbeta.png",
-        "img/zb.png"
+        "img/programbeta.png"
     ]
 }

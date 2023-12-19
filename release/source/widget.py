@@ -31,6 +31,125 @@ class BlackListEditMessageBox(MessageBoxBase):
         self.accepted.emit()
 
 
+class AddonEditMessageBox(MessageBoxBase):
+    """
+    可编辑插件的弹出框
+    """
+
+    def __init__(self, title: str, parent=None, error: list = []):
+        super().__init__(parent)
+        self.errorAddonList = error
+        self.titleLabel = SubtitleLabel(title, self)
+        self.loadingCard = LoadingCard()
+
+        self.tableView = TableWidget(self)
+
+        self.tableView.setBorderVisible(True)
+        self.tableView.setBorderRadius(8)
+        self.tableView.setWordWrap(False)
+        self.tableView.setColumnCount(4)
+        self.tableView.setEditTriggers(QAbstractItemView.NoEditTriggers)
+
+        self.tableView.verticalHeader().hide()
+        self.tableView.setHorizontalHeaderLabels(["ID", "名称", "本地版本号", "在线版本号"])
+        self.tableView.resizeColumnsToContents()
+        self.tableView.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.tableView.hide()
+
+        self.viewLayout.addWidget(self.titleLabel)
+        self.viewLayout.addWidget(self.tableView, 0, Qt.AlignTop)
+        self.viewLayout.addWidget(self.loadingCard, 0, Qt.AlignCenter)
+
+        self.yesButton.setText("安装选中")
+        self.yesButton.clicked.connect(self.yesButtonClicked)
+
+        self.removeButton = PrimaryPushButton("删除选中", self.buttonGroup)
+        self.removeButton.clicked.connect(self.removeButtonClicked)
+        self.buttonLayout.insertWidget(1, self.removeButton, 1, Qt.AlignVCenter)
+
+        self.cancelButton.setText("取消")
+
+        self.widget.setMinimumWidth(500)
+
+        self.thread1 = NewThread("云端插件信息")
+        self.thread1.signalDict.connect(self.threadEvent1_1)
+        self.thread1.signalBool.connect(self.threadEvent1_2)
+        self.thread1.start()
+
+    def yesButtonClicked(self):
+        self.parent().aboutPage.addonSettingCard.button1.setEnabled(False)
+        self.parent().aboutPage.addonSettingCard.progressBarLoading.show()
+
+        list = [self.tableView.itemFromIndex(i).text() for i in self.tableView.selectedIndexes()[::4]]
+        self.thread3 = NewThread("下载插件", list)
+        self.thread3.signalDict.connect(self.threadEvent3_1)
+        self.thread3.signalBool.connect(self.threadEvent3_2)
+        self.thread3.start()
+
+    def removeButtonClicked(self):
+        self.parent().aboutPage.addonSettingCard.button1.setEnabled(False)
+        self.parent().aboutPage.addonSettingCard.progressBarLoading.show()
+
+        id_list = [self.tableView.itemFromIndex(i).text() for i in self.tableView.selectedIndexes()[::4]]
+        name_list = [self.tableView.itemFromIndex(i).text() for i in self.tableView.selectedIndexes()[1::4]]
+        installed_version_list = [self.tableView.itemFromIndex(i).text() for i in self.tableView.selectedIndexes()[2::4]]
+        for i in range(len(id_list)):
+            if installed_version_list[i] != "未安装":
+                self.parent().removeAddon({"id": id_list[i], "name": name_list[i]})
+
+        self.accept()
+        self.accepted.emit()
+        self.parent().aboutPage.addonSettingCard.button1.setEnabled(True)
+        self.parent().aboutPage.addonSettingCard.progressBarLoading.hide()
+
+    def threadEvent1_1(self, msg):
+        i = 0
+        self.tableView.setRowCount(len(msg.values()))
+        installed = f.getInstalledAddonInfo()
+        for v in msg.values():
+            self.tableView.setItem(i, 0, QTableWidgetItem(v["id"]))
+            self.tableView.setItem(i, 1, QTableWidgetItem(v["name"]))
+            if v["id"] in installed.keys():
+                self.tableView.setItem(i, 2, QTableWidgetItem(installed[v["id"]]["version"]))
+            else:
+                self.tableView.setItem(i, 2, QTableWidgetItem("未安装"))
+            if v["id"] in self.errorAddonList:
+                self.tableView.setItem(i, 2, QTableWidgetItem("安装失败"))
+            self.tableView.setItem(i, 3, QTableWidgetItem(v["version"]))
+            i += 1
+        self.tableView.show()
+        self.loadingCard.hide()
+
+    def threadEvent1_2(self, msg):
+        if not msg:
+            self.loadingCard.setText("网络连接失败！")
+
+    def threadEvent2(self, msg):
+        self.tableView.show()
+        i = 0
+        self.tableView.setRowCount(len(msg.values()))
+        for v in msg.values():
+            self.tableView.setItem(i, 0, QTableWidgetItem(v["id"]))
+            self.tableView.setItem(i, 1, QTableWidgetItem(v["name"]))
+            self.tableView.setItem(i, 2, QTableWidgetItem(v["version"]))
+            if not self.tableView.item(i, 3):
+                self.tableView.setItem(i, 3, QTableWidgetItem("加载中..."))
+            i += 1
+        self.loadingCard.hide()
+
+    def threadEvent3_1(self, msg):
+        self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{msg["name"]}安装成功！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().aboutPage)
+        self.infoBar.show()
+        self.parent().addAddon(msg)
+        if msg["id"] in self.parent().aboutPage.addonSettingCard.errorAddonList:
+            self.parent().aboutPage.addonSettingCard.errorAddonList.remove(msg["id"])
+
+    def threadEvent3_2(self, msg):
+        if msg:
+            self.parent().aboutPage.addonSettingCard.button1.setEnabled(True)
+            self.parent().aboutPage.addonSettingCard.progressBarLoading.hide()
+
+
 class ThemeSettingCard(ExpandSettingCard):
     """
     主题设置卡片
@@ -200,6 +319,27 @@ class ColorSettingCard(ExpandGroupSettingCard):
         self.colorChanged.emit(color)
 
 
+class MicaEffectSettingCard(SettingCard):
+    """
+    云母效果设置卡片
+    """
+
+    def __init__(self, parent=None):
+        super().__init__(FIF.TRANSPARENT, "云母效果", "", parent)
+        self.button1 = SwitchButton(self, IndicatorPosition.RIGHT)
+        self.button1.setChecked(setting.read("micaEffect"))
+        self.button1.checkedChanged.connect(self.button1Clicked)
+        self.button1.setToolTip("开启Windows11的窗口模糊效果")
+        self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
+
+        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
+        self.hBoxLayout.addSpacing(16)
+
+    def button1Clicked(self):
+        setting.save("micaEffect", self.button1.checked)
+        self.parent().parent().parent().parent().parent().parent().parent().setMicaEffectEnabled(self.button1.checked)
+
+
 class StartupSettingCard(SettingCard):
     """
     开机自启动设置卡片
@@ -261,28 +401,45 @@ class StartupSettingCard(SettingCard):
         setting.save("autoUpdate", self.checkBox3.isChecked())
 
 
-class ShortcutSettingCard(SettingCard):
+class TraySettingCard(SettingCard):
     """
-    快捷方式设置卡片
+    托盘设置卡片
     """
 
     def __init__(self, parent=None):
-        super().__init__(FIF.ADD_TO, "添加快捷方式", "向计算机中添加程序的快捷方式", parent)
-        self.button1 = HyperlinkButton("", "桌面", self)
-        self.button2 = HyperlinkButton("", "开始菜单", self)
-
-        self.button1.clicked.connect(lambda: f.createShortcut(program.PROGRAM_MAIN_FILE_PATH, f.pathJoin(program.DESKTOP_PATH, "zb小程序.lnk"), program.source("program.ico")))
-        self.button2.clicked.connect(lambda: f.createShortcut(program.PROGRAM_MAIN_FILE_PATH, f.pathJoin(program.USER_PATH, r"AppData\Roaming\Microsoft\Windows\Start Menu\Programs", "zb小程序.lnk"), program.source("program.ico")))
-
-        self.button1.setToolTip("将程序添加到桌面快捷方式")
-        self.button2.setToolTip("将程序添加到开始菜单列表")
-
+        super().__init__(FIF.ZOOM, "展示托盘图标", "", parent)
+        self.button1 = SwitchButton(self, IndicatorPosition.RIGHT)
+        self.button1.setChecked(setting.read("showTray"))
+        self.button1.checkedChanged.connect(self.button1Clicked)
+        self.button1.setToolTip("在系统托盘展示软件图标")
         self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
-        self.button2.installEventFilter(ToolTipFilter(self.button2, 1000))
 
         self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
-        self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
+
+    def button1Clicked(self):
+        setting.save("showTray", self.button1.checked)
+        self.parent().parent().parent().parent().parent().parent().parent().tray.setVisible(self.button1.checked)
+
+
+class HideSettingCard(SettingCard):
+    """
+    隐藏后台设置卡片
+    """
+
+    def __init__(self, parent=None):
+        super().__init__(FIF.EMBED, "自动驻留后台", "", parent)
+        self.button1 = SwitchButton(self, IndicatorPosition.RIGHT)
+        self.button1.setChecked(setting.read("hideWhenClose"))
+        self.button1.checkedChanged.connect(self.button1Clicked)
+        self.button1.setToolTip("关闭窗口时程序自动隐藏")
+        self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
+
+        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
+        self.hBoxLayout.addSpacing(16)
+
+    def button1Clicked(self):
+        setting.save("hideWhenClose", self.button1.checked)
 
 
 class SortSettingCard(SettingCard):
@@ -327,19 +484,16 @@ class SortBlacklistSettingCard(SettingCard):
     def __init__(self, parent=None):
         super().__init__(FIF.FOLDER, "整理文件黑名单", "设置整理文件时跳过的文件", parent)
         self.button1 = PushButton("编辑黑名单", self, FIF.EDIT)
-
         self.button1.clicked.connect(self.button1Clicked)
-
         self.button1.setToolTip("编辑整理文件黑名单")
-
         self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
 
         self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
     def button1Clicked(self):
-        self.lineEditMessageBox = BlackListEditMessageBox("编辑黑名单", "输入文件名称\n一行一个", self.parent().parent().parent().parent().parent().parent().parent())
-        self.lineEditMessageBox.show()
+        self.blackListMessageBox = BlackListEditMessageBox("编辑黑名单", "输入文件名称\n一行一个", self.parent().parent().parent().parent().parent().parent().parent())
+        self.blackListMessageBox.show()
 
 
 class DownloadSettingCard(SettingCard):
@@ -366,50 +520,37 @@ class DownloadSettingCard(SettingCard):
             setting.save("downloadPath", str(get))
 
 
-class HelpSettingCard(SettingCard):
+class AddonSettingCard(SettingCard):
     """
-    帮助设置卡片
+    插件设置卡片
     """
 
     def __init__(self, parent=None):
-        super().__init__(FIF.HELP, "帮助", "查看程序相关信息", parent)
-        self.button1 = HyperlinkButton(program.PROGRAM_PATH, "程序安装路径", self, FIF.FOLDER)
-        self.button2 = HyperlinkButton(program.PROGRAM_PATH, "程序数据路径", self, FIF.FOLDER)
-        self.button3 = HyperlinkButton("", "清理程序缓存", self, FIF.BROOM)
+        super().__init__(FIF.ADD, "插件", f"管理{program.PROGRAM_NAME}的插件", parent)
+        self.errorAddonList = []
 
-        self.button1.clicked.connect(lambda: f.startFile(program.PROGRAM_PATH))
-        self.button2.clicked.connect(lambda: f.startFile(program.PROGRAM_DATA_PATH))
-        self.button3.clicked.connect(self.button3Clicked)
+        self.progressBarLoading = IndeterminateProgressBar(self)
+        self.progressBarLoading.setMaximumWidth(200)
+        self.progressBarLoading.hide()
 
-        self.button1.setToolTip("打开程序安装路径")
-        self.button2.setToolTip("打开程序数据路径")
-        self.button3.setToolTip("清理程序运行过程中生成的缓存文件")
-
+        self.button1 = PushButton("管理插件", self, FIF.EDIT)
+        self.button1.clicked.connect(self.button1Clicked)
+        self.button1.setToolTip("管理程序插件")
         self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
-        self.button2.installEventFilter(ToolTipFilter(self.button2, 1000))
-        self.button3.installEventFilter(ToolTipFilter(self.button3, 1000))
 
+        self.hBoxLayout.addWidget(self.progressBarLoading, Qt.AlignRight)
+        self.hBoxLayout.addSpacing(8)
         self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
-        self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignRight)
-        self.hBoxLayout.addWidget(self.button3, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
-    def button3Clicked(self):
-        self.button3.setEnabled(False)
+        self.parent().parent().signalStr.connect(self.errorAddonEvent)
 
-        self.thread = NewThread("清理程序缓存")
-        self.thread.signalBool.connect(self.thread3)
-        self.thread.start()
+    def button1Clicked(self):
+        self.addonEditMessageBox = AddonEditMessageBox("管理插件", self.parent().parent().parent().parent().parent().parent().parent(), self.errorAddonList)
+        self.addonEditMessageBox.show()
 
-    def thread3(self, msg):
-        self.button3.setEnabled(True)
-
-        if msg:
-            self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", "清理程序缓存成功！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
-            self.infoBar.show()
-        else:
-            self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", "清理程序缓存失败！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
-            self.infoBar.show()
+    def errorAddonEvent(self, msg):
+        self.errorAddonList.append(msg)
 
 
 class UpdateSettingCard(SettingCard):
@@ -486,11 +627,11 @@ class UpdateSettingCard(SettingCard):
         self.label.show()
         self.progressBar.show()
 
-        self.thread = NewThread("更新运行库")
-        self.thread.signalDict.connect(self.thread1)
-        self.thread.start()
+        self.thread1 = NewThread("更新运行库")
+        self.thread1.signalDict.connect(self.threadEvent1)
+        self.thread1.start()
 
-    def thread1(self, msg):
+    def threadEvent1(self, msg):
         if msg["完成"]:
             self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", "运行库安装成功！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
             self.infoBar.show()
@@ -518,11 +659,11 @@ class UpdateSettingCard(SettingCard):
         self.button1.setEnabled(False)
         self.button2.setEnabled(False)
 
-        self.thread = NewThread("检查更新")
-        self.thread.signalDict.connect(self.thread2)
-        self.thread.start()
+        self.thread2 = NewThread("检查更新")
+        self.thread2.signalDict.connect(self.threadEvent2)
+        self.thread2.start()
 
-    def thread2(self, msg):
+    def threadEvent2(self, msg):
         if msg["更新"]:
             self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", f"检测到新版本{msg["版本"]}！", Qt.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
 
@@ -551,17 +692,17 @@ class UpdateSettingCard(SettingCard):
         self.label.show()
         self.progressBar.show()
 
-        self.thread = NewThread("立刻更新")
-        self.thread.signalDict.connect(self.thread3)
-        self.thread.start()
+        self.thread3 = NewThread("立刻更新")
+        self.thread3.signalDict.connect(self.threadEvent3)
+        self.thread3.start()
 
-    def thread3(self, msg):
+    def threadEvent3(self, msg):
         if msg["更新"]:
             if msg["完成"]:
                 self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", "更新成功！", Qt.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
 
                 self.button4 = PushButton("重新启动", self, FIF.SYNC)
-                self.button4.clicked.connect(self.button4Clicked)
+                self.button4.clicked.connect(self.parent().parent().parent().parent().parent().parent().parent().aboutPage.controlSettingCard.button2Clicked)
 
                 self.infoBar.addWidget(self.button4)
                 self.infoBar.show()
@@ -594,9 +735,107 @@ class UpdateSettingCard(SettingCard):
             self.button1.setEnabled(True)
             self.button2.setEnabled(True)
 
-    def button4Clicked(self):
+
+class HelpSettingCard(SettingCard):
+    """
+    帮助设置卡片
+    """
+
+    def __init__(self, parent=None):
+        super().__init__(FIF.HELP, "帮助", "查看程序相关信息", parent)
+        self.button1 = HyperlinkButton(program.PROGRAM_PATH, "程序安装路径", self, FIF.FOLDER)
+        self.button2 = HyperlinkButton(program.PROGRAM_PATH, "程序数据路径", self, FIF.FOLDER)
+        self.button3 = HyperlinkButton("", "清理程序缓存", self, FIF.BROOM)
+
+        self.button1.clicked.connect(lambda: f.startFile(program.PROGRAM_PATH))
+        self.button2.clicked.connect(lambda: f.startFile(program.PROGRAM_DATA_PATH))
+        self.button3.clicked.connect(self.button3Clicked)
+
+        self.button1.setToolTip("打开程序安装路径")
+        self.button2.setToolTip("打开程序数据路径")
+        self.button3.setToolTip("清理程序运行过程中生成的缓存文件")
+
+        self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
+        self.button2.installEventFilter(ToolTipFilter(self.button2, 1000))
+        self.button3.installEventFilter(ToolTipFilter(self.button3, 1000))
+
+        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
+        self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignRight)
+        self.hBoxLayout.addWidget(self.button3, 0, Qt.AlignRight)
+        self.hBoxLayout.addSpacing(16)
+
+    def button3Clicked(self):
+        self.button3.setEnabled(False)
+
+        self.thread3 = NewThread("清理程序缓存")
+        self.thread3.signalBool.connect(self.threadEvent3)
+        self.thread3.start()
+
+    def threadEvent3(self, msg):
+        self.button3.setEnabled(True)
+
+        if msg:
+            self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", "清理程序缓存成功！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+            self.infoBar.show()
+        else:
+            self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", "清理程序缓存失败！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+            self.infoBar.show()
+
+
+class ControlSettingCard(SettingCard):
+    """
+    控制设置卡片
+    """
+
+    def __init__(self, parent=None):
+        super().__init__(FIF.ALBUM, "控制", "", parent)
+        self.button1 = PushButton("关闭", self, FIF.CLOSE)
+        self.button2 = PushButton("重新启动", self, FIF.SYNC)
+
+        self.button1.clicked.connect(self.button1Clicked)
+        self.button2.clicked.connect(self.button2Clicked)
+
+        self.button1.setToolTip("关闭程序")
+        self.button2.setToolTip("重新启动程序")
+
+        self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
+        self.button2.installEventFilter(ToolTipFilter(self.button2, 1000))
+
+        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
+        self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignRight)
+        self.hBoxLayout.addSpacing(16)
+
+    def button1Clicked(self):
+        pass
+        sys.exit()
+
+    def button2Clicked(self):
         f.cmd(program.PROGRAM_MAIN_FILE_PATH)
         sys.exit()
+
+
+class ShortcutSettingCard(SettingCard):
+    """
+    快捷方式设置卡片
+    """
+
+    def __init__(self, parent=None):
+        super().__init__(FIF.ADD_TO, "添加快捷方式", "", parent)
+        self.button1 = HyperlinkButton("", "桌面", self)
+        self.button2 = HyperlinkButton("", "开始菜单", self)
+
+        self.button1.clicked.connect(lambda: f.createShortcut(program.PROGRAM_MAIN_FILE_PATH, f.pathJoin(program.DESKTOP_PATH, "zb小程序.lnk"), program.source("program.ico")))
+        self.button2.clicked.connect(lambda: f.createShortcut(program.PROGRAM_MAIN_FILE_PATH, f.pathJoin(program.USER_PATH, r"AppData\Roaming\Microsoft\Windows\Start Menu\Programs", "zb小程序.lnk"), program.source("program.ico")))
+
+        self.button1.setToolTip("将程序添加到桌面快捷方式")
+        self.button2.setToolTip("将程序添加到开始菜单列表")
+
+        self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
+        self.button2.installEventFilter(ToolTipFilter(self.button2, 1000))
+
+        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
+        self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignRight)
+        self.hBoxLayout.addSpacing(16)
 
 
 class AboutSettingCard(SettingCard):
@@ -620,69 +859,4 @@ class AboutSettingCard(SettingCard):
         self.hBoxLayout.addSpacing(16)
 
 
-class Tray(QSystemTrayIcon):
-    """
-    系统托盘组件
-    """
-
-    def __init__(self, window):
-        super(Tray, self).__init__()
-        self.window = window
-
-        self.setIcon(QIcon(program.PROGRAM_ICON))
-        self.setToolTip(program.PROGRAM_TITLE)
-        self.installEventFilter(ToolTipFilter(self, 1000))
-        self.activated.connect(self.iconClicked)
-        self.show()
-
-        self.showMessage(program.PROGRAM_NAME, f"{program.PROGRAM_NAME}启动成功！", QIcon(program.PROGRAM_ICON), 1)
-
-        self.action1 = Action(FIF.HOME, "打开", triggered=self.action1Clicked)
-        self.action2 = Action(FIF.ALIGNMENT, "整理", triggered=self.action2Clicked)
-        self.action3 = Action(FIF.LINK, "官网", triggered=self.action3Clicked)
-        self.action4 = Action(FIF.CLOSE, "退出", triggered=self.action4Clicked)
-
-        self.menu = SystemTrayMenu()
-
-        self.menu.addAction(self.action1)
-        self.menu.addAction(self.action2)
-        self.menu.addAction(self.action3)
-        self.menu.addAction(self.action4)
-
-        self.window.mainPage.signalBool.connect(self.thread2)
-
-    def iconClicked(self, reason):
-        if reason == 3:
-            self.trayClickedEvent()
-        elif reason == 1:
-            self.menu.show()
-
-    def trayClickedEvent(self):
-        if self.window.isHidden():
-            self.window.setHidden(False)
-            if self.window.windowState() == Qt.WindowMinimized:
-                self.window.showNormal()
-            self.window.raise_()
-            self.window.activateWindow()
-        else:
-            self.window.setHidden(True)
-
-    def action1Clicked(self):
-        self.window.show()
-
-    def action2Clicked(self):
-        self.action2.setEnabled(False)
-        self.window.mainPage.button1_1Clicked()
-
-    def thread2(self, msg):
-        self.action2.setEnabled(msg)
-
-    def action3Clicked(self):
-        webbrowser.open(program.PROGRAM_URL)
-
-    def action4Clicked(self):
-        self.deleteLater()
-        qApp.quit()
-
-
-logging.debug("windows.py初始化成功")
+logging.debug("widget.py初始化成功")

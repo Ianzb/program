@@ -32,7 +32,7 @@ class ProgramInit():
     PROGRAM_VERSION = "安装器"  # 程序版本
     PROGRAM_TITLE = f"{PROGRAM_NAME} {PROGRAM_VERSION}"  # 程序窗口标题
     UPDATE_URL = "https://ianzb.github.io/program/release/index.json"  # 更新网址
-    PROGRAM_MAIN_FILE_PATH = sys.argv[0]  # 程序主文件路径
+    PROGRAM_MAIN_FILE_PATH = sys.argv[0].replace("download.pyw", "main.pyw")  # 程序主文件路径
     USER_PATH = os.path.expanduser("~")  # 系统用户路径
     PROGRAM_PATH = os.path.join(USER_PATH, "zb")  # 程序安装路径
     SOURCE_PATH = os.path.join(PROGRAM_PATH, "img")  # 程序资源文件路径

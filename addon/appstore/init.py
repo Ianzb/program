@@ -5,8 +5,10 @@ from source.custom import *
 
 os.chdir(os.path.dirname(__file__))
 
-from beta.source.custom import *
-
+try:
+    from beta.source.custom import *
+except:
+    pass
 
 def searchSoftware(name: str, source: str) -> list:
     """
