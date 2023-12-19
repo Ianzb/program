@@ -471,18 +471,19 @@ class FileFunctions(ProcessFunctions):
         @return: 文件夹路径列表
         """
         list1 = []
-        if mode == 0:
-            if self.isDir(path):
-                paths = os.walk(path)
-                for path, dir_lst, file_lst in paths:
-                    for dir_name in dir_lst:
-                        list1.append(self.pathJoin(path, dir_name))
-        if mode == 1:
-            for i in os.listdir(path):
-                if self.isDir(self.pathJoin(path, i)):
-                    list1.append(self.pathJoin(path, i))
-        if not list1:
-            list1 = []
+        if self.existPath(path):
+            if mode == 0:
+                if self.isDir(path):
+                    paths = os.walk(path)
+                    for path, dir_lst, file_lst in paths:
+                        for dir_name in dir_lst:
+                            list1.append(self.pathJoin(path, dir_name))
+            if mode == 1:
+                for i in os.listdir(path):
+                    if self.isDir(self.pathJoin(path, i)):
+                        list1.append(self.pathJoin(path, i))
+            if not list1:
+                list1 = []
         return list1
 
     def walkFile(self, path: str, mode=0) -> list:
@@ -493,18 +494,19 @@ class FileFunctions(ProcessFunctions):
         @return: 文件路径列表
         """
         list1 = []
-        if mode == 0:
-            paths = os.walk(path)
-            if self.isDir(path):
-                for path, dir_lst, file_lst in paths:
-                    for file_name in file_lst:
-                        list1.append(self.pathJoin(path, file_name))
-        if mode == 1:
-            for i in os.listdir(path):
-                if self.isFile(self.pathJoin(path, i)):
-                    list1.append(self.pathJoin(path, i))
-        if not list1:
-            list1 = []
+        if self.existPath(path):
+            if mode == 0:
+                paths = os.walk(path)
+                if self.isDir(path):
+                    for path, dir_lst, file_lst in paths:
+                        for file_name in file_lst:
+                            list1.append(self.pathJoin(path, file_name))
+            if mode == 1:
+                for i in os.listdir(path):
+                    if self.isFile(self.pathJoin(path, i)):
+                        list1.append(self.pathJoin(path, i))
+            if not list1:
+                list1 = []
         return list1
 
     def copyFile(self, old: str, new: str):
