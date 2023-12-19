@@ -918,7 +918,6 @@ class ProgramFunctions(FileFunctions):
             if f.existPath(f.pathJoin(i, "addon.json")):
                 with open(f.pathJoin(i, "addon.json"), encoding="utf-8") as file:
                     data[f.splitPath(i)] = json.loads(file.read())
-        print(data)
         return data
 
 
