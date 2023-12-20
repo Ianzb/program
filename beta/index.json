@@ -10,6 +10,6 @@
         "source/widget.py",
         "source/window.py",
         "img/program.ico",
-        "img/program.png",
+        "img/program.png"
     ]
 }

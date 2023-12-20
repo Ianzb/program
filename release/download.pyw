@@ -187,21 +187,21 @@ class Functions():
         pip安装运行库
         @param lib_name: 运行库名称
         """
-        if not f.pipTest():
-            showwarning("警告", "Python未添加环境变量，pip无法使用，无法安装运行库！请依次尝试重启安装器、等待一段时间后重试或重启电脑！")
-            return
         button1.config(state=DISABLED)
         button2.config(state=DISABLED)
         button3.config(state=DISABLED)
-        if type(lib_name) is str:
-            self.cmd(f"pip install {lib_name} -i https://pypi.tuna.tsinghua.edu.cn/simple some-package", True)
-        elif type(lib_name) is list:
-            for i in range(len(lib_name)):
-                self.cmd(f"pip install {lib_name[i]} -i https://pypi.tuna.tsinghua.edu.cn/simple some-package", True)
-                progress.set(int(100 * (i + 1) / len(lib_name)))
-            progress.set(100)
-            showinfo("提示", "运行库安装成功！")
-            progress.set(0)
+        if f.pipTest():
+            if type(lib_name) is str:
+                self.cmd(f"pip install {lib_name} -i https://pypi.tuna.tsinghua.edu.cn/simple some-package", True)
+            elif type(lib_name) is list:
+                for i in range(len(lib_name)):
+                    self.cmd(f"pip install {lib_name[i]} -i https://pypi.tuna.tsinghua.edu.cn/simple some-package", True)
+                    progress.set(int(100 * (i + 1) / len(lib_name)))
+                progress.set(100)
+                showinfo("提示", "运行库安装成功！")
+                progress.set(0)
+        else:
+            showwarning("警告", "Python未添加环境变量，pip无法使用，无法安装运行库！请依次尝试重启安装器、等待一段时间后重试或重启电脑！")
         button1.config(state=NORMAL)
         button2.config(state=NORMAL)
         button3.config(state=NORMAL)
