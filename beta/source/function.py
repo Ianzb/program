@@ -727,7 +727,7 @@ class FileFunctions(ProcessFunctions):
         data = setting.read("sortBlacklist")
 
         if self.isSameFile(setting.read("sortPath"), program.DESKTOP_PATH):
-            data += list(self.SORT_FILE_DIR.keys())
+            data += list(self.SORT_FILE_DIR.keys()) + ["文件夹"]
         elif f.belongDir(setting.read("sortPath"), program.DESKTOP_PATH):
             dirs = self.walkDir(program.DESKTOP_PATH, 1)
             for i in dirs:
