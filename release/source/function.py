@@ -263,12 +263,12 @@ class ProcessFunctions:
 
     def removeIllegalPath(self, path: str) -> str:
         """
-        去除路径中的非法字符（[\\\/:*?"<>|]）
+        去除路径中的非法字符
         @param path: 路径
         @return: 去除非法字符后的字符串
         """
         import re
-        return re.sub('[\\\/:*?"<>|]', "", path)
+        return re.sub(r'[\\\/:*?"<>|]', "", path)
 
     def compareVersion(self, version1: str, version2: str) -> str:
         """
@@ -340,7 +340,7 @@ class FileFunctions(ProcessFunctions):
         @param path: 路径
         @return: 格式化结果
         """
-        path = os.path.normpath(path).replace("//", "\ "[:-1]).replace("\\ "[:-1], "\ "[:-1])
+        path = os.path.normpath(path).replace("//", r"\ "[:-1]).replace("\\ "[:-1], r"\ "[:-1])
         return path
 
     def pathJoin(self, *data) -> str:
