@@ -90,7 +90,7 @@ class Functions():
         @param path: 路径
         @return: 格式化结果
         """
-        path = os.path.normpath(path).replace("//", "\ "[:-1]).replace("\\ "[:-1], "\ "[:-1])
+        path = os.path.normpath(path).replace("//", r"\ "[:-1]).replace("\\ "[:-1], r"\ "[:-1])
         return path
 
     def pathJoin(self, *data) -> str:
@@ -144,7 +144,7 @@ class Functions():
         """
         try:
             import requests
-            path = os.path.abspath(path).replace("init.py", "__init__.py")
+            path = os.path.abspath(path)
             data = requests.get(link, headers=program.REQUEST_HEADER)
             self.makeDir(self.splitPath(path, 3))
             with open(path, "wb") as file:
@@ -188,7 +188,7 @@ class Functions():
         @param lib_name: 运行库名称
         """
         if not f.pipTest():
-            showwarning("警告", "Python未添加环境变量，pip无法使用，无法安装运行库！若初次安装Python可能需要等待一段时间或重启方可生效！")
+            showwarning("警告", "Python未添加环境变量，pip无法使用，无法安装运行库！请依次尝试重启安装器、等待一段时间后重试或重启电脑！")
             return
         button1.config(state=DISABLED)
         button2.config(state=DISABLED)
@@ -227,13 +227,13 @@ class Functions():
             open(f.pathJoin(program.PROGRAM_PATH, "source/__init__.py"), "w").close()
             progress.set(100)
             try:
-                self.createShortcut(f.urlJoin(program.UPDATE_URL, "main.pyw"), self.pathJoin(program.DESKTOP_PATH, "zb小程序.lnk"), program.source("logo.ico"))
-                self.createShortcut(f.urlJoin(program.UPDATE_URL, "main.pyw"), self.pathJoin(program.USER_PATH, r"AppData\Roaming\Microsoft\Windows\Start Menu\Programs", "zb小程序.lnk"), program.source("logo.ico"))
+                self.createShortcut(f.pathJoin(program.PROGRAM_PATH, "main.pyw"), self.pathJoin(program.DESKTOP_PATH, "zb小程序.lnk"), program.source("program.ico"))
+                self.createShortcut(f.pathJoin(program.PROGRAM_PATH, "main.pyw"), self.pathJoin(program.USER_PATH, r"AppData\Roaming\Microsoft\Windows\Start Menu\Programs", "zb小程序.lnk"), program.source("program.ico"))
                 showinfo("提示", f"{program.PROGRAM_NAME}安装成功，将会自动运行程序！")
             except Exception as ex:
                 showinfo("提示", f"{program.PROGRAM_NAME}安装成功，但添加快捷方式时出现问题，将会自动运行程序，请您在程序的关于页面中手动添加快捷方式！\n报错信息：{ex}")
-            self.cmd(f.urlJoin(program.UPDATE_URL, "main.pyw"))
-            progress.set(0)
+            self.cmd(f.pathJoin(program.PROGRAM_PATH, "main.pyw"))
+            sys.exit()
         except Exception as ex:
             showerror("提示", f"{program.PROGRAM_NAME}无法正常安装，可能是由于运行库缺失，请您在安装前先安装运行库！\n报错信息：{ex}")
         button1.config(state=NORMAL)

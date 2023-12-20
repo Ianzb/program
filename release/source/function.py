@@ -67,10 +67,7 @@ class Program:
 
     @property
     def PROGRAM_ICON(self) -> str:
-        if setting.read("updateChannel") == "正式版":
-            return program.source("program.png")
-        elif setting.read("updateChannel") == "测试版":
-            return program.source("programbeta.png")
+        return program.source("program.png")
 
     @property
     def UPDATE_URL(self) -> str:
@@ -806,7 +803,7 @@ class ProgramFunctions(FileFunctions):
         @param path: 下载路径
         """
         try:
-            path = os.path.abspath(path).replace("init.py", "__init__.py")
+            path = os.path.abspath(path)
             data = requests.get(link, headers=program.REQUEST_HEADER)
             self.makeDir(self.splitPath(path, 3))
             with open(path, "wb") as file:
@@ -904,12 +901,11 @@ class ProgramFunctions(FileFunctions):
             data["file"].append("addon.json")
         for i in data["file"]:
             if self.splitPath(self.pathJoin(program.ADDON_PATH, data["id"], i), 2) == ".zip":
-                self.downloadFile(self.urlJoin(data["url"], i), self.pathJoin(program.ADDON_PATH, i))
+                self.downloadFile(self.urlJoin(data["url"], i), self.pathJoin(program.ADDON_PATH, i).replace("init.py", "__init__.py"))
                 f.extractZip(self.pathJoin(program.ADDON_PATH, i), program.ADDON_PATH)
                 self.delete(self.pathJoin(program.ADDON_PATH, i))
             else:
-                self.downloadFile(self.urlJoin(data["url"], i), self.pathJoin(program.ADDON_PATH, data["id"], i))
-
+                self.downloadFile(self.urlJoin(data["url"], i), self.pathJoin(program.ADDON_PATH, data["id"], i).replace("init.py", "__init__.py"))
         for i in data["lib"]:
             self.pipInstall(i)
             self.pipUpdate(i)
