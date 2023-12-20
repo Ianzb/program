@@ -175,11 +175,21 @@ class Functions():
         if pause:
             return value.read()
 
+    def pipTest(self):
+        """
+        测试pip是否生效
+        @return: 是否生效
+        """
+        return "pip <command> [options]" in self.cmd("pip", True)
+
     def pipInstall(self, lib_name: str | list):
         """
         pip安装运行库
         @param lib_name: 运行库名称
         """
+        if not f.pipTest():
+            showwarning("警告", "Python未添加环境变量，pip无法使用，无法安装运行库！若初次安装Python可能需要等待一段时间或重启方可生效！")
+            return
         button1.config(state=DISABLED)
         button2.config(state=DISABLED)
         button3.config(state=DISABLED)
@@ -217,15 +227,15 @@ class Functions():
             open(f.pathJoin(program.PROGRAM_PATH, "source/__init__.py"), "w").close()
             progress.set(100)
             try:
-                self.createShortcut(program.PROGRAM_MAIN_FILE_PATH, self.pathJoin(program.DESKTOP_PATH, "zb小程序.lnk"), program.source("logo.ico"))
-                self.createShortcut(program.PROGRAM_MAIN_FILE_PATH, self.pathJoin(program.USER_PATH, r"AppData\Roaming\Microsoft\Windows\Start Menu\Programs", "zb小程序.lnk"), program.source("logo.ico"))
-                showinfo("提示", f"{program.PROGRAM_NAME}安装成功，已添加快捷方式图标！")
-            except:
-                showinfo("提示", f"{program.PROGRAM_NAME}安装成功，但快捷方式添加失败！")
-
+                self.createShortcut(f.urlJoin(program.UPDATE_URL, "main.pyw"), self.pathJoin(program.DESKTOP_PATH, "zb小程序.lnk"), program.source("logo.ico"))
+                self.createShortcut(f.urlJoin(program.UPDATE_URL, "main.pyw"), self.pathJoin(program.USER_PATH, r"AppData\Roaming\Microsoft\Windows\Start Menu\Programs", "zb小程序.lnk"), program.source("logo.ico"))
+                showinfo("提示", f"{program.PROGRAM_NAME}安装成功，将会自动运行程序！")
+            except Exception as ex:
+                showinfo("提示", f"{program.PROGRAM_NAME}安装成功，但添加快捷方式时出现问题，将会自动运行程序，请您在程序的关于页面中手动添加快捷方式！\n报错信息：{ex}")
+            self.cmd(f.urlJoin(program.UPDATE_URL, "main.pyw"))
             progress.set(0)
-        except:
-            showerror("提示", f"{program.PROGRAM_NAME}无法正常安装，可能是由于运行库缺失，请您在安装前先安装运行库！")
+        except Exception as ex:
+            showerror("提示", f"{program.PROGRAM_NAME}无法正常安装，可能是由于运行库缺失，请您在安装前先安装运行库！\n报错信息：{ex}")
         button1.config(state=NORMAL)
         button2.config(state=NORMAL)
         button3.config(state=NORMAL)

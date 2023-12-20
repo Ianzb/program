@@ -620,6 +620,11 @@ class UpdateSettingCard(SettingCard):
         setting.save("updateChannel", self.comboBox.currentText())
 
     def button1Clicked(self):
+        if not f.pipTest():
+            self.infoBar = InfoBar(InfoBarIcon.WARNING, "警告", "Python未添加环境变量，pip无法使用，无法安装运行库！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+            self.infoBar.show()
+            return
+
         self.comboBox.setEnabled(False)
         self.button1.setEnabled(False)
         self.button2.setEnabled(False)
