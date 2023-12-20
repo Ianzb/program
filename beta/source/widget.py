@@ -576,7 +576,7 @@ class UpdateSettingCard(SettingCard):
         self.comboBox.setPlaceholderText("更新通道")
         self.comboBox.addItems(["正式版", "抢先版", "测试版"])
         self.comboBox.currentIndexChanged.connect(self.comboBoxIndexChanged)
-        self.comboBox.setToolTip("选择更新通道")
+        self.comboBox.setToolTip("选择更新通道：\n 正式版：于123云盘发布，下载快，最稳定，更新慢\n 抢先版：于Github/release发布，下载慢，较稳定，更新慢，通常与正式版相同\n 测试版：于Github/beta发布，下载慢，不稳定，更新快，若非测试不推荐该版本")
         self.comboBox.installEventFilter(ToolTipFilter(self.comboBox, 1000))
         if setting.read("updateChannel") == "正式版":
             self.comboBox.setCurrentIndex(0)
