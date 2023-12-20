@@ -37,8 +37,7 @@ class ProgramInit():
     SOURCE_PATH = os.path.join(PROGRAM_PATH, "img")  # 程序资源文件路径
     STARTUP_ARGUMENT = sys.argv[1:]  # 程序启动参数
     CHANNEL = "正式版"  # 程序更新通道
-    REQUEST_HEADER = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0",
-                      "zbprogram": PROGRAM_VERSION}  # 程序默认网络请求头
+    REQUEST_HEADER = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0"}  # 程序默认网络请求头
     REQUIRE_LIB = ["PyQt-Fluent-Widgets",
                    "qt5_tools",
                    "requests",
