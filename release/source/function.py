@@ -768,6 +768,13 @@ class ProgramFunctions(FileFunctions):
     def __init__(self):
         super().__init__()
 
+    def pipTest(self):
+        """
+        测试pip是否生效
+        @return: 是否生效
+        """
+        return "pip <command> [options]" in self.cmd("pip", True)
+
     def pipInstall(self, lib_name: str | list):
         """
         pip安装运行库
@@ -989,50 +996,6 @@ class Functions(ProgramFunctions):
                 str1 += v1[i] + "版本：" + v2[i] + "\n"
         logging.debug("成功获取我的世界最新版本")
         return str1
-
-    def searchSoftware(self, name: str, source: str) -> list:
-        """
-        搜索软件
-        @param name: 名称
-        @return: 列表
-        """
-        logging.debug(f"在{source}搜索应用{name}")
-        list = []
-        if source == "腾讯":
-            data = requests.get(f"https://s.pcmgr.qq.com/tapi/web/searchcgi.php?type=search&keyword={name}&page=1&pernum=100", headers=program.REQUEST_HEADER, stream=True).text
-            data = json.loads(data)["list"]
-            for i in range(len(data)):
-                data[i]["xmlInfo"] = self.xmlToJson(data[i]["xmlInfo"])
-                if len(data[i]["xmlInfo"]["soft"]["feature"]) >= 20:
-                    data[i]["xmlInfo"]["soft"]["feature"] = data[i]["xmlInfo"]["soft"]["feature"][:20] + "..."
-            for i in data:
-                list.append({"名称": i["SoftName"],
-                             "图标": f"https://pc3.gtimg.com/softmgr/logo/48/{i["xmlInfo"]["soft"]["logo48"]}",
-                             "介绍": i["xmlInfo"]["soft"]["feature"],
-                             "当前版本": i["xmlInfo"]["soft"]["versionname"],
-                             "更新日期": i["xmlInfo"]["soft"]["publishdate"],
-                             "文件大小": f"{eval("%.2f" % eval("%.5g" % (eval(i["xmlInfo"]["soft"]["filesize"]) / 1024 / 1024)))} MB",
-                             "文件名称": i["xmlInfo"]["soft"]["filename"],
-                             "下载链接": i["xmlInfo"]["soft"]["url"],
-                             })
-                if i["xmlInfo"]["soft"]["@osbit"] == "2":
-                    list[-1]["名称"] += " 64位"
-                elif i["xmlInfo"]["soft"]["@osbit"] == "1":
-                    list[-1]["名称"] += " 32位"
-        elif source == "360":
-            data = requests.get(f"https://bapi.safe.360.cn/soft/search?keyword={name}&page=1", headers=program.REQUEST_HEADER, stream=True).text
-            data = json.loads(data)["data"]["list"]
-            for i in data:
-                list.append({"名称": i["softname"],
-                             "图标": i["logo"] if "https:" in i["logo"] else f"https:{i["logo"]}",
-                             "介绍": f.clearString(i["desc"]),
-                             "当前版本": i["version"],
-                             "更新日期": i["date"],
-                             "文件大小": i["size"],
-                             "文件名称": self.splitPath(i["soft_download"], 0),
-                             "下载链接": i["soft_download"],
-                             })
-        return list
 
 
 program = Program()
