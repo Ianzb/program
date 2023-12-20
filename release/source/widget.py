@@ -574,14 +574,16 @@ class UpdateSettingCard(SettingCard):
 
         self.comboBox = ComboBox(self)
         self.comboBox.setPlaceholderText("更新通道")
-        self.comboBox.addItems(["正式版", "测试版"])
+        self.comboBox.addItems(["正式版", "抢先版", "测试版"])
         self.comboBox.currentIndexChanged.connect(self.comboBoxIndexChanged)
         self.comboBox.setToolTip("选择更新通道")
         self.comboBox.installEventFilter(ToolTipFilter(self.comboBox, 1000))
         if setting.read("updateChannel") == "正式版":
             self.comboBox.setCurrentIndex(0)
-        elif setting.read("updateChannel") == "测试版":
+        elif setting.read("updateChannel") == "抢先版":
             self.comboBox.setCurrentIndex(1)
+        elif setting.read("updateChannel") == "测试版":
+            self.comboBox.setCurrentIndex(2)
         else:
             self.comboBox.setCurrentIndex(0)
 

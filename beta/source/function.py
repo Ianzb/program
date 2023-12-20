@@ -76,6 +76,8 @@ class Program:
         @return: 网址
         """
         if setting.read("updateChannel") == "正式版":
+            return "https://vip.123pan.cn/1813801926/program/index.json"
+        elif setting.read("updateChannel") == "抢先版":
             return "https://ianzb.github.io/program/release/index.json"
         elif setting.read("updateChannel") == "测试版":
             return "https://ianzb.github.io/program/beta/index.json"

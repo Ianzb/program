@@ -31,14 +31,14 @@ class ProgramInit():
     PROGRAM_NAME = "zb小程序"  # 程序名称
     PROGRAM_VERSION = "安装器"  # 程序版本
     PROGRAM_TITLE = f"{PROGRAM_NAME} {PROGRAM_VERSION}"  # 程序窗口标题
-    UPDATE_URL = "https://ianzb.github.io/program/release/index.json"  # 更新网址
     PROGRAM_MAIN_FILE_PATH = sys.argv[0].replace("download.pyw", "main.pyw")  # 程序主文件路径
     USER_PATH = os.path.expanduser("~")  # 系统用户路径
     PROGRAM_PATH = os.path.join(USER_PATH, "zb")  # 程序安装路径
     SOURCE_PATH = os.path.join(PROGRAM_PATH, "img")  # 程序资源文件路径
     STARTUP_ARGUMENT = sys.argv[1:]  # 程序启动参数
-    REQUEST_HEADER = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36 Edg/119.0.0.0"}  # 程序默认网络请求头
-
+    CHANNEL = "正式版"  # 程序更新通道
+    REQUEST_HEADER = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0",
+                      "zbprogram": PROGRAM_VERSION}  # 程序默认网络请求头
     REQUIRE_LIB = ["PyQt-Fluent-Widgets",
                    "qt5_tools",
                    "requests",
@@ -66,6 +66,19 @@ class ProgramInit():
         @return: bool
         """
         return "startup" in self.STARTUP_ARGUMENT
+
+    @property
+    def UPDATE_URL(self) -> str:
+        """
+        获得更新网址
+        @return: 网址
+        """
+        if self.CHANNEL == "正式版":
+            return "https://vip.123pan.cn/1813801926/program/index.json"
+        elif self.CHANNEL == "抢先版":
+            return "https://ianzb.github.io/program/release/index.json"
+        elif self.CHANNEL == "测试版":
+            return "https://ianzb.github.io/program/beta/index.json"
 
     def source(self, name: str) -> str:
         """
@@ -190,6 +203,7 @@ class Functions():
         button1.config(state=DISABLED)
         button2.config(state=DISABLED)
         button3.config(state=DISABLED)
+        combobox.config(state=DISABLED)
         if f.pipTest():
             if type(lib_name) is str:
                 self.cmd(f"pip install {lib_name} -i https://pypi.tuna.tsinghua.edu.cn/simple some-package", True)
@@ -205,17 +219,19 @@ class Functions():
         button1.config(state=NORMAL)
         button2.config(state=NORMAL)
         button3.config(state=NORMAL)
+        combobox.config(state=NORMAL)
 
     def installProgram(self):
         """
         安装应用
         """
 
-        if not askyesno(f"是否要安装{program.PROGRAM_NAME}", f"当前设置的安装目录为：\n{program.PROGRAM_PATH}"):
+        if not askyesno(f"是否要安装{program.PROGRAM_NAME}", f"当前设置的安装目录为：\n{program.PROGRAM_PATH}\n更新通道：{program.CHANNEL}"):
             return
         button1.config(state=DISABLED)
         button2.config(state=DISABLED)
         button3.config(state=DISABLED)
+        combobox.config(state=DISABLED)
 
         try:
             import requests
@@ -239,11 +255,13 @@ class Functions():
         button1.config(state=NORMAL)
         button2.config(state=NORMAL)
         button3.config(state=NORMAL)
+        combobox.config(state=NORMAL)
 
     def switchInstallPath(self):
         button1.config(state=DISABLED)
         button2.config(state=DISABLED)
         button3.config(state=DISABLED)
+        combobox.config(state=DISABLED)
         data = askdirectory(title="选择安装目录", initialdir=program.PROGRAM_PATH)
         if data:
             program.PROGRAM_PATH = data
@@ -251,6 +269,10 @@ class Functions():
         button1.config(state=NORMAL)
         button2.config(state=NORMAL)
         button3.config(state=NORMAL)
+        combobox.config(state=NORMAL)
+
+    def switchChannal(self, event):
+        program.CHANNEL = combobox.get()
 
     def createShortcut(self, old: str, new: str, icon: str, arguments: str = ""):
         """
@@ -318,10 +340,20 @@ label1.place(x=0, y=10, width=500, height=50)
 text = StringVar()
 label2 = ttk.Label(tk, textvariable=text)
 label2.config(anchor=CENTER, justify=CENTER)
-label2.place(x=0, y=300, width=410, height=30)
+label2.place(x=0, y=250, width=500, height=30)
 text.set(f"当前安装路径：{program.PROGRAM_PATH}")
 
-button3 = ttk.Button(tk, text="选择", style="TButton", command=f.switchInstallPath)
-button3.place(x=430, y=300, width=50, height=30)
+button3 = ttk.Button(tk, text="选择安装路径", style="TButton", command=f.switchInstallPath)
+button3.place(x=260, y=300, width=100, height=30)
+
+channel = StringVar()  # #创建变量，便于取值
+
+combobox = ttk.Combobox(tk, textvariable=channel)
+combobox.place(x=380, y=300, width=100, height=30)
+combobox["value"] = ["正式版", "抢先版", "测试版"]
+combobox["state"] = "readonly"
+combobox.current(0)
+
+combobox.bind("<<ComboboxSelected>>", f.switchChannal)
 
 tk.mainloop()
