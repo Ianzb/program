@@ -34,7 +34,6 @@ class ProgramInit():
     PROGRAM_MAIN_FILE_PATH = sys.argv[0].replace("download.pyw", "main.pyw")  # 程序主文件路径
     USER_PATH = os.path.expanduser("~")  # 系统用户路径
     PROGRAM_PATH = os.path.join(USER_PATH, "zb")  # 程序安装路径
-    SOURCE_PATH = os.path.join(PROGRAM_PATH, "img")  # 程序资源文件路径
     STARTUP_ARGUMENT = sys.argv[1:]  # 程序启动参数
     CHANNEL = "正式版"  # 程序更新通道
     REQUEST_HEADER = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0"}  # 程序默认网络请求头
@@ -79,13 +78,6 @@ class ProgramInit():
         elif self.CHANNEL == "测试版":
             return "https://ianzb.github.io/program/beta/index.json"
 
-    def source(self, name: str) -> str:
-        """
-        快捷获取程序资源文件路径
-        @param name: 文件名
-        @return: 文件路径
-        """
-        return f.pathJoin(self.SOURCE_PATH, name)
 
 
 program = ProgramInit()
@@ -345,8 +337,7 @@ text.set(f"当前安装路径：{program.PROGRAM_PATH}")
 button3 = ttk.Button(tk, text="选择安装路径", style="TButton", command=f.switchInstallPath)
 button3.place(x=260, y=300, width=100, height=30)
 
-channel = StringVar()  # #创建变量，便于取值
-
+channel = StringVar()
 combobox = ttk.Combobox(tk, textvariable=channel)
 combobox.place(x=380, y=300, width=100, height=30)
 combobox["value"] = ["正式版", "抢先版", "测试版"]
