@@ -117,7 +117,7 @@ class LoggingFunctions:
         self.log = logging.getLogger(program.PROGRAM_NAME)
         self.log.setLevel(logging.DEBUG)
         handler1 = logging.StreamHandler(sys.stderr)
-        handler1.setLevel(logging.DEBUG)
+        handler1.setLevel(logging.INFO)
         handler1.setFormatter(logging.Formatter("[%(levelname)s %(asctime)s %(filename)s %(process)d]:%(message)s"))
 
         handler2 = logging.FileHandler(program.LOGGING_FILE_PATH)
@@ -190,6 +190,7 @@ class SettingFunctions:
                                 "micaEffect": True,
                                 "showTray": True,
                                 "hideWhenClose": True,
+                                "sortFolder": [],
                                 }
 
     def reload(self):
@@ -260,14 +261,18 @@ class ProcessFunctions:
         data = xmltodict.parse(data)
         return data
 
-    def removeIllegalPath(self, path: str) -> str:
+    def removeIllegalPath(self, path: str, mode: int = 0) -> str:
         """
         去除路径中的非法字符
         @param path: 路径
+        @param mode: 模式：0 全部替换 1 不替换斜杠
         @return: 去除非法字符后的字符串
         """
         import re
-        return re.sub(r'[\\\/:*?"<>|]', "", path)
+        if mode == 0:
+            return re.sub(r'[\\\/:*?"<>|]', "", path)
+        elif mode == 1:
+            return re.sub(r'[*?"<>|]', "", path)
 
     def compareVersion(self, version1: str, version2: str) -> str:
         """

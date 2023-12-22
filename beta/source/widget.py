@@ -6,12 +6,12 @@ class BlackListEditMessageBox(MessageBoxBase):
     可编辑黑名单的弹出框
     """
 
-    def __init__(self, title: str, tip: str, parent=None):
+    def __init__(self, title: str, parent=None):
         super().__init__(parent)
         self.titleLabel = SubtitleLabel(title, self)
 
         self.textEdit = TextEdit(self)
-        self.textEdit.setPlaceholderText(tip)
+        self.textEdit.setPlaceholderText("输入文件名称\n一行一个")
         self.textEdit.setText("\n".join(setting.read("sortBlacklist")))
 
         self.viewLayout.addWidget(self.titleLabel)
@@ -26,6 +26,36 @@ class BlackListEditMessageBox(MessageBoxBase):
 
     def yesButtonClicked(self):
         setting.save("sortBlacklist", sorted(list(set([i.strip() for i in f.removeIllegalPath(self.textEdit.toPlainText()).split("\n") if i]))))
+
+        self.accept()
+        self.accepted.emit()
+
+
+class SortFolderEditMessageBox(MessageBoxBase):
+    """
+    可编辑整理目录的弹出框
+    """
+
+    def __init__(self, title: str, parent=None):
+        super().__init__(parent)
+        self.titleLabel = SubtitleLabel(title, self)
+
+        self.textEdit = TextEdit(self)
+        self.textEdit.setPlaceholderText("输入文件夹完整路径\n一行一个")
+        self.textEdit.setText("\n".join(setting.read("sortFolder")))
+
+        self.viewLayout.addWidget(self.titleLabel)
+        self.viewLayout.addWidget(self.textEdit)
+
+        self.yesButton.setText("确定")
+        self.yesButton.clicked.connect(self.yesButtonClicked)
+
+        self.cancelButton.setText("取消")
+
+        self.widget.setMinimumWidth(350)
+
+    def yesButtonClicked(self):
+        setting.save("sortFolder", sorted(list(set([i.strip() for i in f.removeIllegalPath(self.textEdit.toPlainText(), 1).split("\n") if i]))))
 
         self.accept()
         self.accepted.emit()
@@ -476,23 +506,33 @@ class SortSettingCard(SettingCard):
             setting.save("wechatPath", str(get))
 
 
-class SortBlacklistSettingCard(SettingCard):
+class SortFolderSettingCard(SettingCard):
     """
-    下载文件设置卡片
+    自定义整理文件设置卡片
     """
 
     def __init__(self, parent=None):
-        super().__init__(FIF.FOLDER, "整理文件黑名单", "设置整理文件时跳过的文件", parent)
-        self.button1 = PushButton("编辑黑名单", self, FIF.EDIT)
+        super().__init__(FIF.FOLDER, "自定义整理文件", "", parent)
+        self.button1 = PushButton("整理文件黑名单", self, FIF.EDIT)
         self.button1.clicked.connect(self.button1Clicked)
-        self.button1.setToolTip("编辑整理文件黑名单")
+        self.button1.setToolTip("编辑整理文件黑名单（填写文件名）")
         self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
 
+        self.button2 = PushButton("自定义整理目录", self, FIF.EDIT)
+        self.button2.clicked.connect(self.button2Clicked)
+        self.button2.setToolTip("自定义整理文件夹（填写文件夹完整路径）")
+        self.button2.installEventFilter(ToolTipFilter(self.button2, 1000))
+
         self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
+        self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
     def button1Clicked(self):
-        self.blackListMessageBox = BlackListEditMessageBox("编辑黑名单", "输入文件名称\n一行一个", self.parent().parent().parent().parent().parent().parent().parent())
+        self.blackListMessageBox = BlackListEditMessageBox("整理文件黑名单", self.parent().parent().parent().parent().parent().parent().parent())
+        self.blackListMessageBox.show()
+
+    def button2Clicked(self):
+        self.blackListMessageBox = SortFolderEditMessageBox("自定义整理目录", self.parent().parent().parent().parent().parent().parent().parent())
         self.blackListMessageBox.show()
 
 

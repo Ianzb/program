@@ -73,8 +73,12 @@ class NewThread(QThread):
                 Thread(lambda: f.clearRubbish())
                 Thread(lambda: f.clearSystemCache())
                 f.sortDir(program.DESKTOP_PATH, setting.read("sortPath"))
-                if setting.read("wechatPath") != "":
+                if setting.read("wechatPath"):
                     f.sortWechatFiles()
+                for i in setting.read("sortFolder"):
+                    if f.isDir(i):
+                        if not (f.belongDir(i, setting.read("sortPath")) or f.belongDir(setting.read("sortPath"), i)):
+                            f.sortDir(i, setting.read("sortPath"))
                 for i in list(f.SORT_FILE_DIR.keys()) + ["文件夹"]:
                     f.clearFile(f.pathJoin(setting.read("sortPath"), i))
                 f.clearFile(setting.read("sortPath"))
