@@ -165,7 +165,7 @@ class SettingPage(BasicPage):
         self.hideSettingCard = HideSettingCard(self)
 
         self.sortSettingCard = SortSettingCard(self)
-        self.sortBlacklistSettingCard = SortBlacklistSettingCard(self)
+        self.sortFolderSettingCard = SortFolderSettingCard(self)
         self.downloadSettingCard = DownloadSettingCard(self)
 
         self.cardGroup1.addWidget(self.themeSettingCard)
@@ -177,7 +177,7 @@ class SettingPage(BasicPage):
         self.cardGroup2.addWidget(self.hideSettingCard)
 
         self.cardGroup3.addWidget(self.sortSettingCard)
-        self.cardGroup3.addWidget(self.sortBlacklistSettingCard)
+        self.cardGroup3.addWidget(self.sortFolderSettingCard)
         self.cardGroup3.addWidget(self.downloadSettingCard)
 
         self.vBoxLayout.addWidget(self.cardGroup1, 0, Qt.AlignTop)
