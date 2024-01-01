@@ -891,7 +891,7 @@ class AboutSettingCard(SettingCard):
     """
 
     def __init__(self, parent=None):
-        super().__init__(FIF.INFO, "关于", f"© 2022-2023 Ianzb. GPLv3 License.\n当前版本 {program.PROGRAM_VERSION} {setting.read("updateChannel")}", parent)
+        super().__init__(FIF.INFO, "关于", f"© 2022-2024 Ianzb. GPLv3 License.\n当前版本 {program.PROGRAM_VERSION} {setting.read("updateChannel")}", parent)
         self.button1 = HyperlinkButton(program.PROGRAM_URL, "程序官网", self, FIF.LINK)
         self.button2 = HyperlinkButton(program.GITHUB_URL, "GitHub", self, FIF.GITHUB)
 
