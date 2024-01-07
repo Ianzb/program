@@ -748,17 +748,21 @@ class FileFunctions(ProcessFunctions):
         if path and self.existPath(path):
             os.startfile(path)
 
-    def extractZip(self, path: str, goal: str):
+    def extractZip(self, path: str, goal: str, delete=False):
         """
         解压zip文件
         @param path: zip文件路径
         @param goal: 解压到的目录路径
+        @param delete: 解压后删除
         """
         import zipfile
         if self.existPath(path):
             try:
                 file = zipfile.ZipFile(path)
                 file.extractall(goal)
+                file.close()
+                if delete:
+                    self.delete(path)
                 logging.debug(f"{path}解压成功")
             except Exception as ex:
                 logging.warning(f"{path}解压失败{ex}")
@@ -909,8 +913,7 @@ class ProgramFunctions(FileFunctions):
         for i in data["file"]:
             if self.splitPath(self.pathJoin(program.ADDON_PATH, data["id"], i), 2) == ".zip":
                 self.downloadFile(self.urlJoin(data["url"], i), self.pathJoin(program.ADDON_PATH, i).replace("init.py", "__init__.py"))
-                f.extractZip(self.pathJoin(program.ADDON_PATH, i), program.ADDON_PATH)
-                self.delete(self.pathJoin(program.ADDON_PATH, i))
+                f.extractZip(self.pathJoin(program.ADDON_PATH, i), program.ADDON_PATH, True)
             else:
                 self.downloadFile(self.urlJoin(data["url"], i), self.pathJoin(program.ADDON_PATH, data["id"], i).replace("init.py", "__init__.py"))
         for i in data["lib"]:
