@@ -70,7 +70,6 @@ class AddonEditMessageBox(MessageBoxBase):
         super().__init__(parent)
         self.errorAddonList = error
         self.titleLabel = SubtitleLabel(title, self)
-        self.loadingCard = LoadingCard()
 
         self.tableView = TableWidget(self)
 
@@ -84,11 +83,9 @@ class AddonEditMessageBox(MessageBoxBase):
         self.tableView.setHorizontalHeaderLabels(["ID", "名称", "本地版本号", "在线版本号"])
         self.tableView.resizeColumnsToContents()
         self.tableView.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.tableView.hide()
 
         self.viewLayout.addWidget(self.titleLabel)
         self.viewLayout.addWidget(self.tableView, 0, Qt.AlignTop)
-        self.viewLayout.addWidget(self.loadingCard, 0, Qt.AlignCenter)
 
         self.yesButton.setText("安装选中")
         self.yesButton.clicked.connect(self.yesButtonClicked)
@@ -101,9 +98,20 @@ class AddonEditMessageBox(MessageBoxBase):
 
         self.widget.setMinimumWidth(500)
 
+        self.installed = f.getInstalledAddonInfo()
+        self.tableView.setRowCount(len(self.installed.values()))
+        for i in range(len(self.installed.values())):
+            names = sorted(self.installed.keys())
+
+            self.tableView.setItem(i, 0, QTableWidgetItem(self.installed[names[i]]["id"]))
+            self.tableView.setItem(i, 1, QTableWidgetItem(self.installed[names[i]]["name"]))
+            self.tableView.setItem(i, 2, QTableWidgetItem(self.installed[names[i]]["version"]))
+            self.tableView.setItem(i, 3, QTableWidgetItem("加载中..."))
+
         self.thread1 = NewThread("云端插件信息")
         self.thread1.signalDict.connect(self.threadEvent1_1)
         self.thread1.signalBool.connect(self.threadEvent1_2)
+        self.thread1.signalStr.connect(self.threadEvent1_3)
         self.thread1.start()
 
     def yesButtonClicked(self):
@@ -111,10 +119,10 @@ class AddonEditMessageBox(MessageBoxBase):
         self.parent().aboutPage.addonSettingCard.progressBarLoading.show()
 
         list = [self.tableView.itemFromIndex(i).text() for i in self.tableView.selectedIndexes()[::4]]
-        self.thread3 = NewThread("下载插件", list)
-        self.thread3.signalDict.connect(self.threadEvent3_1)
-        self.thread3.signalBool.connect(self.threadEvent3_2)
-        self.thread3.start()
+        self.thread2 = NewThread("下载插件", list)
+        self.thread2.signalDict.connect(self.threadEvent2_1)
+        self.thread2.signalBool.connect(self.threadEvent2_2)
+        self.thread2.start()
 
     def removeButtonClicked(self):
         self.parent().aboutPage.addonSettingCard.button1.setEnabled(False)
@@ -133,48 +141,45 @@ class AddonEditMessageBox(MessageBoxBase):
         self.parent().aboutPage.addonSettingCard.progressBarLoading.hide()
 
     def threadEvent1_1(self, msg):
-        i = 0
-        self.tableView.setRowCount(len(msg.values()))
-        installed = f.getInstalledAddonInfo()
-        for v in msg.values():
-            self.tableView.setItem(i, 0, QTableWidgetItem(v["id"]))
-            self.tableView.setItem(i, 1, QTableWidgetItem(v["name"]))
-            if v["id"] in installed.keys():
-                self.tableView.setItem(i, 2, QTableWidgetItem(installed[v["id"]]["version"]))
-            else:
-                self.tableView.setItem(i, 2, QTableWidgetItem("未安装"))
-            if v["id"] in self.errorAddonList:
-                self.tableView.setItem(i, 2, QTableWidgetItem("安装失败"))
-            self.tableView.setItem(i, 3, QTableWidgetItem(v["version"]))
-            i += 1
-        self.tableView.show()
-        self.loadingCard.hide()
+        if msg["id"] in self.installed.keys():
+            i = self.tableView.findItems(msg["id"], Qt.MatchExactly)[0].row()
+            self.tableView.setItem(i, 3, QTableWidgetItem(msg["version"]))
+        else:
+            self.tableView.setRowCount(self.tableView.rowCount() + 1)
+            self.tableView.showRow(-1)
+            i = self.tableView.rowCount() - 1
+            self.tableView.setItem(i, 0, QTableWidgetItem(msg["id"]))
+            self.tableView.setItem(i, 1, QTableWidgetItem(msg["name"]))
+            self.tableView.setItem(i, 2, QTableWidgetItem("未安装"))
+            self.tableView.setItem(i, 3, QTableWidgetItem(msg["version"]))
 
     def threadEvent1_2(self, msg):
-        if not msg:
-            self.loadingCard.setText("网络连接失败！")
+        if msg:
+            for i in range(self.tableView.rowCount()):
+                if self.tableView.item(i, 3).text() == "加载中...":
+                    self.tableView.setItem(i, 3, QTableWidgetItem("云端无数据"))
+                if self.tableView.item(i, 0).text() in self.errorAddonList:
+                    self.tableView.setItem(i, 2, QTableWidgetItem("安装失败"))
+        else:
+            self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", f"无网络连接！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().aboutPage)
+            self.infoBar.show()
+            for i in range(self.tableView.rowCount()):
+                self.tableView.setItem(i, 3, QTableWidgetItem("无网络连接"))
+            self.yesButton.setEnabled(False)
+            self.removeButton.setEnabled(False)
 
-    def threadEvent2(self, msg):
-        self.tableView.show()
-        i = 0
-        self.tableView.setRowCount(len(msg.values()))
-        for v in msg.values():
-            self.tableView.setItem(i, 0, QTableWidgetItem(v["id"]))
-            self.tableView.setItem(i, 1, QTableWidgetItem(v["name"]))
-            self.tableView.setItem(i, 2, QTableWidgetItem(v["version"]))
-            if not self.tableView.item(i, 3):
-                self.tableView.setItem(i, 3, QTableWidgetItem("加载中..."))
-            i += 1
-        self.loadingCard.hide()
+    def threadEvent1_3(self, msg):
+        i = self.tableView.findItems(msg["id"], Qt.MatchExactly)[0].row()
+        self.tableView.setItem(i, 2, QTableWidgetItem("连接失败"))
 
-    def threadEvent3_1(self, msg):
+    def threadEvent2_1(self, msg):
         self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{msg["name"]}安装成功！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().aboutPage)
         self.infoBar.show()
         self.parent().addAddon(msg)
         if msg["id"] in self.parent().aboutPage.addonSettingCard.errorAddonList:
             self.parent().aboutPage.addonSettingCard.errorAddonList.remove(msg["id"])
 
-    def threadEvent3_2(self, msg):
+    def threadEvent2_2(self, msg):
         if msg:
             self.parent().aboutPage.addonSettingCard.button1.setEnabled(True)
             self.parent().aboutPage.addonSettingCard.progressBarLoading.hide()
