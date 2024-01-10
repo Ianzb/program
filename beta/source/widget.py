@@ -145,13 +145,14 @@ class AddonEditMessageBox(MessageBoxBase):
             i = self.tableView.findItems(msg["id"], Qt.MatchExactly)[0].row()
             self.tableView.setItem(i, 3, QTableWidgetItem(msg["version"]))
         else:
+            self.tableView.hide()
             self.tableView.setRowCount(self.tableView.rowCount() + 1)
-            self.tableView.showRow(-1)
             i = self.tableView.rowCount() - 1
             self.tableView.setItem(i, 0, QTableWidgetItem(msg["id"]))
             self.tableView.setItem(i, 1, QTableWidgetItem(msg["name"]))
             self.tableView.setItem(i, 2, QTableWidgetItem("未安装"))
             self.tableView.setItem(i, 3, QTableWidgetItem(msg["version"]))
+            self.tableView.show()
 
     def threadEvent1_2(self, msg):
         if msg:
