@@ -113,8 +113,12 @@ class NewThread(QThread):
             try:
                 data = f.getAddonDict()
                 for k, v in data.items():
-                    data[k] = f.getAddonInfo(v)
-                self.signalDict.emit(data)
+                    try:
+                        data[k] = f.getAddonInfo(v)
+                        self.signalDict.emit(data[k])
+                    except Exception as ex:
+                        self.signalStr.emit(v)
+                self.signalBool.emit(True)
             except Exception as ex:
                 self.signalBool.emit(False)
                 logging.warning(f"插件信息获取败{ex}")

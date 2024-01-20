@@ -32,6 +32,9 @@ class Init():
         if f.getSize(program.LOGGING_FILE_PATH) / 1024 >= 32:
             logging.reset()
 
+        # 插件检测
+        f.clearFile(program.ADDON_PATH)
+
 
 Init()
 
