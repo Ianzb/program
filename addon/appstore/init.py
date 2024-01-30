@@ -10,6 +10,7 @@ try:
 except:
     pass
 
+
 def searchSoftware(name: str, source: str) -> list:
     """
     搜索软件
@@ -142,20 +143,26 @@ class AppInfoCard(SmallInfoCard):
         self.thread.signalBool.connect(self.thread3)
         self.thread.start()
 
-        self.stateTooltip = StateToolTip(f"正在下载软件：{self.data["名称"]}", "正在连接到服务器...", self.parent().parent().parent().parent())
-        self.stateTooltip.move(self.stateTooltip.getSuitablePos())
-        self.stateTooltip.closeButton.clicked.connect(self.thread.cancel)
-        self.stateTooltip.show()
+        self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "下载", f"正在下载软件 {self.data["名称"]}\n正在连接到服务器", Qt.Vertical, True, -1, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+        self.infoBar.show()
+        self.infoBar.closeButton.clicked.connect(self.thread.cancel)
 
     def thread1(self, msg):
         self.filePath = msg
 
     def thread2(self, msg):
-        self.stateTooltip.setContent(f"下载中，当前进度{msg}%")
+        self.infoBar.contentLabel.setText(f"正在下载软件 {self.data["名称"]}\n当前下载进度{msg}%")
         if msg == 100:
             f.moveFile(self.filePath, self.filePath.replace(".zb.appstore.downloading", ""))
-            self.stateTooltip.setContent("下载成功")
-            self.stateTooltip.setState(True)
+
+            self.infoBar.contentLabel.setText(f"{self.data["名称"]} 下载成功")
+            self.infoBar.closeButton.click()
+
+            self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "下载", f"软件 {self.data["名称"]} 下载成功", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+            self.infoBar.show()
+            self.button1 = PushButton("打开目录", self, FIF.DOWNLOAD)
+            self.button1.clicked.connect(self.button1Clicked)
+            self.infoBar.addWidget(self.button1)
 
             self.mainButton.setEnabled(True)
 
@@ -163,6 +170,10 @@ class AppInfoCard(SmallInfoCard):
         if msg:
             f.delete(self.filePath)
         self.mainButton.setEnabled(True)
+
+    def button1Clicked(self):
+        f.startFile(setting.read("downloadPath"))
+        self.infoBar.closeButton.click()
 
 
 class AddonTab(BasicTab):

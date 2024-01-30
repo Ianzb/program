@@ -23,7 +23,7 @@ class Program:
     程序信息
     """
     PROGRAM_NAME = "zb小程序"  # 程序名称
-    PROGRAM_VERSION = "3.5.0"  # 程序版本
+    PROGRAM_VERSION = "3.5.1"  # 程序版本
     PROGRAM_TITLE = f"{PROGRAM_NAME} {PROGRAM_VERSION}"  # 程序窗口标题
     AUTHOR_NAME = "Ianzb"  # 作者名称
     AUTHOR_URL = "https://ianzb.github.io/"  # 作者网址
@@ -64,6 +64,15 @@ class Program:
         """
         import winreg
         return winreg.QueryValueEx(winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders"), "Desktop")[0]
+
+    @property
+    def DOWNLOAD_PATH(self) -> str:
+        """
+        获得下载路径
+        @return: 桌面路径
+        """
+        import winreg
+        return winreg.QueryValueEx(winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders"), "{374DE290-123F-4565-9164-39C4925E467B}")[0]
 
     @property
     def PROGRAM_ICON(self) -> str:
@@ -183,7 +192,7 @@ class SettingFunctions:
                                 "pid": "1000",
                                 "sortPath": "",
                                 "wechatPath": "",
-                                "downloadPath": program.DESKTOP_PATH,
+                                "downloadPath": program.DOWNLOAD_PATH,
                                 "showWindow": False,
                                 "sortBlacklist": [],
                                 "updateChannel": "正式版",
