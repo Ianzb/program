@@ -8,19 +8,6 @@ class Init():
 
     def __init__(self):
 
-        # 切换运行路径
-        os.chdir(program.PROGRAM_PATH)
-
-        # 设置任务栏
-        import ctypes
-
-        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(program.PROGRAM_NAME)
-
-        # 关闭SSL证书验证
-        import ssl
-
-        ssl._create_default_https_context = ssl._create_unverified_context()
-
         # 重复运行检测
         if "python" in f.cmd(f"tasklist |findstr {setting.read("pid")}", True):
             setting.save("showWindow", "1")

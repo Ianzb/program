@@ -78,6 +78,13 @@ class ProgramInit():
         elif self.CHANNEL == "测试版":
             return "https://ianzb.github.io/program/beta/index.json"
 
+    def source(self, name: str) -> str:
+        """
+        快捷获取程序资源文件路径
+        @param name: 文件名
+        @return: 文件路径
+        """
+        return f.pathJoin(self.SOURCE_PATH, name)
 
 
 program = ProgramInit()

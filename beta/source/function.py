@@ -56,6 +56,22 @@ class Program:
                    "xmltodict",
                    ]
 
+    def __init__(self):
+        # 创建数据目录
+        if not os.path.exists(self.PROGRAM_DATA_PATH):
+            os.mkdir(self.PROGRAM_DATA_PATH)
+        # 切换运行路径
+        os.chdir(self.PROGRAM_PATH)
+
+        # 设置任务栏
+        import ctypes
+
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(self.PROGRAM_NAME)
+        # 关闭SSL证书验证
+        import ssl
+
+        ssl._create_default_https_context = ssl._create_unverified_context()
+
     @property
     def DESKTOP_PATH(self) -> str:
         """
