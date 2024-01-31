@@ -84,7 +84,7 @@ class ProgramInit():
         @param name: 文件名
         @return: 文件路径
         """
-        return f.pathJoin(self.SOURCE_PATH, name)
+        return f.pathJoin(self.PROGRAM_PATH, name)
 
 
 program = ProgramInit()
