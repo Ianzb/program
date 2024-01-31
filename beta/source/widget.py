@@ -168,6 +168,7 @@ class AddonEditMessageBox(MessageBoxBase):
                 self.tableView.setItem(i, 3, QTableWidgetItem("无网络连接"))
             self.yesButton.setEnabled(False)
             self.removeButton.setEnabled(False)
+        self.titleLabel.setText("管理插件")
 
     def threadEvent1_3(self, msg):
         i = self.tableView.findItems(msg["id"], Qt.MatchExactly)[0].row()
@@ -592,7 +593,7 @@ class AddonSettingCard(SettingCard):
         self.parent().parent().signalStr.connect(self.errorAddonEvent)
 
     def button1Clicked(self):
-        self.addonEditMessageBox = AddonEditMessageBox("管理插件", self.parent().parent().parent().parent().parent().parent().parent(), self.errorAddonList)
+        self.addonEditMessageBox = AddonEditMessageBox("加载中...", self.parent().parent().parent().parent().parent().parent().parent(), self.errorAddonList)
         self.addonEditMessageBox.show()
 
     def errorAddonEvent(self, msg):
