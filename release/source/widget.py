@@ -641,8 +641,7 @@ class UpdateSettingCard(SettingCard):
 
         self.progressBar = ProgressBar(self)
         self.progressBar.setAlignment(Qt.AlignCenter)
-        self.progressBar.setMinimum(0)
-        self.progressBar.setMaximum(100)
+        self.progressBar.setRange(0, 100)
         self.progressBar.setValue(0)
         self.progressBar.setMinimumWidth(250)
 

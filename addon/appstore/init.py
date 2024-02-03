@@ -143,7 +143,14 @@ class AppInfoCard(SmallInfoCard):
         self.thread.signalBool.connect(self.thread3)
         self.thread.start()
 
-        self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "下载", f"正在下载软件 {self.data["名称"]}\n正在连接到服务器", Qt.Vertical, True, -1, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+        self.progressBar = ProgressBar(self)
+        self.progressBar.setAlignment(Qt.AlignCenter)
+        self.progressBar.setRange(0, 100)
+        self.progressBar.setValue(0)
+        self.progressBar.setMinimumWidth(200)
+
+        self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "下载", f"正在下载软件 {self.data["名称"]}", Qt.Vertical, True, -1, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+        self.infoBar.addWidget(self.progressBar)
         self.infoBar.show()
         self.infoBar.closeButton.clicked.connect(self.thread.cancel)
 
@@ -151,7 +158,8 @@ class AppInfoCard(SmallInfoCard):
         self.filePath = msg
 
     def thread2(self, msg):
-        self.infoBar.contentLabel.setText(f"正在下载软件 {self.data["名称"]}\n当前下载进度{msg}%")
+        self.infoBar.contentLabel.setText(f"正在下载软件 {self.data["名称"]}")
+        self.progressBar.setValue(msg)
         if msg == 100:
             f.moveFile(self.filePath, self.filePath.replace(".zb.appstore.downloading", ""))
 
@@ -160,10 +168,12 @@ class AppInfoCard(SmallInfoCard):
 
             self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "下载", f"软件 {self.data["名称"]} 下载成功", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
             self.infoBar.show()
-            self.button1 = PushButton("打开目录", self, FIF.DOWNLOAD)
+            self.button1 = PushButton("打开目录", self, FIF.FOLDER)
             self.button1.clicked.connect(self.button1Clicked)
             self.infoBar.addWidget(self.button1)
 
+            self.progressBar.setValue(0)
+            self.progressBar.deleteLater()
             self.mainButton.setEnabled(True)
 
     def thread3(self, msg):
