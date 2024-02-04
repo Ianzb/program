@@ -158,8 +158,11 @@ class AppInfoCard(SmallInfoCard):
         self.filePath = msg
 
     def thread2(self, msg):
-        self.infoBar.contentLabel.setText(f"正在下载软件 {self.data["名称"]}")
-        self.progressBar.setValue(msg)
+        try:
+            self.infoBar.contentLabel.setText(f"正在下载软件 {self.data["名称"]}")
+            self.progressBar.setValue(msg)
+        except:
+            return
         if msg == 100:
             f.moveFile(self.filePath, self.filePath.replace(".zb.appstore.downloading", ""))
 
