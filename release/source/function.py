@@ -23,7 +23,7 @@ class Program:
     程序信息
     """
     PROGRAM_NAME = "zb小程序"  # 程序名称
-    PROGRAM_VERSION = "3.5.3"  # 程序版本
+    PROGRAM_VERSION = "3.5.4"  # 程序版本
     PROGRAM_TITLE = f"{PROGRAM_NAME} {PROGRAM_VERSION}"  # 程序窗口标题
     AUTHOR_NAME = "Ianzb"  # 作者名称
     AUTHOR_URL = "https://ianzb.github.io/"  # 作者网址
@@ -101,7 +101,7 @@ class Program:
         @return: 网址
         """
         if setting.read("updateChannel") == "正式版":
-            return "https://vip.123pan.cn/1813801926/program/index.json"
+            return "https://vip.123pan.cn/1813801926/code/program/index.json"
         elif setting.read("updateChannel") == "抢先版":
             return "https://ianzb.github.io/program/release/index.json"
         elif setting.read("updateChannel") == "测试版":

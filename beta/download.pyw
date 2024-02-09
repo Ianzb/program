@@ -72,7 +72,7 @@ class ProgramInit():
         @return: 网址
         """
         if self.CHANNEL == "正式版":
-            return "https://vip.123pan.cn/1813801926/program/index.json"
+            return "https://vip.123pan.cn/1813801926/code/program/index.json"
         elif self.CHANNEL == "抢先版":
             return "https://ianzb.github.io/program/release/index.json"
         elif self.CHANNEL == "测试版":
