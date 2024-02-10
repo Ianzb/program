@@ -269,6 +269,13 @@ class SettingFunctions:
         self.file.write(json.dumps(self.settings))
         self.file.flush()
 
+    def reset(self, name):
+        """
+        重置设置
+        @param name: 选项名称
+        """
+        self.save(name, self.DEFAULT_SETTING[name])
+
 
 class ProcessFunctions:
     """
