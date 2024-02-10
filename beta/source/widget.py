@@ -6,13 +6,15 @@ class BlackListEditMessageBox(MessageBoxBase):
     可编辑黑名单的弹出框
     """
 
-    def __init__(self, title: str, parent=None):
+    def __init__(self, parent=None):
         super().__init__(parent)
-        self.titleLabel = SubtitleLabel(title, self)
+        self.titleLabel = SubtitleLabel("整理文件黑名单", self)
 
         self.textEdit = TextEdit(self)
         self.textEdit.setPlaceholderText("输入文件名称\n一行一个")
         self.textEdit.setText("\n".join(setting.read("sortBlacklist")))
+        self.textEdit.setToolTip("输入文件名称\n一行一个")
+        self.textEdit.installEventFilter(ToolTipFilter(self.textEdit, 1000))
 
         self.viewLayout.addWidget(self.titleLabel)
         self.viewLayout.addWidget(self.textEdit)
@@ -36,19 +38,25 @@ class SortFolderEditMessageBox(MessageBoxBase):
     可编辑整理目录的弹出框
     """
 
-    def __init__(self, title: str, parent=None):
+    def __init__(self, parent=None):
         super().__init__(parent)
-        self.titleLabel = SubtitleLabel(title, self)
+        self.titleLabel = SubtitleLabel("自定义整理目录", self)
 
         self.textEdit = TextEdit(self)
         self.textEdit.setPlaceholderText("输入文件夹完整路径\n一行一个")
         self.textEdit.setText("\n".join(setting.read("sortFolder")))
+        self.textEdit.setToolTip("输入文件夹完整路径\n一行一个")
+        self.textEdit.installEventFilter(ToolTipFilter(self.textEdit, 1000))
 
         self.viewLayout.addWidget(self.titleLabel)
         self.viewLayout.addWidget(self.textEdit)
 
         self.yesButton.setText("确定")
         self.yesButton.clicked.connect(self.yesButtonClicked)
+
+        self.addButton = PushButton("选择目录", self.buttonGroup)
+        self.addButton.clicked.connect(self.addButtonClicked)
+        self.buttonLayout.insertWidget(1, self.addButton, 1, Qt.AlignVCenter)
 
         self.cancelButton.setText("取消")
 
@@ -57,6 +65,106 @@ class SortFolderEditMessageBox(MessageBoxBase):
     def yesButtonClicked(self):
         setting.save("sortFolder", sorted(list(set([i.strip() for i in f.removeIllegalPath(self.textEdit.toPlainText(), 1).split("\n") if i]))))
 
+        self.accept()
+        self.accepted.emit()
+
+    def addButtonClicked(self):
+        get = QFileDialog.getExistingDirectory(self, "添加整理目录", "C:/")
+        if f.existPath(get):
+            if get not in sorted(list(set([i.strip() for i in f.removeIllegalPath(self.textEdit.toPlainText(), 1).split("\n") if i]))):
+                self.textEdit.setText((self.textEdit.toPlainText().strip() + "\n" + get).strip())
+
+
+class SortFormatEditMessageBox(MessageBoxBase):
+    """
+    可编辑整理文件类型的弹出框
+    """
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.titleLabel = SubtitleLabel("自定义整理文件类型", self)
+
+        self.tableView = TableWidget(self)
+
+        self.tableView.setBorderVisible(True)
+        self.tableView.setBorderRadius(8)
+        self.tableView.setWordWrap(False)
+        self.tableView.setColumnCount(2)
+
+        self.tableView.verticalHeader().hide()
+        self.tableView.setHorizontalHeaderLabels(["类型", "后缀名"])
+        self.tableView.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.tableView.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
+
+        self.tableView.setToolTip("后缀名逗号（中英文均可）分割，加不加.均可")
+        self.tableView.installEventFilter(ToolTipFilter(self.tableView, 1000))
+
+        self.tableView.setRowCount(len(setting.read("sortFormat").keys()))
+        for i in range(len(setting.read("sortFormat").keys())):
+            self.tableView.setItem(i, 0, QTableWidgetItem(list(setting.read("sortFormat").keys())[i]))
+            self.tableView.setItem(i, 1, QTableWidgetItem(",".join(sorted(list(setting.read("sortFormat").values())[i])).replace(".", "")))
+
+        self.viewLayout.addWidget(self.titleLabel)
+        self.viewLayout.addWidget(self.tableView)
+
+        self.yesButton.setText("确定")
+        self.yesButton.clicked.connect(self.yesButtonClicked)
+
+        self.addButton = PushButton("添加行", self.buttonGroup)
+        self.addButton.clicked.connect(self.addButtonClicked)
+
+        self.removeButton = PushButton("删除选中行", self.buttonGroup)
+        self.removeButton.clicked.connect(self.removeButtonClicked)
+
+        self.resetButton = PushButton("重置", self.buttonGroup)
+        self.resetButton.clicked.connect(self.resetButtonClicked)
+
+        self.buttonLayout.insertWidget(1, self.addButton, 1, Qt.AlignVCenter)
+        self.buttonLayout.insertWidget(2, self.removeButton, 1, Qt.AlignVCenter)
+        self.buttonLayout.insertWidget(3, self.resetButton, 1, Qt.AlignVCenter)
+
+        self.cancelButton.setText("取消")
+
+        self.widget.setMinimumSize(600, 400)
+
+    def yesButtonClicked(self):
+        data = {}
+        for i in range(self.tableView.rowCount()):
+            try:
+                k = self.tableView.item(i, 0).text()
+                v = self.tableView.item(i, 1).text()
+            except:
+                continue
+            v = v.lower().replace("，", ",").replace(" ", "").strip().split(",")
+            for i in range(len(v)):
+                if v[i][0] != ".":
+                    v[i] = "." + v[i]
+            v = sorted(list(set(v)))
+            if k.strip():
+                if k not in data.keys():
+                    data[k] = v
+                else:
+                    data[k] += v
+                    data[k] = sorted(list(set(data[k])))
+        setting.save("sortFormat", data)
+        self.accept()
+        self.accepted.emit()
+
+    def addButtonClicked(self):
+        self.tableView.hide()
+        self.tableView.setRowCount(self.tableView.rowCount() + 1)
+        self.tableView.show()
+
+    def removeButtonClicked(self):
+        selected = self.tableView.selectedIndexes()[::2]
+        for i in range(len(selected)):
+            selected[i] = selected[i].row()
+        selected.sort(reverse=True)
+        for i in selected:
+            self.tableView.removeRow(i)
+
+    def resetButtonClicked(self):
+        setting.reset("sortFormat")
         self.accept()
         self.accepted.emit()
 
@@ -200,15 +308,15 @@ class ThemeSettingCard(ExpandSettingCard):
         self.addWidget(self.label)
 
         self.radioButton1 = RadioButton("浅色", self.view)
-        self.radioButton2 = RadioButton("深色", self.view)
-        self.radioButton3 = RadioButton("跟随系统设置", self.view)
-
         self.radioButton1.setToolTip("设置浅色模式")
-        self.radioButton2.setToolTip("设置深色模式")
-        self.radioButton3.setToolTip("设置跟随系统模式")
-
         self.radioButton1.installEventFilter(ToolTipFilter(self.radioButton1, 1000))
+
+        self.radioButton2 = RadioButton("深色", self.view)
+        self.radioButton2.setToolTip("设置深色模式")
         self.radioButton2.installEventFilter(ToolTipFilter(self.radioButton2, 1000))
+
+        self.radioButton3 = RadioButton("跟随系统设置", self.view)
+        self.radioButton3.setToolTip("设置跟随系统模式")
         self.radioButton3.installEventFilter(ToolTipFilter(self.radioButton3, 1000))
 
         self.buttonGroup = QButtonGroup(self)
@@ -281,15 +389,15 @@ class ColorSettingCard(ExpandGroupSettingCard):
         self.radioLayout.setSizeConstraint(QVBoxLayout.SetMinimumSize)
 
         self.button1 = RadioButton("默认", self.radioWidget)
-        self.button2 = RadioButton("自定义", self.radioWidget)
-        self.button3 = QPushButton("选择颜色", self.customColorWidget)
-
         self.button1.setToolTip("设置默认颜色")
-        self.button2.setToolTip("设置自定义颜色")
-        self.button3.setToolTip("选择自定义颜色")
-
         self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
+
+        self.button2 = RadioButton("自定义", self.radioWidget)
+        self.button2.setToolTip("设置自定义颜色")
         self.button2.installEventFilter(ToolTipFilter(self.button2, 1000))
+
+        self.button3 = QPushButton("选择颜色", self.customColorWidget)
+        self.button3.setToolTip("选择自定义颜色")
         self.button3.installEventFilter(ToolTipFilter(self.button3, 1000))
 
         self.radioLayout.addWidget(self.button1)
@@ -387,30 +495,29 @@ class StartupSettingCard(SettingCard):
 
         super().__init__(FIF.POWER_BUTTON, "开机自启动", "设置程序的开机自启动功能", parent)
         self.checkBox1 = CheckBox("开机自启动", self)
-        self.checkBox2 = CheckBox("最小化启动", self)
-        self.checkBox3 = CheckBox("开机自动更新", self)
-
         self.checkBox1.clicked.connect(self.button1Clicked)
-        self.checkBox2.clicked.connect(self.button2Clicked)
-        self.checkBox3.clicked.connect(self.button3Clicked)
-
         self.checkBox1.setToolTip("设置程序开机自启动")
-        self.checkBox2.setToolTip("设置程序在开机自启动时自动最小化窗口")
-        self.checkBox3.setToolTip("设置程序在开机自启动时自动更新新版本")
-
         self.checkBox1.installEventFilter(ToolTipFilter(self.checkBox1, 1000))
-        self.checkBox2.installEventFilter(ToolTipFilter(self.checkBox2, 1000))
-        self.checkBox3.installEventFilter(ToolTipFilter(self.checkBox3, 1000))
-
         self.checkBox1.setChecked(setting.read("autoStartup"))
+
+        self.checkBox2 = CheckBox("最小化启动", self)
+        self.checkBox2.clicked.connect(self.button2Clicked)
+        self.checkBox2.setToolTip("设置程序在开机自启动时自动最小化窗口")
+        self.checkBox2.installEventFilter(ToolTipFilter(self.checkBox2, 1000))
+        self.checkBox2.setChecked(setting.read("autoHide"))
+
+        self.checkBox3 = CheckBox("开机自动更新", self)
+        self.checkBox3.clicked.connect(self.button3Clicked)
+        self.checkBox3.setToolTip("设置程序在开机自启动时自动更新新版本")
+        self.checkBox3.installEventFilter(ToolTipFilter(self.checkBox3, 1000))
+        self.checkBox3.setChecked(setting.read("autoUpdate"))
+
         if setting.read("autoStartup"):
             self.checkBox2.setEnabled(True)
             self.checkBox3.setEnabled(True)
         else:
             self.checkBox2.setEnabled(False)
             self.checkBox3.setEnabled(False)
-        self.checkBox2.setChecked(setting.read("autoHide"))
-        self.checkBox3.setChecked(setting.read("autoUpdate"))
 
         self.hBoxLayout.addWidget(self.checkBox1, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(8)
@@ -446,10 +553,10 @@ class TraySettingCard(SettingCard):
     def __init__(self, parent=None):
         super().__init__(FIF.ZOOM, "展示托盘图标", "", parent)
         self.button1 = SwitchButton(self, IndicatorPosition.RIGHT)
-        self.button1.setChecked(setting.read("showTray"))
         self.button1.checkedChanged.connect(self.button1Clicked)
         self.button1.setToolTip("在系统托盘展示软件图标")
         self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
+        self.button1.setChecked(setting.read("showTray"))
 
         self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
@@ -467,10 +574,10 @@ class HideSettingCard(SettingCard):
     def __init__(self, parent=None):
         super().__init__(FIF.EMBED, "自动驻留后台", "", parent)
         self.button1 = SwitchButton(self, IndicatorPosition.RIGHT)
-        self.button1.setChecked(setting.read("hideWhenClose"))
         self.button1.checkedChanged.connect(self.button1Clicked)
         self.button1.setToolTip("关闭窗口时程序自动隐藏")
         self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
+        self.button1.setChecked(setting.read("hideWhenClose"))
 
         self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
@@ -479,7 +586,7 @@ class HideSettingCard(SettingCard):
         setting.save("hideWhenClose", self.button1.checked)
 
 
-class SortSettingCard(SettingCard):
+class SortPathSettingCard(SettingCard):
     """
     整理文件设置卡片
     """
@@ -487,15 +594,13 @@ class SortSettingCard(SettingCard):
     def __init__(self, parent=None):
         super().__init__(FIF.ALIGNMENT, "整理文件", "设置整理文件夹的目录", parent)
         self.button1 = PushButton("整理目录", self, FIF.FOLDER_ADD)
-        self.button2 = PushButton("微信目录", self, FIF.FOLDER_ADD)
-
         self.button1.clicked.connect(self.button1Clicked)
-        self.button2.clicked.connect(self.button2Clicked)
-
         self.button1.setToolTip("设置整理文件夹目录")
-        self.button2.setToolTip("设置微信WeChat Files文件夹目录")
-
         self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
+
+        self.button2 = PushButton("微信目录", self, FIF.FOLDER_ADD)
+        self.button2.clicked.connect(self.button2Clicked)
+        self.button2.setToolTip("设置微信WeChat Files文件夹目录")
         self.button2.installEventFilter(ToolTipFilter(self.button2, 1000))
 
         self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
@@ -513,34 +618,44 @@ class SortSettingCard(SettingCard):
             setting.save("wechatPath", str(get))
 
 
-class SortFolderSettingCard(SettingCard):
+class SortSettingCard(SettingCard):
     """
     自定义整理文件设置卡片
     """
 
     def __init__(self, parent=None):
-        super().__init__(FIF.FOLDER, "自定义整理文件", "", parent)
-        self.button1 = PushButton("整理文件黑名单", self, FIF.EDIT)
+        super().__init__(FIF.EDIT, "自定义整理文件", "", parent)
+        self.button1 = PushButton("整理文件黑名单", self)
         self.button1.clicked.connect(self.button1Clicked)
         self.button1.setToolTip("编辑整理文件黑名单（填写文件名）")
         self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
 
-        self.button2 = PushButton("自定义整理目录", self, FIF.EDIT)
+        self.button2 = PushButton("自定义整理目录", self)
         self.button2.clicked.connect(self.button2Clicked)
         self.button2.setToolTip("自定义整理文件夹（填写文件夹完整路径）")
         self.button2.installEventFilter(ToolTipFilter(self.button2, 1000))
 
+        self.button3 = PushButton("自定义整理文件类型", self)
+        self.button3.clicked.connect(self.button3Clicked)
+        self.button3.setToolTip("自定义整理文件类型")
+        self.button3.installEventFilter(ToolTipFilter(self.button3, 1000))
+
         self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
         self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignRight)
+        self.hBoxLayout.addWidget(self.button3, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
     def button1Clicked(self):
-        self.blackListMessageBox = BlackListEditMessageBox("整理文件黑名单", self.parent().parent().parent().parent().parent().parent().parent())
+        self.blackListMessageBox = BlackListEditMessageBox(self.parent().parent().parent().parent().parent().parent().parent())
         self.blackListMessageBox.show()
 
     def button2Clicked(self):
-        self.blackListMessageBox = SortFolderEditMessageBox("自定义整理目录", self.parent().parent().parent().parent().parent().parent().parent())
+        self.blackListMessageBox = SortFolderEditMessageBox(self.parent().parent().parent().parent().parent().parent().parent())
         self.blackListMessageBox.show()
+
+    def button3Clicked(self):
+        self.sortFormatMessageBox = SortFormatEditMessageBox(self.parent().parent().parent().parent().parent().parent().parent())
+        self.sortFormatMessageBox.show()
 
 
 class DownloadSettingCard(SettingCard):
@@ -551,11 +666,8 @@ class DownloadSettingCard(SettingCard):
     def __init__(self, parent=None):
         super().__init__(FIF.DOWNLOAD, "下载文件", "设置下载文件的目录", parent)
         self.button1 = PushButton("下载目录", self, FIF.FOLDER_ADD)
-
         self.button1.clicked.connect(self.button1Clicked)
-
         self.button1.setToolTip("设置下载文件夹目录")
-
         self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
 
         self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
@@ -608,15 +720,13 @@ class UpdateSettingCard(SettingCard):
     def __init__(self, parent=None):
         super().__init__(FIF.UPDATE, "更新", "更新程序至新版本", parent)
         self.button1 = PushButton("更新运行库", self, FIF.LIBRARY)
-        self.button2 = PrimaryPushButton("检查更新", self, FIF.DOWNLOAD)
-
         self.button1.clicked.connect(self.button1Clicked)
-        self.button2.clicked.connect(self.button2Clicked)
-
         self.button1.setToolTip("更新程序运行库")
-        self.button2.setToolTip("检查程序新版本更新")
-
         self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
+
+        self.button2 = PrimaryPushButton("检查更新", self, FIF.DOWNLOAD)
+        self.button2.clicked.connect(self.button2Clicked)
+        self.button2.setToolTip("检查程序新版本更新")
         self.button2.installEventFilter(ToolTipFilter(self.button2, 1000))
 
         self.comboBox = ComboBox(self)
@@ -797,19 +907,18 @@ class HelpSettingCard(SettingCard):
     def __init__(self, parent=None):
         super().__init__(FIF.HELP, "帮助", "查看程序相关信息", parent)
         self.button1 = HyperlinkButton(program.PROGRAM_PATH, "程序安装路径", self, FIF.FOLDER)
-        self.button2 = HyperlinkButton(program.PROGRAM_PATH, "程序数据路径", self, FIF.FOLDER)
-        self.button3 = HyperlinkButton("", "清理程序缓存", self, FIF.BROOM)
-
         self.button1.clicked.connect(lambda: f.startFile(program.PROGRAM_PATH))
-        self.button2.clicked.connect(lambda: f.startFile(program.PROGRAM_DATA_PATH))
-        self.button3.clicked.connect(self.button3Clicked)
-
         self.button1.setToolTip("打开程序安装路径")
-        self.button2.setToolTip("打开程序数据路径")
-        self.button3.setToolTip("清理程序运行过程中生成的缓存文件")
-
         self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
+
+        self.button2 = HyperlinkButton(program.PROGRAM_PATH, "程序数据路径", self, FIF.FOLDER)
+        self.button2.clicked.connect(lambda: f.startFile(program.PROGRAM_DATA_PATH))
+        self.button2.setToolTip("打开程序数据路径")
         self.button2.installEventFilter(ToolTipFilter(self.button2, 1000))
+
+        self.button3 = HyperlinkButton("", "清理程序缓存", self, FIF.BROOM)
+        self.button3.clicked.connect(self.button3Clicked)
+        self.button3.setToolTip("清理程序运行过程中生成的缓存文件")
         self.button3.installEventFilter(ToolTipFilter(self.button3, 1000))
 
         self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
@@ -843,15 +952,13 @@ class ControlSettingCard(SettingCard):
     def __init__(self, parent=None):
         super().__init__(FIF.ALBUM, "控制", "", parent)
         self.button1 = PushButton("关闭", self, FIF.CLOSE)
-        self.button2 = PushButton("重新启动", self, FIF.SYNC)
-
         self.button1.clicked.connect(self.button1Clicked)
-        self.button2.clicked.connect(self.button2Clicked)
-
         self.button1.setToolTip("关闭程序")
-        self.button2.setToolTip("重新启动程序")
-
         self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
+
+        self.button2 = PushButton("重新启动", self, FIF.SYNC)
+        self.button2.clicked.connect(self.button2Clicked)
+        self.button2.setToolTip("重新启动程序")
         self.button2.installEventFilter(ToolTipFilter(self.button2, 1000))
 
         self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
@@ -875,15 +982,13 @@ class ShortcutSettingCard(SettingCard):
     def __init__(self, parent=None):
         super().__init__(FIF.ADD_TO, "添加快捷方式", "", parent)
         self.button1 = HyperlinkButton("", "桌面", self)
-        self.button2 = HyperlinkButton("", "开始菜单", self)
-
         self.button1.clicked.connect(lambda: f.createShortcut(program.PROGRAM_MAIN_FILE_PATH, f.pathJoin(program.DESKTOP_PATH, "zb小程序.lnk"), program.source("program.ico")))
-        self.button2.clicked.connect(lambda: f.createShortcut(program.PROGRAM_MAIN_FILE_PATH, f.pathJoin(program.USER_PATH, r"AppData\Roaming\Microsoft\Windows\Start Menu\Programs", "zb小程序.lnk"), program.source("program.ico")))
-
         self.button1.setToolTip("将程序添加到桌面快捷方式")
-        self.button2.setToolTip("将程序添加到开始菜单列表")
-
         self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
+
+        self.button2 = HyperlinkButton("", "开始菜单", self)
+        self.button2.clicked.connect(lambda: f.createShortcut(program.PROGRAM_MAIN_FILE_PATH, f.pathJoin(program.USER_PATH, r"AppData\Roaming\Microsoft\Windows\Start Menu\Programs", "zb小程序.lnk"), program.source("program.ico")))
+        self.button2.setToolTip("将程序添加到开始菜单列表")
         self.button2.installEventFilter(ToolTipFilter(self.button2, 1000))
 
         self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
@@ -899,12 +1004,11 @@ class AboutSettingCard(SettingCard):
     def __init__(self, parent=None):
         super().__init__(FIF.INFO, "关于", f"© 2022-2024 Ianzb. GPLv3 License.\n当前版本 {program.PROGRAM_VERSION} {setting.read("updateChannel")}", parent)
         self.button1 = HyperlinkButton(program.PROGRAM_URL, "程序官网", self, FIF.LINK)
-        self.button2 = HyperlinkButton(program.GITHUB_URL, "GitHub", self, FIF.GITHUB)
-
         self.button1.setToolTip("打开程序官网")
-        self.button2.setToolTip("打开程序GitHub页面")
-
         self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
+
+        self.button2 = HyperlinkButton(program.GITHUB_URL, "GitHub", self, FIF.GITHUB)
+        self.button2.setToolTip("打开程序GitHub页面")
         self.button2.installEventFilter(ToolTipFilter(self.button2, 1000))
 
         self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)

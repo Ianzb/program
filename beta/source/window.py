@@ -15,32 +15,33 @@ class MainPage(BasicPage):
         self.setIcon(FIF.HOME)
 
         self.button1_1 = PrimaryPushButton("开始整理+清理", self, FIF.ALIGNMENT)
-        self.button1_2 = ToolButton(FIF.FOLDER, self)
-        self.button2_1 = PushButton("重启文件资源管理器", self, FIF.SYNC)
-        self.button3_1 = PushButton("查看Minecraft最新版本", self, FIF.CHECKBOX)
-
         self.button1_1.clicked.connect(self.button1_1Clicked)
-        self.button1_2.clicked.connect(lambda: f.startFile(setting.read("sortPath")))
-        self.button2_1.clicked.connect(self.button2_1Clicked)
-        self.button3_1.clicked.connect(self.button3_1Clicked)
-
         self.button1_1.setToolTip("开始整理+清理文件，范围包括：\n  整理桌面文件\n  整理微信文件\n  清空回收站\n  清理系统缓存")
-        self.button1_2.setToolTip("打开整理文件所在目录")
-        self.button2_1.setToolTip("重启文件资源管理器")
-        self.button3_1.setToolTip("查看Minecraft最新版本，数据来源：\n  我的世界中文维基百科（https://zh.minecraft.wiki/）")
-
         self.button1_1.installEventFilter(ToolTipFilter(self.button1_1, 1000))
+
+        self.button1_2 = ToolButton(FIF.FOLDER, self)
+        self.button1_2.clicked.connect(lambda: f.startFile(setting.read("sortPath")))
+        self.button1_2.setToolTip("打开整理文件所在目录")
         self.button1_2.installEventFilter(ToolTipFilter(self.button1_2, 1000))
+
+        self.button2_1 = PushButton("重启文件资源管理器", self, FIF.SYNC)
+        self.button2_1.clicked.connect(self.button2_1Clicked)
+        self.button2_1.setToolTip("重启文件资源管理器")
         self.button2_1.installEventFilter(ToolTipFilter(self.button2_1, 1000))
+
+        self.button3_1 = PushButton("查看Minecraft最新版本", self, FIF.CHECKBOX)
+        self.button3_1.clicked.connect(self.button3_1Clicked)
+        self.button3_1.setToolTip("查看Minecraft最新版本，数据来源：\n  我的世界中文维基百科（https://zh.minecraft.wiki/）")
         self.button3_1.installEventFilter(ToolTipFilter(self.button3_1, 1000))
 
         self.card1 = GrayCard("一键整理+清理", self.view)
-        self.card2 = GrayCard("快捷功能", self.view)
-        self.card3 = GrayCard("游戏功能", self.view)
-
         self.card1.addWidget(self.button1_1)
         self.card1.addWidget(self.button1_2)
+
+        self.card2 = GrayCard("快捷功能", self.view)
         self.card2.addWidget(self.button2_1)
+
+        self.card3 = GrayCard("游戏功能", self.view)
         self.card3.addWidget(self.button3_1)
 
         self.vBoxLayout.addWidget(self.card1, 0, Qt.AlignTop)
@@ -164,8 +165,8 @@ class SettingPage(BasicPage):
         self.traySettingCard = TraySettingCard(self)
         self.hideSettingCard = HideSettingCard(self)
 
-        self.sortSettingCard = SortSettingCard(self)
-        self.sortFolderSettingCard = SortFolderSettingCard(self)
+        self.sortSettingCard = SortPathSettingCard(self)
+        self.sortFolderSettingCard = SortSettingCard(self)
         self.downloadSettingCard = DownloadSettingCard(self)
 
         self.cardGroup1.addWidget(self.themeSettingCard)
