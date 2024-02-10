@@ -23,7 +23,7 @@ class Program:
     程序信息
     """
     PROGRAM_NAME = "zb小程序"  # 程序名称
-    PROGRAM_VERSION = "3.5.4"  # 程序版本
+    PROGRAM_VERSION = "3.6.0"  # 程序版本
     PROGRAM_TITLE = f"{PROGRAM_NAME} {PROGRAM_VERSION}"  # 程序窗口标题
     AUTHOR_NAME = "Ianzb"  # 作者名称
     AUTHOR_URL = "https://ianzb.github.io/"  # 作者网址
@@ -216,19 +216,19 @@ class SettingFunctions:
                                 "showTray": True,
                                 "hideWhenClose": True,
                                 "sortFolder": [],
+                                "sortFormat": {"PPT": [".ppt", ".pptx"],
+                                               "文档": [".doc", ".docx", ".txt", ".pdf"],
+                                               "表格": [".xls", ".xlsx", ".xlsm", ".xlsb", ".xlt", ".csv"],
+                                               "图片": [".png", ".jpg", ".jpeg", ".webp", ".gif", ".tif", ".tga", ".bmp", ".dds", ".svg", ".eps", ".hdr", ".raw", ".exr", ".psd"],
+                                               "音频": [".mp3", ".wav", ".ogg", ".wma", ".ape", ".flac", ".aac"],
+                                               "视频": [".mp4", ".flv", ".mov", ".avi", ".mkv", ".wmv"],
+                                               "压缩包": [".zip", ".rar", ".7z", ".tar", ".gz", ".bz2"],
+                                               "镜像": [".iso", ".img", ".bin"],
+                                               "安装包": [".exe", ".msi"]
+                                               }
                                 }
-
-    def reload(self):
-        """
-        重新读取设置文件
-        """
-        if not f.existPath(program.SETTING_FILE_PATH):
-            with open(program.SETTING_FILE_PATH, "w", encoding="utf-8") as file:
-                file.write(json.dumps(self.DEFAULT_SETTING))
-        else:
-            if not open(program.SETTING_FILE_PATH, "r+", encoding="utf-8").read():
-                with open(program.SETTING_FILE_PATH, "w", encoding="utf-8") as file:
-                    file.write(json.dumps(self.DEFAULT_SETTING))
+        self.file = open(program.SETTING_FILE_PATH, "a+t", encoding="utf-8")
+        self.__read()
 
     def read(self, name: str):
         """
@@ -238,14 +238,20 @@ class SettingFunctions:
         """
         if name != "showWindow":
             logging.debug(f"读取设置{name}")
-        self.reload()
-        with open(program.SETTING_FILE_PATH, "r+", encoding="utf-8") as file:
-            settings = json.loads(file.read())
         try:
-            return settings[name]
+            return self.settings[name]
         except:
-            setting.save(name, self.DEFAULT_SETTING[name])
+            self.settings[name] = self.DEFAULT_SETTING[name]
+            self.__save()
             return self.DEFAULT_SETTING[name]
+
+    def __read(self):
+        self.file.seek(0)
+        try:
+            self.settings = json.loads(self.file.read())
+        except:
+            self.settings = self.DEFAULT_SETTING
+            self.__save()
 
     def save(self, name: str, data):
         """
@@ -254,12 +260,14 @@ class SettingFunctions:
         @param data: 选项数据
         """
         logging.debug(f"保存设置{name}：{data}")
-        self.reload()
-        with open(program.SETTING_FILE_PATH, "r+", encoding="utf-8") as file:
-            settings = json.loads(file.read())
-        settings[name] = data
-        with open(program.SETTING_FILE_PATH, "w", encoding="utf-8") as file:
-            file.write(json.dumps(settings))
+        self.settings[name] = data
+        self.__save()
+
+    def __save(self):
+        self.file.seek(0)
+        self.file.truncate()
+        self.file.write(json.dumps(self.settings))
+        self.file.flush()
 
 
 class ProcessFunctions:
@@ -349,16 +357,6 @@ class FileFunctions(ProcessFunctions):
     """
     文件处理函数
     """
-    SORT_FILE_DIR = {"PPT": [".ppt", ".pptx"],
-                     "文档": [".doc", ".docx", ".txt", ".pdf"],
-                     "表格": [".xls", ".xlsx", ".xlsm", ".xlsb", ".xlt", ".csv"],
-                     "图片": [".png", ".jpg", ".jpeg", ".webp", ".gif", ".tif", ".tga", ".bmp", ".dds", ".svg", ".eps", ".hdr", ".raw", ".exr", ".psd"],
-                     "音频": [".mp3", ".wav", ".ogg", ".wma", ".ape", ".flac", ".aac"],
-                     "视频": [".mp4", ".flv", ".mov", ".avi", ".mkv", ".wmv"],
-                     "压缩包": [".zip", ".rar", ".7z", ".tar", ".gz", ".bz2"],
-                     "镜像": [".iso", ".img", ".bin"],
-                     "安装包": [".exe", ".msi"]
-                     }
 
     def __init__(self):
         super().__init__()
@@ -682,10 +680,10 @@ class FileFunctions(ProcessFunctions):
                 file_list = self.walkFile(old, 1)
                 if file_list:
                     for i in file_list:
-                        for j in range(len(self.SORT_FILE_DIR.values())):
-                            if self.splitPath(i, 2).lower() in list(self.SORT_FILE_DIR.values())[j]:
+                        for j in range(len(setting.read("sortFormat").values())):
+                            if self.splitPath(i, 2).lower() in list(setting.read("sortFormat").values())[j]:
                                 if self.splitPath(i, 0) not in self.getSortBlacklist():
-                                    self.moveFile(i, self.pathJoin(new, list(self.SORT_FILE_DIR.keys())[j]))
+                                    self.moveFile(i, self.pathJoin(new, list(setting.read("sortFormat").keys())[j]))
             if mode in [0, 2]:
                 file_list = self.walkDir(old, 1)
                 if file_list:
@@ -757,7 +755,7 @@ class FileFunctions(ProcessFunctions):
         data = setting.read("sortBlacklist")
 
         if self.isSameFile(setting.read("sortPath"), program.DESKTOP_PATH):
-            data += list(self.SORT_FILE_DIR.keys()) + ["文件夹"]
+            data += list(setting.read("sortFormat").keys()) + ["文件夹"]
         elif f.belongDir(setting.read("sortPath"), program.DESKTOP_PATH):
             dirs = self.walkDir(program.DESKTOP_PATH, 1)
             for i in dirs:
