@@ -495,22 +495,22 @@ class StartupSettingCard(SettingCard):
 
         super().__init__(FIF.POWER_BUTTON, "开机自启动", "设置程序的开机自启动功能", parent)
         self.checkBox1 = CheckBox("开机自启动", self)
+        self.checkBox1.setChecked(setting.read("autoStartup"))
         self.checkBox1.clicked.connect(self.button1Clicked)
         self.checkBox1.setToolTip("设置程序开机自启动")
         self.checkBox1.installEventFilter(ToolTipFilter(self.checkBox1, 1000))
-        self.checkBox1.setChecked(setting.read("autoStartup"))
 
         self.checkBox2 = CheckBox("最小化启动", self)
+        self.checkBox2.setChecked(setting.read("autoHide"))
         self.checkBox2.clicked.connect(self.button2Clicked)
         self.checkBox2.setToolTip("设置程序在开机自启动时自动最小化窗口")
         self.checkBox2.installEventFilter(ToolTipFilter(self.checkBox2, 1000))
-        self.checkBox2.setChecked(setting.read("autoHide"))
 
         self.checkBox3 = CheckBox("开机自动更新", self)
+        self.checkBox3.setChecked(setting.read("autoUpdate"))
         self.checkBox3.clicked.connect(self.button3Clicked)
         self.checkBox3.setToolTip("设置程序在开机自启动时自动更新新版本")
         self.checkBox3.installEventFilter(ToolTipFilter(self.checkBox3, 1000))
-        self.checkBox3.setChecked(setting.read("autoUpdate"))
 
         if setting.read("autoStartup"):
             self.checkBox2.setEnabled(True)
@@ -553,10 +553,10 @@ class TraySettingCard(SettingCard):
     def __init__(self, parent=None):
         super().__init__(FIF.ZOOM, "展示托盘图标", "", parent)
         self.button1 = SwitchButton(self, IndicatorPosition.RIGHT)
+        self.button1.setChecked(setting.read("showTray"))
         self.button1.checkedChanged.connect(self.button1Clicked)
         self.button1.setToolTip("在系统托盘展示软件图标")
         self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
-        self.button1.setChecked(setting.read("showTray"))
 
         self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
@@ -574,10 +574,10 @@ class HideSettingCard(SettingCard):
     def __init__(self, parent=None):
         super().__init__(FIF.EMBED, "自动驻留后台", "", parent)
         self.button1 = SwitchButton(self, IndicatorPosition.RIGHT)
+        self.button1.setChecked(setting.read("hideWhenClose"))
         self.button1.checkedChanged.connect(self.button1Clicked)
         self.button1.setToolTip("关闭窗口时程序自动隐藏")
         self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
-        self.button1.setChecked(setting.read("hideWhenClose"))
 
         self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
