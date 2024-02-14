@@ -79,7 +79,7 @@ class NewThread(QThread):
                     if f.isDir(i):
                         if not (f.belongDir(i, setting.read("sortPath")) or f.belongDir(setting.read("sortPath"), i)):
                             f.sortDir(i, setting.read("sortPath"))
-                for i in list(f.SORT_FILE_DIR.keys()) + ["文件夹"]:
+                for i in list(setting.read("sortFormat").keys()) + ["文件夹"]:
                     f.clearFile(f.pathJoin(setting.read("sortPath"), i))
                 f.clearFile(setting.read("sortPath"))
                 self.signalBool.emit(True)
