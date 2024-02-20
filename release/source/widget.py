@@ -791,26 +791,30 @@ class UpdateSettingCard(SettingCard):
         self.progressBar.show()
 
         self.thread1 = NewThread("更新运行库")
-        self.thread1.signalDict.connect(self.threadEvent1)
+        self.thread1.signalDict.connect(self.threadEvent1_1)
+        self.thread1.signalBool.connect(self.threadEvent1_2)
         self.thread1.start()
 
-    def threadEvent1(self, msg):
-        if msg["完成"]:
-            self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", "运行库安装成功！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
-            self.infoBar.show()
+    def threadEvent1_1(self, msg):
+        self.label.setText(f"{str(msg["进度"])}% 正在更新 {msg["名称"]}")
+        self.progressBar.setValue(msg["进度"])
 
-            self.label.hide()
-            self.progressBar.hide()
-
-            self.label.setText("")
-            self.progressBar.setValue(0)
-
-            self.comboBox.setEnabled(True)
-            self.button1.setEnabled(True)
-            self.button2.setEnabled(True)
+    def threadEvent1_2(self, msg):
+        if msg:
+            self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", "运行库更新成功！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
         else:
-            self.label.setText(f"{str(msg["进度"])}% 正在更新 {msg["名称"]}")
-            self.progressBar.setValue(msg["进度"])
+            self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", "无网络连接，无法更新运行库！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+        self.infoBar.show()
+
+        self.label.hide()
+        self.progressBar.hide()
+
+        self.label.setText("")
+        self.progressBar.setValue(0)
+
+        self.comboBox.setEnabled(True)
+        self.button1.setEnabled(True)
+        self.button2.setEnabled(True)
 
     def button2Clicked(self):
         if "beta" in program.PROGRAM_VERSION:
@@ -822,21 +826,30 @@ class UpdateSettingCard(SettingCard):
         self.button2.setEnabled(False)
 
         self.thread2 = NewThread("检查更新")
-        self.thread2.signalDict.connect(self.threadEvent2)
+        self.thread2.signalDict.connect(self.threadEvent2_1)
+        self.thread2.signalBool.connect(self.threadEvent2_2)
         self.thread2.start()
 
-    def threadEvent2(self, msg):
-        if msg["更新"]:
-            self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", f"检测到新版本{msg["版本"]}！", Qt.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+    def threadEvent2_1(self, msg):
+        self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", f"检测到新版本{msg["版本"]}！", Qt.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
 
-            self.button3 = PushButton("立刻更新", self, FIF.DOWNLOAD)
-            self.button3.clicked.connect(self.button3Clicked)
+        self.button3 = PushButton("立刻更新", self, FIF.DOWNLOAD)
+        self.button3.clicked.connect(self.button3Clicked)
 
-            self.infoBar.addWidget(self.button3)
-            self.infoBar.show()
-        else:
+        self.infoBar.addWidget(self.button3)
+        self.infoBar.show()
+
+        self.comboBox.setEnabled(True)
+        self.button1.setEnabled(True)
+        self.button2.setEnabled(True)
+
+    def threadEvent2_2(self, msg):
+        if msg:
             self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"{program.PROGRAM_VERSION}已为最新版本！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
-            self.infoBar.show()
+        else:
+            self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", "无网络连接，无法检查程序更新！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+        self.infoBar.show()
+
         self.comboBox.setEnabled(True)
         self.button1.setEnabled(True)
         self.button2.setEnabled(True)
@@ -855,36 +868,18 @@ class UpdateSettingCard(SettingCard):
         self.progressBar.show()
 
         self.thread3 = NewThread("立刻更新")
-        self.thread3.signalDict.connect(self.threadEvent3)
+        self.thread3.signalDict.connect(self.threadEvent3_1)
+        self.thread3.signalBool.connect(self.threadEvent3_2)
         self.thread3.start()
 
-    def threadEvent3(self, msg):
-        if msg["更新"]:
-            if msg["完成"]:
-                self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", "更新成功！", Qt.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+    def threadEvent3_1(self, msg):
+        if msg["完成"]:
+            self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", "更新成功！", Qt.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
 
-                self.button4 = PushButton("重启", self, FIF.SYNC)
-                self.button4.clicked.connect(program.restart)
+            self.button4 = PushButton("重启", self, FIF.SYNC)
+            self.button4.clicked.connect(program.restart)
 
-                self.infoBar.addWidget(self.button4)
-                self.infoBar.show()
-
-                self.label.hide()
-                self.progressBar.hide()
-
-                self.label.setText("")
-                self.progressBar.setValue(0)
-
-                self.comboBox.setEnabled(True)
-                self.button1.setEnabled(True)
-                self.button2.setEnabled(True)
-            else:
-                value = int(msg["序号"] / msg["数量"] * 100)
-                self.label.setText(f"{str(value)}% 正在更新 {msg["名称"]}")
-                self.progressBar.setValue(value)
-
-        else:
-            self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"{program.PROGRAM_VERSION}已为最新版本！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+            self.infoBar.addWidget(self.button4)
             self.infoBar.show()
 
             self.label.hide()
@@ -896,9 +891,26 @@ class UpdateSettingCard(SettingCard):
             self.comboBox.setEnabled(True)
             self.button1.setEnabled(True)
             self.button2.setEnabled(True)
-        if program.isStartup:
-            program.STARTUP_ARGUMENT.remove("startup")
-            self.button1Clicked()
+        else:
+            value = int(msg["序号"] / msg["数量"] * 100)
+            self.label.setText(f"{str(value)}% 正在更新 {msg["名称"]}")
+            self.progressBar.setValue(value)
+
+    def threadEvent3_2(self, msg):
+        if msg:
+            self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"{program.PROGRAM_VERSION}已为最新版本！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+        else:
+            self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", "无网络连接，无法检查程序更新！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+        self.infoBar.show()
+        self.label.hide()
+        self.progressBar.hide()
+
+        self.label.setText("")
+        self.progressBar.setValue(0)
+
+        self.comboBox.setEnabled(True)
+        self.button1.setEnabled(True)
+        self.button2.setEnabled(True)
 
 
 class HelpSettingCard(SettingCard):
@@ -966,7 +978,6 @@ class ControlSettingCard(SettingCard):
         self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
         self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
-
 
 
 class ShortcutSettingCard(SettingCard):
