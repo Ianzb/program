@@ -24,7 +24,7 @@ class Program:
     程序信息
     """
     PROGRAM_NAME = "zb小程序"  # 程序名称
-    PROGRAM_VERSION = "3.6.0"  # 程序版本
+    PROGRAM_VERSION = "3.7.0"  # 程序版本
     PROGRAM_TITLE = f"{PROGRAM_NAME} {PROGRAM_VERSION}"  # 程序窗口标题
     AUTHOR_NAME = "Ianzb"  # 作者名称
     AUTHOR_URL = "https://ianzb.github.io/"  # 作者网址
@@ -940,7 +940,7 @@ class ProgramFunctions(FileFunctions):
         获取程序最新版本
         @return: 程序最新版本
         """
-        response = requests.get(program.UPDATE_URL, headers=program.REQUEST_HEADER, stream=True).text
+        response = requests.get(program.UPDATE_URL, headers=program.REQUEST_HEADER, stream=True, timeout=(15, 30)).text
         data = json.loads(response)["version"]
         logging.info(f"程序最新版本：{data}")
         return data
@@ -1001,6 +1001,13 @@ class ProgramFunctions(FileFunctions):
                 with open(f.pathJoin(i, "addon.json"), encoding="utf-8") as file:
                     data[f.splitPath(i)] = json.loads(file.read())
         return data
+
+    def checkInternet(self, link: str = "https://www.baidu.com/"):
+        try:
+            response = requests.get(link, stream=True)
+            return response.status_code == 200
+        except:
+            return False
 
 
 class Functions(ProgramFunctions):
