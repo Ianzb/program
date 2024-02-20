@@ -6,6 +6,7 @@ import shutil
 import threading
 import webbrowser
 import time
+from traceback import format_exception
 
 try:
     import requests
