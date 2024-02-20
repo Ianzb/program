@@ -324,8 +324,14 @@ class Window(FluentWindow):
         else:
             program.close()
 
-    def getException(self, type1, value, traceback):
-        info = "".join(format_exception(type1, value, traceback))
+    def getException(self, type, value, traceback):
+        """
+        报错拦截
+        @param type: 报错类型
+        @param value: 报错对象
+        @param traceback: 报错返回信息
+        """
+        info = "".join(format_exception(type, value, traceback))
         self.messageBox = MessageBox(f"程序发生异常", info, self)
         self.messageBox.contentLabel.setTextInteractionFlags(Qt.TextSelectableByMouse)
         self.messageBox.yesButton.setText("重启")
