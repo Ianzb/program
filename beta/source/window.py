@@ -1,5 +1,3 @@
-import sys
-
 from .widget import *
 
 
@@ -332,7 +330,8 @@ class Window(FluentWindow):
         @param traceback: 报错返回信息
         """
         info = "".join(format_exception(type, value, traceback))
-        self.messageBox = MessageBox(f"程序发生异常", info, self)
+        logging.fatal(f"程序发生异常\n{info}")
+        self.messageBox = MessageBox("程序发生异常", info, self)
         self.messageBox.contentLabel.setTextInteractionFlags(Qt.TextSelectableByMouse)
         self.messageBox.yesButton.setText("重启")
         self.messageBox.yesButton.setIcon(FIF.SYNC)

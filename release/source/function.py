@@ -6,6 +6,7 @@ import shutil
 import threading
 import webbrowser
 import time
+import logging
 from traceback import format_exception
 
 try:
@@ -178,7 +179,6 @@ class LoggingFunctions:
     """
 
     def __init__(self):
-        import logging
         self.log = logging.getLogger(program.PROGRAM_NAME)
         self.log.setLevel(logging.DEBUG)
         handler1 = logging.StreamHandler(sys.stderr)
@@ -1006,8 +1006,10 @@ class ProgramFunctions(FileFunctions):
     def checkInternet(self, link: str = "https://www.baidu.com/"):
         try:
             response = requests.get(link, stream=True)
+            logging.debug(f"访问{link}的结果为{response.status_code == 200}")
             return response.status_code == 200
         except:
+            logging.warning(f"访问{link}失败")
             return False
 
 
