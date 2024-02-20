@@ -20,7 +20,7 @@ class Tray(QSystemTrayIcon):
         self.action3 = Action(FIF.LINK, "官网", triggered=self.action3Clicked)
         self.action4 = Action(FIF.CLOSE, "退出", triggered=self.action4Clicked)
 
-        self.menu = RoundMenu()
+        self.menu = AcrylicMenu()
 
         self.menu.addAction(self.action1)
         self.menu.addAction(self.action2)

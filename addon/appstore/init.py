@@ -200,7 +200,7 @@ class AddonTab(BasicTab):
 
         self.vBoxLayout.setSpacing(8)
 
-        self.lineEdit = SearchLineEdit(self)
+        self.lineEdit = AcrylicSearchLineEdit(self)
         self.lineEdit.setPlaceholderText("应用名称")
         self.lineEdit.setToolTip("搜索应用，数据来源：\n 360软件中心\n 腾讯软件中心")
         self.lineEdit.installEventFilter(ToolTipFilter(self.lineEdit, 1000))
@@ -210,7 +210,7 @@ class AddonTab(BasicTab):
         self.lineEdit.searchButton.setEnabled(False)
         self.lineEdit.searchButton.clicked.connect(self.searchButtonClicked)
 
-        self.comboBox = ComboBox(self)
+        self.comboBox = AcrylicComboBox(self)
         self.comboBox.setPlaceholderText("下载应用来源")
         self.comboBox.addItems(["360", "腾讯"])
         self.comboBox.setCurrentIndex(0)
