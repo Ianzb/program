@@ -13,6 +13,7 @@ try:
     import lxml
     from PyQt5.Qt import *
     from qfluentwidgets import *
+    from qfluentwidgets.components.material import *
     from qfluentwidgets import FluentIcon as FIF
 except ImportError:
     os.popen("download.pyw error")
@@ -45,8 +46,8 @@ class Program:
     REQUEST_HEADER = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0",
                       "zbprogram": PROGRAM_VERSION}  # 程序默认网络请求头
 
-    REQUIRE_LIB = ["PyQt-Fluent-Widgets",
-                   "qt5_tools",
+    REQUIRE_LIB = ["PyQt-Fluent-Widgets[full]",
+                   "qt5-tools",
                    "requests",
                    "bs4",
                    "lxml",
@@ -55,6 +56,31 @@ class Program:
                    "winshell",
                    "xmltodict",
                    ]
+    EXTRA_LIB = ["PyQt5",
+                 "PyQt5-Frameless-Window",
+                 "PyQt5-Qt5",
+                 "PyQt5-sip",
+                 "beautifulsoup4",
+                 "certifi",
+                 "charset-normalizer",
+                 "click",
+                 "colorama",
+                 "colorthief",
+                 "darkdetect",
+                 "idna",
+                 "numpy",
+                 "pillow",
+                 "python-dateutil",
+                 "pytz",
+                 "pywin32",
+                 "qt5-applications",
+                 "scipy",
+                 "setuptools",
+                 "six",
+                 "some-package",
+                 "soupsieve",
+                 "tzdata",
+                 "urllib3"]
 
     def __init__(self):
         # 创建数据目录

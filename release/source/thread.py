@@ -37,9 +37,10 @@ class NewThread(QThread):
 
     def run(self):
         if self.mode == "更新运行库":
-            for i in range(len(program.REQUIRE_LIB)):
-                self.signalDict.emit({"名称": program.REQUIRE_LIB[i], "序号": i, "完成": False})
-                f.pipUpdate(program.REQUIRE_LIB[i])
+            lib_list = program.REQUIRE_LIB + program.EXTRA_LIB
+            for i in range(len(lib_list)):
+                self.signalDict.emit({"名称": lib_list[i], "进度": int(i / len(lib_list) * 100), "完成": False})
+                f.pipUpdate(lib_list[i])
             self.signalDict.emit({"完成": True})
         if self.mode == "检查更新":
             try:

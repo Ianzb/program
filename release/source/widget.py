@@ -729,7 +729,7 @@ class UpdateSettingCard(SettingCard):
         self.button2.setToolTip("检查程序新版本更新")
         self.button2.installEventFilter(ToolTipFilter(self.button2, 1000))
 
-        self.comboBox = ComboBox(self)
+        self.comboBox = AcrylicComboBox(self)
         self.comboBox.setPlaceholderText("更新通道")
         self.comboBox.addItems(["正式版", "抢先版", "测试版"])
         self.comboBox.currentIndexChanged.connect(self.comboBoxIndexChanged)
@@ -809,9 +809,8 @@ class UpdateSettingCard(SettingCard):
             self.button1.setEnabled(True)
             self.button2.setEnabled(True)
         else:
-            value = int(msg["序号"] / len(program.REQUIRE_LIB) * 100)
-            self.label.setText(f"{str(value)}% 正在更新 {msg["名称"]}")
-            self.progressBar.setValue(value)
+            self.label.setText(f"{str(msg["进度"])}% 正在更新 {msg["名称"]}")
+            self.progressBar.setValue(msg["进度"])
 
     def button2Clicked(self):
         if "beta" in program.PROGRAM_VERSION:
@@ -897,6 +896,9 @@ class UpdateSettingCard(SettingCard):
             self.comboBox.setEnabled(True)
             self.button1.setEnabled(True)
             self.button2.setEnabled(True)
+        if program.isStartup:
+            program.STARTUP_ARGUMENT.remove("startup")
+            self.button1Clicked()
 
 
 class HelpSettingCard(SettingCard):

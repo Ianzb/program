@@ -94,7 +94,7 @@ class MainPage(BasicPage):
         self.thread3_1 = NewThread("Minecraft最新版本")
         self.thread3_1.signalStr.connect(self.threadEvent3_1)
         self.thread3_1.start()
-        self.flyout1 = Flyout(FlyoutViewBase())
+        self.flyout1 = AcrylicFlyout(FlyoutViewBase())
         self.flyout1.create(
             icon=InfoBarIcon.INFORMATION,
             title="Minecraft最新版本",
@@ -107,7 +107,7 @@ class MainPage(BasicPage):
     def threadEvent3_1(self, msg):
         self.button3_1.setEnabled(True)
 
-        self.flyout2 = Flyout(FlyoutViewBase())
+        self.flyout2 = AcrylicFlyout(FlyoutViewBase())
         self.flyout2.create(
             icon=InfoBarIcon.INFORMATION,
             title="Minecraft最新版本",
@@ -246,6 +246,7 @@ class Window(FluentWindow):
         # 外观调整
         setTheme(eval(setting.read("theme")))
         setThemeColor("#0078D4")
+        self.navigationInterface.setAcrylicEnabled(True)
         # 窗口属性
         self.resize(900, 700)
         self.setMinimumSize(700, 500)
