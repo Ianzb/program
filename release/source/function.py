@@ -157,6 +157,19 @@ class Program:
         """
         return f.pathJoin(self.PROGRAM_DATA_PATH, "cache", name)
 
+    def close(self):
+        """
+        关闭程序
+        """
+        sys.exit()
+
+    def restart(self):
+        """
+        重启程序
+        """
+        f.cmd(self.PROGRAM_MAIN_FILE_PATH)
+        sys.exit()
+
 
 class LoggingFunctions:
     """

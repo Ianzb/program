@@ -15,10 +15,11 @@ class Tray(QSystemTrayIcon):
         self.installEventFilter(ToolTipFilter(self, 1000))
         self.activated.connect(self.iconClicked)
 
-        self.action1 = Action(FIF.HOME, "打开", triggered=self.action1Clicked)
+        self.action1 = Action(FIF.HOME, "打开", triggered=self.window.show)
         self.action2 = Action(FIF.ALIGNMENT, "整理", triggered=self.action2Clicked)
-        self.action3 = Action(FIF.LINK, "官网", triggered=self.action3Clicked)
-        self.action4 = Action(FIF.CLOSE, "退出", triggered=self.action4Clicked)
+        self.action3 = Action(FIF.LINK, "官网", triggered=lambda: webbrowser.open(program.PROGRAM_URL))
+        self.action4 = Action(FIF.SYNC, "重启", triggered=program.restart)
+        self.action5 = Action(FIF.CLOSE, "退出", triggered=program.close)
 
         self.menu = AcrylicMenu()
 
@@ -26,6 +27,7 @@ class Tray(QSystemTrayIcon):
         self.menu.addAction(self.action2)
         self.menu.addAction(self.action3)
         self.menu.addAction(self.action4)
+        self.menu.addAction(self.action5)
 
         self.window.mainPage.signalBool.connect(self.threadEvent2)
 
@@ -51,22 +53,12 @@ class Tray(QSystemTrayIcon):
     def contextMenuEvent(self):
         self.menu.exec(QCursor.pos(), ani=True, aniType=MenuAnimationType.PULL_UP)
 
-    def action1Clicked(self):
-        self.window.show()
-
     def action2Clicked(self):
         self.action2.setEnabled(False)
         self.window.mainPage.button1_1Clicked()
 
     def threadEvent2(self, msg):
         self.action2.setEnabled(msg)
-
-    def action3Clicked(self):
-        webbrowser.open(program.PROGRAM_URL)
-
-    def action4Clicked(self):
-        self.deleteLater()
-        qApp.quit()
 
 
 class BasicPage(ScrollArea):

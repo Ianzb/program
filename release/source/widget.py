@@ -863,8 +863,8 @@ class UpdateSettingCard(SettingCard):
             if msg["完成"]:
                 self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", "更新成功！", Qt.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
 
-                self.button4 = PushButton("重新启动", self, FIF.SYNC)
-                self.button4.clicked.connect(self.parent().parent().parent().parent().parent().parent().parent().aboutPage.controlSettingCard.button2Clicked)
+                self.button4 = PushButton("重启", self, FIF.SYNC)
+                self.button4.clicked.connect(program.restart)
 
                 self.infoBar.addWidget(self.button4)
                 self.infoBar.show()
@@ -954,26 +954,19 @@ class ControlSettingCard(SettingCard):
     def __init__(self, parent=None):
         super().__init__(FIF.ALBUM, "控制", "", parent)
         self.button1 = PushButton("关闭", self, FIF.CLOSE)
-        self.button1.clicked.connect(self.button1Clicked)
+        self.button1.clicked.connect(program.close)
         self.button1.setToolTip("关闭程序")
         self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
 
-        self.button2 = PushButton("重新启动", self, FIF.SYNC)
-        self.button2.clicked.connect(self.button2Clicked)
-        self.button2.setToolTip("重新启动程序")
+        self.button2 = PushButton("重启", self, FIF.SYNC)
+        self.button2.clicked.connect(program.restart)
+        self.button2.setToolTip("重启程序")
         self.button2.installEventFilter(ToolTipFilter(self.button2, 1000))
 
         self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
         self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
-    def button1Clicked(self):
-        pass
-        sys.exit()
-
-    def button2Clicked(self):
-        f.cmd(program.PROGRAM_MAIN_FILE_PATH)
-        sys.exit()
 
 
 class ShortcutSettingCard(SettingCard):

@@ -320,7 +320,7 @@ class Window(FluentWindow):
         if setting.read("hideWhenClose"):
             self.hide()
         else:
-            sys.exit()
+            program.close()
 
     def addPage(self, page: QWidget, pos: str):
         """
@@ -394,8 +394,8 @@ class Window(FluentWindow):
 
         self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{data["name"]}删除成功！", Qt.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.aboutPage)
 
-        self.button1 = PushButton("重新启动", self, FIF.SYNC)
-        self.button1.clicked.connect(self.aboutPage.controlSettingCard.button2Clicked)
+        self.button1 = PushButton("重启", self, FIF.SYNC)
+        self.button1.clicked.connect(program.restart)
 
         self.infoBar.addWidget(self.button1)
         self.infoBar.show()
