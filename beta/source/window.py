@@ -277,6 +277,8 @@ class Window(FluentWindow):
         self.addPage(self.aboutPage, "bottom")
 
     def __initActivity(self):
+        # 报错检测
+        sys.excepthook = self.getException
         # 循环监测事件
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.repeatOpen)
@@ -321,6 +323,16 @@ class Window(FluentWindow):
             self.hide()
         else:
             program.close()
+
+    def getException(self, type1, value, traceback):
+        info = "".join(format_exception(type1, value, traceback))
+        self.messageBox = MessageBox(f"程序发生异常", info, self)
+        self.messageBox.contentLabel.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        self.messageBox.yesButton.setText("重启")
+        self.messageBox.yesButton.setIcon(FIF.SYNC)
+        self.messageBox.yesButton.clicked.connect(program.restart)
+        self.messageBox.cancelButton.setText("关闭")
+        self.messageBox.exec()
 
     def addPage(self, page: QWidget, pos: str):
         """
