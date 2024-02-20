@@ -49,7 +49,11 @@ class NewThread(QThread):
             if not f.checkInternet(program.UPDATE_URL):
                 self.signalBool.emit(False)
                 return
-            data = f.getNewestVersion()
+            try:
+                data = f.getNewestVersion()
+            except:
+                self.signalBool.emit(False)
+                return
             if f.compareVersion(data, program.PROGRAM_VERSION) == program.PROGRAM_VERSION:
                 self.signalBool.emit(True)
             else:
@@ -58,7 +62,11 @@ class NewThread(QThread):
             if not f.checkInternet(program.UPDATE_URL):
                 self.signalBool.emit(False)
                 return
-            data = f.getNewestVersion()
+            try:
+                data = f.getNewestVersion()
+            except:
+                self.signalBool.emit(False)
+                return
             if f.compareVersion(data, program.PROGRAM_VERSION) == program.PROGRAM_VERSION:
                 self.signalBool.emit(True)
                 return
