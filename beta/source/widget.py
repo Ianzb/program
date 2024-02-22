@@ -965,18 +965,24 @@ class ControlSettingCard(SettingCard):
 
     def __init__(self, parent=None):
         super().__init__(FIF.ALBUM, "控制", "", parent)
-        self.button1 = PushButton("关闭", self, FIF.CLOSE)
-        self.button1.clicked.connect(program.close)
-        self.button1.setToolTip("关闭程序")
+        self.button1 = PushButton("重置设置", self, FIF.SYNC)
+        self.button1.clicked.connect(setting.reset)
+        self.button1.setToolTip("重启程序设置（不可撤销）")
         self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
 
-        self.button2 = PushButton("重启", self, FIF.SYNC)
-        self.button2.clicked.connect(program.restart)
-        self.button2.setToolTip("重启程序")
+        self.button2 = PushButton("关闭", self, FIF.CLOSE)
+        self.button2.clicked.connect(program.close)
+        self.button2.setToolTip("关闭程序")
         self.button2.installEventFilter(ToolTipFilter(self.button2, 1000))
+
+        self.button3 = PushButton("重启", self, FIF.SYNC)
+        self.button3.clicked.connect(program.restart)
+        self.button3.setToolTip("重启程序")
+        self.button3.installEventFilter(ToolTipFilter(self.button3, 1000))
 
         self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
         self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignRight)
+        self.hBoxLayout.addWidget(self.button3, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
 
