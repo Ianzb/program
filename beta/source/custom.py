@@ -485,7 +485,7 @@ class BigInfoCard(CardWidget):
         """
         if self.hBoxLayout3.count() >= 1:
             self.hBoxLayout3.addWidget(VerticalSeparator(self))
-        self.hBoxLayout3.addWidget(StatisticsWidget(title, data, self))
+        self.hBoxLayout3.addWidget(StatisticsWidget(title, str(data), self))
 
     def addTag(self, name: str):
         """
