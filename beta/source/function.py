@@ -253,6 +253,13 @@ class LoggingFunctions:
         """
         self.log.critical(data)
 
+    def fatal(self, data: str):
+        """
+        崩溃日志
+        @param data: 数据
+        """
+        self.log.fatal(data)
+
 
 class SettingFunctions:
     """
@@ -397,6 +404,16 @@ class ProcessFunctions:
             return version1
         else:
             return version2
+
+    def sortVersion(self, version: list, reverse: bool = False) -> list:
+        """
+        版本号列表排序
+        @param version: 版本号列表
+        @param reverse: 是否逆序
+        @return: 排序
+        """
+        version.sort(key=lambda x: tuple(int(v) for v in x.split(".")), reverse=reverse)
+        return version
 
     def urlJoin(self, *args):
         """
