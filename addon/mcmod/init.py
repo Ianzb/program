@@ -38,6 +38,7 @@ def searchMod(name: str, source: str, version: str) -> list:
                              "下载量": i["downloads"],
                              "游戏版本": f.sortVersion([j for j in i["versions"] if j in MINECRAFT_VERSIONS]),
                              "更新日期": i["date_modified"].split("T")[0],
+                             "作者": i["author"],
                              "来源": "Modrinth",
                              })
     elif source == "CurseForge":
@@ -53,6 +54,7 @@ def searchMod(name: str, source: str, version: str) -> list:
                              "下载量": i["downloadCount"],
                              "游戏版本": f.sortVersion([j for j in [k["gameVersion"] for k in i["latestFilesIndexes"]] if j in MINECRAFT_VERSIONS]),
                              "更新日期": i["dateModified"].split("T")[0],
+                             "作者": i["authors"][0]["name"],
                              "来源": "CurseForge",
                              })
     return list
@@ -104,6 +106,71 @@ def getModInfo(info: dict) -> dict:
             "发布日期": data["dateCreated"].split("T")[0],
             "网站链接": data["links"]["websiteUrl"],
         })
+    return dict
+
+
+def getModFile(info: dict) -> dict:
+    """
+    获得模组文件
+    @param info: 该模组搜索结果
+    """
+    list1 = []
+    if info["来源"] == "Modrinth":
+        data = requests.get(f"https://api.modrinth.com/v2/project/{info["id"]}/version", headers=program.REQUEST_HEADER, stream=True, timeout=(5, 15)).text
+        data = json.loads(data)
+        for i in data:
+            list1.append({
+                "id": i["id"],
+                "名称": i["name"],
+                "版本号": i["version_number"],
+                "前置": i["dependencies"],
+                "游戏版本": [j for j in i["game_versions"] if j in MINECRAFT_VERSIONS],
+                "版本类型": i["version_type"],
+                "加载器": i["loaders"],
+                "下载量": i["downloads"],
+                "更新日期": i["date_published"].split("T")[0],
+            })
+    elif info["来源"] == "CurseForge":
+        release_type = {
+            1: "release",
+            2: "beta",
+            3: "alpha",
+        }
+        loader_dict = {
+            0: "any",
+            1: "forge",
+            2: "cauldron",
+            3: "liteloader",
+            4: "fabric",
+            5: "quilt",
+            6: "neoforge",
+        }
+
+        data = requests.get(f"https://api.curseforge.com/v1/mods/{info["id"]}/files", headers=CURSEFORGE_API_KEY, stream=True, timeout=(5, 15)).text
+        data = json.loads(data)["data"]
+        for i in data:
+            list1.append({
+                "id": i["id"],
+                "名称": i["fileName"],
+                # "版本号": i["version_number"],
+                "前置": i["dependencies"],
+                "游戏版本": [j for j in i["gameVersions"] if j in MINECRAFT_VERSIONS],
+                "版本类型": release_type[i["releaseType"]],
+                "加载器": [j.lower() for j in i["gameVersions"] if j.lower() in loader_dict.values()],
+                "下载量": i["downloadCount"],
+                "更新日期": i["fileDate"].split("T")[0],
+            })
+    dict = {}
+    version_list = []
+    for i in list1:
+        version_list += i["游戏版本"]
+    version_list = f.sortVersion(list(set(version_list)), True)
+    for i in version_list:
+        dict[i] = []
+        for j in list1:
+            if i in j["游戏版本"]:
+                dict[i].append(j)
+        dict[i].sort(key=lambda x: x["更新日期"], reverse=True)
     return dict
 
 
@@ -168,6 +235,12 @@ class MyThread(QThread):
         if self.mode == "获得模组详细信息":
             try:
                 data = getModInfo(self.data)
+                self.signalDict.emit(data)
+            except Exception as ex:
+                self.signalBool.emit(False)
+        if self.mode == "加载模组下载列表":
+            try:
+                data = getModFile(self.data)
                 self.signalDict.emit(data)
             except Exception as ex:
                 self.signalBool.emit(False)
@@ -277,16 +350,19 @@ class BigModInfoCard(BigInfoCard):
     signalDict = pyqtSignal(dict)
     signalObject = pyqtSignal(object)
 
-    def __init__(self, data: dict, loading_card, parent: QWidget = None):
+    def __init__(self, data: dict, loading_card, card_group, parent: QWidget = None):
         """
         @param data: 模组数据
         @param source: 模组来源
         """
         super().__init__(parent)
         self.data = data
+        self.loadingCard = loading_card
+        self.cardGroup = card_group
         self.hide()
 
-        self.loadingCard = loading_card
+        self.mainButton.deleteLater()
+
         self.loadingCard.setText("加载中")
         self.loadingCard.show()
 
@@ -296,12 +372,17 @@ class BigModInfoCard(BigInfoCard):
         self.thread1.start()
 
     def thread1_1(self, msg):
+        self.titleLabel.setMinimumWidth(300)
+        self.titleLabel.setWordWrap(True)
         self.setTitle(msg["名称"])
         self.setInfo(msg["介绍"])
         self.setImg(f"{msg["来源"]}/{f.removeIllegalPath(msg["名称"])}.png", msg["图标"])
         self.addUrl(msg["来源"], msg["网站链接"], FIF.LINK)
         if msg["源代码链接"]:
             self.addUrl("源代码", msg["源代码链接"], FIF.GITHUB)
+        self.addUrl("MC百科", f"https://search.mcmod.cn/s?key={msg["名称"]}", FIF.LINK)
+
+        self.addData("作者", msg["作者"])
         self.addData("下载量", msg["下载量"])
         self.addData("发布日期", msg["发布日期"])
         self.addData("更新日期", msg["更新日期"])
@@ -309,6 +390,15 @@ class BigModInfoCard(BigInfoCard):
             self.addTag(i)
         self.show()
         self.loadingCard.hide()
+
+        self.cardGroup.hide()
+        self.loadingCard.setText("加载中")
+        self.loadingCard.show()
+
+        self.thread2 = MyThread("加载模组下载列表", self.data)
+        self.thread2.signalDict.connect(self.thread2_1)
+        self.thread2.signalBool.connect(self.thread2_2)
+        self.thread2.start()
 
     def thread1_2(self, msg):
         if not msg:
@@ -318,6 +408,51 @@ class BigModInfoCard(BigInfoCard):
     def backButtonClicked(self):
         self.signalBool.emit(True)
         self.deleteLater()
+
+    def thread2_1(self, msg):
+        self.loadingCard.hide()
+        for k in msg.keys():
+            self.cardGroup.addWidget(StrongBodyLabel(k, self))
+            for v in msg[k]:
+                self.cardGroup.addWidget(SmallFileInfoCard(v, self.data["来源"]))
+        self.cardGroup.show()
+
+    def thread2_2(self, msg):
+        if not msg:
+            self.loadingCard.setText("加载失败")
+            self.loadingCard.show()
+
+
+class SmallFileInfoCard(SmallInfoCard):
+    """
+    文件信息小卡片
+    """
+    signalStr = pyqtSignal(str)
+    signalInt = pyqtSignal(int)
+    signalBool = pyqtSignal(bool)
+    signalList = pyqtSignal(list)
+    signalDict = pyqtSignal(dict)
+    signalObject = pyqtSignal(object)
+
+    def __init__(self, data: dict, source: str, parent: QWidget = None):
+        """
+        @param data: 模组数据
+        @param source: 模组来源
+        """
+        super().__init__(parent)
+        self.data = data
+        self.source = source
+
+        self.image.deleteLater()
+
+        self.setTitle(f"{data["名称"]} · {data["版本类型"]}")
+        self.setInfo("、".join(data["游戏版本"]), 0)
+        self.setInfo("、".join(data["加载器"]), 1)
+        self.setInfo(f"下载量：{data["下载量"]}", 2)
+        self.setInfo(f"更新日期：{data["更新日期"]}", 3)
+
+        self.mainButton.setText("下载")
+        self.mainButton.setIcon(FIF.DOWNLOAD)
 
 
 class AddonTab(BasicTab):
@@ -370,8 +505,8 @@ class AddonTab(BasicTab):
         self.vBoxLayout.addWidget(self.card2)
         self.vBoxLayout.addWidget(self.loadingCard, 0, Qt.AlignCenter)
 
-        self.cardGroup = CardGroup(self.view)
-        self.vBoxLayout.addWidget(self.cardGroup)
+        self.cardGroup1 = CardGroup(self.view)
+        self.vBoxLayout.addWidget(self.cardGroup1)
 
         self.thread1 = MyThread("获得游戏版本列表")
         self.thread1.signalList.connect(self.thread1_1)
@@ -391,11 +526,11 @@ class AddonTab(BasicTab):
 
     def searchButtonClicked(self):
         if self.lineEdit.text():
-            self.vBoxLayout.itemAt(3).widget().deleteLater()
-            self.cardGroup = CardGroup(self.view)
-            self.vBoxLayout.addWidget(self.cardGroup)
+            self.cardGroup1.deleteLater()
+            self.cardGroup1 = CardGroup(self.view)
+            self.vBoxLayout.addWidget(self.cardGroup1)
 
-            self.cardGroup.setTitleEnabled(False)
+            self.cardGroup1.setTitleEnabled(False)
             self.lineEdit.setEnabled(False)
             self.comboBox2.setEnabled(False)
             self.comboBox1.setEnabled(False)
@@ -421,12 +556,12 @@ class AddonTab(BasicTab):
             self.infoCard = SmallModInfoCard(i, self.comboBox1.currentText())
             self.infoCard.signalDict.connect(self.showModPage)
             self.vBoxLayout.addWidget(self.infoCard, 0, Qt.AlignTop)
-            self.cardGroup.addWidget(self.infoCard)
+            self.cardGroup1.addWidget(self.infoCard)
         if msg:
-            self.cardGroup.setTitle(f"搜索结果（{len(msg)}个）")
+            self.cardGroup1.setTitle(f"搜索结果（{len(msg)}个）")
         else:
-            self.cardGroup.setTitle(f"无搜索结果")
-        self.cardGroup.setTitleEnabled(True)
+            self.cardGroup1.setTitle(f"无搜索结果")
+        self.cardGroup1.setTitleEnabled(True)
 
         self.lineEdit.setEnabled(True)
         self.comboBox2.setEnabled(True)
@@ -445,17 +580,25 @@ class AddonTab(BasicTab):
         """
         展示模组页面
         """
-        self.cardGroup.hide()
+        self.cardGroup1.hide()
         self.card1.hide()
         self.card2.hide()
-        self.bigModInfoCard = BigModInfoCard(msg, self.loadingCard)
+
+        self.cardGroup2 = CardGroup("文件", self.view)
+        self.vBoxLayout.addWidget(self.cardGroup2)
+        self.cardGroup2.hide()
+
+        self.bigModInfoCard = BigModInfoCard(msg, self.loadingCard, self.cardGroup2)
         self.bigModInfoCard.signalBool.connect(self.hideModPage)
-        self.vBoxLayout.addWidget(self.bigModInfoCard)
+        self.vBoxLayout.insertWidget(0, self.bigModInfoCard)
 
     def hideModPage(self, msg):
         """
         隐藏模组页面
         """
-        self.cardGroup.show()
+        self.loadingCard.hide()
+        self.cardGroup2.deleteLater()
+        self.vBoxLayout.removeWidget(self.bigModInfoCard)
+        self.cardGroup1.show()
         self.card1.show()
         self.card2.show()
