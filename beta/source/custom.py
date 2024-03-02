@@ -356,7 +356,12 @@ class BigInfoCard(CardWidget):
     详细信息卡片（资源主页展示）
     """
 
-    def __init__(self, parent: QWidget = None):
+    def __init__(self, parent: QWidget = None, url: bool = True, tag: bool = True, data: bool = True):
+        """
+        @param url: 是否展示链接
+        @param tag: 是否展示标签
+        @param data: 是否展示数据
+        """
         super().__init__(parent)
         self.setMinimumWidth(0)
 
@@ -382,7 +387,7 @@ class BigInfoCard(CardWidget):
         self.hBoxLayout1.addWidget(self.mainButton, 0, Qt.AlignRight)
 
         self.hBoxLayout2 = QHBoxLayout()
-        self.hBoxLayout2.setSpacing(16)
+        self.hBoxLayout2.setSpacing(4)
         self.hBoxLayout2.setAlignment(Qt.AlignLeft)
 
         self.hBoxLayout3 = QHBoxLayout()
@@ -398,19 +403,29 @@ class BigInfoCard(CardWidget):
         self.vBoxLayout.setContentsMargins(0, 0, 0, 0)
         self.vBoxLayout.setSpacing(0)
         self.vBoxLayout.addLayout(self.hBoxLayout1)
-        self.vBoxLayout.addSpacing(3)
-        self.vBoxLayout.addLayout(self.hBoxLayout2)
-        self.vBoxLayout.addSpacing(20)
-        self.vBoxLayout.addLayout(self.hBoxLayout3)
-        self.vBoxLayout.addSpacing(20)
+
+        if url:
+            self.vBoxLayout.addSpacing(3)
+            self.vBoxLayout.addLayout(self.hBoxLayout2)
+        else:
+            self.hBoxLayout2.deleteLater()
+        if data:
+            self.vBoxLayout.addSpacing(20)
+            self.vBoxLayout.addLayout(self.hBoxLayout3)
+            self.vBoxLayout.addSpacing(20)
+        else:
+            self.hBoxLayout3.deleteLater()
         self.vBoxLayout.addWidget(self.infoLabel)
-        self.vBoxLayout.addSpacing(12)
-        self.vBoxLayout.addLayout(self.hBoxLayout4)
+        if tag:
+            self.vBoxLayout.addSpacing(12)
+            self.vBoxLayout.addLayout(self.hBoxLayout4)
+        else:
+            self.hBoxLayout4.deleteLater()
 
         self.hBoxLayout = QHBoxLayout(self)
         self.hBoxLayout.setSpacing(30)
         self.hBoxLayout.setContentsMargins(34, 24, 24, 24)
-        self.hBoxLayout.addWidget(self.image)
+        self.hBoxLayout.addWidget(self.image, 0, Qt.AlignVCenter)
         self.hBoxLayout.addLayout(self.vBoxLayout)
 
         self.setTheme()
@@ -450,13 +465,17 @@ class BigInfoCard(CardWidget):
         """
         self.infoLabel.setText(data)
 
-    def addUrl(self, text: str, url: str):
+    def addUrl(self, text: str, url: str, icon=None):
         """
         添加链接
         @param text: 文本
         @param url: 链接
+        @param icon: 图标
         """
-        self.hBoxLayout2.addWidget(HyperlinkLabel(QUrl(url), text, self), alignment=Qt.AlignLeft)
+        button = HyperlinkButton(url, text, self)
+        if icon:
+            button.setIcon(icon)
+        self.hBoxLayout2.addWidget(button, 0, Qt.AlignLeft)
 
     def addData(self, title: str, data: str | int):
         """

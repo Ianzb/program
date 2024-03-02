@@ -966,8 +966,8 @@ class ControlSettingCard(SettingCard):
     def __init__(self, parent=None):
         super().__init__(FIF.ALBUM, "控制", "", parent)
         self.button1 = PushButton("重置设置", self, FIF.SYNC)
-        self.button1.clicked.connect(setting.reset)
-        self.button1.setToolTip("重启程序设置（不可撤销）")
+        self.button1.clicked.connect(self.button1Clicked)
+        self.button1.setToolTip("重启程序设置")
         self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
 
         self.button2 = PushButton("关闭", self, FIF.CLOSE)
@@ -984,6 +984,13 @@ class ControlSettingCard(SettingCard):
         self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignRight)
         self.hBoxLayout.addWidget(self.button3, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
+
+    def button1Clicked(self):
+        self.button4 = PushButton("确认", self, FIF.SEND)
+        self.button4.clicked.connect(setting.reset)
+        self.infoBar = InfoBar(InfoBarIcon.WARNING, "警告", "是否确认重置设置？该操作不可撤销！", Qt.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+        self.infoBar.addWidget(self.button4)
+        self.infoBar.show()
 
 
 class ShortcutSettingCard(SettingCard):
