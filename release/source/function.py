@@ -26,7 +26,7 @@ class Program:
     程序信息
     """
     PROGRAM_NAME = "zb小程序"  # 程序名称
-    PROGRAM_VERSION = "3.7.0"  # 程序版本
+    PROGRAM_VERSION = "3.8.0"  # 程序版本
     PROGRAM_TITLE = f"{PROGRAM_NAME} {PROGRAM_VERSION}"  # 程序窗口标题
     AUTHOR_NAME = "Ianzb"  # 作者名称
     AUTHOR_URL = "https://ianzb.github.io/"  # 作者网址
@@ -172,6 +172,26 @@ class Program:
         f.cmd(self.PROGRAM_MAIN_FILE_PATH)
         sys.exit()
 
+    def detectRepeatRun(self):
+        """
+        程序重复运行检测
+        """
+        value = False
+        if f.existPath(f.pathJoin(self.PROGRAM_DATA_PATH, "zb.lock")):
+            with open(f.pathJoin(self.PROGRAM_DATA_PATH, "zb.lock"), "r+", encoding="utf-8") as file:
+                pid = file.read().strip()
+                if pid:
+                    if "python" in f.cmd(f"tasklist |findstr {pid}", True):
+                        value = True
+        if value:
+            open(f.pathJoin(self.PROGRAM_DATA_PATH, "zb.unlock"), "w").close()
+            logging.info(f"当前程序为重复运行，自动退出")
+            self.close()
+        else:
+            f.delete(f.pathJoin(self.PROGRAM_DATA_PATH, "zb.unlock"))
+            with open(f.pathJoin(self.PROGRAM_DATA_PATH, "zb.lock"), "w+", encoding="utf-8") as file:
+                file.write(str(self.PROGRAM_PID))
+
 
 class LoggingFunctions:
     """
@@ -179,7 +199,7 @@ class LoggingFunctions:
     """
 
     def __init__(self):
-        self.log = logging.getLogger(program.PROGRAM_NAME)
+        self.log = logging.getLogger(__name__)
         self.log.setLevel(logging.DEBUG)
         handler1 = logging.StreamHandler(sys.stderr)
         handler1.setLevel(logging.INFO)
@@ -245,7 +265,6 @@ class SettingFunctions:
                                 "autoStartup": False,
                                 "autoHide": True,
                                 "autoUpdate": False,
-                                "pid": "1000",
                                 "sortPath": "",
                                 "wechatPath": "",
                                 "downloadPath": program.DOWNLOAD_PATH,
@@ -276,8 +295,7 @@ class SettingFunctions:
         @param name: 选项名称
         @return: 选项内容
         """
-        if name != "showWindow":
-            logging.debug(f"读取设置{name}")
+        logging.debug(f"读取设置{name}")
         try:
             return self.settings[name]
         except:
@@ -309,12 +327,17 @@ class SettingFunctions:
         self.file.write(json.dumps(self.settings))
         self.file.flush()
 
-    def reset(self, name):
+    def reset(self, name=None):
         """
         重置设置
         @param name: 选项名称
         """
-        self.save(name, self.DEFAULT_SETTING[name])
+        if name:
+            self.save(name, self.DEFAULT_SETTING[name])
+        else:
+            self.settings = self.DEFAULT_SETTING
+            self.__save()
+            program.restart()
 
 
 class ProcessFunctions:

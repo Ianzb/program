@@ -279,7 +279,7 @@ class Window(FluentWindow):
         sys.excepthook = self.getException
         # 循环监测事件
         self.timer = QTimer(self)
-        self.timer.timeout.connect(self.repeatOpen)
+        self.timer.timeout.connect(self.detectRepeatRun)
         self.timer.start(100)
 
         # 托盘组件
@@ -288,20 +288,18 @@ class Window(FluentWindow):
 
         self.setMicaEffectEnabled(setting.read("micaEffect"))
         if setting.read("autoUpdate") and program.isStartup:
-            self.aboutPage.updateSettingCard.button3Clicked()
+            self.aboutPage.updateSettingCard.setEnabled(False)
+            self.thread1 = NewThread("更新运行库")
+            self.thread1.start()
+            self.thread2 = NewThread("立刻更新")
+            self.thread2.signalDict.connect(self.autoUpdateFinish)
+            self.thread2.signalBool.connect(self.autoUpdateFinish)
+            self.thread2.start()
         if program.PYTHON_VERSION.split(".")[1] != "12":
             QMessageBox(QMessageBox.Warning, "警告", f"当前Python版本为{program.PYTHON_VERSION}，{program.PROGRAM_NAME}推荐使用Python3.12版本！").exec()
 
         # 插件安装
         self.addAddon(f.getInstalledAddonInfo())
-
-    def repeatOpen(self):
-        """
-        重复运行展示窗口
-        """
-        if setting.read("showWindow") == "1":
-            setting.save("showWindow", "0")
-            self.show()
 
     def keyPressEvent(self, QKeyEvent):
         """
@@ -416,6 +414,24 @@ class Window(FluentWindow):
 
         self.infoBar.addWidget(self.button1)
         self.infoBar.show()
+
+    def autoUpdateFinish(self, msg):
+        """
+        开机自动更新完成解锁组件
+        """
+        if isinstance(msg, bool):
+            self.aboutPage.updateSettingCard.setEnabled(True)
+        if isinstance(msg, dict):
+            if msg["完成"]:
+                self.aboutPage.updateSettingCard.setEnabled(True)
+
+    def detectRepeatRun(self):
+        """
+        重复运行展示窗口
+        """
+        if f.existPath(f.pathJoin(program.PROGRAM_DATA_PATH, "zb.unlock")):
+            f.delete(f.pathJoin(program.PROGRAM_DATA_PATH, "zb.unlock"))
+            self.show()
 
 
 logging.debug("window.py初始化成功")
