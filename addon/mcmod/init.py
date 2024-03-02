@@ -372,8 +372,6 @@ class BigModInfoCard(BigInfoCard):
         self.thread1.start()
 
     def thread1_1(self, msg):
-        self.titleLabel.setMinimumWidth(300)
-        self.titleLabel.setWordWrap(True)
         self.setTitle(msg["名称"])
         self.setInfo(msg["介绍"])
         self.setImg(f"{msg["来源"]}/{f.removeIllegalPath(msg["名称"])}.png", msg["图标"])
@@ -446,8 +444,7 @@ class SmallFileInfoCard(SmallInfoCard):
         self.image.deleteLater()
 
         self.setTitle(f"{data["名称"]} · {data["版本类型"]}")
-        self.setInfo("、".join(data["游戏版本"]), 0)
-        self.setInfo("、".join(data["加载器"]), 1)
+        self.setInfo("、".join(data["加载器"]) + " | " + "、".join(data["游戏版本"]), 0)
         self.setInfo(f"下载量：{data["下载量"]}", 2)
         self.setInfo(f"更新日期：{data["更新日期"]}", 3)
 

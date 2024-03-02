@@ -1,6 +1,6 @@
 {
     "id": "mcmod",
-    "name": "模组下载",
+    "name": "MC模组下载器",
     "version": "0.2.0",
     "pos": "game",
     "file": [
