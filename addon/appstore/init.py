@@ -126,7 +126,7 @@ class AppInfoCard(SmallInfoCard):
         self.mainButton.setToolTip("下载软件")
         self.mainButton.installEventFilter(ToolTipFilter(self.mainButton, 1000))
 
-        self.setImg(f"{self.source}/{f.removeIllegalPath(self.data["名称"])}", self.data["图标"])
+        self.setImg(f"{self.source}/{f.removeIllegalPath(self.data["名称"])}.png", self.data["图标"])
         self.setTitle(f"{self.data["名称"]}")
 
         self.setInfo(self.data["介绍"], 0)
