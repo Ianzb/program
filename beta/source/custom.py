@@ -584,8 +584,8 @@ class SmallInfoCard(CardWidget):
         @param pos: 位置：0 左上 1 左下 2 右上 3 右下
         """
         self.info[pos] = data
-        self.contentLabel1.setText(f"{self.info[0]}\n{self.info[1]}")
-        self.contentLabel2.setText(f"{self.info[2]}\n{self.info[3]}")
+        self.contentLabel1.setText(f"{self.info[0]}\n{self.info[1]}" if self.info[1] else self.info[0])
+        self.contentLabel2.setText(f"{self.info[2]}\n{self.info[3]}" if self.info[3] else self.info[2])
 
         self.contentLabel1.adjustSize()
 
