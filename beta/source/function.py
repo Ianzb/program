@@ -26,7 +26,7 @@ class Program:
     程序信息
     """
     PROGRAM_NAME = "zb小程序"  # 程序名称
-    PROGRAM_VERSION = "3.8.0"  # 程序版本
+    PROGRAM_VERSION = "3.8.1"  # 程序版本
     PROGRAM_TITLE = f"{PROGRAM_NAME} {PROGRAM_VERSION}"  # 程序窗口标题
     AUTHOR_NAME = "Ianzb"  # 作者名称
     AUTHOR_URL = "https://ianzb.github.io/"  # 作者网址
@@ -438,6 +438,28 @@ class ProcessFunctions:
         value = os.popen(command)
         if pause:
             return value.read()
+
+    def requestGet(self, url: str, header=None, timeout=(5, 10), is_text: bool = True, try_times: int = 5):
+        """
+        可重试的get请求
+        @param url: 链接
+        @param header: 请求头
+        @param timeout: 超时
+        @param is_text: 文本
+        @param try_times: 重试次数
+        @return:
+        """
+        for i in range(try_times):
+            try:
+                response = requests.get(url, headers=header, stream=True, timeout=timeout)
+                if is_text:
+                    response.encoding = "utf-8"
+                    response = response.text
+                else:
+                    response = response.content
+                return response
+            except:
+                continue
 
 
 class FileFunctions(ProcessFunctions):
@@ -925,10 +947,10 @@ class ProgramFunctions(FileFunctions):
         """
         try:
             path = os.path.abspath(path)
-            data = requests.get(link, headers=program.REQUEST_HEADER)
+            data = self.requestGet(link, program.REQUEST_HEADER, is_text=False, try_times=2)
             self.makeDir(self.splitPath(path, 3))
             with open(path, "wb") as file:
-                file.write(data.content)
+                file.write(data)
             logging.debug(f"文件{link}下载成功")
         except Exception as ex:
             logging.warning(f"文件{link}下载失败{ex}")
@@ -981,7 +1003,7 @@ class ProgramFunctions(FileFunctions):
         获取程序最新版本
         @return: 程序最新版本
         """
-        response = requests.get(program.UPDATE_URL, headers=program.REQUEST_HEADER, stream=True, timeout=(15, 30)).text
+        response = self.requestGet(program.UPDATE_URL, program.REQUEST_HEADER, (15, 30))
         data = json.loads(response)["version"]
         logging.info(f"程序最新版本：{data}")
         return data
@@ -991,7 +1013,7 @@ class ProgramFunctions(FileFunctions):
         获取插件字典
         @return: 字典
         """
-        response = requests.get(program.ADDON_URL, headers=program.REQUEST_HEADER, stream=True).text
+        response = self.requestGet(program.ADDON_URL, program.REQUEST_HEADER, (15, 30))
         data = json.loads(response)
         logging.debug("插件信息获取成功")
         return data
@@ -1004,7 +1026,7 @@ class ProgramFunctions(FileFunctions):
         """
         if not url.endswith("/"):
             url += "/"
-        response = requests.get(self.urlJoin(url, "addon.json"), headers=program.REQUEST_HEADER, stream=True).text
+        response = self.requestGet(self.urlJoin(url, "addon.json"), program.REQUEST_HEADER, (15, 30))
         data = json.loads(response)
         data["url"] = url
         logging.debug(f"插件{data["name"]}信息获取成功")
@@ -1094,7 +1116,7 @@ class Functions(ProgramFunctions):
                   "{{v|china-android}}",
                   ]
         try:
-            response = requests.get("https://zh.minecraft.wiki/w/Template:Version", stream=True, timeout=(30, 600)).text
+            response = self.requestGet("https://zh.minecraft.wiki/w/Template:Version", timeout=(5, 10))
         except Exception as ex:
             logging.warning(f"无法连接至Minecraft Wiki服务器{ex}")
             return "无法连接至服务器"

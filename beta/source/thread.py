@@ -70,7 +70,7 @@ class NewThread(QThread):
             if f.compareVersion(data, program.PROGRAM_VERSION) == program.PROGRAM_VERSION:
                 self.signalBool.emit(True)
                 return
-            response = requests.get(program.UPDATE_URL, headers=program.REQUEST_HEADER, stream=True).text
+            response = f.requestGet(program.UPDATE_URL, program.REQUEST_HEADER)
             data = json.loads(response)["list"]
             for i in range(len(data)):
                 self.signalDict.emit({"数量": len(data), "完成": False, "名称": data[i], "序号": i})

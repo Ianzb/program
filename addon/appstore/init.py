@@ -1,3 +1,4 @@
+import functools
 import sys, os
 
 sys.path = [os.path.dirname(sys.argv[0])] + sys.path
@@ -20,7 +21,7 @@ def searchSoftware(name: str, source: str) -> list:
     logging.debug(f"在{source}搜索应用{name}")
     list = []
     if source == "腾讯":
-        data = requests.get(f"https://s.pcmgr.qq.com/tapi/web/searchcgi.php?type=search&keyword={name}&page=1&pernum=100", headers=program.REQUEST_HEADER, stream=True, timeout=(5, 10)).text
+        data = f.requestGet(f"https://s.pcmgr.qq.com/tapi/web/searchcgi.php?type=search&keyword={name}&page=1&pernum=100", program.REQUEST_HEADER)
         data = json.loads(data)["list"]
         for i in range(len(data)):
             data[i]["xmlInfo"] = f.xmlToJson(data[i]["xmlInfo"])
@@ -41,7 +42,7 @@ def searchSoftware(name: str, source: str) -> list:
             elif i["xmlInfo"]["soft"]["@osbit"] == "1":
                 list[-1]["名称"] += " 32位"
     elif source == "360":
-        data = requests.get(f"https://bapi.safe.360.cn/soft/search?keyword={name}&page=1", headers=program.REQUEST_HEADER, stream=True, timeout=(5, 10)).text
+        data = f.requestGet(f"https://bapi.safe.360.cn/soft/search?keyword={name}&page=1", program.REQUEST_HEADER)
         data = json.loads(data)["data"]["list"]
         for i in data:
             list.append({"名称": i["softname"],
