@@ -12,8 +12,45 @@ except:
     pass
 
 MINECRAFT_VERSIONS = []
-CURSEFORGE_API_KEY = {"Accept": "application/json",
-                      "x-api-key": "$2a$10$21wJppLHY6oZ4Fs/Jb85WuJdpWppY6RcX3o.G9.372hxeiec8Wy6m"}
+CURSEFORGE_API_KEY = {
+    "Accept": "application/json",
+    "x-api-key": "$2a$10$21wJppLHY6oZ4Fs/Jb85WuJdpWppY6RcX3o.G9.372hxeiec8Wy6m"
+}
+CURSEFORGE_POST_API_KEY = {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+    "x-api-key": "$2a$10$21wJppLHY6oZ4Fs/Jb85WuJdpWppY6RcX3o.G9.372hxeiec8Wy6m"
+}
+CURSEFORGE_VERSION_TYPE = {
+    1: "release",
+    2: "beta",
+    3: "alpha",
+}
+CURSEFORGE_LOADER_TYPE = {
+    0: "any",
+    1: "forge",
+    2: "cauldron",
+    3: "liteloader",
+    4: "fabric",
+    5: "quilt",
+    6: "neoforge",
+}
+
+
+def getMCVersionList():
+    """
+    获取我的世界版本列表
+    @return: 我的世界版本列表
+    """
+    list = []
+    response = f.requestGet("https://api.modrinth.com/v2/tag/game_version", program.REQUEST_HEADER)
+    response = json.loads(response)
+    for i in response:
+        if i["version_type"] == "release":
+            list.append(i["version"])
+    global MINECRAFT_VERSIONS
+    MINECRAFT_VERSIONS = list
+    return list
 
 
 def searchMod(name: str, source: str, version: str) -> list:
@@ -27,7 +64,7 @@ def searchMod(name: str, source: str, version: str) -> list:
 
     if source == "Modrinth":
         version = f',["versions:{version}"]' if version != "全部" else ""
-        data = requests.get(f'https://api.modrinth.com/v2/search?query={name}&facets=[["project_type:mod"]{version}]&limit=50', headers=program.REQUEST_HEADER, stream=True, timeout=(5, 15)).text
+        data = f.requestGet(f'https://api.modrinth.com/v2/search?query={name}&facets=[["project_type:mod"]{version}]&limit=50', program.REQUEST_HEADER)
         if "hits" in json.loads(data):
             data = json.loads(data)["hits"]
             for i in data:
@@ -43,7 +80,7 @@ def searchMod(name: str, source: str, version: str) -> list:
                              })
     elif source == "CurseForge":
         version = f"&gameVersion={version}" if version != "全部" else ""
-        data = requests.get(f"https://api.curseforge.com/v1/mods/search?gameId=432&classId=6{version}&searchFilter={name}&pageSize=50&sortOrder=desc", headers=CURSEFORGE_API_KEY, stream=True, timeout=(5, 15)).text
+        data = f.requestGet(f"https://api.curseforge.com/v1/mods/search?gameId=432&classId=6{version}&searchFilter={name}&pageSize=50&sortOrder=desc", CURSEFORGE_API_KEY)
         if "data" in json.loads(data):
             data = json.loads(data)["data"]
             for i in data:
@@ -67,7 +104,7 @@ def getModInfo(info: dict) -> dict:
     """
     dict = {}
     if info["来源"] == "Modrinth":
-        data = requests.get(f"https://api.modrinth.com/v2/project/{info["id"]}", headers=program.REQUEST_HEADER, stream=True, timeout=(5, 15)).text
+        data = f.requestGet(f"https://api.modrinth.com/v2/project/{info["id"]}", program.REQUEST_HEADER)
         data = json.loads(data)
         dict.update(info)
         dict.update({
@@ -78,24 +115,15 @@ def getModInfo(info: dict) -> dict:
             "网站链接": f"https://modrinth.com/mod/{data["slug"]}",
         })
     elif info["来源"] == "CurseForge":
-        loader_dict = {
-            0: "any",
-            1: "forge",
-            2: "cauldron",
-            3: "liteloader",
-            4: "fabric",
-            5: "quilt",
-            6: "neoforge",
-        }
-        data = requests.get(f"https://api.curseforge.com/v1/mods/{info["id"]}", headers=CURSEFORGE_API_KEY, stream=True, timeout=(5, 15)).text
+        data = f.requestGet(f"https://api.curseforge.com/v1/mods/{info["id"]}", CURSEFORGE_API_KEY)
         data = json.loads(data)["data"]
 
-        data2 = requests.get(f"https://api.curseforge.com/v1/mods/{info["id"]}/files", headers=CURSEFORGE_API_KEY, stream=True, timeout=(5, 15)).text
+        data2 = f.requestGet(f"https://api.curseforge.com/v1/mods/{info["id"]}/files", CURSEFORGE_API_KEY)
         data2 = json.loads(data2)["data"]
 
         loader = []
         for i in data2:
-            loader += [j.lower() for j in i["gameVersions"] if j.lower() in loader_dict.values()]
+            loader += [j.lower() for j in i["gameVersions"] if j.lower() in CURSEFORGE_LOADER_TYPE.values()]
         loader = list(set(loader))
 
         dict.update(info)
@@ -116,61 +144,114 @@ def getModFile(info: dict) -> dict:
     """
     list1 = []
     if info["来源"] == "Modrinth":
-        data = requests.get(f"https://api.modrinth.com/v2/project/{info["id"]}/version", headers=program.REQUEST_HEADER, stream=True, timeout=(5, 15)).text
+        data = f.requestGet(f"https://api.modrinth.com/v2/project/{info["id"]}/version", program.REQUEST_HEADER)
         data = json.loads(data)
         for i in data:
             list1.append({
                 "id": i["id"],
+                "模组id": i["project_id"],
                 "名称": i["name"],
                 "版本号": i["version_number"],
                 "前置": i["dependencies"],
-                "游戏版本": [j for j in i["game_versions"] if j in MINECRAFT_VERSIONS],
+                "游戏版本": f.sortVersion([j for j in i["game_versions"] if j in MINECRAFT_VERSIONS]),
                 "版本类型": i["version_type"],
                 "加载器": i["loaders"],
                 "下载量": i["downloads"],
                 "更新日期": i["date_published"].split("T")[0],
+                "来源": "Modrinth",
+                "哈希值": i["files"][0]["hashes"]["sha1"],
+                "下载链接": i["files"][0]["url"],
+                "文件名称": i["files"][0]["filename"],
+                "文件大小": i["files"][0]["size"],
             })
     elif info["来源"] == "CurseForge":
-        release_type = {
-            1: "release",
-            2: "beta",
-            3: "alpha",
-        }
-        loader_dict = {
-            0: "any",
-            1: "forge",
-            2: "cauldron",
-            3: "liteloader",
-            4: "fabric",
-            5: "quilt",
-            6: "neoforge",
-        }
-
-        data = requests.get(f"https://api.curseforge.com/v1/mods/{info["id"]}/files", headers=CURSEFORGE_API_KEY, stream=True, timeout=(5, 15)).text
+        data = f.requestGet(f"https://api.curseforge.com/v1/mods/{info["id"]}/files", CURSEFORGE_API_KEY)
         data = json.loads(data)["data"]
+
         for i in data:
             list1.append({
                 "id": i["id"],
-                "名称": i["fileName"],
+                "模组id": i["modId"],
+                "名称": i["displayName"],
                 # "版本号": i["version_number"],
                 "前置": i["dependencies"],
-                "游戏版本": [j for j in i["gameVersions"] if j in MINECRAFT_VERSIONS],
-                "版本类型": release_type[i["releaseType"]],
-                "加载器": [j.lower() for j in i["gameVersions"] if j.lower() in loader_dict.values()],
+                "游戏版本": f.sortVersion([j for j in i["gameVersions"] if j in MINECRAFT_VERSIONS]),
+                "版本类型": CURSEFORGE_VERSION_TYPE[i["releaseType"]],
+                "加载器": [j.lower() for j in i["gameVersions"] if j.lower() in CURSEFORGE_LOADER_TYPE.values()],
                 "下载量": i["downloadCount"],
                 "更新日期": i["fileDate"].split("T")[0],
+                "来源": "CurseForge",
+                "哈希值": i["hashes"][0]["value"],
+                "下载链接": i["downloadUrl"],
+                "文件名称": i["fileName"],
+                "文件大小": i["fileLength"],
             })
+
     dict = {}
-    version_list = []
-    for i in list1:
-        version_list += i["游戏版本"]
-    version_list = f.sortVersion(list(set(version_list)), True)
-    for i in version_list:
-        dict[i] = []
+    for i in MINECRAFT_VERSIONS:
         for j in list1:
             if i in j["游戏版本"]:
-                dict[i].append(j)
+                if i not in dict.keys():
+                    dict[i] = [j]
+                else:
+                    dict[i].append(j)
+    for i in dict.keys():
         dict[i].sort(key=lambda x: x["更新日期"], reverse=True)
+    return dict
+
+
+def getFileInfo(info: dict):
+    """
+    获得文件信息
+    @param info: 文件数据
+    """
+    dict = {}
+    if info["来源"] == "Modrinth":
+        data = f.requestGet(f"https://api.modrinth.com/v2/version/{info["id"]}", program.REQUEST_HEADER)
+        data = json.loads(data)
+        dict = {
+            "id": data["id"],
+            "模组id": data["project_id"],
+            "名称": data["name"],
+            "版本号": data["version_number"],
+            "前置": data["dependencies"],
+            "游戏版本": f.sortVersion([j for j in data["game_versions"] if j in MINECRAFT_VERSIONS]),
+            "版本类型": data["version_type"],
+            "加载器": data["loaders"],
+            "下载量": data["downloads"],
+            "更新日期": data["date_published"].split("T")[0],
+            "来源": "Modrinth",
+            "哈希值": data["files"][0]["hashes"]["sha1"],
+            "下载链接": data["files"][0]["url"],
+            "文件名称": data["files"][0]["filename"],
+            "文件大小": data["files"][0]["size"],
+        }
+
+    elif info["来源"] == "CurseForge":
+        post_info = {
+            "fileIds": [
+                info["id"]
+            ]
+        }
+        data = requests.post("https://api.curseforge.com/v1/mods/files", headers=CURSEFORGE_POST_API_KEY, json=post_info)
+        data = data.json()
+        dict = {
+            "id": data["id"],
+            "模组id": data["modId"],
+            "名称": data["displayName"],
+            # "版本号": data["version_number"],
+            "前置": data["dependencies"],
+            "游戏版本": f.sortVersion([j for j in data["gameVersions"] if j in MINECRAFT_VERSIONS]),
+            "版本类型": CURSEFORGE_VERSION_TYPE[data["releaseType"]],
+            "加载器": [j.lower() for j in data["gameVersions"] if j.lower() in CURSEFORGE_LOADER_TYPE.values()],
+            "下载量": data["downloadCount"],
+            "更新日期": data["fileDate"].split("T")[0],
+            "来源": "CurseForge",
+            "哈希值": data["hashes"][0]["value"],
+            "下载链接": data["downloadUrl"],
+            "文件名称": data["fileName"],
+            "文件大小": data["fileLength"],
+        }
     return dict
 
 
@@ -223,15 +304,7 @@ class MyThread(QThread):
                         self.signalInt.emit(int(100 * size / file_size))
             logging.debug(f"文件{path}下载成功")
         if self.mode == "获得游戏版本列表":
-            list = []
-            response = requests.get("https://api.modrinth.com/v2/tag/game_version", headers=program.REQUEST_HEADER, timeout=600).text
-            response = json.loads(response)
-            for i in response:
-                if i["version_type"] == "release":
-                    list.append(i["version"])
-            global MINECRAFT_VERSIONS
-            MINECRAFT_VERSIONS = list
-            self.signalList.emit(list)
+            self.signalList.emit(getMCVersionList())
         if self.mode == "获得模组详细信息":
             try:
                 data = getModInfo(self.data)
@@ -239,6 +312,7 @@ class MyThread(QThread):
             except Exception as ex:
                 self.signalBool.emit(False)
         if self.mode == "加载模组下载列表":
+            data = getModFile(self.data)
             try:
                 data = getModFile(self.data)
                 self.signalDict.emit(data)
@@ -412,7 +486,7 @@ class BigModInfoCard(BigInfoCard):
         for k in msg.keys():
             self.cardGroup.addWidget(StrongBodyLabel(k, self))
             for v in msg[k]:
-                self.cardGroup.addWidget(SmallFileInfoCard(v, self.data["来源"]))
+                self.cardGroup.addWidget(SmallFileInfoCard(v))
         self.cardGroup.show()
 
     def thread2_2(self, msg):
@@ -432,24 +506,25 @@ class SmallFileInfoCard(SmallInfoCard):
     signalDict = pyqtSignal(dict)
     signalObject = pyqtSignal(object)
 
-    def __init__(self, data: dict, source: str, parent: QWidget = None):
+    def __init__(self, data: dict, parent: QWidget = None):
         """
         @param data: 模组数据
-        @param source: 模组来源
         """
         super().__init__(parent)
         self.data = data
-        self.source = source
 
         self.image.deleteLater()
 
         self.setTitle(f"{data["名称"]} · {data["版本类型"]}")
-        self.setInfo("、".join(data["加载器"]) + " | " + "、".join(data["游戏版本"]), 0)
+        self.setInfo("、".join(data["加载器"]) + (" | " if len(data["加载器"]) > 0 else "") + ("、".join(data["游戏版本"]) if len(data["游戏版本"]) <= 10 else f"支持{data["游戏版本"][0]}-{data["游戏版本"][-1]}共{len(data["游戏版本"])}个版本"), 0)
         self.setInfo(f"下载量：{data["下载量"]}", 2)
         self.setInfo(f"更新日期：{data["更新日期"]}", 3)
 
         self.mainButton.setText("下载")
         self.mainButton.setIcon(FIF.DOWNLOAD)
+
+    def mainButtonClicked(self):
+        print(self.data)
 
 
 class AddonTab(BasicTab):
