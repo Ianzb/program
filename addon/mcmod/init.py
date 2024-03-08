@@ -11,7 +11,7 @@ try:
 except:
     pass
 
-MINECRAFT_VERSIONS = []
+MINECRAFT_VERSIONS = ["1.20.4", "1.20.3", "1.20.2", "1.20.1", "1.20", "1.19.4", "1.18.2", "1.17.1", "1.16.5", "1.15.2", "1.14.4", "1.13.2", "1.12.2", "1.9.4", "1.8.9", "1.7.10"]
 CURSEFORGE_API_KEY = {
     "Accept": "application/json",
     "x-api-key": "$2a$10$21wJppLHY6oZ4Fs/Jb85WuJdpWppY6RcX3o.G9.372hxeiec8Wy6m"
@@ -42,15 +42,18 @@ def getMCVersionList():
     获取我的世界版本列表
     @return: 我的世界版本列表
     """
-    list = []
-    response = f.requestGet("https://api.modrinth.com/v2/tag/game_version", program.REQUEST_HEADER)
-    response = json.loads(response)
-    for i in response:
-        if i["version_type"] == "release":
-            list.append(i["version"])
     global MINECRAFT_VERSIONS
-    MINECRAFT_VERSIONS = list
-    return list
+    try:
+        list = []
+        response = f.requestGet("https://api.modrinth.com/v2/tag/game_version", program.REQUEST_HEADER)
+        response = json.loads(response)
+        for i in response:
+            if i["version_type"] == "release":
+                list.append(i["version"])
+        MINECRAFT_VERSIONS = list
+        return list
+    except:
+        return MINECRAFT_VERSIONS
 
 
 def searchMod(name: str, source: str, version: str) -> list:
