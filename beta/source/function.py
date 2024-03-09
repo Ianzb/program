@@ -405,13 +405,16 @@ class ProcessFunctions:
         else:
             return version2
 
-    def sortVersion(self, version: list, reverse: bool = False) -> list:
+    def sortVersion(self, version: list, reverse: bool = False, clear_repeat: bool = True) -> list:
         """
         版本号列表排序
         @param version: 版本号列表
         @param reverse: 是否逆序
+        @param clear_repeat: 是否清除重复版本
         @return: 排序
         """
+        if clear_repeat:
+            version = list(set(version))
         version.sort(key=lambda x: tuple(int(v) for v in x.split(".")), reverse=reverse)
         return version
 

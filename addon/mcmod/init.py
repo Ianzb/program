@@ -1,4 +1,3 @@
-import json
 import sys, os
 
 sys.path = [os.path.dirname(sys.argv[0])] + sys.path
@@ -11,7 +10,7 @@ try:
 except:
     pass
 
-MINECRAFT_VERSIONS = ["1.20.4", "1.20.3", "1.20.2", "1.20.1", "1.20", "1.19.4", "1.18.2", "1.17.1", "1.16.5", "1.15.2", "1.14.4", "1.13.2", "1.12.2", "1.9.4", "1.8.9", "1.7.10"]
+RELEASE_VERSIONS = ["1.20.4", "1.20.3", "1.20.2", "1.20.1", "1.20", "1.19.4", "1.18.2", "1.17.1", "1.16.5", "1.15.2", "1.14.4", "1.13.2", "1.12.2", "1.9.4", "1.8.9", "1.7.10"]
 CURSEFORGE_API_KEY = {
     "Accept": "application/json",
     "x-api-key": "$2a$10$21wJppLHY6oZ4Fs/Jb85WuJdpWppY6RcX3o.G9.372hxeiec8Wy6m"
@@ -42,7 +41,7 @@ def getMCVersionList():
     获取我的世界版本列表
     @return: 我的世界版本列表
     """
-    global MINECRAFT_VERSIONS
+    global RELEASE_VERSIONS
     try:
         list = []
         response = f.requestGet("https://api.modrinth.com/v2/tag/game_version", program.REQUEST_HEADER)
@@ -76,7 +75,7 @@ def searchMod(name: str, source: str, version: str) -> list:
                              "图标": i["icon_url"],
                              "介绍": i["description"],
                              "下载量": i["downloads"],
-                             "游戏版本": f.sortVersion([j for j in i["versions"] if j in MINECRAFT_VERSIONS]),
+                             "游戏版本": f.sortVersion([j for j in i["versions"] if j in RELEASE_VERSIONS]),
                              "更新日期": i["date_modified"].split("T")[0],
                              "作者": i["author"],
                              "来源": "Modrinth",
@@ -92,7 +91,7 @@ def searchMod(name: str, source: str, version: str) -> list:
                              "图标": i["logo"]["url"],
                              "介绍": i["summary"],
                              "下载量": i["downloadCount"],
-                             "游戏版本": f.sortVersion([j for j in [k["gameVersion"] for k in i["latestFilesIndexes"]] if j in MINECRAFT_VERSIONS]),
+                             "游戏版本": f.sortVersion([j for j in [k["gameVersion"] for k in i["latestFilesIndexes"]] if j in RELEASE_VERSIONS]),
                              "更新日期": i["dateModified"].split("T")[0],
                              "作者": i["authors"][0]["name"],
                              "来源": "CurseForge",
@@ -156,7 +155,7 @@ def getModFile(info: dict) -> dict:
                 "名称": i["name"],
                 "版本号": i["version_number"],
                 "前置": i["dependencies"],
-                "游戏版本": f.sortVersion([j for j in i["game_versions"] if j in MINECRAFT_VERSIONS]),
+                "游戏版本": f.sortVersion([j for j in i["game_versions"] if j in RELEASE_VERSIONS]),
                 "版本类型": i["version_type"],
                 "加载器": i["loaders"],
                 "下载量": i["downloads"],
@@ -178,7 +177,7 @@ def getModFile(info: dict) -> dict:
                 "名称": i["displayName"],
                 # "版本号": i["version_number"],
                 "前置": i["dependencies"],
-                "游戏版本": f.sortVersion([j for j in i["gameVersions"] if j in MINECRAFT_VERSIONS]),
+                "游戏版本": f.sortVersion([j for j in i["gameVersions"] if j in RELEASE_VERSIONS]),
                 "版本类型": CURSEFORGE_VERSION_TYPE[i["releaseType"]],
                 "加载器": [j.lower() for j in i["gameVersions"] if j.lower() in CURSEFORGE_LOADER_TYPE.values()],
                 "下载量": i["downloadCount"],
@@ -191,7 +190,7 @@ def getModFile(info: dict) -> dict:
             })
 
     dict = {}
-    for i in MINECRAFT_VERSIONS:
+    for i in RELEASE_VERSIONS:
         for j in list1:
             if i in j["游戏版本"]:
                 if i not in dict.keys():
@@ -218,7 +217,7 @@ def getFileInfo(info: dict):
             "名称": data["name"],
             "版本号": data["version_number"],
             "前置": data["dependencies"],
-            "游戏版本": f.sortVersion([j for j in data["game_versions"] if j in MINECRAFT_VERSIONS]),
+            "游戏版本": f.sortVersion([j for j in data["game_versions"] if j in RELEASE_VERSIONS]),
             "版本类型": data["version_type"],
             "加载器": data["loaders"],
             "下载量": data["downloads"],
@@ -244,7 +243,7 @@ def getFileInfo(info: dict):
             "名称": data["displayName"],
             # "版本号": data["version_number"],
             "前置": data["dependencies"],
-            "游戏版本": f.sortVersion([j for j in data["gameVersions"] if j in MINECRAFT_VERSIONS]),
+            "游戏版本": f.sortVersion([j for j in data["gameVersions"] if j in RELEASE_VERSIONS]),
             "版本类型": CURSEFORGE_VERSION_TYPE[data["releaseType"]],
             "加载器": [j.lower() for j in data["gameVersions"] if j.lower() in CURSEFORGE_LOADER_TYPE.values()],
             "下载量": data["downloadCount"],
