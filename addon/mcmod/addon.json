@@ -1,10 +1,13 @@
 {
     "id": "mcmod",
     "name": "MC模组下载器",
-    "version": "0.2.0",
+    "version": "1.0.0",
     "pos": "game",
     "file": [
-        "init.py"
+        "init.py",
+        "api.py"
     ],
-    "lib": []
+    "lib": [
+        "murmurhash2"
+    ]
 }
