@@ -1,4 +1,3 @@
-import functools
 import sys, os
 
 sys.path = [os.path.dirname(sys.argv[0])] + sys.path
