@@ -26,7 +26,7 @@ class Program:
     程序信息
     """
     PROGRAM_NAME = "zb小程序"  # 程序名称
-    PROGRAM_VERSION = "3.8.1"  # 程序版本
+    PROGRAM_VERSION = "3.8.2"  # 程序版本
     PROGRAM_TITLE = f"{PROGRAM_NAME} {PROGRAM_VERSION}"  # 程序窗口标题
     AUTHOR_NAME = "Ianzb"  # 作者名称
     AUTHOR_URL = "https://ianzb.github.io/"  # 作者网址
@@ -464,6 +464,23 @@ class ProcessFunctions:
             except:
                 continue
 
+    def requestPost(self, url: str, json: dict, header=None, timeout=(5, 10), try_times: int = 5):
+        """
+        可重试的post请求
+        @param url: 链接
+        @param json: 发送数据
+        @param header: 请求头
+        @param timeout: 超时
+        @param try_times: 重试次数
+        @return:
+        """
+        for i in range(try_times):
+            try:
+                response = requests.post(url, headers=header, json=json, timeout=timeout)
+                return response
+            except:
+                continue
+
 
 class FileFunctions(ProcessFunctions):
     """
@@ -568,6 +585,17 @@ class FileFunctions(ProcessFunctions):
         if self.isFile(path):
             data = open(path, "rb").read()
             return md5(data).hexdigest()
+
+    def getHash(self, path: str) -> str:
+        """
+        获取文件sha1值
+        @param path: 文件路径
+        @return: sha1值
+        """
+        from hashlib import sha1
+        if self.isFile(path):
+            data = open(path, "rb").read()
+            return sha1(data).hexdigest()
 
     def splitPath(self, path: str, mode: int = 0) -> str:
         """
