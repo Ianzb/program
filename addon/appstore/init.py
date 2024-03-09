@@ -82,29 +82,33 @@ class MyThread(QThread):
             except Exception as ex:
                 self.signalBool.emit(False)
         if self.mode == "下载文件":
-            path = f.pathJoin(setting.read("downloadPath"), self.data[0])
-            if f.existPath(path):
-                i = 1
-                while f.existPath(f.pathJoin(f.splitPath(path, 3), f.splitPath(path, 1) + " (" + str(i) + ")" + f.splitPath(path, 2))):
-                    i = i + 1
-                path = f.pathJoin(f.splitPath(path, 3), f.splitPath(path, 1) + " (" + str(i) + ")" + f.splitPath(path, 2))
-            logging.debug(f"开始下载文件{path}")
-            path += ".zb.appstore.downloading"
-            url = self.data[1]
-            self.signalStr.emit(path)
-            response = requests.get(url, headers=program.REQUEST_HEADER, stream=True)
-            size = 0
-            file_size = int(response.headers["content-length"])
-            if response.status_code == 200:
-                with open(path, "wb") as file:
-                    for data in response.iter_content(256):
-                        if self.isCancel:
-                            self.signalBool.emit(True)
-                            return
-                        file.write(data)
-                        size += len(data)
-                        self.signalInt.emit(int(100 * size / file_size))
-            logging.debug(f"文件{path}下载成功")
+            try:
+                path = f.pathJoin(setting.read("downloadPath"), self.data[0])
+                if f.existPath(path):
+                    i = 1
+                    while f.existPath(f.pathJoin(f.splitPath(path, 3), f.splitPath(path, 1) + " (" + str(i) + ")" + f.splitPath(path, 2))):
+                        i = i + 1
+                    path = f.pathJoin(f.splitPath(path, 3), f.splitPath(path, 1) + " (" + str(i) + ")" + f.splitPath(path, 2))
+                logging.debug(f"开始下载文件{path}")
+                path += ".zb.appstore.downloading"
+                url = self.data[1]
+                self.signalStr.emit(path)
+                response = requests.get(url, headers=program.REQUEST_HEADER, stream=True)
+
+                size = 0
+                file_size = int(response.headers["content-length"])
+                if response.status_code == 200:
+                    with open(path, "wb") as file:
+                        for data in response.iter_content(256):
+                            if self.isCancel:
+                                self.signalBool.emit(True)
+                                return
+                            file.write(data)
+                            size += len(data)
+                            self.signalInt.emit(int(100 * size / file_size))
+                logging.debug(f"文件{path}下载成功")
+            except:
+                self.signalBool.emit(False)
 
     def cancel(self):
         logging.debug("取消下载")
@@ -183,6 +187,10 @@ class AppInfoCard(SmallInfoCard):
     def thread3(self, msg):
         if msg:
             f.delete(self.filePath)
+        else:
+            self.infoBar.closeButton.click()
+            self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", f"下载失败", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+            self.infoBar.show()
         self.mainButton.setEnabled(True)
 
     def button1Clicked(self):
