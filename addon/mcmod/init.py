@@ -2,7 +2,6 @@ import sys, os
 
 sys.path = [os.path.dirname(sys.argv[0])] + sys.path
 from source.custom import *
-from .api import *
 
 os.chdir(os.path.dirname(__file__))
 
@@ -10,6 +9,7 @@ try:
     from beta.source.custom import *
 except:
     pass
+from .api import *
 
 
 class MyThread(QThread):
