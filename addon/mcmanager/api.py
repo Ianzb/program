@@ -34,6 +34,21 @@ CURSEFORGE_LOADER_TYPE = {
     5: "quilt",
     6: "neoforge",
 }
+MODRINTH_TYPE = {
+    "模组": "mod",
+    "整合包": "modpack",
+    "资源包": "resourcepack",
+    "光影": "shader",
+    "数据包": "datapack",
+}
+CURSEFORGE_TYPE = {
+    "模组": 6,
+    "整合包": 4471,
+    "资源包": 12,
+    "光影": 6552,
+    "数据包": 6945,
+}
+
 
 
 def getVersionList(version_type: str = "release"):
@@ -56,7 +71,7 @@ def getVersionList(version_type: str = "release"):
         return RELEASE_VERSIONS
 
 
-def searchMod(name: str, source: str = "CurseForge", version: str = "", page: int = 1) -> list:
+def searchMod(name: str, source: str = "CurseForge", version: str = "", page: int = 1, type: str = "模组") -> list:
     """
     搜索模组
     @param name: 名称
@@ -70,7 +85,7 @@ def searchMod(name: str, source: str = "CurseForge", version: str = "", page: in
 
     if source == "Modrinth":
         version = f',["versions:{version}"]' if version not in ["全部", "", None] else ""
-        data = f.requestGet(f'https://api.modrinth.com/v2/search?query={name}&facets=[["project_type:mod"]{version}]&limit=50&offset={50 * (page - 1)}', program.REQUEST_HEADER)
+        data = f.requestGet(f'https://api.modrinth.com/v2/search?query={name}&facets=[["project_type:{MODRINTH_TYPE[type]}"]{version}]&limit=50&offset={50 * (page - 1)}', program.REQUEST_HEADER)
         if "hits" in json.loads(data):
             data = json.loads(data)["hits"]
             for i in data:
@@ -84,10 +99,11 @@ def searchMod(name: str, source: str = "CurseForge", version: str = "", page: in
                              "作者": i["author"],
                              "来源": "Modrinth",
                              "发布日期": i["date_created"].split("T")[0],
+                             "类型": type,
                              })
     elif source == "CurseForge":
         version = f"&gameVersion={version}" if version != "全部" else ""
-        data = f.requestGet(f"https://api.curseforge.com/v1/mods/search?gameId=432&classId=6{version}&searchFilter={name}&pageSize=50&sortOrder=desc&index={50 * (page - 1)}", CURSEFORGE_API_KEY)
+        data = f.requestGet(f"https://api.curseforge.com/v1/mods/search?gameId=432&classId={CURSEFORGE_TYPE[type]}{version}&searchFilter={name}&pageSize=50&sortOrder=desc&index={50 * (page - 1)}", CURSEFORGE_API_KEY)
         if "data" in json.loads(data):
             data = json.loads(data)["data"]
             for i in data:
@@ -101,6 +117,7 @@ def searchMod(name: str, source: str = "CurseForge", version: str = "", page: in
                              "作者": i["authors"][0]["name"],
                              "来源": "CurseForge",
                              "发布日期": i["dateCreated"].split("T")[0],
+                             "类型": type,
                              })
     return list
 
