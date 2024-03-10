@@ -120,8 +120,8 @@ class BasicTabPage(BasicPage):
         self.stackedWidget.currentChanged.connect(self.onCurrentIndexChanged)
         self.vBoxLayout.addWidget(self.stackedWidget)
 
-    def addPage(self, widget, name):
-        widget.setObjectName(name)
+    def addPage(self, widget):
+        name = widget.objectName()
         widget.setAlignment(Qt.AlignCenter)
         self.stackedWidget.addWidget(widget)
         self.pivot.addItem(name, name, lambda: self.stackedWidget.setCurrentWidget(widget), widget.icon)

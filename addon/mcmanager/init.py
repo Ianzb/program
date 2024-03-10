@@ -365,6 +365,7 @@ class FileManageTab(BasicTab):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.setObjectName("资源管理")
 
 class AddonTab(BasicTab):
     """
@@ -373,7 +374,7 @@ class AddonTab(BasicTab):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setIcon(FIF.GAME)
+        self.setObjectName("资源下载")
 
         self.vBoxLayout.setSpacing(8)
 
@@ -438,7 +439,7 @@ class AddonTab(BasicTab):
         self.comboBox1.setEnabled(False)
         self.comboBox2.setEnabled(False)
 
-        self.parent().gamePage.addPage(FileManageTab(), "123")
+        self.parent().gamePage.addPage(FileManageTab())
 
     def lineEditChanged(self, text):
         self.lineEdit.searchButton.setEnabled(bool(text))
