@@ -251,11 +251,15 @@ class BigModInfoCard(BigInfoCard):
         if len(msg.keys()) == 0:
             self.cardGroup.setTitle("无筛选结果")
         self.vBoxLayout.insertWidget(3, self.cardGroup)
+        i = 0
         for k in msg.keys():
             if k == self.comboBox1.currentText() or self.comboBox1.currentText() == "全部":
                 self.cardGroup.addWidget(StrongBodyLabel(k, self))
                 for v in msg[k]:
                     self.cardGroup.addWidget(SmallFileInfoCard(v))
+                    if i > 50:
+                        break
+                    i += 1
         self.cardGroup.show()
         self.loadingCard.hide()
         self.comboBox1.setEnabled(True)
@@ -417,7 +421,7 @@ class AddonTab(BasicTab):
 
         self.comboBox3 = AcrylicComboBox(self)
         self.comboBox3.setPlaceholderText("类型")
-        self.comboBox3.addItems(list(MODRINTH_TYPE.keys()))
+        self.comboBox3.addItems(list(CURSEFORGE_TYPE.keys()))
         self.comboBox3.setCurrentIndex(0)
         self.comboBox3.setToolTip("选择资源类型")
         self.comboBox3.installEventFilter(ToolTipFilter(self.comboBox3, 1000))
@@ -476,7 +480,7 @@ class AddonTab(BasicTab):
         self.loadingCard.setText("搜索中...")
         self.loadingCard.show()
 
-        self.thread2 = MyThread("搜索资源", [self.lineEdit.text() if self.lineEdit.text() else " ", self.comboBox1.currentText(), self.comboBox2.currentText(), self.comboBox3.currentText()])
+        self.thread2 = MyThread("搜索资源", [self.lineEdit.text(), self.comboBox1.currentText(), self.comboBox2.currentText(), self.comboBox3.currentText()])
         self.thread2.signalList.connect(self.thread2_1)
         self.thread2.signalBool.connect(self.thread2_2)
         self.thread2.start()

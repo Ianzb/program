@@ -40,15 +40,18 @@ MODRINTH_TYPE = {
     "资源包": "resourcepack",
     "光影": "shader",
     "数据包": "datapack",
+    "插件": "plugin",
 }
 CURSEFORGE_TYPE = {
     "模组": 6,
     "整合包": 4471,
     "资源包": 12,
     "光影": 6552,
-    "数据包": 6945,
-}
+    "数据包": 4546,
+    "插件": 5,
+    "地图": 17,
 
+}
 
 
 def getVersionList(version_type: str = "release"):
@@ -103,13 +106,14 @@ def searchMod(name: str, source: str = "CurseForge", version: str = "", page: in
                              })
     elif source == "CurseForge":
         version = f"&gameVersion={version}" if version != "全部" else ""
-        data = f.requestGet(f"https://api.curseforge.com/v1/mods/search?gameId=432&classId={CURSEFORGE_TYPE[type]}{version}&searchFilter={name}&pageSize=50&sortOrder=desc&index={50 * (page - 1)}", CURSEFORGE_API_KEY)
+        name = f"&searchFilter={name}" if name else ""
+        data = f.requestGet(f"https://api.curseforge.com/v1/mods/search?gameId=432&classId={CURSEFORGE_TYPE[type]}{version}{name}&pageSize=50&sortOrder=desc&index={50 * (page - 1)}", CURSEFORGE_API_KEY)
         if "data" in json.loads(data):
             data = json.loads(data)["data"]
             for i in data:
                 list.append({"id": i["id"],
                              "名称": i["name"],
-                             "图标": i["logo"]["url"],
+                             "图标": i["logo"]["url"] if i["logo"] else "",
                              "介绍": i["summary"],
                              "下载量": i["downloadCount"],
                              "游戏版本": f.sortVersion([j for j in [k["gameVersion"] for k in i["latestFilesIndexes"]] if j in RELEASE_VERSIONS]),
@@ -163,7 +167,7 @@ def getModInfo(mod_id, source: str = "CurseForge") -> dict:
         dict.update({
             "id": data["id"],
             "名称": data["name"],
-            "图标": data["logo"]["url"],
+            "图标": data["logo"]["url"] if data["logo"] else "",
             "介绍": data["summary"],
             "下载量": data["downloadCount"],
             "游戏版本": f.sortVersion([j for j in [k["gameVersion"] for k in data["latestFilesIndexes"]] if j in RELEASE_VERSIONS]),

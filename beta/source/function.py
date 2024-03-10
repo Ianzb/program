@@ -452,6 +452,7 @@ class ProcessFunctions:
         @param try_times: 重试次数
         @return:
         """
+        logging.info(f"正在发送Get请求到{url}")
         for i in range(try_times):
             try:
                 response = requests.get(url, headers=header, stream=True, timeout=timeout)
@@ -474,6 +475,7 @@ class ProcessFunctions:
         @param try_times: 重试次数
         @return:
         """
+        logging.info(f"正在发送Post请求到{url}")
         for i in range(try_times):
             try:
                 response = requests.post(url, headers=header, json=json, timeout=timeout)

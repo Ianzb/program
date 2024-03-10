@@ -386,16 +386,19 @@ class BigInfoCard(CardWidget):
         self.hBoxLayout1.addWidget(self.titleLabel, 0, Qt.AlignLeft)
         self.hBoxLayout1.addWidget(self.mainButton, 0, Qt.AlignRight)
 
-        self.hBoxLayout2 = QHBoxLayout()
-        self.hBoxLayout2.setSpacing(4)
+        self.hBoxLayout2 = FlowLayout()
+        self.hBoxLayout2.setAnimation(250, QEasingCurve.OutQuad)
+        self.hBoxLayout2.setSpacing(0)
         self.hBoxLayout2.setAlignment(Qt.AlignLeft)
 
-        self.hBoxLayout3 = QHBoxLayout()
+        self.hBoxLayout3 = FlowLayout()
+        self.hBoxLayout3.setAnimation(250, QEasingCurve.OutQuad)
         self.hBoxLayout3.setContentsMargins(0, 0, 0, 0)
         self.hBoxLayout3.setSpacing(10)
         self.hBoxLayout3.setAlignment(Qt.AlignLeft)
 
-        self.hBoxLayout4 = QHBoxLayout()
+        self.hBoxLayout4 = FlowLayout()
+        self.hBoxLayout4.setAnimation(250, QEasingCurve.OutQuad)
         self.hBoxLayout4.setSpacing(8)
         self.hBoxLayout4.setAlignment(Qt.AlignLeft)
 
@@ -475,7 +478,7 @@ class BigInfoCard(CardWidget):
         button = HyperlinkButton(url, text, self)
         if icon:
             button.setIcon(icon)
-        self.hBoxLayout2.addWidget(button, 0, Qt.AlignLeft)
+        self.hBoxLayout2.addWidget(button)
 
     def addData(self, title: str, data: str | int):
         """
@@ -483,9 +486,12 @@ class BigInfoCard(CardWidget):
         @param title: 标题
         @param data: 数据
         """
+        widget = StatisticsWidget(title, str(data), self)
         if self.hBoxLayout3.count() >= 1:
-            self.hBoxLayout3.addWidget(VerticalSeparator(self))
-        self.hBoxLayout3.addWidget(StatisticsWidget(title, str(data), self))
+            seperator = VerticalSeparator(widget)
+            seperator.setMinimumHeight(50)
+            self.hBoxLayout3.addWidget(seperator)
+        self.hBoxLayout3.addWidget(widget)
 
     def addTag(self, name: str):
         """
@@ -496,7 +502,7 @@ class BigInfoCard(CardWidget):
         self.tagButton.setCheckable(False)
         setFont(self.tagButton, 12)
         self.tagButton.setFixedSize(80, 32)
-        self.hBoxLayout4.addWidget(self.tagButton, 0, Qt.AlignLeft)
+        self.hBoxLayout4.addWidget(self.tagButton)
 
 
 class SmallInfoCard(CardWidget):
