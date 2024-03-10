@@ -1,6 +1,6 @@
 {
-    "id": "mcmod",
-    "name": "MC模组下载器",
+    "id": "mcmanager",
+    "name": "MC资源管理器",
     "version": "1.0.1",
     "pos": "game",
     "file": [

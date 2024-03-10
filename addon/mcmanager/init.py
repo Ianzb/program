@@ -358,6 +358,14 @@ class SmallFileInfoCard(SmallInfoCard):
         self.infoBar.closeButton.click()
 
 
+class FileManageTab(BasicTab):
+    """
+    插件第二页面
+    """
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
 class AddonTab(BasicTab):
     """
     插件主页面
@@ -429,6 +437,8 @@ class AddonTab(BasicTab):
         self.lineEdit.setEnabled(False)
         self.comboBox1.setEnabled(False)
         self.comboBox2.setEnabled(False)
+
+        self.parent().gamePage.addPage(FileManageTab(), "123")
 
     def lineEditChanged(self, text):
         self.lineEdit.searchButton.setEnabled(bool(text))

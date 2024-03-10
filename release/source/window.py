@@ -400,13 +400,13 @@ class Window(FluentWindow):
         try:
             lib = importlib.import_module(data["id"])
             if data["pos"] == "tool":
-                self.page = lib.AddonTab()
+                self.page = lib.AddonTab(self)
                 self.toolPage.addPage(self.page, data["name"])
             elif data["pos"] == "game":
-                self.page = lib.AddonTab()
+                self.page = lib.AddonTab(self)
                 self.gamePage.addPage(self.page, data["name"])
             elif data["pos"] == "page":
-                self.page = lib.AddonPage()
+                self.page = lib.AddonPage(self)
                 if not self.page.title:
                     self.page.title = data["name"]
                 self.addPage(self.page, "scroll")
