@@ -481,6 +481,32 @@ class ProcessFunctions:
             except:
                 continue
 
+    def numberAddUnit(self, value: int) -> str:
+        """
+        数字加单位
+        @param value: 值
+        @return: 字符串
+        """
+        units = ["", "万", "亿", "兆"]
+        size = 10000.0
+        for i in range(len(units)):
+            if (value / size) < 1:
+                return f"%.{i}f%s" % (value, units[i])
+            value = value / size
+
+    def fileSizeAddUnit(self, value: int) -> str:
+        """
+        文件比特大小加单位
+        @param value: 值
+        @return: 字符串
+        """
+        units = ["B", "KB", "MB", "GB", "TB", "PB"]
+        size = 1024.0
+        for i in range(len(units)):
+            if (value / size) < 1:
+                return "%.2f%s" % (value, units[i])
+            value = value / size
+
 
 class FileFunctions(ProcessFunctions):
     """
