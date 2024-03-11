@@ -467,6 +467,10 @@ class AddonTab(BasicTab):
         self.lineEdit.searchButton.click()
 
     def searchButtonClicked(self):
+        if [self.comboBox1.currentText(), self.comboBox3.currentText()] == ["Modrinth", "地图"]:
+            self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"Modrinth不支持搜索地图类资源", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+            self.infoBar.show()
+            return
         self.cardGroup1.deleteLater()
         self.cardGroup1 = CardGroup(self.view)
         self.vBoxLayout.addWidget(self.cardGroup1)
