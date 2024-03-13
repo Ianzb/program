@@ -34,6 +34,30 @@ CURSEFORGE_LOADER_TYPE = {
     5: "quilt",
     6: "neoforge",
 }
+CURSEFORGE_LOADER_TYPE_REVERSE = dict([val, key] for key, val in CURSEFORGE_LOADER_TYPE.items())
+LOADER_TYPE = {
+    "Forge": "forge",
+    "Cauldron": "cauldron",
+    "LiteLoader": "liteloader",
+    "Fabric": "fabric",
+    "Quilt": "quilt",
+    "NeoForge": "neoforge",
+    "DataPack": "datapack",
+    "Bukkit": "bukkit",
+    "Folia": "folia",
+    "Paper": "paper",
+    "Purpur": "purpur",
+    "Spigot": "spigot",
+    "Iris": "iris",
+    "Optifine": "optifine",
+    "Sponge": "sponge",
+    "Minecraft": "minecraft",
+    "Canvas": "canvas",
+    "Vanilla": "vanilla",
+    "Rift": "rift",
+    "Risugami's ModLoader": "modloader",
+}
+LOADER_TYPE_REVERSE = dict([val, key] for key, val in LOADER_TYPE.items())
 MODRINTH_TYPE = {
     "模组": "mod",
     "整合包": "modpack",
@@ -148,7 +172,7 @@ def getModInfo(mod_id, source: str = "CurseForge") -> dict:
             "更新日期": data["updated"].split("T")[0],
             "来源": "Modrinth",
             "源代码链接": data["source_url"],
-            "加载器": data["loaders"],
+            "加载器": [(LOADER_TYPE_REVERSE[i] if i in LOADER_TYPE_REVERSE.keys() else i) for i in data["loaders"]],
             "发布日期": data["published"].split("T")[0],
             "网站链接": f"https://modrinth.com/mod/{data["slug"]}",
         })
@@ -161,7 +185,7 @@ def getModInfo(mod_id, source: str = "CurseForge") -> dict:
 
         loader = []
         for i in data2:
-            loader += [j.lower() for j in i["gameVersions"] if j.lower() in CURSEFORGE_LOADER_TYPE.values()]
+            loader += [(LOADER_TYPE_REVERSE[j.lower()] if j.lower() in LOADER_TYPE_REVERSE.keys() else j.lower()) for j in i["gameVersions"] if j.lower() in CURSEFORGE_LOADER_TYPE.values()]
         loader = list(set(loader))
 
         dict.update({
@@ -194,7 +218,7 @@ def getModFile(id, source: str = "CurseForge", version: str = "", loader: str = 
     list1 = []
     if source == "Modrinth":
         version = f'&game_versions=["{version}"]' if version not in ["全部", "", None] else ""
-        loader = f'&loaders=["{loader}"]' if loader not in ["全部", "", None] else ""
+        loader = f'&loaders=["{LOADER_TYPE[loader] if loader in LOADER_TYPE.keys() else loader.lower()}"]' if loader not in ["全部", "", None] else ""
         data = f.requestGet(f"https://api.modrinth.com/v2/project/{id}/version?a=0{version}{loader}", program.REQUEST_HEADER)
         data = json.loads(data)
         for i in data:
@@ -206,7 +230,7 @@ def getModFile(id, source: str = "CurseForge", version: str = "", loader: str = 
                 "前置": i["dependencies"],
                 "游戏版本": f.sortVersion([j for j in i["game_versions"] if j in RELEASE_VERSIONS]),
                 "版本类型": i["version_type"],
-                "加载器": i["loaders"],
+                "加载器": [(LOADER_TYPE_REVERSE[i] if i in LOADER_TYPE_REVERSE.keys() else i) for i in i["loaders"]],
                 "下载量": i["downloads"],
                 "更新日期": i["date_published"].split("T")[0],
                 "来源": "Modrinth",
@@ -217,10 +241,7 @@ def getModFile(id, source: str = "CurseForge", version: str = "", loader: str = 
             })
     elif source == "CurseForge":
         version = f"&gameVersion={version}" if version not in ["全部", "", None] else ""
-        for k, v in CURSEFORGE_LOADER_TYPE.items():
-            if v == loader:
-                loader = k
-        loader = f"&modLoaderType={loader}" if loader not in ["全部", "", None] else ""
+        loader = f"&modLoaderType={CURSEFORGE_LOADER_TYPE_REVERSE[loader.lower()]}" if loader not in ["全部", "", None] else ""
         data = f.requestGet(f"https://api.curseforge.com/v1/mods/{id}/files?a=0{version}{loader}", CURSEFORGE_API_KEY)
         data = json.loads(data)["data"]
 
@@ -233,7 +254,7 @@ def getModFile(id, source: str = "CurseForge", version: str = "", loader: str = 
                 "前置": i["dependencies"],
                 "游戏版本": f.sortVersion([j for j in i["gameVersions"] if j in RELEASE_VERSIONS]),
                 "版本类型": CURSEFORGE_VERSION_TYPE[i["releaseType"]],
-                "加载器": [j.lower() for j in i["gameVersions"] if j.lower() in CURSEFORGE_LOADER_TYPE.values()],
+                "加载器": [(LOADER_TYPE_REVERSE[j.lower()] if j.lower() in LOADER_TYPE_REVERSE.keys() else j.lower()) for j in i["gameVersions"] if j.lower() in CURSEFORGE_LOADER_TYPE.values()],
                 "下载量": i["downloadCount"],
                 "更新日期": i["fileDate"].split("T")[0],
                 "来源": "CurseForge",
@@ -279,7 +300,7 @@ def getInfoFromHash(file: str, source: str = "CurseForge"):
             "前置": data["dependencies"],
             "游戏版本": f.sortVersion([j for j in data["game_versions"] if j in RELEASE_VERSIONS]),
             "版本类型": data["version_type"],
-            "加载器": data["loaders"],
+            "加载器": [(LOADER_TYPE_REVERSE[i] if i in LOADER_TYPE_REVERSE.keys() else i) for i in data["loaders"]],
             "下载量": data["downloads"],
             "更新日期": data["date_published"].split("T")[0],
             "来源": "Modrinth",
@@ -315,7 +336,7 @@ def getInfoFromHash(file: str, source: str = "CurseForge"):
             "前置": data["dependencies"],
             "游戏版本": f.sortVersion([j for j in data["gameVersions"] if j in RELEASE_VERSIONS]),
             "版本类型": CURSEFORGE_VERSION_TYPE[data["releaseType"]],
-            "加载器": [j.lower() for j in data["gameVersions"] if j.lower() in CURSEFORGE_LOADER_TYPE.values()],
+            "加载器": [(LOADER_TYPE_REVERSE[j.lower()] if j.lower() in LOADER_TYPE_REVERSE.keys() else j.lower()) for j in data["gameVersions"] if j.lower() in CURSEFORGE_LOADER_TYPE.values()],
             "下载量": data["downloadCount"],
             "更新日期": data["fileDate"].split("T")[0],
             "来源": "CurseForge",

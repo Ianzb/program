@@ -17,6 +17,7 @@ try:
     from qfluentwidgets import *
     from qfluentwidgets.components.material import *
     from qfluentwidgets import FluentIcon as FIF
+    from DownloadKit import DownloadKit
 except ImportError:
     os.popen("download.pyw error")
 
@@ -26,7 +27,7 @@ class Program:
     程序信息
     """
     PROGRAM_NAME = "zb小程序"  # 程序名称
-    PROGRAM_VERSION = "3.8.3"  # 程序版本
+    PROGRAM_VERSION = "3.8.4"  # 程序版本
     PROGRAM_TITLE = f"{PROGRAM_NAME} {PROGRAM_VERSION}"  # 程序窗口标题
     AUTHOR_NAME = "Ianzb"  # 作者名称
     AUTHOR_URL = "https://ianzb.github.io/"  # 作者网址
@@ -57,6 +58,7 @@ class Program:
                    "pandas",
                    "winshell",
                    "xmltodict",
+                   "DownloadKit",
                    ]
     EXTRA_LIB = ["PyQt5",
                  "PyQt5-Frameless-Window",
@@ -1124,9 +1126,15 @@ class ProgramFunctions(FileFunctions):
                     data[f.splitPath(i)] = json.loads(file.read())
         return data
 
-    def checkInternet(self, link: str = "https://www.baidu.com/"):
+    def checkInternet(self, link: str = "https://www.baidu.com/", header=None):
+        """
+        测试链接是否有效
+        @param link: 链接
+        @param header: 请求头
+        @return: 是否连接
+        """
         try:
-            response = requests.get(link, stream=True)
+            response = requests.get(link, headers=header, stream=True)
             logging.debug(f"访问{link}的结果为{response.status_code == 200}")
             return response.status_code == 200
         except:
@@ -1202,6 +1210,55 @@ class Functions(ProgramFunctions):
                 str1 += v1[i] + "版本：" + v2[i] + "\n"
         logging.debug("成功获取我的世界最新版本")
         return str1
+
+
+class DownloadFile:
+    def __init__(self, link: str, path: str, wait: bool = True, suffix: str = "", header=None):
+        """
+        下载
+        @param link: 链接
+        @param path: 路径
+        @param wait: 是否等待
+        @param suffix: 临时后缀名
+        @param header: 请求头
+        """
+        if suffix:
+            suffix = suffix[1:] if suffix[0] == "." else suffix
+        self.__result = True
+        if not f.checkInternet(link, header=header):
+            self.__result = False
+        if f.isDir(path):
+            path = f.pathJoin(path, link.split("/")[-1])
+        if f.existPath(path):
+            i = 1
+            while f.existPath(f.pathJoin(f.splitPath(path, 3), f.splitPath(path, 1) + " (" + str(i) + ")" + f.splitPath(path, 2))):
+                i = i + 1
+            path = f.pathJoin(f.splitPath(path, 3), f.splitPath(path, 1) + " (" + str(i) + ")" + f.splitPath(path, 2))
+        self.path = path + "." if suffix else "" + suffix
+        logging.info(f"开始使用DownloadKit下载{link}到{path}")
+        self.d = DownloadKit(f.splitPath(path, 3))
+        self.file = self.d.add(link, rename=f.splitPath(path, 0), suffix=suffix, headers=header)
+        if wait:
+            self.file.wait()
+
+    def rate(self):
+        return int(self.file.rate) if self.file.rate else 0
+
+    def result(self):
+        if not self.__result:
+            return False
+        elif self.file.result == "success":
+            return True
+        elif self.file.result == None:
+            return None
+
+    def stop(self):
+        self.file.cancel()
+        self.file.session.close()
+        self.d.cancel()
+
+    def delete(self):
+        self.file.del_file()
 
 
 program = Program()

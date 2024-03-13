@@ -46,6 +46,7 @@ class ProgramInit():
                    "pandas",
                    "winshell",
                    "xmltodict",
+                   "DownloadKit",
                    ]
 
     @property

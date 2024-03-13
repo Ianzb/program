@@ -37,32 +37,51 @@ class MyThread(QThread):
             except Exception as ex:
                 self.signalBool.emit(False)
         if self.mode == "下载资源":
-            try:
-                path = f.pathJoin(setting.read("downloadPath"), self.data[0])
-                if f.existPath(path):
-                    i = 1
-                    while f.existPath(f.pathJoin(f.splitPath(path, 3), f.splitPath(path, 1) + " (" + str(i) + ")" + f.splitPath(path, 2))):
-                        i = i + 1
-                    path = f.pathJoin(f.splitPath(path, 3), f.splitPath(path, 1) + " (" + str(i) + ")" + f.splitPath(path, 2))
-                logging.debug(f"开始下载文件{path}")
-                path += ".zb.mod.downloading"
-                url = self.data[1]
-                self.signalStr.emit(path)
-                response = requests.get(url, headers=program.REQUEST_HEADER, stream=True, timeout=(5, 10))
-                size = 0
-                file_size = int(response.headers["content-length"])
-                if response.status_code == 200:
-                    with open(path, "wb") as file:
-                        for data in response.iter_content(256):
-                            if self.isCancel:
-                                self.signalBool.emit(True)
-                                return
-                            file.write(data)
-                            size += len(data)
-                            self.signalInt.emit(int(100 * size / file_size))
-                logging.debug(f"文件{path}下载成功")
-            except:
-                self.signalBool.emit(False)
+            if "edge.forgecdn.net" not in self.data[0]:
+                try:
+                    d = DownloadFile(self.data[0], f.pathJoin(setting.read("downloadPath"), self.data[1]), False, "", program.REQUEST_HEADER)
+                    while d.result() == None:
+                        if self.isCancel:
+                            d.stop()
+                            d.delete()
+                            self.signalBool.emit(True)
+                            return
+                        self.signalStr.emit(d.path)
+                        self.signalInt.emit(d.rate())
+                        time.sleep(0.1)
+                    if d.result() == False:
+                        self.signalBool.emit(False)
+                        logging.debug(f"文件{data[1]}下载失败")
+                    d.stop()
+                    self.signalInt.emit(d.rate())
+                except:
+                    self.signalBool.emit(False)
+            else:
+                try:
+                    path = f.pathJoin(setting.read("downloadPath"), self.data[1])
+                    if f.existPath(path):
+                        i = 1
+                        while f.existPath(f.pathJoin(f.splitPath(path, 3), f.splitPath(path, 1) + " (" + str(i) + ")" + f.splitPath(path, 2))):
+                            i = i + 1
+                        path = f.pathJoin(f.splitPath(path, 3), f.splitPath(path, 1) + " (" + str(i) + ")" + f.splitPath(path, 2))
+                    logging.debug(f"开始下载文件{path}")
+                    url = self.data[0]
+                    self.signalStr.emit(path)
+                    response = requests.get(url, headers=program.REQUEST_HEADER, stream=True, timeout=(5, 10))
+                    size = 0
+                    file_size = int(response.headers["content-length"])
+                    if response.status_code == 200:
+                        with open(path, "wb") as file:
+                            for data in response.iter_content(256):
+                                if self.isCancel:
+                                    self.signalBool.emit(True)
+                                    return
+                                file.write(data)
+                                size += len(data)
+                                self.signalInt.emit(int(100 * size / file_size))
+                    logging.debug(f"文件{path}下载成功")
+                except:
+                    self.signalBool.emit(False)
         if self.mode == "获得游戏版本列表":
             try:
                 self.signalList.emit(getVersionList())
@@ -310,7 +329,7 @@ class SmallFileInfoCard(SmallInfoCard):
             return
         self.mainButton.setEnabled(False)
 
-        self.thread1 = MyThread("下载资源", (self.data["文件名称"], self.data["下载链接"]))
+        self.thread1 = MyThread("下载资源", (self.data["下载链接"], self.data["文件名称"]))
         self.thread1.signalStr.connect(self.thread1_1)
         self.thread1.signalInt.connect(self.thread1_2)
         self.thread1.signalBool.connect(self.thread1_3)
@@ -337,8 +356,6 @@ class SmallFileInfoCard(SmallInfoCard):
         except:
             return
         if msg == 100:
-            f.moveFile(self.filePath, self.filePath.replace(".zb.mod.downloading", ""))
-
             self.infoBar.contentLabel.setText(f"{self.data["名称"]} 下载成功")
             self.infoBar.closeButton.click()
 

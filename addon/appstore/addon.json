@@ -1,7 +1,7 @@
 {
     "id": "appstore",
     "name": "应用商店",
-    "version": "1.2.5",
+    "version": "1.3.0",
     "pos": "tool",
     "file": [
         "init.py"
