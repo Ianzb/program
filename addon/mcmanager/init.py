@@ -27,7 +27,6 @@ class MyThread(QThread):
         super().__init__(parent=parent)
         self.mode = mode
         self.data = data
-        self.isCancel = False
 
     def run(self):
         if self.mode == "搜索资源":
@@ -35,26 +34,6 @@ class MyThread(QThread):
                 data = searchMod(self.data[0], self.data[1], self.data[2], type=self.data[3])
                 self.signalList.emit(data)
             except Exception as ex:
-                self.signalBool.emit(False)
-        if self.mode == "下载资源":
-            try:
-                d = DownloadFile(self.data[0].replace("edge.forgecdn.net", "mediafilez.forgecdn.net"), f.pathJoin(setting.read("downloadPath"), self.data[1]), False, ".zb.mod.downloading", program.REQUEST_HEADER)
-                while d.result() == None:
-                    self.signalInt.emit(d.rate())
-                    time.sleep(0.1)
-                    if self.isCancel:
-                        d.stop()
-                        d.delete()
-                        self.signalBool.emit(True)
-                        return
-                if d.result() == False:
-                    self.signalBool.emit(False)
-                    logging.debug(f"文件{data[1]}下载失败")
-                    f.delete(d.path)
-                f.moveFile(d.path, d.path.replace(".zb.mod.downloading", ""))
-                d.stop()
-                self.signalInt.emit(d.rate())
-            except:
                 self.signalBool.emit(False)
         if self.mode == "获得游戏版本列表":
             try:
@@ -73,10 +52,6 @@ class MyThread(QThread):
                 self.signalDict.emit(data)
             except Exception as ex:
                 self.signalBool.emit(False)
-
-    def cancel(self):
-        logging.debug("取消下载")
-        self.isCancel = True
 
 
 class SmallModInfoCard(SmallInfoCard):
@@ -301,57 +276,7 @@ class SmallFileInfoCard(SmallInfoCard):
             self.infoBar = InfoBar(InfoBarIcon.WARNING, "警告", "该文件暂无下载链接，请更换版本或更换下载源重试！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
             self.infoBar.show()
             return
-        self.mainButton.setEnabled(False)
-
-        self.thread1 = MyThread("下载资源", (self.data["下载链接"], self.data["文件名称"]))
-        self.thread1.signalInt.connect(self.thread1_1)
-        self.thread1.signalBool.connect(self.thread1_2)
-        self.thread1.start()
-
-        self.progressBar = ProgressBar(self)
-        self.progressBar.setAlignment(Qt.AlignCenter)
-        self.progressBar.setRange(0, 100)
-        self.progressBar.setValue(0)
-        self.progressBar.setMinimumWidth(200)
-
-        self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "下载", f"正在下载资源 {self.data["名称"]}", Qt.Vertical, True, -1, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
-        self.infoBar.addWidget(self.progressBar)
-        self.infoBar.show()
-        self.infoBar.closeButton.clicked.connect(self.thread1.cancel)
-
-    def thread1_1(self, msg):
-        try:
-            self.infoBar.contentLabel.setText(f"正在下载资源 {self.data["名称"]}")
-            self.progressBar.setValue(msg)
-        except:
-            return
-        if msg == 100:
-            self.infoBar.contentLabel.setText(f"{self.data["名称"]} 下载成功")
-            self.infoBar.closeButton.click()
-
-            self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "下载", f"资源 {self.data["名称"]} 下载成功", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
-            self.infoBar.show()
-            self.button1 = PushButton("打开目录", self, FIF.FOLDER)
-            self.button1.clicked.connect(self.button1Clicked)
-            self.infoBar.addWidget(self.button1)
-
-            self.progressBar.setValue(0)
-            self.progressBar.deleteLater()
-            self.mainButton.setEnabled(True)
-
-    def thread1_2(self, msg):
-        if not msg:
-            try:
-                self.infoBar.closeButton.click()
-            except:
-                self.thread1.cancel()
-            self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", f"下载失败", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
-            self.infoBar.show()
-        self.mainButton.setEnabled(True)
-
-    def button1Clicked(self):
-        f.startFile(setting.read("downloadPath"))
-        self.infoBar.closeButton.click()
+        DownloadWidget(self.data["下载链接"].replace("edge.forgecdn.net", "mediafilez.forgecdn.net"), self.data["文件名称"], self.parent().parent().parent().parent())
 
 
 class FileManageTab(BasicTab):

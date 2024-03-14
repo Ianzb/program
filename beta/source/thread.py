@@ -34,6 +34,7 @@ class NewThread(QThread):
         super().__init__(parent=parent)
         self.mode = mode
         self.data = data
+        self.isCancel = False
 
     def run(self):
         if self.mode == "更新运行库":
@@ -135,6 +136,32 @@ class NewThread(QThread):
         if self.mode == "清理程序缓存":
             f.clearProgramCache()
             self.signalBool.emit(True)
+        if self.mode == "下载文件":
+            try:
+                d = DownloadFile(self.data[0], f.pathJoin(setting.read("downloadPath"), self.data[1]), False, ".downloading", program.REQUEST_HEADER)
+                while d.result() == None:
+                    self.signalInt.emit(d.rate())
+                    time.sleep(0.1)
+                    if self.isCancel:
+                        self.isCancel = False
+                        d.stop()
+                        d.delete()
+                        f.delete(d.path.replace(".downloading", ""))
+                        self.signalBool.emit(True)
+                        return
+                if d.result() == False:
+                    self.signalBool.emit(False)
+                    logging.debug(f"文件{data[1]}下载失败")
+                    f.delete(d.path.replace(".downloading", ""))
+                f.moveFile(d.path, d.path.replace(".downloading", ""))
+                d.stop()
+                self.signalInt.emit(d.rate())
+            except:
+                self.signalBool.emit(False)
+
+    def cancel(self):
+        logging.debug("取消下载")
+        self.isCancel = True
 
 
 logging.debug("thread.py初始化成功")
