@@ -1222,8 +1222,7 @@ class DownloadFile:
         @param suffix: 临时后缀名
         @param header: 请求头
         """
-        if suffix:
-            suffix = suffix[1:] if suffix[0] == "." else suffix
+        suffix = suffix.removeprefix(".")
         self.__result = True
         if not f.checkInternet(link, header=header):
             self.__result = False
@@ -1234,8 +1233,8 @@ class DownloadFile:
             while f.existPath(f.pathJoin(f.splitPath(path, 3), f.splitPath(path, 1) + " (" + str(i) + ")" + f.splitPath(path, 2))):
                 i = i + 1
             path = f.pathJoin(f.splitPath(path, 3), f.splitPath(path, 1) + " (" + str(i) + ")" + f.splitPath(path, 2))
-        self.path = path + "." if suffix else "" + suffix
-        logging.info(f"开始使用DownloadKit下载{link}到{path}")
+        self.path = path + ("." if suffix else "") + suffix
+        logging.info(f"开始使用DownloadKit下载{link}到{self.path}")
         self.d = DownloadKit(f.splitPath(path, 3))
         self.file = self.d.add(link, rename=f.splitPath(path, 0), suffix=suffix, headers=header, allow_redirects=True)
         if wait:

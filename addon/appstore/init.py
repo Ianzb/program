@@ -85,7 +85,6 @@ class MyThread(QThread):
             try:
                 d = DownloadFile(self.data[0], f.pathJoin(setting.read("downloadPath"), self.data[1]), False, ".zb.appstore.downloading", program.REQUEST_HEADER)
                 while d.result() == None:
-                    self.signalStr.emit(d.path)
                     self.signalInt.emit(d.rate())
                     time.sleep(0.1)
                     if self.isCancel:
@@ -96,6 +95,8 @@ class MyThread(QThread):
                 if d.result() == False:
                     self.signalBool.emit(False)
                     logging.debug(f"文件{data[1]}下载失败")
+                    f.delete(d.path)
+                f.moveFile(d.path, d.path.replace(".zb.appstore.downloading", ""))
                 d.stop()
                 self.signalInt.emit(d.rate())
             except:
@@ -134,9 +135,8 @@ class AppInfoCard(SmallInfoCard):
         self.mainButton.setEnabled(False)
 
         self.thread = MyThread("下载文件", (self.data["下载链接"], self.data["文件名称"]))
-        self.thread.signalStr.connect(self.thread1)
-        self.thread.signalInt.connect(self.thread2)
-        self.thread.signalBool.connect(self.thread3)
+        self.thread.signalInt.connect(self.thread1)
+        self.thread.signalBool.connect(self.thread2)
         self.thread.start()
 
         self.progressBar = ProgressBar(self)
@@ -151,17 +151,12 @@ class AppInfoCard(SmallInfoCard):
         self.infoBar.closeButton.clicked.connect(self.thread.cancel)
 
     def thread1(self, msg):
-        self.filePath = msg
-
-    def thread2(self, msg):
         try:
             self.infoBar.contentLabel.setText(f"正在下载软件 {self.data["名称"]}")
             self.progressBar.setValue(msg)
         except:
             return
         if msg == 100:
-            f.moveFile(self.filePath, self.filePath.replace(".zb.appstore.downloading", ""))
-
             self.infoBar.contentLabel.setText(f"{self.data["名称"]} 下载成功")
             self.infoBar.closeButton.click()
 
@@ -175,10 +170,8 @@ class AppInfoCard(SmallInfoCard):
             self.progressBar.deleteLater()
             self.mainButton.setEnabled(True)
 
-    def thread3(self, msg):
-        if msg:
-            f.delete(self.filePath)
-        else:
+    def thread2(self, msg):
+        if not msg:
             try:
                 self.infoBar.closeButton.click()
             except:
