@@ -1223,9 +1223,6 @@ class DownloadFile:
         @param header: 请求头
         """
         suffix = suffix.removeprefix(".")
-        self.__result = True
-        if not f.checkInternet(link, header=header):
-            self.__result = False
         if f.isDir(path):
             path = f.pathJoin(path, link.split("/")[-1])
         if f.existPath(path):
@@ -1244,9 +1241,7 @@ class DownloadFile:
         return int(self.file.rate) if self.file.rate else 0
 
     def result(self):
-        if not self.__result:
-            return False
-        elif self.file.result == "success":
+        if self.file.result == "success":
             return True
         elif self.file.result == None:
             return None
