@@ -46,7 +46,7 @@ class Program:
     ADDON_URL = "https://ianzb.github.io/program/addon/addon.json"  # 插件信息网址
     STARTUP_ARGUMENT = sys.argv[1:]  # 程序启动参数
     PYTHON_VERSION = sys.version[:sys.version.find(" ")]  # Python版本
-    REQUEST_HEADER = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0",
+    REQUEST_HEADER = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 Edg/122.0.0.0",
                       "zbprogram": PROGRAM_VERSION}  # 程序默认网络请求头
 
     REQUIRE_LIB = ["PyQt-Fluent-Widgets[full]",
@@ -1237,7 +1237,7 @@ class DownloadFile:
         self.path = path + "." if suffix else "" + suffix
         logging.info(f"开始使用DownloadKit下载{link}到{path}")
         self.d = DownloadKit(f.splitPath(path, 3))
-        self.file = self.d.add(link, rename=f.splitPath(path, 0), suffix=suffix, headers=header)
+        self.file = self.d.add(link, rename=f.splitPath(path, 0), suffix=suffix, headers=header, allow_redirects=True)
         if wait:
             self.file.wait()
 

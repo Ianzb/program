@@ -85,14 +85,14 @@ class MyThread(QThread):
             try:
                 d = DownloadFile(self.data[0], f.pathJoin(setting.read("downloadPath"), self.data[1]), False, ".zb.appstore.downloading", program.REQUEST_HEADER)
                 while d.result() == None:
+                    self.signalStr.emit(d.path)
+                    self.signalInt.emit(d.rate())
+                    time.sleep(0.1)
                     if self.isCancel:
                         d.stop()
                         d.delete()
                         self.signalBool.emit(True)
                         return
-                    self.signalStr.emit(d.path)
-                    self.signalInt.emit(d.rate())
-                    time.sleep(0.1)
                 if d.result() == False:
                     self.signalBool.emit(False)
                     logging.debug(f"文件{data[1]}下载失败")
@@ -179,7 +179,10 @@ class AppInfoCard(SmallInfoCard):
         if msg:
             f.delete(self.filePath)
         else:
-            self.infoBar.closeButton.click()
+            try:
+                self.infoBar.closeButton.click()
+            except:
+                self.thread.cancel()
             self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", f"下载失败", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
             self.infoBar.show()
         self.mainButton.setEnabled(True)

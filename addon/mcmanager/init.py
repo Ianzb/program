@@ -39,16 +39,16 @@ class MyThread(QThread):
         if self.mode == "下载资源":
             if "edge.forgecdn.net" not in self.data[0]:
                 try:
-                    d = DownloadFile(self.data[0], f.pathJoin(setting.read("downloadPath"), self.data[1]), False, "", program.REQUEST_HEADER)
+                    d = DownloadFile(self.data[0], f.pathJoin(setting.read("downloadPath"), self.data[1]), False, ".zb.mod.downloading", program.REQUEST_HEADER)
                     while d.result() == None:
+                        self.signalStr.emit(d.path)
+                        self.signalInt.emit(d.rate())
+                        time.sleep(0.1)
                         if self.isCancel:
                             d.stop()
                             d.delete()
                             self.signalBool.emit(True)
                             return
-                        self.signalStr.emit(d.path)
-                        self.signalInt.emit(d.rate())
-                        time.sleep(0.1)
                     if d.result() == False:
                         self.signalBool.emit(False)
                         logging.debug(f"文件{data[1]}下载失败")
@@ -64,8 +64,9 @@ class MyThread(QThread):
                         while f.existPath(f.pathJoin(f.splitPath(path, 3), f.splitPath(path, 1) + " (" + str(i) + ")" + f.splitPath(path, 2))):
                             i = i + 1
                         path = f.pathJoin(f.splitPath(path, 3), f.splitPath(path, 1) + " (" + str(i) + ")" + f.splitPath(path, 2))
-                    logging.debug(f"开始下载文件{path}")
                     url = self.data[0]
+                    logging.info(f"开始下载文件{url}到{path}")
+                    path += ".zb.mod.downloading"
                     self.signalStr.emit(path)
                     response = requests.get(url, headers=program.REQUEST_HEADER, stream=True, timeout=(5, 10))
                     size = 0
@@ -356,6 +357,8 @@ class SmallFileInfoCard(SmallInfoCard):
         except:
             return
         if msg == 100:
+            f.moveFile(self.filePath, self.filePath.replace(".zb.mod.downloading", ""))
+
             self.infoBar.contentLabel.setText(f"{self.data["名称"]} 下载成功")
             self.infoBar.closeButton.click()
 
@@ -373,7 +376,10 @@ class SmallFileInfoCard(SmallInfoCard):
         if msg:
             f.delete(self.filePath)
         else:
-            self.infoBar.closeButton.click()
+            try:
+                self.infoBar.closeButton.click()
+            except:
+                self.thread1.cancel()
             self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", f"下载失败", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
             self.infoBar.show()
         self.mainButton.setEnabled(True)
