@@ -227,7 +227,7 @@ def getModFile(id, source: str = "CurseForge", version: str = "", loader: str = 
                 "模组id": i["project_id"],
                 "名称": i["name"],
                 "版本号": i["version_number"],
-                "前置": i["dependencies"],
+                "前置": [j["project_id"] for j in i["dependencies"] if j["dependency_type"] == "required"],
                 "游戏版本": f.sortVersion([j for j in i["game_versions"] if j in RELEASE_VERSIONS]),
                 "版本类型": i["version_type"],
                 "加载器": [(LOADER_TYPE_REVERSE[i] if i in LOADER_TYPE_REVERSE.keys() else i) for i in i["loaders"]],
@@ -251,7 +251,7 @@ def getModFile(id, source: str = "CurseForge", version: str = "", loader: str = 
                 "模组id": i["modId"],
                 "名称": i["displayName"],
                 # "版本号": i["version_number"],
-                "前置": i["dependencies"],
+                "前置": [j["modId"] for j in i["dependencies"] if j["relationType"] == 3],
                 "游戏版本": f.sortVersion([j for j in i["gameVersions"] if j in RELEASE_VERSIONS]),
                 "版本类型": CURSEFORGE_VERSION_TYPE[i["releaseType"]],
                 "加载器": [(LOADER_TYPE_REVERSE[j.lower()] if j.lower() in LOADER_TYPE_REVERSE.keys() else j.lower()) for j in i["gameVersions"] if j.lower() in CURSEFORGE_LOADER_TYPE.values()],
@@ -277,73 +277,209 @@ def getModFile(id, source: str = "CurseForge", version: str = "", loader: str = 
     return dict
 
 
-def getInfoFromHash(file: str, source: str = "CurseForge"):
+def CurseForgeHash(file: str):
+    from murmurhash2 import murmurhash2
+    with open(file, 'rb') as file:
+        filtered_bytes = bytearray()
+        while True:
+            chunk = file.read(1024)
+            if not chunk:
+                break
+            for byte in chunk:
+                if byte not in (0x09, 0x0A, 0x0D, 0x20):
+                    filtered_bytes.append(byte)
+        data = murmurhash2(bytes(filtered_bytes), seed=1) & 0xFFFFFFFF
+    return data
+
+
+def getInfoFromHash(path, source: str = "CurseForge"):
     """
     从本地文件获得模组信息
-    @param file: 文件
+    @param path: 文件
     @param source: 数据源
     """
-    if not f.isFile(file):
-        return False
     if source == "Modrinth":
-        hash = f.getHash(file)
-        data = f.requestGet(f"https://api.modrinth.com/v2/version_file/{hash}", program.REQUEST_HEADER)
+        if f.isDir(path):
+            path = f.walkFile(path, 1)
+        elif f.isFile(path):
+            path = [path]
+        elif type(path) == list:
+            pass
+        else:
+            return False
+        path = [i for i in path if not i.endswith(".old")]
+        hash = {}
+        for i in path:
+            hash[f.splitPath(i)] = f.getHash(i)
+        post_info = {
+            "hashes": list(hash.values()),
+            "algorithm": "sha1"
+        }
+        hash_reverse = dict([val, key] for key, val in hash.items())
+        response = f.requestPost(f"https://api.modrinth.com/v2/version_files", post_info, CURSEFORGE_POST_API_KEY)
         try:
-            data = json.loads(data)
+            response = response.json()
         except:
             return None
-        data = {
-            "id": data["id"],
-            "模组id": data["project_id"],
-            "名称": data["name"],
-            "版本号": data["version_number"],
-            "前置": data["dependencies"],
-            "游戏版本": f.sortVersion([j for j in data["game_versions"] if j in RELEASE_VERSIONS]),
-            "版本类型": data["version_type"],
-            "加载器": [(LOADER_TYPE_REVERSE[i] if i in LOADER_TYPE_REVERSE.keys() else i) for i in data["loaders"]],
-            "下载量": data["downloads"],
-            "更新日期": data["date_published"].split("T")[0],
-            "来源": "Modrinth",
-            "哈希值": data["files"][0]["hashes"]["sha1"],
-            "下载链接": data["files"][0]["url"],
-            "文件名称": data["files"][0]["filename"],
-            "文件大小": data["files"][0]["size"],
-        }
+        data = []
+        for i in list(response.values()):
+            data.append({
+                "id": i["id"],
+                "模组id": i["project_id"],
+                "名称": i["name"],
+                "版本号": i["version_number"],
+                "前置": [j["project_id"] for j in i["dependencies"] if j["dependency_type"] == "required"],
+                "游戏版本": f.sortVersion([j for j in i["game_versions"] if j in RELEASE_VERSIONS]),
+                "版本类型": i["version_type"],
+                "加载器": [(LOADER_TYPE_REVERSE[j] if j in LOADER_TYPE_REVERSE.keys() else j) for j in i["loaders"]],
+                "下载量": i["downloads"],
+                "更新日期": i["date_published"].split("T")[0],
+                "来源": "Modrinth",
+                "哈希值": i["files"][0]["hashes"]["sha1"],
+                "下载链接": i["files"][0]["url"],
+                "文件名称": i["files"][0]["filename"],
+                "文件大小": i["files"][0]["size"],
+                "源文件名称": hash_reverse[i["files"][0]["hashes"]["sha1"]],
+            })
     elif source == "CurseForge":
-        from murmurhash2 import murmurhash2
-        with open(file, 'rb') as file:
-            filtered_bytes = bytearray()
-            while True:
-                chunk = file.read(1024)
-                if not chunk:
-                    break
-                for byte in chunk:
-                    if byte not in (0x09, 0x0A, 0x0D, 0x20):
-                        filtered_bytes.append(byte)
-            data = murmurhash2(bytes(filtered_bytes), seed=1) & 0xFFFFFFFF
+        if f.isDir(path):
+            path = f.walkFile(path, 1)
+        elif f.isFile(path):
+            path = [path]
+        elif type(path) == list:
+            pass
+        else:
+            return False
+        path = [i for i in path if not i.endswith(".old")]
+        hash = {}
+        for i in path:
+            hash[f.splitPath(i)] = CurseForgeHash(i)
         post_info = {
-            "fingerprints": [
-                data
+            "fingerprints": list(hash.values())
+        }
+        hash_reverse = dict([val, key] for key, val in hash.items())
+        response = f.requestPost("https://api.curseforge.com/v1/fingerprints/432", post_info, CURSEFORGE_POST_API_KEY)
+        response = response.json()["data"]["exactMatches"]  # [0]["file"]
+        data = []
+        for i in response:
+            i = i["file"]
+            data.append({
+                "id": i["id"],
+                "模组id": i["modId"],
+                "名称": i["displayName"],
+                # "版本号": i["version_number"],
+                "前置": [j["modId"] for j in i["dependencies"] if j["relationType"] == 3],
+                "游戏版本": f.sortVersion([j for j in i["gameVersions"] if j in RELEASE_VERSIONS]),
+                "版本类型": CURSEFORGE_VERSION_TYPE[i["releaseType"]],
+                "加载器": [(LOADER_TYPE_REVERSE[j.lower()] if j.lower() in LOADER_TYPE_REVERSE.keys() else j.lower()) for j in i["gameVersions"] if j.lower() in CURSEFORGE_LOADER_TYPE.values()],
+                "下载量": i["downloadCount"],
+                "更新日期": i["fileDate"].split("T")[0],
+                "来源": "CurseForge",
+                "哈希值": i["fileFingerprint"],
+                "下载链接": i["downloadUrl"],
+                "文件名称": i["fileName"],
+                "文件大小": i["fileLength"],
+                "源文件名称": hash_reverse[i["fileFingerprint"]],
+            })
+
+    return data
+
+
+def getNewestFromHash(path, version: str, loader: str, source: str = "CurseForge"):
+    """
+    从本地文件获得模组最新版本
+    @param path: 文件
+    @param version: 版本
+    @param loader: 加载器
+    @param source: 数据源
+    """
+    if source == "Modrinth":
+        if f.isDir(path):
+            path = f.walkFile(path, 1)
+        elif f.isFile(path):
+            path = [path]
+        elif type(path) == list:
+            pass
+        else:
+            return False
+        path = [i for i in path if not i.endswith(".old")]
+        hash = {}
+        for i in path:
+            hash[f.splitPath(i)] = f.getHash(i)
+        post_info = {
+            "hashes": list(hash.values()),
+            "algorithm": "sha1",
+            "loaders": [
+                LOADER_TYPE[loader] if loader in LOADER_TYPE.keys() else loader.lower(),
+            ],
+            "game_versions": [
+                version,
             ]
         }
-        data = f.requestPost("https://api.curseforge.com/v1/fingerprints/432", post_info, CURSEFORGE_POST_API_KEY)
-        data = data.json()["data"]["exactMatches"][0]["file"]
-        data = {
-            "id": data["id"],
-            "模组id": data["modId"],
-            "名称": data["displayName"],
-            # "版本号": data["version_number"],
-            "前置": data["dependencies"],
-            "游戏版本": f.sortVersion([j for j in data["gameVersions"] if j in RELEASE_VERSIONS]),
-            "版本类型": CURSEFORGE_VERSION_TYPE[data["releaseType"]],
-            "加载器": [(LOADER_TYPE_REVERSE[j.lower()] if j.lower() in LOADER_TYPE_REVERSE.keys() else j.lower()) for j in data["gameVersions"] if j.lower() in CURSEFORGE_LOADER_TYPE.values()],
-            "下载量": data["downloadCount"],
-            "更新日期": data["fileDate"].split("T")[0],
-            "来源": "CurseForge",
-            "哈希值": data["fileFingerprint"],
-            "下载链接": data["downloadUrl"],
-            "文件名称": data["fileName"],
-            "文件大小": data["fileLength"],
+        hash_reverse = dict([val, key] for key, val in hash.items())
+        response = f.requestPost(f"https://api.modrinth.com/v2/version_files/update", post_info, CURSEFORGE_POST_API_KEY)
+        try:
+            response = response.json()
+        except:
+            return None
+        data = []
+        for i in list(response.values()):
+            data.append({
+                "id": i["id"],
+                "模组id": i["project_id"],
+                "名称": i["name"],
+                "版本号": i["version_number"],
+                "前置": [j["project_id"] for j in i["dependencies"] if j["dependency_type"] == "required"],
+                "游戏版本": f.sortVersion([j for j in i["game_versions"] if j in RELEASE_VERSIONS]),
+                "版本类型": i["version_type"],
+                "加载器": [(LOADER_TYPE_REVERSE[j] if j in LOADER_TYPE_REVERSE.keys() else j) for j in i["loaders"]],
+                "下载量": i["downloads"],
+                "更新日期": i["date_published"].split("T")[0],
+                "来源": "Modrinth",
+                "哈希值": i["files"][0]["hashes"]["sha1"],
+                "下载链接": i["files"][0]["url"],
+                "文件名称": i["files"][0]["filename"],
+                "文件大小": i["files"][0]["size"],
+            })
+    elif source == "CurseForge":
+        if f.isDir(path):
+            path = f.walkFile(path, 1)
+        elif f.isFile(path):
+            path = [path]
+        elif type(path) == list:
+            pass
+        else:
+            return False
+        path = [i for i in path if not i.endswith(".old")]
+        hash = {}
+        for i in path:
+            hash[f.splitPath(i)] = CurseForgeHash(i)
+        post_info = {
+            "fingerprints": list(hash.values())
         }
+        hash_reverse = dict([val, key] for key, val in hash.items())
+        response = f.requestPost("https://api.curseforge.com/v1/fingerprints/432", post_info, CURSEFORGE_POST_API_KEY)
+        response = response.json()["data"]["exactMatches"]  # [0]["file"]
+        data = []
+        for i in response:
+            i = i["file"]
+            data.append({
+                "id": i["id"],
+                "模组id": i["modId"],
+                "名称": i["displayName"],
+                # "版本号": i["version_number"],
+                "前置": [j["modId"] for j in i["dependencies"] if j["relationType"] == 3],
+                "游戏版本": f.sortVersion([j for j in i["gameVersions"] if j in RELEASE_VERSIONS]),
+                "版本类型": CURSEFORGE_VERSION_TYPE[i["releaseType"]],
+                "加载器": [(LOADER_TYPE_REVERSE[j.lower()] if j.lower() in LOADER_TYPE_REVERSE.keys() else j.lower()) for j in i["gameVersions"] if j.lower() in CURSEFORGE_LOADER_TYPE.values()],
+                "下载量": i["downloadCount"],
+                "更新日期": i["fileDate"].split("T")[0],
+                "来源": "CurseForge",
+                "哈希值": i["fileFingerprint"],
+                "下载链接": i["downloadUrl"],
+                "文件名称": i["fileName"],
+                "文件大小": i["fileLength"],
+                "源文件名称": hash_reverse[i["fileFingerprint"]],
+            })
 
     return data

@@ -1,4 +1,5 @@
-import sys, os
+import os
+import sys
 
 sys.path = [os.path.dirname(sys.argv[0])] + sys.path
 from source.custom import *
@@ -10,6 +11,8 @@ try:
 except:
     pass
 from .api import *
+
+mod_page_list = []
 
 
 class MyThread(QThread):
@@ -52,6 +55,12 @@ class MyThread(QThread):
                 self.signalDict.emit(data)
             except Exception as ex:
                 self.signalBool.emit(False)
+        if self.mode == "获得前置信息":
+            try:
+                data = getModInfo(self.data[0], self.data[1])
+                self.signalDict.emit(data)
+            except Exception as ex:
+                self.signalBool.emit(False)
 
 
 class SmallModInfoCard(SmallInfoCard):
@@ -77,25 +86,34 @@ class SmallModInfoCard(SmallInfoCard):
 
         self.mainButton.deleteLater()
 
+        if isinstance(self.data, dict):
+            self.loadInfo()
+        else:
+            self.setTitle("前置信息正在加载中...")
+            self.thread1 = MyThread("获得前置信息", [self.data, self.source])
+            self.thread1.signalDict.connect(self.thread1_1)
+            self.thread1.signalBool.connect(self.thread1_2)
+            self.thread1.start()
+
+    def thread1_1(self, msg):
+        self.data = msg
+        self.loadInfo()
+
+    def thread1_2(self, msg):
+        if not msg:
+            self.setTitle("前置信息加载失败！")
+
+    def loadInfo(self):
         self.setImg(f"{self.source}/{f.removeIllegalPath(self.data["名称"])}.png", self.data["图标"])
         self.setTitle(f"{self.data["名称"]}")
-
         self.setInfo(self.data["介绍"], 0)
         self.setInfo(f"下载量：{f.numberAddUnit(self.data["下载量"])}", 1)
         self.setInfo(f"游戏版本：{self.data["游戏版本"][0] + "-" + self.data["游戏版本"][-1] if len(self.data["游戏版本"]) > 1 else self.data["游戏版本"][0] if len(self.data["游戏版本"]) > 0 else "无"}", 2)
         self.setInfo(f"更新日期：{self.data["更新日期"]}", 3)
 
     def mousePressEvent(self, event):
-        self.signalDict.emit(self.data)
-
-    def thread3(self, msg):
-        if msg:
-            f.delete(self.filePath)
-        self.mainButton.setEnabled(True)
-
-    def button1Clicked(self):
-        f.startFile(setting.read("downloadPath"))
-        self.infoBar.closeButton.click()
+        if isinstance(self.data, dict):
+            self.signalDict.emit(self.data)
 
 
 class BigModInfoCard(BigInfoCard):
@@ -115,6 +133,9 @@ class BigModInfoCard(BigInfoCard):
         """
         super().__init__(parent)
         self.data = data
+
+        global mod_page_list
+        mod_page_list.append(data)
 
         self.loadingCard = widgets[0]
         self.vBoxLayout = widgets[1]
@@ -205,7 +226,19 @@ class BigModInfoCard(BigInfoCard):
             self.loadingCard.hide()
 
     def backButtonClicked(self):
-        self.signalBool.emit(True)
+        global mod_page_list
+        mod_page_list = mod_page_list[:-1]
+        if len(mod_page_list) > 0:
+            self.signalDict.emit(mod_page_list[-1])
+            mod_page_list = mod_page_list[:-1]
+        else:
+            self.signalBool.emit(True)
+        self.hidePage()
+
+    def hidePage(self, msg=None):
+        """
+        隐藏页面
+        """
         try:
             self.card1.deleteLater()
         except:
@@ -219,6 +252,19 @@ class BigModInfoCard(BigInfoCard):
         if len(msg.keys()) == 0:
             self.cardGroup.setTitle("无筛选结果")
         self.vBoxLayout.insertWidget(3, self.cardGroup)
+
+        dependencies = []
+        for k in msg.keys():
+            for i in msg[k]:
+                dependencies += i["前置"]
+        dependencies = list(set(dependencies))
+        if len(dependencies) > 0:
+            self.cardGroup.addWidget(StrongBodyLabel("前置", self))
+        for i in dependencies:
+            self.infoCard = SmallModInfoCard(i, self.data["来源"])
+            self.infoCard.signalDict.connect(self.signalDict.emit)
+            self.infoCard.signalDict.connect(self.hidePage)
+            self.cardGroup.addWidget(self.infoCard)
         i = 0
         for k in msg.keys():
             if k == self.comboBox1.currentText() or self.comboBox1.currentText() == "全部":
@@ -447,20 +493,28 @@ class AddonTab(BasicTab):
         """
         展示资源页面
         """
-        self.cardGroup1.hide()
-        self.card1.hide()
-        self.card2.hide()
-
-        self.bigModInfoCard = BigModInfoCard(msg, self, [self.loadingCard, self.vBoxLayout])
-        self.bigModInfoCard.signalBool.connect(self.hideModPage)
-        self.vBoxLayout.insertWidget(0, self.bigModInfoCard)
+        self.setPage(1, msg)
 
     def hideModPage(self, msg):
         """
-        隐藏资源页面
+        退出资源页面
         """
-        self.loadingCard.hide()
-        self.vBoxLayout.removeWidget(self.bigModInfoCard)
-        self.cardGroup1.show()
-        self.card1.show()
-        self.card2.show()
+        if msg:
+            self.setPage(0, msg)
+
+    def setPage(self, num: int = 0, msg=None):
+        if num == 0:
+            self.loadingCard.hide()
+            self.vBoxLayout.removeWidget(self.bigModInfoCard)
+            self.cardGroup1.show()
+            self.card1.show()
+            self.card2.show()
+        elif num == 1:
+            self.cardGroup1.hide()
+            self.card1.hide()
+            self.card2.hide()
+
+            self.bigModInfoCard = BigModInfoCard(msg, self, [self.loadingCard, self.vBoxLayout])
+            self.bigModInfoCard.signalBool.connect(self.hideModPage)
+            self.bigModInfoCard.signalDict.connect(self.showModPage)
+            self.vBoxLayout.insertWidget(0, self.bigModInfoCard)

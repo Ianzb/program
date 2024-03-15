@@ -314,6 +314,7 @@ class GrayCard(QWidget):
             self.titleLabel.hide()
 
         self.card = QFrame(self)
+        self.card.setObjectName("GrayCard")
 
         self.vBoxLayout = QVBoxLayout(self)
         self.vBoxLayout.setAlignment(Qt.AlignTop)
@@ -335,10 +336,10 @@ class GrayCard(QWidget):
     def setTheme(self):
         if isDarkTheme():
             self.setStyleSheet("QLabel {background-color: transparent; color: white}")
-            self.card.setStyleSheet("QFrame {background-color: rgba(25,25,25,0.5); border:1px solid rgba(20,20,20,0.15); border-radius: 10px}")
+            self.card.setStyleSheet("#GrayCard {background-color: rgba(25,25,25,0.5); border:1px solid rgba(20,20,20,0.15); border-radius: 10px}")
         else:
             self.setStyleSheet("QLabel {background-color: transparent; color: black}")
-            self.card.setStyleSheet("QFrame {background-color: rgba(175,175,175,0.1); border:1px solid rgba(150,150,150,0.15); border-radius: 10px}")
+            self.card.setStyleSheet("#GrayCard {background-color: rgba(175,175,175,0.1); border:1px solid rgba(150,150,150,0.15); border-radius: 10px}")
 
     def addWidget(self, widget: object, spacing=0, alignment=Qt.AlignTop):
         """
