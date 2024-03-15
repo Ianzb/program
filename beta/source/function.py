@@ -1227,13 +1227,13 @@ class DownloadFile:
             path = f.pathJoin(path, link.split("/")[-1])
         if f.existPath(path):
             i = 1
-            while f.existPath(f.pathJoin(f.splitPath(path, 3), f.splitPath(path, 1) + " (" + str(i) + ")" + f.splitPath(path, 2))):
+            while f.existPath(f.pathJoin(f.splitPath(path, 3), f.splitPath(path, 1) + " (" + str(i) + ")" + f.splitPath(path, 2))) or f.existPath(f.pathJoin(f.splitPath(path, 3), f.splitPath(path, 1) + " (" + str(i) + ")" + f.splitPath(path, 2) + ("." if suffix else "") + suffix)):
                 i = i + 1
             path = f.pathJoin(f.splitPath(path, 3), f.splitPath(path, 1) + " (" + str(i) + ")" + f.splitPath(path, 2))
         self.path = path + ("." if suffix else "") + suffix
         logging.info(f"开始使用DownloadKit下载{link}到{self.path}")
         self.d = DownloadKit(f.splitPath(path, 3))
-        self.file = self.d.add(link, rename=f.splitPath(path, 0), suffix=suffix, headers=header, allow_redirects=True)
+        self.file = self.d.add(link, rename=f.splitPath(path, 0), suffix=suffix, headers=header, allow_redirects=True, file_exists="skip")
         if wait:
             self.file.wait()
 
@@ -1245,6 +1245,8 @@ class DownloadFile:
             return True
         elif self.file.result == None:
             return None
+        elif self.file.result == "skipped":
+            return False
 
     def stop(self):
         self.file.cancel()

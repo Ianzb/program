@@ -151,7 +151,10 @@ class BigModInfoCard(BigInfoCard):
         self.setTitle(data["名称"])
         self.setInfo(data["介绍"])
         self.setImg(f"{data["来源"]}/{f.removeIllegalPath(data["名称"])}.png", data["图标"])
-        self.addData("作者", data["作者"])
+        try:
+            self.addData("作者", data["作者"])
+        except:
+            pass
         self.addData("下载量", f.numberAddUnit(data["下载量"]))
         self.addData("发布日期", data["发布日期"])
         self.addData("更新日期", data["更新日期"])
