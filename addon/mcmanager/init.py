@@ -262,12 +262,15 @@ class BigModInfoCard(BigInfoCard):
                 dependencies += i["前置"]
         dependencies = list(set(dependencies))
         if len(dependencies) > 0:
-            self.cardGroup.addWidget(StrongBodyLabel("前置", self))
-        for i in dependencies:
-            self.infoCard = SmallModInfoCard(i, self.data["来源"])
-            self.infoCard.signalDict.connect(self.signalDict.emit)
-            self.infoCard.signalDict.connect(self.hidePage)
-            self.cardGroup.addWidget(self.infoCard)
+            self.cardGroup.addWidget(StrongBodyLabel(f"前置（{len(dependencies)}个）", self))
+        if len(dependencies) <= 10:
+            for i in dependencies:
+                self.infoCard = SmallModInfoCard(i, self.data["来源"])
+                self.infoCard.signalDict.connect(self.signalDict.emit)
+                self.infoCard.signalDict.connect(self.hidePage)
+                self.cardGroup.addWidget(self.infoCard)
+        else:
+            self.cardGroup.addWidget(StrongBodyLabel(f"前置数量过多，无法展示，请前往资源网页查看！", self))
         i = 0
         for k in msg.keys():
             if k == self.comboBox1.currentText() or self.comboBox1.currentText() == "全部":
