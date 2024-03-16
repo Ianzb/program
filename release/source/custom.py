@@ -712,7 +712,7 @@ class DownloadWidget(QWidget):
             self.infoBar.show()
 
     def button1Clicked(self):
-        f.startFile(setting.read("downloadPath"))
+        f.showFile(setting.read("downloadPath"))
         self.infoBar.closeButton.click()
 
 

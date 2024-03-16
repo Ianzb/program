@@ -61,12 +61,10 @@ class Tray(QSystemTrayIcon):
         self.action2.setEnabled(msg)
 
 
-class BasicPage(ScrollArea):
+class BetterScrollArea(ScrollArea):
     """
-    页面模板（优化样式的滚动区域）
+    优化样式的滚动区域
     """
-    title = ""
-    subtitle = ""
     signalStr = pyqtSignal(str)
     signalInt = pyqtSignal(int)
     signalBool = pyqtSignal(bool)
@@ -76,15 +74,9 @@ class BasicPage(ScrollArea):
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
-        self.setObjectName(self.title)
         self.setWidgetResizable(True)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setStyleSheet("QScrollArea {background-color: rgba(0,0,0,0); border: none}")
-
-        self.toolBar = ToolBar(self.title, self.subtitle, self)
-
-        self.setViewportMargins(0, self.toolBar.height(), 0, 0)
-
         self.view = QWidget(self)
         self.view.setStyleSheet("QWidget {background-color: rgba(0,0,0,0); border: none}")
 
@@ -94,6 +86,23 @@ class BasicPage(ScrollArea):
         self.vBoxLayout.setSpacing(30)
         self.vBoxLayout.setAlignment(Qt.AlignTop)
         self.vBoxLayout.setContentsMargins(36, 20, 36, 36)
+
+
+class BasicPage(BetterScrollArea):
+    """
+    页面模板
+    """
+    title = ""
+    subtitle = ""
+
+    def __init__(self, parent=None):
+        super().__init__(parent=parent)
+        self.setObjectName(self.title)
+
+        self.toolBar = ToolBar(self.title, self.subtitle, self)
+
+        self.setViewportMargins(0, self.toolBar.height(), 0, 0)
+
         self.icon = None
 
     def setIcon(self, icon):
@@ -590,10 +599,10 @@ class SmallInfoCard(CardWidget):
         @param data: 文本
         @param pos: 位置：0 左上 1 左下 2 右上 3 右下
         """
-        data.replace(r"\n", "").replace(r"\r", "").replace(r"\t", "").strip()
+        data = data.replace(r"\n", "").replace(r"\r", "").replace(r"\t", "").strip()
         self.info[pos] = data
-        self.contentLabel1.setText(f"{self.info[0]}\n{self.info[1]}" if self.info[1] else self.info[0])
-        self.contentLabel2.setText(f"{self.info[2]}\n{self.info[3]}" if self.info[3] else self.info[2])
+        self.contentLabel1.setText(f"{self.info[0]}\n{self.info[1]}".strip())
+        self.contentLabel2.setText(f"{self.info[2]}\n{self.info[3]}".strip())
 
         self.contentLabel1.adjustSize()
 
@@ -713,7 +722,7 @@ class DownloadWidget(QWidget):
             self.infoBar.show()
 
     def button1Clicked(self):
-        f.startFile(setting.read("downloadPath"))
+        f.showFile(setting.read("downloadPath"))
         self.infoBar.closeButton.click()
 
 

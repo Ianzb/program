@@ -921,12 +921,12 @@ class HelpSettingCard(SettingCard):
     def __init__(self, parent=None):
         super().__init__(FIF.HELP, "帮助", "查看程序相关信息", parent)
         self.button1 = HyperlinkButton(program.PROGRAM_PATH, "程序安装路径", self, FIF.FOLDER)
-        self.button1.clicked.connect(lambda: f.startFile(program.PROGRAM_PATH))
+        self.button1.clicked.connect(lambda: f.showFile(program.PROGRAM_PATH))
         self.button1.setToolTip("打开程序安装路径")
         self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
 
         self.button2 = HyperlinkButton(program.PROGRAM_PATH, "程序数据路径", self, FIF.FOLDER)
-        self.button2.clicked.connect(lambda: f.startFile(program.PROGRAM_DATA_PATH))
+        self.button2.clicked.connect(lambda: f.showFile(program.PROGRAM_DATA_PATH))
         self.button2.setToolTip("打开程序数据路径")
         self.button2.installEventFilter(ToolTipFilter(self.button2, 1000))
 

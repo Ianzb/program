@@ -204,7 +204,7 @@ class LoggingFunctions:
         self.log = logging.getLogger(__name__)
         self.log.setLevel(logging.DEBUG)
         handler1 = logging.StreamHandler(sys.stderr)
-        handler1.setLevel(logging.INFO)
+        handler1.setLevel(logging.DEBUG)
         handler1.setFormatter(logging.Formatter("[%(levelname)s %(asctime)s %(filename)s %(process)d]:%(message)s"))
 
         handler2 = logging.FileHandler(program.LOGGING_FILE_PATH)
@@ -347,6 +347,16 @@ class SettingFunctions:
             self.settings = self.DEFAULT_SETTING
             self.__save()
             program.restart()
+
+    def add(self, name: str, data):
+        """
+        添加设置项
+        @param name: 选项名称
+        @param data: 默认数据
+        """
+        self.DEFAULT_SETTING[name] = data
+        if name not in self.settings.keys():
+            self.save(name, data)
 
 
 class ProcessFunctions:
@@ -933,13 +943,16 @@ class FileFunctions(ProcessFunctions):
                     data.append(self.splitPath(i))
         return data
 
-    def startFile(self, path: str):
+    def showFile(self, path: str):
         """
         在文件资源管理器中打开目录
         @param path: 路径
         """
         if path and self.existPath(path):
-            os.startfile(path)
+            if f.isDir(path):
+                os.startfile(path)
+            else:
+                f.cmd(f"explorer /select {path}")
 
     def extractZip(self, path: str, goal: str, delete=False):
         """

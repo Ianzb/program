@@ -18,7 +18,7 @@ class MainPage(BasicPage):
         self.button1_1.installEventFilter(ToolTipFilter(self.button1_1, 1000))
 
         self.button1_2 = ToolButton(FIF.FOLDER, self)
-        self.button1_2.clicked.connect(lambda: f.startFile(setting.read("sortPath")))
+        self.button1_2.clicked.connect(lambda: f.showFile(setting.read("sortPath")))
         self.button1_2.setToolTip("打开整理文件所在目录")
         self.button1_2.installEventFilter(ToolTipFilter(self.button1_2, 1000))
 
