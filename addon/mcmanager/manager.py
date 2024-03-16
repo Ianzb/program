@@ -274,6 +274,7 @@ class FileManageTab(BasicTab):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setObjectName("资源管理")
+        self.isInit = False
 
         self.vBoxLayout.setSpacing(8)
 
@@ -336,7 +337,10 @@ class FileManageTab(BasicTab):
         self.cardGroup1 = CardGroup(self.view)
         self.vBoxLayout.addWidget(self.cardGroup1)
 
-        self.loadModList()
+    def showEvent(self, QShowEvent):
+        if not self.isInit:
+            self.isInit = True
+            self.loadModList()
 
     def button1Clicked(self):
         f.showFile(f.pathJoin(setting.read("minecraftJavaPath"), FILE_PATH[self.comboBox1.currentText()]))

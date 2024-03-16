@@ -297,6 +297,7 @@ class AddonTab(BasicTab):
         self.setObjectName("资源下载")
 
         self.onShowPage = None
+        self.isInit = False
 
         self.vBoxLayout.setSpacing(8)
 
@@ -362,20 +363,22 @@ class AddonTab(BasicTab):
         self.cardGroup1 = CardGroup(self.view)
         self.vBoxLayout.addWidget(self.cardGroup1)
 
-        self.thread1 = MyThread("获得游戏版本列表")
-        self.thread1.signalList.connect(self.thread1_1)
-        self.thread1.signalBool.connect(self.thread1_2)
-        self.thread1.start()
+        self.parent().gamePage.addPage(FileManageTab())
 
-        self.loadingCard.setText("正在获得游戏版本列表")
-        self.loadingCard.show()
-        self.lineEdit.setEnabled(False)
-        self.comboBox1.setEnabled(False)
-        self.comboBox2.setEnabled(False)
-        self.comboBox3.setEnabled(False)
+    def showEvent(self, QShowEvent):
+        if not self.isInit:
+            self.isInit = True
+            self.thread1 = MyThread("获得游戏版本列表")
+            self.thread1.signalList.connect(self.thread1_1)
+            self.thread1.signalBool.connect(self.thread1_2)
+            self.thread1.start()
 
-        self.page = FileManageTab(self)
-        self.parent().gamePage.addPage(self.page)
+            self.loadingCard.setText("正在获得游戏版本列表")
+            self.loadingCard.show()
+            self.lineEdit.setEnabled(False)
+            self.comboBox1.setEnabled(False)
+            self.comboBox2.setEnabled(False)
+            self.comboBox3.setEnabled(False)
 
     def lineEditReturnPressed(self):
         self.lineEdit.searchButton.click()
