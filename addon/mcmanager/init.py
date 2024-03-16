@@ -10,57 +10,9 @@ try:
     from beta.source.custom import *
 except:
     pass
-from .api import *
+from .manager import *
 
 mod_page_list = []
-
-
-class MyThread(QThread):
-    """
-    多线程模块
-    """
-    signalStr = pyqtSignal(str)
-    signalInt = pyqtSignal(int)
-    signalBool = pyqtSignal(bool)
-    signalList = pyqtSignal(list)
-    signalDict = pyqtSignal(dict)
-    signalObject = pyqtSignal(object)
-
-    def __init__(self, mode: str, data=None, parent: QWidget = None):
-        super().__init__(parent=parent)
-        self.mode = mode
-        self.data = data
-
-    def run(self):
-        if self.mode == "搜索资源":
-            try:
-                data = searchMod(self.data[0], self.data[1], self.data[2], type=self.data[3])
-                self.signalList.emit(data)
-            except Exception as ex:
-                self.signalBool.emit(False)
-        if self.mode == "获得游戏版本列表":
-            try:
-                self.signalList.emit(getVersionList())
-            except:
-                self.signalBool.emit(False)
-        if self.mode == "获得资源信息":
-            try:
-                data = getModInfo(self.data[0], self.data[1])
-                self.signalDict.emit(data)
-            except Exception as ex:
-                self.signalBool.emit(False)
-        if self.mode == "获得资源文件":
-            try:
-                data = getModFile(self.data[0], self.data[1], self.data[2], self.data[3])
-                self.signalDict.emit(data)
-            except Exception as ex:
-                self.signalBool.emit(False)
-        if self.mode == "获得前置信息":
-            try:
-                data = getModInfo(self.data[0], self.data[1])
-                self.signalDict.emit(data)
-            except Exception as ex:
-                self.signalBool.emit(False)
 
 
 class SmallModInfoCard(SmallInfoCard):
@@ -89,8 +41,8 @@ class SmallModInfoCard(SmallInfoCard):
         if isinstance(self.data, dict):
             self.loadInfo()
         else:
-            self.setTitle("前置信息正在加载中...")
-            self.thread1 = MyThread("获得前置信息", [self.data, self.source])
+            self.setTitle("信息正在加载中...")
+            self.thread1 = MyThread("获得单独模组信息", [self.data, self.source])
             self.thread1.signalDict.connect(self.thread1_1)
             self.thread1.signalBool.connect(self.thread1_2)
             self.thread1.start()
@@ -101,7 +53,7 @@ class SmallModInfoCard(SmallInfoCard):
 
     def thread1_2(self, msg):
         if not msg:
-            self.setTitle("前置信息加载失败！")
+            self.setTitle("信息加载失败！")
 
     def loadInfo(self):
         self.setImg(f"{self.source}/{f.removeIllegalPath(self.data["名称"])}.png", self.data["图标"])
@@ -127,12 +79,14 @@ class BigModInfoCard(BigInfoCard):
     signalDict = pyqtSignal(dict)
     signalObject = pyqtSignal(object)
 
-    def __init__(self, data: dict, parent: QWidget = None, widgets=[]):
+    def __init__(self, data: dict, parent: QWidget = None, widgets=[], version=None, loader=None):
         """
         @param data: 资源数据
         """
         super().__init__(parent)
         self.data = data
+        self.version = version
+        self.loader = loader
 
         global mod_page_list
         mod_page_list.append(data)
@@ -180,7 +134,7 @@ class BigModInfoCard(BigInfoCard):
         for i in msg["加载器"]:
             self.addTag(i)
 
-        self.label1 = StrongBodyLabel("版本筛选", self)
+        self.label1 = StrongBodyLabel("版本", self)
 
         self.comboBox1 = AcrylicComboBox(self)
         self.comboBox1.setPlaceholderText("版本")
@@ -189,6 +143,8 @@ class BigModInfoCard(BigInfoCard):
         self.comboBox1.setToolTip("选择资源版本")
         self.comboBox1.installEventFilter(ToolTipFilter(self.comboBox1, 1000))
         self.comboBox1.setMaxVisibleItems(15)
+        if self.version in ["全部"] + msg["游戏版本"][::-1]:
+            self.comboBox1.setCurrentText(self.version)
         self.comboBox1.currentIndexChanged.connect(self.getFileInfo)
 
         self.label2 = StrongBodyLabel("加载器", self)
@@ -199,6 +155,8 @@ class BigModInfoCard(BigInfoCard):
         self.comboBox2.setCurrentIndex(0)
         self.comboBox2.setToolTip("选择加载器版本")
         self.comboBox2.installEventFilter(ToolTipFilter(self.comboBox1, 1000))
+        if self.loader in ["全部"] + msg["加载器"]:
+            self.comboBox2.setCurrentText(self.loader)
         self.comboBox2.currentIndexChanged.connect(self.getFileInfo)
 
         self.card1 = GrayCard("筛选")
@@ -225,8 +183,7 @@ class BigModInfoCard(BigInfoCard):
 
     def thread1_2(self, msg):
         if not msg:
-            self.backButtonClicked()
-            self.loadingCard.hide()
+            self.loadingCard.setText("加载失败")
 
     def backButtonClicked(self):
         global mod_page_list
@@ -267,7 +224,6 @@ class BigModInfoCard(BigInfoCard):
             for i in dependencies:
                 self.infoCard = SmallModInfoCard(i, self.data["来源"])
                 self.infoCard.signalDict.connect(self.signalDict.emit)
-                self.infoCard.signalDict.connect(self.hidePage)
                 self.cardGroup.addWidget(self.infoCard)
         else:
             self.cardGroup.addWidget(StrongBodyLabel(f"前置数量过多，无法展示，请前往资源网页查看！", self))
@@ -311,7 +267,7 @@ class SmallFileInfoCard(SmallInfoCard):
 
         self.image.deleteLater()
 
-        self.setTitle(f"{data["名称"]} · {data["版本类型"]}")
+        self.setTitle(f"{data["名称"]}{" · " if data["版本类型"] else ""}{data["版本类型"]}")
         self.setInfo("、".join(data["加载器"]) + (" | " if len(data["加载器"]) > 0 else "") + ("、".join(data["游戏版本"]) if len(data["游戏版本"]) <= 10 else f"支持{data["游戏版本"][0]}-{data["游戏版本"][-1]}共{len(data["游戏版本"])}个版本"), 0)
         self.setInfo(f"文件大小：{f.fileSizeAddUnit(data["文件大小"])}", 1)
         self.setInfo(f"下载量：{f.numberAddUnit(data["下载量"])}", 2)
@@ -328,17 +284,7 @@ class SmallFileInfoCard(SmallInfoCard):
             self.infoBar = InfoBar(InfoBarIcon.WARNING, "警告", "该文件暂无下载链接，请更换版本或更换下载源重试！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
             self.infoBar.show()
             return
-        DownloadWidget(self.data["下载链接"].replace("edge.forgecdn.net", "mediafilez.forgecdn.net"), self.data["文件名称"], self.parent().parent().parent().parent())
-
-
-class FileManageTab(BasicTab):
-    """
-    插件第二页面
-    """
-
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setObjectName("资源管理")
+        DownloadWidget(self.data["下载链接"], self.data["文件名称"], self.parent().parent().parent().parent())
 
 
 class AddonTab(BasicTab):
@@ -349,6 +295,8 @@ class AddonTab(BasicTab):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setObjectName("资源下载")
+
+        self.onShowPage = None
 
         self.vBoxLayout.setSpacing(8)
 
@@ -426,16 +374,18 @@ class AddonTab(BasicTab):
         self.comboBox2.setEnabled(False)
         self.comboBox3.setEnabled(False)
 
-        # self.parent().gamePage.addPage(FileManageTab())
+        self.page = FileManageTab(self)
+        self.parent().gamePage.addPage(self.page)
 
     def lineEditReturnPressed(self):
         self.lineEdit.searchButton.click()
 
     def searchButtonClicked(self):
-        if [self.comboBox1.currentText(), self.comboBox3.currentText()] == ["Modrinth", "地图"]:
-            self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"Modrinth不支持搜索地图类资源", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
-            self.infoBar.show()
-            return
+        if self.comboBox1.currentText() == "Modrinth":
+            if self.comboBox3.currentText() not in MODRINTH_TYPE.keys():
+                self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"{self.comboBox1.currentText()}不支持搜索{self.comboBox3.currentText()}类资源", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+                self.infoBar.show()
+                return
         self.cardGroup1.deleteLater()
         self.cardGroup1 = CardGroup(self.view)
         self.vBoxLayout.addWidget(self.cardGroup1)
@@ -495,20 +445,28 @@ class AddonTab(BasicTab):
             self.comboBox2.setEnabled(True)
             self.comboBox3.setEnabled(True)
 
-    def showModPage(self, msg):
+    def showModPage(self, msg, version=None, loader=None):
         """
         展示资源页面
         """
-        self.setPage(1, msg)
+        try:
+            self.onShowPage.hidePage()
+        except:
+            pass
+        self.setPage(1, msg, version, loader)
 
     def hideModPage(self, msg):
         """
         退出资源页面
         """
+        try:
+            self.onShowPage.hidePage()
+        except:
+            pass
         if msg:
             self.setPage(0, msg)
 
-    def setPage(self, num: int = 0, msg=None):
+    def setPage(self, num: int = 0, msg=None, version=None, loader=None):
         if num == 0:
             self.loadingCard.hide()
             self.vBoxLayout.removeWidget(self.bigModInfoCard)
@@ -520,7 +478,8 @@ class AddonTab(BasicTab):
             self.card1.hide()
             self.card2.hide()
 
-            self.bigModInfoCard = BigModInfoCard(msg, self, [self.loadingCard, self.vBoxLayout])
+            self.bigModInfoCard = BigModInfoCard(msg, self, [self.loadingCard, self.vBoxLayout], version, loader)
             self.bigModInfoCard.signalBool.connect(self.hideModPage)
             self.bigModInfoCard.signalDict.connect(self.showModPage)
+            self.onShowPage = self.bigModInfoCard
             self.vBoxLayout.insertWidget(0, self.bigModInfoCard)

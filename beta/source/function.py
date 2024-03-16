@@ -952,7 +952,7 @@ class FileFunctions(ProcessFunctions):
             if f.isDir(path):
                 os.startfile(path)
             else:
-                f.cmd(f"explorer /select {path}")
+                f.cmd(f"explorer /select,{path}")
 
     def extractZip(self, path: str, goal: str, delete=False):
         """

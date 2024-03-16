@@ -71,10 +71,23 @@ CURSEFORGE_TYPE = {
     "整合包": 4471,
     "资源包": 12,
     "光影": 6552,
-    "数据包": 4546,
+    "数据包": 6945,
     "插件": 5,
     "地图": 17,
+    "Addon": 4559,
+    "定制": 4546,
 
+}
+
+FILE_PATH = {
+    "模组": "mods",
+    "光影": "shaderpacks",
+    "资源包": "resourcepacks",
+}
+FILE_SUFFIX = {
+    "模组": [".jar", ".zip", ".disabled"],
+    "光影": [".zip"],
+    "资源包": [".zip"],
 }
 
 
@@ -180,13 +193,12 @@ def getModInfo(mod_id, source: str = "CurseForge") -> dict:
         data = f.requestGet(f"https://api.curseforge.com/v1/mods/{mod_id}", CURSEFORGE_API_KEY)
         data = json.loads(data)["data"]
 
-        data2 = f.requestGet(f"https://api.curseforge.com/v1/mods/{mod_id}/files", CURSEFORGE_API_KEY)
-        data2 = json.loads(data2)["data"]
-
         loader = []
-        for i in data2:
-            loader += [(LOADER_TYPE_REVERSE[j.lower()] if j.lower() in LOADER_TYPE_REVERSE.keys() else j.lower()) for j in i["gameVersions"] if j.lower() in CURSEFORGE_LOADER_TYPE.values()]
+        for i in data["latestFilesIndexes"]:
+            if "modLoader" in i.keys():
+                loader.append(i["modLoader"])
         loader = list(set(loader))
+        loader = [(LOADER_TYPE_REVERSE[CURSEFORGE_LOADER_TYPE[i]] if i in CURSEFORGE_LOADER_TYPE else str(i)) for i in loader]
 
         dict.update({
             "id": data["id"],
@@ -204,6 +216,70 @@ def getModInfo(mod_id, source: str = "CurseForge") -> dict:
             "网站链接": data["links"]["websiteUrl"],
         })
     return dict
+
+
+def getModsInfo(mod_ids, source: str = "CurseForge") -> dict:
+    """
+    获得模组信息
+    @param mod_ids: 模组id
+    @param source: 数据源
+    @return: 模组信息
+    """
+    data = []
+    if source == "Modrinth":
+        mod_ids = [mod_ids[i:i + 75] for i in range(0, len(mod_ids), 75)]
+        for id in mod_ids:
+            response = f.requestGet(f"https://api.modrinth.com/v2/projects?ids={str(id).replace("'", '"')}", program.REQUEST_HEADER)
+            response = json.loads(response)
+            for i in response:
+                data.append({
+                    "id": i["id"],
+                    "名称": i["title"],
+                    "图标": i["icon_url"],
+                    "介绍": i["description"],
+                    "下载量": i["downloads"],
+                    "游戏版本": f.sortVersion([j for j in i["game_versions"] if j in RELEASE_VERSIONS]),
+                    "更新日期": i["updated"].split("T")[0],
+                    "来源": "Modrinth",
+                    "源代码链接": i["source_url"],
+                    "加载器": [(LOADER_TYPE_REVERSE[j] if j in LOADER_TYPE_REVERSE.keys() else j) for j in i["loaders"]],
+                    "发布日期": i["published"].split("T")[0],
+                    "网站链接": f"https://modrinth.com/mod/{i["slug"]}",
+                })
+    elif source == "CurseForge":
+        post_info = {
+            "modIds": mod_ids,
+            "filterPcOnly": True
+        }
+        response = f.requestPost(f"https://api.curseforge.com/v1/mods", post_info, CURSEFORGE_POST_API_KEY)
+        try:
+            response = response.json()["data"]
+        except:
+            return None
+        for i in response:
+            loader = []
+            for k in i["latestFilesIndexes"]:
+                if "modLoader" in k.keys():
+                    loader.append(k["modLoader"])
+            loader = list(set(loader))
+            loader = [(LOADER_TYPE_REVERSE[CURSEFORGE_LOADER_TYPE[i]] if i in CURSEFORGE_LOADER_TYPE else str(i)) for i in loader]
+
+            data.append({
+                "id": i["id"],
+                "名称": i["name"],
+                "图标": i["logo"]["url"] if i["logo"] else "",
+                "介绍": i["summary"],
+                "下载量": i["downloadCount"],
+                "游戏版本": f.sortVersion([j for j in [k["gameVersion"] for k in i["latestFilesIndexes"]] if j in RELEASE_VERSIONS]),
+                "更新日期": i["dateReleased"].split("T")[0],
+                "作者": i["authors"][0]["name"],
+                "来源": "CurseForge",
+                "源代码链接": i["links"]["sourceUrl"],
+                "加载器": loader,
+                "发布日期": i["dateCreated"].split("T")[0],
+                "网站链接": i["links"]["websiteUrl"],
+            })
+    return data
 
 
 def getModFile(id, source: str = "CurseForge", version: str = "", loader: str = "") -> dict:
@@ -235,7 +311,7 @@ def getModFile(id, source: str = "CurseForge", version: str = "", loader: str = 
                 "更新日期": i["date_published"].split("T")[0],
                 "来源": "Modrinth",
                 "哈希值": i["files"][0]["hashes"]["sha1"],
-                "下载链接": i["files"][0]["url"],
+                "下载链接": i["files"][0]["url"].replace("edge.forgecdn.net", "mediafilez.forgecdn.net") if i["files"][0]["url"] else i["files"][0]["url"],
                 "文件名称": i["files"][0]["filename"],
                 "文件大小": i["files"][0]["size"],
             })
@@ -259,7 +335,7 @@ def getModFile(id, source: str = "CurseForge", version: str = "", loader: str = 
                 "更新日期": i["fileDate"].split("T")[0],
                 "来源": "CurseForge",
                 "哈希值": i["fileFingerprint"],
-                "下载链接": i["downloadUrl"],
+                "下载链接": i["downloadUrl"].replace("edge.forgecdn.net", "mediafilez.forgecdn.net") if i["downloadUrl"] else i["downloadUrl"],
                 "文件名称": i["fileName"],
                 "文件大小": i["fileLength"],
             })
@@ -336,7 +412,7 @@ def getInfoFromHash(path, source: str = "CurseForge"):
                 "更新日期": i["date_published"].split("T")[0],
                 "来源": "Modrinth",
                 "哈希值": i["files"][0]["hashes"]["sha1"],
-                "下载链接": i["files"][0]["url"],
+                "下载链接": i["files"][0]["url"].replace("edge.forgecdn.net", "mediafilez.forgecdn.net") if i["files"][0]["url"] else i["files"][0]["url"],
                 "文件名称": i["files"][0]["filename"],
                 "文件大小": i["files"][0]["size"],
                 "源文件名称": hash_reverse[i["files"][0]["hashes"]["sha1"]],
@@ -376,7 +452,7 @@ def getInfoFromHash(path, source: str = "CurseForge"):
                 "更新日期": i["fileDate"].split("T")[0],
                 "来源": "CurseForge",
                 "哈希值": i["fileFingerprint"],
-                "下载链接": i["downloadUrl"],
+                "下载链接": i["downloadUrl"].replace("edge.forgecdn.net", "mediafilez.forgecdn.net") if i["downloadUrl"] else i["downloadUrl"],
                 "文件名称": i["fileName"],
                 "文件大小": i["fileLength"],
                 "源文件名称": hash_reverse[i["fileFingerprint"]],
@@ -437,7 +513,7 @@ def getNewestFromHash(path, version: str, loader: str, source: str = "CurseForge
                 "更新日期": i["date_published"].split("T")[0],
                 "来源": "Modrinth",
                 "哈希值": i["files"][0]["hashes"]["sha1"],
-                "下载链接": i["files"][0]["url"],
+                "下载链接": i["files"][0]["url"].replace("edge.forgecdn.net", "mediafilez.forgecdn.net") if i["files"][0]["url"] else i["files"][0]["url"],
                 "文件名称": i["files"][0]["filename"],
                 "文件大小": i["files"][0]["size"],
             })
@@ -476,7 +552,7 @@ def getNewestFromHash(path, version: str, loader: str, source: str = "CurseForge
                 "更新日期": i["fileDate"].split("T")[0],
                 "来源": "CurseForge",
                 "哈希值": i["fileFingerprint"],
-                "下载链接": i["downloadUrl"],
+                "下载链接": i["downloadUrl"].replace("edge.forgecdn.net", "mediafilez.forgecdn.net") if i["downloadUrl"] else i["downloadUrl"],
                 "文件名称": i["fileName"],
                 "文件大小": i["fileLength"],
                 "源文件名称": hash_reverse[i["fileFingerprint"]],

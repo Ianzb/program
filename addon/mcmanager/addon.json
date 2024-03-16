@@ -1,11 +1,12 @@
 {
     "id": "mcmanager",
     "name": "MC资源管理器",
-    "version": "1.3.0",
+    "version": "2.0.0",
     "pos": "game",
     "file": [
         "init.py",
-        "api.py"
+        "api.py",
+        "manager.py"
     ],
     "lib": [
         "murmurhash2"
