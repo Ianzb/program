@@ -478,6 +478,7 @@ class FileTab(BasicTab):
         self.comboBox2_3.setCurrentIndex(0)
         self.comboBox2_3.setToolTip("选择目标加载器")
         self.comboBox2_3.installEventFilter(ToolTipFilter(self.comboBox1_1, 1000))
+        self.comboBox2_3.setMaxVisibleItems(15)
         self.comboBox2_3.setMinimumWidth(0)
 
         self.switchButton = SwitchButton("跨版本", self, IndicatorPosition.RIGHT)
