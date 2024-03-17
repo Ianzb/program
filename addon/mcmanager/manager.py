@@ -627,7 +627,6 @@ class FileTab(BasicTab):
             pass
 
     def showWidget(self, stat: bool):
-        self.comboBox1_1.setEnabled(stat)
         self.updateButton.setEnabled(stat)
         self.switchButton.setEnabled(stat)
         self.comboBox2_1.setEnabled(stat)
