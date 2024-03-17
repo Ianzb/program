@@ -23,12 +23,12 @@ class NewThread(QThread):
     """
     QThread多线程模块
     """
-    signalStr = pyqtSignal(str)
-    signalInt = pyqtSignal(int)
-    signalBool = pyqtSignal(bool)
-    signalList = pyqtSignal(list)
-    signalDict = pyqtSignal(dict)
-    signalObject = pyqtSignal(object)
+    signalStr = Signal(str)
+    signalInt = Signal(int)
+    signalBool = Signal(bool)
+    signalList = Signal(list)
+    signalDict = Signal(dict)
+    signalObject = Signal(object)
 
     def __init__(self, mode: str, data=None, parent: QWidget = None):
         super().__init__(parent=parent)

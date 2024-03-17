@@ -59,12 +59,13 @@ class MyThread(QThread):
     """
     多线程模块
     """
-    signalStr = pyqtSignal(str)
-    signalInt = pyqtSignal(int)
-    signalBool = pyqtSignal(bool)
-    signalList = pyqtSignal(list)
-    signalDict = pyqtSignal(dict)
-    signalObject = pyqtSignal(object)
+
+    signalStr = Signal(str)
+    signalInt = Signal(int)
+    signalBool = Signal(bool)
+    signalList = Signal(list)
+    signalDict = Signal(dict)
+    signalObject = Signal(object)
 
     def __init__(self, mode: str, data=None, parent: QWidget = None):
         super().__init__(parent=parent)
@@ -145,7 +146,7 @@ class AddonPage(BasicTab):
         self.loadingCard.hide()
 
         self.vBoxLayout.addWidget(self.card)
-        self.vBoxLayout.addWidget(self.loadingCard, 0, Qt.AlignCenter)
+        self.vBoxLayout.addWidget(self.loadingCard, 0, Qt.AlignmentFlag.AlignCenter)
 
         self.cardGroup = CardGroup(self.view)
         self.vBoxLayout.addWidget(self.cardGroup)
@@ -178,7 +179,7 @@ class AddonPage(BasicTab):
         self.loadingCard.hide()
         for i in msg:
             self.infoCard = AppInfoCard(i, self.comboBox.currentText())
-            self.vBoxLayout.addWidget(self.infoCard, 0, Qt.AlignTop)
+            self.vBoxLayout.addWidget(self.infoCard, 0, Qt.AlignmentFlag.AlignTop)
             self.cardGroup.addWidget(self.infoCard)
         if msg:
             self.cardGroup.setTitle(f"搜索结果（{len(msg)}个）")

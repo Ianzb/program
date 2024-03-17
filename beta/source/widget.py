@@ -56,7 +56,7 @@ class SortFolderEditMessageBox(MessageBoxBase):
 
         self.addButton = PushButton("选择目录", self.buttonGroup)
         self.addButton.clicked.connect(self.addButtonClicked)
-        self.buttonLayout.insertWidget(1, self.addButton, 1, Qt.AlignVCenter)
+        self.buttonLayout.insertWidget(1, self.addButton, 1, Qt.AlignmentFlag.AlignVCenter)
 
         self.cancelButton.setText("取消")
 
@@ -93,8 +93,8 @@ class SortFormatEditMessageBox(MessageBoxBase):
 
         self.tableView.verticalHeader().hide()
         self.tableView.setHorizontalHeaderLabels(["类型", "后缀名"])
-        self.tableView.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.tableView.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
+        self.tableView.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        self.tableView.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
 
         self.tableView.setToolTip("后缀名逗号（中英文均可）分割，加不加.均可")
         self.tableView.installEventFilter(ToolTipFilter(self.tableView, 1000))
@@ -119,9 +119,9 @@ class SortFormatEditMessageBox(MessageBoxBase):
         self.resetButton = PushButton("重置", self.buttonGroup)
         self.resetButton.clicked.connect(self.resetButtonClicked)
 
-        self.buttonLayout.insertWidget(1, self.addButton, 1, Qt.AlignVCenter)
-        self.buttonLayout.insertWidget(2, self.removeButton, 1, Qt.AlignVCenter)
-        self.buttonLayout.insertWidget(3, self.resetButton, 1, Qt.AlignVCenter)
+        self.buttonLayout.insertWidget(1, self.addButton, 1, Qt.AlignmentFlag.AlignVCenter)
+        self.buttonLayout.insertWidget(2, self.removeButton, 1, Qt.AlignmentFlag.AlignVCenter)
+        self.buttonLayout.insertWidget(3, self.resetButton, 1, Qt.AlignmentFlag.AlignVCenter)
 
         self.cancelButton.setText("取消")
 
@@ -184,22 +184,22 @@ class AddonEditMessageBox(MessageBoxBase):
         self.tableView.setBorderRadius(8)
         self.tableView.setWordWrap(False)
         self.tableView.setColumnCount(4)
-        self.tableView.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.tableView.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
 
         self.tableView.verticalHeader().hide()
         self.tableView.setHorizontalHeaderLabels(["ID", "名称", "本地版本号", "在线版本号"])
         self.tableView.resizeColumnsToContents()
-        self.tableView.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.tableView.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
 
         self.viewLayout.addWidget(self.titleLabel)
-        self.viewLayout.addWidget(self.tableView, 0, Qt.AlignTop)
+        self.viewLayout.addWidget(self.tableView, 0, Qt.AlignmentFlag.AlignTop)
 
         self.yesButton.setText("安装选中")
         self.yesButton.clicked.connect(self.yesButtonClicked)
 
         self.removeButton = PrimaryPushButton("删除选中", self.buttonGroup)
         self.removeButton.clicked.connect(self.removeButtonClicked)
-        self.buttonLayout.insertWidget(1, self.removeButton, 1, Qt.AlignVCenter)
+        self.buttonLayout.insertWidget(1, self.removeButton, 1, Qt.AlignmentFlag.AlignVCenter)
 
         self.cancelButton.setText("取消")
 
@@ -249,7 +249,7 @@ class AddonEditMessageBox(MessageBoxBase):
 
     def threadEvent1_1(self, msg):
         if msg["id"] in self.installed.keys():
-            i = self.tableView.findItems(msg["id"], Qt.MatchExactly)[0].row()
+            i = self.tableView.findItems(msg["id"], Qt.MatchFlag.MatchExactly)[0].row()
             self.tableView.setItem(i, 3, QTableWidgetItem(msg["version"]))
         else:
             self.tableView.hide()
@@ -267,7 +267,7 @@ class AddonEditMessageBox(MessageBoxBase):
                 if self.tableView.item(i, 3).text() == "加载中...":
                     self.tableView.setItem(i, 3, QTableWidgetItem("云端无数据"))
         else:
-            self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", f"无网络连接！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().aboutPage)
+            self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", f"无网络连接！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().aboutPage)
             self.infoBar.show()
             for i in range(self.tableView.rowCount()):
                 self.tableView.setItem(i, 3, QTableWidgetItem("无网络连接"))
@@ -276,11 +276,11 @@ class AddonEditMessageBox(MessageBoxBase):
         self.titleLabel.setText("管理插件")
 
     def threadEvent1_3(self, msg):
-        i = self.tableView.findItems(msg["id"], Qt.MatchExactly)[0].row()
+        i = self.tableView.findItems(msg["id"], Qt.MatchFlag.MatchExactly)[0].row()
         self.tableView.setItem(i, 2, QTableWidgetItem("连接失败"))
 
     def threadEvent2_1(self, msg):
-        self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{msg["name"]}安装成功！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().aboutPage)
+        self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{msg["name"]}安装成功！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().aboutPage)
         self.infoBar.show()
         self.parent().addAddon(msg)
 
@@ -294,7 +294,7 @@ class ThemeSettingCard(ExpandSettingCard):
     """
     主题设置卡片
     """
-    themeChanged = pyqtSignal(OptionsConfigItem)
+    themeChanged = Signal(OptionsConfigItem)
 
     def __init__(self, parent=None):
         super().__init__(FIF.BRUSH, "程序主题", "修改程序明暗主题", parent)
@@ -361,7 +361,7 @@ class ColorSettingCard(ExpandGroupSettingCard):
     """
     主题色设置卡片
     """
-    colorChanged = pyqtSignal(QColor)
+    colorChanged = Signal(QColor)
 
     def __init__(self, parent=None):
         super().__init__(FIF.PALETTE, "主题色", "修改程序的主题色", parent=parent)
@@ -379,9 +379,9 @@ class ColorSettingCard(ExpandGroupSettingCard):
         self.radioLayout = QVBoxLayout(self.radioWidget)
 
         self.radioLayout.setSpacing(19)
-        self.radioLayout.setAlignment(Qt.AlignTop)
+        self.radioLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.radioLayout.setContentsMargins(48, 18, 0, 18)
-        self.radioLayout.setSizeConstraint(QVBoxLayout.SetMinimumSize)
+        self.radioLayout.setSizeConstraint(QVBoxLayout.SizeConstraint.SetMinimumSize)
 
         self.button1 = RadioButton("默认", self.radioWidget)
         self.button1.setToolTip("设置默认颜色")
@@ -404,10 +404,10 @@ class ColorSettingCard(ExpandGroupSettingCard):
         self.buttonGroup.addButton(self.button2)
 
         self.customColorLayout.setContentsMargins(48, 18, 44, 18)
-        self.customColorLayout.setSizeConstraint(QHBoxLayout.SetMinimumSize)
+        self.customColorLayout.setSizeConstraint(QHBoxLayout.SizeConstraint.SetMinimumSize)
 
-        self.customColorLayout.addWidget(self.label2, 0, Qt.AlignLeft)
-        self.customColorLayout.addWidget(self.button3, 0, Qt.AlignRight)
+        self.customColorLayout.addWidget(self.label2, 0, Qt.AlignmentFlag.AlignLeft)
+        self.customColorLayout.addWidget(self.button3, 0, Qt.AlignmentFlag.AlignRight)
 
         self.viewLayout.setSpacing(0)
         self.viewLayout.setContentsMargins(0, 0, 0, 0)
@@ -472,7 +472,7 @@ class MicaEffectSettingCard(SettingCard):
         self.button1.setToolTip("开启Windows11的窗口模糊效果")
         self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
 
-        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
+        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignmentFlag.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
     def button1Clicked(self):
@@ -484,7 +484,7 @@ class StartupSettingCard(SettingCard):
     """
     开机自启动设置卡片
     """
-    clicked = pyqtSignal()
+    clicked = Signal()
 
     def __init__(self, parent=None):
 
@@ -514,11 +514,11 @@ class StartupSettingCard(SettingCard):
             self.checkBox2.setEnabled(False)
             self.checkBox3.setEnabled(False)
 
-        self.hBoxLayout.addWidget(self.checkBox1, 0, Qt.AlignRight)
+        self.hBoxLayout.addWidget(self.checkBox1, 0, Qt.AlignmentFlag.AlignRight)
         self.hBoxLayout.addSpacing(8)
-        self.hBoxLayout.addWidget(self.checkBox2, 0, Qt.AlignRight)
+        self.hBoxLayout.addWidget(self.checkBox2, 0, Qt.AlignmentFlag.AlignRight)
         self.hBoxLayout.addSpacing(8)
-        self.hBoxLayout.addWidget(self.checkBox3, 0, Qt.AlignRight)
+        self.hBoxLayout.addWidget(self.checkBox3, 0, Qt.AlignmentFlag.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
     def button1Clicked(self):
@@ -553,7 +553,7 @@ class TraySettingCard(SettingCard):
         self.button1.setToolTip("在系统托盘展示软件图标")
         self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
 
-        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
+        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignmentFlag.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
     def button1Clicked(self):
@@ -574,7 +574,7 @@ class HideSettingCard(SettingCard):
         self.button1.setToolTip("关闭窗口时程序自动隐藏")
         self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
 
-        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
+        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignmentFlag.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
     def button1Clicked(self):
@@ -598,8 +598,8 @@ class SortPathSettingCard(SettingCard):
         self.button2.setToolTip("设置微信WeChat Files文件夹目录")
         self.button2.installEventFilter(ToolTipFilter(self.button2, 1000))
 
-        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
-        self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignRight)
+        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignmentFlag.AlignRight)
+        self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignmentFlag.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
     def button1Clicked(self):
@@ -635,9 +635,9 @@ class SortSettingCard(SettingCard):
         self.button3.setToolTip("自定义整理文件类型")
         self.button3.installEventFilter(ToolTipFilter(self.button3, 1000))
 
-        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
-        self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignRight)
-        self.hBoxLayout.addWidget(self.button3, 0, Qt.AlignRight)
+        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignmentFlag.AlignRight)
+        self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignmentFlag.AlignRight)
+        self.hBoxLayout.addWidget(self.button3, 0, Qt.AlignmentFlag.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
     def button1Clicked(self):
@@ -665,7 +665,7 @@ class DownloadSettingCard(SettingCard):
         self.button1.setToolTip("设置下载文件夹目录")
         self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
 
-        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
+        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignmentFlag.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
     def button1Clicked(self):
@@ -691,9 +691,9 @@ class AddonSettingCard(SettingCard):
         self.button1.setToolTip("管理程序插件")
         self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
 
-        self.hBoxLayout.addWidget(self.progressBarLoading, Qt.AlignRight)
+        self.hBoxLayout.addWidget(self.progressBarLoading, Qt.AlignmentFlag.AlignRight)
         self.hBoxLayout.addSpacing(8)
-        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
+        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignmentFlag.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
 
@@ -735,12 +735,12 @@ class UpdateSettingCard(SettingCard):
             self.comboBox.setCurrentIndex(0)
 
         self.label = QLabel(self)
-        self.label.setAlignment(Qt.AlignCenter)
+        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.label.setFont(QFont())
         self.label.setText("")
 
         self.progressBar = ProgressBar(self)
-        self.progressBar.setAlignment(Qt.AlignCenter)
+        self.progressBar.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.progressBar.setRange(0, 100)
         self.progressBar.setValue(0)
         self.progressBar.setMinimumWidth(250)
@@ -748,7 +748,7 @@ class UpdateSettingCard(SettingCard):
         self.vBoxLayout2 = QVBoxLayout()
         self.vBoxLayout2.setSpacing(0)
         self.vBoxLayout2.setContentsMargins(0, 0, 0, 0)
-        self.vBoxLayout2.setAlignment(Qt.AlignVCenter)
+        self.vBoxLayout2.setAlignment(Qt.AlignmentFlag.AlignVCenter)
 
         self.vBoxLayout2.addWidget(self.label)
         self.vBoxLayout2.addSpacing(2)
@@ -756,9 +756,9 @@ class UpdateSettingCard(SettingCard):
 
         self.hBoxLayout.addLayout(self.vBoxLayout2)
         self.hBoxLayout.addSpacing(8)
-        self.hBoxLayout.addWidget(self.comboBox, 0, Qt.AlignRight)
-        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
-        self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignRight)
+        self.hBoxLayout.addWidget(self.comboBox, 0, Qt.AlignmentFlag.AlignRight)
+        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignmentFlag.AlignRight)
+        self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignmentFlag.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
         self.label.hide()
@@ -769,7 +769,7 @@ class UpdateSettingCard(SettingCard):
 
     def button1Clicked(self):
         if not f.pipTest():
-            self.infoBar = InfoBar(InfoBarIcon.WARNING, "警告", "Python未添加环境变量，pip无法使用，无法安装运行库！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+            self.infoBar = InfoBar(InfoBarIcon.WARNING, "警告", "Python未添加环境变量，pip无法使用，无法安装运行库！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
             self.infoBar.show()
             return
 
@@ -791,9 +791,9 @@ class UpdateSettingCard(SettingCard):
 
     def threadEvent1_2(self, msg):
         if msg:
-            self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", "运行库更新成功！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+            self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", "运行库更新成功！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
         else:
-            self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", "无网络连接，无法更新运行库！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+            self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", "无网络连接，无法更新运行库！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
         self.infoBar.show()
 
         self.label.hide()
@@ -808,7 +808,7 @@ class UpdateSettingCard(SettingCard):
 
     def button2Clicked(self):
         if "beta" in program.PROGRAM_VERSION:
-            self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", "当前版本为内测版无法更新！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+            self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", "当前版本为内测版无法更新！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
             self.infoBar.show()
             return
         self.comboBox.setEnabled(False)
@@ -821,7 +821,7 @@ class UpdateSettingCard(SettingCard):
         self.thread2.start()
 
     def threadEvent2_1(self, msg):
-        self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", f"检测到新版本{msg["版本"]}！", Qt.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+        self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", f"检测到新版本{msg["版本"]}！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
 
         self.button3 = PushButton("立刻更新", self, FIF.DOWNLOAD)
         self.button3.clicked.connect(self.button3Clicked)
@@ -835,9 +835,9 @@ class UpdateSettingCard(SettingCard):
 
     def threadEvent2_2(self, msg):
         if msg:
-            self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"{program.PROGRAM_VERSION}已为最新版本！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+            self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"{program.PROGRAM_VERSION}已为最新版本！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
         else:
-            self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", "无网络连接，无法检查程序更新！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+            self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", "无网络连接，无法检查程序更新！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
         self.infoBar.show()
 
         self.comboBox.setEnabled(True)
@@ -864,7 +864,7 @@ class UpdateSettingCard(SettingCard):
 
     def threadEvent3_1(self, msg):
         if msg["完成"]:
-            self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", "更新成功！", Qt.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+            self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", "更新成功！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
 
             self.button4 = PushButton("重启", self, FIF.SYNC)
             self.button4.clicked.connect(program.restart)
@@ -888,9 +888,9 @@ class UpdateSettingCard(SettingCard):
 
     def threadEvent3_2(self, msg):
         if msg:
-            self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"{program.PROGRAM_VERSION}已为最新版本！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+            self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"{program.PROGRAM_VERSION}已为最新版本！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
         else:
-            self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", "无网络连接，无法检查程序更新！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+            self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", "无网络连接，无法检查程序更新！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
         self.infoBar.show()
         self.label.hide()
         self.progressBar.hide()
@@ -925,9 +925,9 @@ class HelpSettingCard(SettingCard):
         self.button3.setToolTip("清理程序运行过程中生成的缓存文件")
         self.button3.installEventFilter(ToolTipFilter(self.button3, 1000))
 
-        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
-        self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignRight)
-        self.hBoxLayout.addWidget(self.button3, 0, Qt.AlignRight)
+        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignmentFlag.AlignRight)
+        self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignmentFlag.AlignRight)
+        self.hBoxLayout.addWidget(self.button3, 0, Qt.AlignmentFlag.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
     def button3Clicked(self):
@@ -941,10 +941,10 @@ class HelpSettingCard(SettingCard):
         self.button3.setEnabled(True)
 
         if msg:
-            self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", "清理程序缓存成功！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+            self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", "清理程序缓存成功！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
             self.infoBar.show()
         else:
-            self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", "清理程序缓存失败！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+            self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", "清理程序缓存失败！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
             self.infoBar.show()
 
 
@@ -970,15 +970,15 @@ class ControlSettingCard(SettingCard):
         self.button3.setToolTip("重启程序")
         self.button3.installEventFilter(ToolTipFilter(self.button3, 1000))
 
-        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
-        self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignRight)
-        self.hBoxLayout.addWidget(self.button3, 0, Qt.AlignRight)
+        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignmentFlag.AlignRight)
+        self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignmentFlag.AlignRight)
+        self.hBoxLayout.addWidget(self.button3, 0, Qt.AlignmentFlag.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
     def button1Clicked(self):
         self.button4 = PushButton("确认", self, FIF.SEND)
         self.button4.clicked.connect(setting.reset)
-        self.infoBar = InfoBar(InfoBarIcon.WARNING, "警告", "是否确认重置设置？该操作不可撤销！", Qt.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+        self.infoBar = InfoBar(InfoBarIcon.WARNING, "警告", "是否确认重置设置？该操作不可撤销！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
         self.infoBar.addWidget(self.button4)
         self.infoBar.show()
 
@@ -1000,8 +1000,8 @@ class ShortcutSettingCard(SettingCard):
         self.button2.setToolTip("将程序添加到开始菜单列表")
         self.button2.installEventFilter(ToolTipFilter(self.button2, 1000))
 
-        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
-        self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignRight)
+        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignmentFlag.AlignRight)
+        self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignmentFlag.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
 
@@ -1020,8 +1020,8 @@ class AboutSettingCard(SettingCard):
         self.button2.setToolTip("打开程序GitHub页面")
         self.button2.installEventFilter(ToolTipFilter(self.button2, 1000))
 
-        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
-        self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignRight)
+        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignmentFlag.AlignRight)
+        self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignmentFlag.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
 

@@ -19,12 +19,12 @@ class SmallModInfoCard(SmallInfoCard):
     """
     资源信息小卡片
     """
-    signalStr = pyqtSignal(str)
-    signalInt = pyqtSignal(int)
-    signalBool = pyqtSignal(bool)
-    signalList = pyqtSignal(list)
-    signalDict = pyqtSignal(dict)
-    signalObject = pyqtSignal(object)
+    signalStr = Signal(str)
+    signalInt = Signal(int)
+    signalBool = Signal(bool)
+    signalList = Signal(list)
+    signalDict = Signal(dict)
+    signalObject = Signal(object)
 
     def __init__(self, data: dict, source: str, parent: QWidget = None):
         """
@@ -72,12 +72,12 @@ class BigModInfoCard(BigInfoCard):
     """
     资源信息大卡片
     """
-    signalStr = pyqtSignal(str)
-    signalInt = pyqtSignal(int)
-    signalBool = pyqtSignal(bool)
-    signalList = pyqtSignal(list)
-    signalDict = pyqtSignal(dict)
-    signalObject = pyqtSignal(object)
+    signalStr = Signal(str)
+    signalInt = Signal(int)
+    signalBool = Signal(bool)
+    signalList = Signal(list)
+    signalDict = Signal(dict)
+    signalObject = Signal(object)
 
     def __init__(self, data: dict, parent: QWidget = None, widgets=[], version=None, loader=None):
         """
@@ -160,9 +160,9 @@ class BigModInfoCard(BigInfoCard):
         self.comboBox2.currentIndexChanged.connect(self.getFileInfo)
 
         self.card1 = GrayCard("筛选")
-        self.card1.addWidget(self.label1, alignment=Qt.AlignCenter)
+        self.card1.addWidget(self.label1, alignment=Qt.AlignmentFlag.AlignCenter)
         self.card1.addWidget(self.comboBox1)
-        self.card1.addWidget(self.label2, alignment=Qt.AlignCenter)
+        self.card1.addWidget(self.label2, alignment=Qt.AlignmentFlag.AlignCenter)
         self.card1.addWidget(self.comboBox2)
 
         self.vBoxLayout.insertWidget(1, self.card1)
@@ -251,12 +251,12 @@ class SmallFileInfoCard(SmallInfoCard):
     """
     文件信息小卡片
     """
-    signalStr = pyqtSignal(str)
-    signalInt = pyqtSignal(int)
-    signalBool = pyqtSignal(bool)
-    signalList = pyqtSignal(list)
-    signalDict = pyqtSignal(dict)
-    signalObject = pyqtSignal(object)
+    signalStr = Signal(str)
+    signalInt = Signal(int)
+    signalBool = Signal(bool)
+    signalList = Signal(list)
+    signalDict = Signal(dict)
+    signalObject = Signal(object)
 
     def __init__(self, data: dict, parent: QWidget = None):
         """
@@ -281,7 +281,7 @@ class SmallFileInfoCard(SmallInfoCard):
 
     def mainButtonClicked(self):
         if not self.data["下载链接"]:
-            self.infoBar = InfoBar(InfoBarIcon.WARNING, "警告", "该文件暂无下载链接，请更换版本或更换下载源重试！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+            self.infoBar = InfoBar(InfoBarIcon.WARNING, "警告", "该文件暂无下载链接，请更换版本或更换下载源重试！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
             self.infoBar.show()
             return
         open = setting.read("minecraftJavaPath")
@@ -348,11 +348,11 @@ class SearchTab(BasicTab):
         self.card1.addWidget(self.lineEdit)
 
         self.card2 = GrayCard("筛选")
-        self.card2.addWidget(self.label1, alignment=Qt.AlignCenter)
+        self.card2.addWidget(self.label1, alignment=Qt.AlignmentFlag.AlignCenter)
         self.card2.addWidget(self.comboBox1)
-        self.card2.addWidget(self.label2, alignment=Qt.AlignCenter)
+        self.card2.addWidget(self.label2, alignment=Qt.AlignmentFlag.AlignCenter)
         self.card2.addWidget(self.comboBox2)
-        self.card2.addWidget(self.label3, alignment=Qt.AlignCenter)
+        self.card2.addWidget(self.label3, alignment=Qt.AlignmentFlag.AlignCenter)
         self.card2.addWidget(self.comboBox3)
 
         self.loadingCard = LoadingCard(self)
@@ -360,7 +360,7 @@ class SearchTab(BasicTab):
 
         self.vBoxLayout.addWidget(self.card1)
         self.vBoxLayout.addWidget(self.card2)
-        self.vBoxLayout.addWidget(self.loadingCard, 0, Qt.AlignCenter)
+        self.vBoxLayout.addWidget(self.loadingCard, 0, Qt.AlignmentFlag.AlignCenter)
 
         self.cardGroup1 = CardGroup(self.view)
         self.vBoxLayout.addWidget(self.cardGroup1)
@@ -386,7 +386,7 @@ class SearchTab(BasicTab):
     def searchButtonClicked(self):
         if self.comboBox1.currentText() == "Modrinth":
             if self.comboBox3.currentText() not in MODRINTH_TYPE.keys():
-                self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"{self.comboBox1.currentText()}不支持搜索{self.comboBox3.currentText()}类资源", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+                self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"{self.comboBox1.currentText()}不支持搜索{self.comboBox3.currentText()}类资源", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
                 self.infoBar.show()
                 return
         self.cardGroup1.deleteLater()
@@ -425,7 +425,7 @@ class SearchTab(BasicTab):
         for i in msg:
             self.infoCard = SmallModInfoCard(i, self.comboBox1.currentText())
             self.infoCard.signalDict.connect(self.showModPage)
-            self.vBoxLayout.addWidget(self.infoCard, 0, Qt.AlignTop)
+            self.vBoxLayout.addWidget(self.infoCard, 0, Qt.AlignmentFlag.AlignTop)
             self.cardGroup1.addWidget(self.infoCard)
         if msg:
             self.cardGroup1.setTitle(f"搜索结果（{len(msg)}个）")

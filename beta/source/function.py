@@ -13,7 +13,13 @@ try:
     import requests
     import bs4
     import lxml
-    from PyQt5.Qt import *
+    from PySide6 import *
+    from PySide6.QtCore import *
+    from PySide6.QtGui import *
+    from PySide6.QtWidgets import *
+    from PySide6 import QtCore
+    from PySide6 import QtGui
+    from PySide6 import QtWidgets
     from qfluentwidgets import *
     from qfluentwidgets.components.material import *
     from qfluentwidgets import FluentIcon as FIF
@@ -49,8 +55,8 @@ class Program:
     REQUEST_HEADER = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 Edg/122.0.0.0",
                       "zbprogram": PROGRAM_VERSION}  # 程序默认网络请求头
 
-    REQUIRE_LIB = ["PyQt-Fluent-Widgets[full]",
-                   "qt5-tools",
+    REQUIRE_LIB = ["PySide6-Fluent-Widgets[full]",
+                   # "qt6-tools",
                    "requests",
                    "bs4",
                    "lxml",
@@ -60,31 +66,7 @@ class Program:
                    "xmltodict",
                    "DownloadKit",
                    ]
-    EXTRA_LIB = ["PyQt5",
-                 "PyQt5-Frameless-Window",
-                 "PyQt5-Qt5",
-                 "PyQt5-sip",
-                 "beautifulsoup4",
-                 "certifi",
-                 "charset-normalizer",
-                 "click",
-                 "colorama",
-                 "colorthief",
-                 "darkdetect",
-                 "idna",
-                 "numpy",
-                 "pillow",
-                 "python-dateutil",
-                 "pytz",
-                 "pywin32",
-                 "qt5-applications",
-                 "scipy",
-                 "setuptools",
-                 "six",
-                 "some-package",
-                 "soupsieve",
-                 "tzdata",
-                 "urllib3"]
+    EXTRA_LIB = []
 
     def __init__(self):
         # 创建数据目录

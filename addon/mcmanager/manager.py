@@ -18,12 +18,12 @@ class MyThread(QThread):
     """
     多线程模块
     """
-    signalStr = pyqtSignal(str)
-    signalInt = pyqtSignal(int)
-    signalBool = pyqtSignal(bool)
-    signalList = pyqtSignal(list)
-    signalDict = pyqtSignal(dict)
-    signalObject = pyqtSignal(object)
+    signalStr = Signal(str)
+    signalInt = Signal(int)
+    signalBool = Signal(bool)
+    signalList = Signal(list)
+    signalDict = Signal(dict)
+    signalObject = Signal(object)
 
     def __init__(self, mode: str, data=None, parent: QWidget = None):
         super().__init__(parent=parent)
@@ -126,7 +126,7 @@ class MinecraftJavaSettingCard(SettingCard):
         self.button1.setToolTip("设置Java版目录")
         self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
 
-        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
+        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignmentFlag.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
     def button1Clicked(self):
@@ -153,7 +153,7 @@ class ModSettingMessageBox(MessageBoxBase):
 
         self.cardGroup1.addWidget(self.minecraftJavaSettingCard)
 
-        self.scrollArea.vBoxLayout.addWidget(self.cardGroup1, 0, Qt.AlignTop)
+        self.scrollArea.vBoxLayout.addWidget(self.cardGroup1, 0, Qt.AlignmentFlag.AlignTop)
 
         self.viewLayout.addWidget(self.titleLabel)
         self.viewLayout.addWidget(self.scrollArea)
@@ -232,12 +232,12 @@ class UpdateModWidget(QWidget):
         self.thread1.start()
 
         self.progressBar = ProgressBar(self.parent)
-        self.progressBar.setAlignment(Qt.AlignCenter)
+        self.progressBar.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.progressBar.setRange(0, 100)
         self.progressBar.setValue(0)
         self.progressBar.setMinimumWidth(200)
 
-        self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "下载", f"正在下载文件 {f.splitPath(name)}", Qt.Vertical, True, -1, InfoBarPosition.TOP_RIGHT, self.parent)
+        self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "下载", f"正在下载文件 {f.splitPath(name)}", Qt.Orientation.Vertical, True, -1, InfoBarPosition.TOP_RIGHT, self.parent)
         self.infoBar.addWidget(self.progressBar)
         self.infoBar.show()
         self.infoBar.closeButton.clicked.connect(self.thread1.cancel)
@@ -252,7 +252,7 @@ class UpdateModWidget(QWidget):
             self.infoBar.contentLabel.setText(f"{self.name} 下载成功")
             self.infoBar.closeButton.click()
 
-            self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "下载", f"资源 {f.splitPath(self.name)} 下载成功", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent)
+            self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "下载", f"资源 {f.splitPath(self.name)} 下载成功", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent)
             self.infoBar.show()
             self.button1 = PushButton("打开目录", self.parent, FIF.FOLDER)
             self.button1.clicked.connect(self.button1Clicked)
@@ -270,7 +270,7 @@ class UpdateModWidget(QWidget):
                 self.infoBar.closeButton.click()
             except:
                 self.thread1.cancel()
-            self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", f"下载失败", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent)
+            self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", f"下载失败", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent)
             self.infoBar.show()
 
     def button1Clicked(self):
@@ -301,14 +301,14 @@ class ModUpdateMessageBox(MessageBoxBase):
         self.tableView.setBorderRadius(8)
         self.tableView.setWordWrap(False)
         self.tableView.setColumnCount(3)
-        self.tableView.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.tableView.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
 
         self.tableView.verticalHeader().hide()
         self.tableView.setHorizontalHeaderLabels(["文件名", "本地版本号", "在线版本号"])
-        self.tableView.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.tableView.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
 
         self.viewLayout.addWidget(self.titleLabel)
-        self.viewLayout.addWidget(self.tableView, 0, Qt.AlignTop)
+        self.viewLayout.addWidget(self.tableView, 0, Qt.AlignmentFlag.AlignTop)
 
         self.yesButton.setText("更新")
         self.yesButton.clicked.connect(self.yesButtonClicked)
@@ -341,12 +341,12 @@ class ModFileInfoCard(SmallInfoCard):
     """
     文件信息小卡片
     """
-    signalStr = pyqtSignal(str)
-    signalInt = pyqtSignal(int)
-    signalBool = pyqtSignal(bool)
-    signalList = pyqtSignal(list)
-    signalDict = pyqtSignal(dict)
-    signalObject = pyqtSignal(object)
+    signalStr = Signal(str)
+    signalInt = Signal(int)
+    signalBool = Signal(bool)
+    signalList = Signal(list)
+    signalDict = Signal(dict)
+    signalObject = Signal(object)
 
     def __init__(self, path: str, parent: QWidget = None):
         """
@@ -372,7 +372,7 @@ class ModFileInfoCard(SmallInfoCard):
         self.openButton.clicked.connect(self.openButtonClicked)
         self.openButton.setToolTip("在文件夹中展示文件")
         self.openButton.installEventFilter(ToolTipFilter(self.openButton, 1000))
-        self.hBoxLayout.insertWidget(5, self.openButton, alignment=Qt.AlignRight)
+        self.hBoxLayout.insertWidget(5, self.openButton, alignment=Qt.AlignmentFlag.AlignRight)
 
         self.parent().thread1.signalList.connect(self.thread1_1)
         self.parent().thread1.signalBool.connect(self.thread1_2)
@@ -390,7 +390,7 @@ class ModFileInfoCard(SmallInfoCard):
                     self.setInfo(f"文件大小：{f.fileSizeAddUnit(data["文件大小"])}", 1)
                     self.setInfo(f"下载量：{f.numberAddUnit(data["下载量"])}", 2)
                     self.setInfo(f"更新日期：{data["更新日期"]}", 3)
-                self.hBoxLayout.insertWidget(4, CopyButton(data["下载链接"]), alignment=Qt.AlignRight)
+                self.hBoxLayout.insertWidget(4, CopyButton(data["下载链接"]), alignment=Qt.AlignmentFlag.AlignRight)
         else:
             self.setInfo("文件无在线数据！", 0)
 
@@ -407,7 +407,7 @@ class ModFileInfoCard(SmallInfoCard):
             self.setInfo(list1[0]["介绍"], 0)
             for data in list1:
                 self.mod[data["来源"]] = data
-                self.hBoxLayout.insertWidget(4, SearchButton(data, self), alignment=Qt.AlignRight)
+                self.hBoxLayout.insertWidget(4, SearchButton(data, self), alignment=Qt.AlignmentFlag.AlignRight)
 
 
 class FileTab(BasicTab):
@@ -489,7 +489,7 @@ class FileTab(BasicTab):
         self.switchButton.setMinimumWidth(0)
 
         self.card1 = GrayCard("管理")
-        self.card1.addWidget(self.label1_1, alignment=Qt.AlignCenter)
+        self.card1.addWidget(self.label1_1, alignment=Qt.AlignmentFlag.AlignCenter)
         self.card1.addWidget(self.comboBox1_1)
 
         self.card1.addWidget(self.button1)
@@ -499,13 +499,13 @@ class FileTab(BasicTab):
         self.card2 = GrayCard("更新")
 
         self.card2.addWidget(self.updateButton)
-        self.card2.addWidget(self.label2_1, alignment=Qt.AlignCenter)
+        self.card2.addWidget(self.label2_1, alignment=Qt.AlignmentFlag.AlignCenter)
         self.card2.addWidget(self.comboBox2_1)
-        self.card2.addWidget(self.label2_2, alignment=Qt.AlignCenter)
+        self.card2.addWidget(self.label2_2, alignment=Qt.AlignmentFlag.AlignCenter)
         self.card2.addWidget(self.comboBox2_2)
-        self.card2.addWidget(self.label2_3, alignment=Qt.AlignCenter)
+        self.card2.addWidget(self.label2_3, alignment=Qt.AlignmentFlag.AlignCenter)
         self.card2.addWidget(self.comboBox2_3)
-        self.card2.addWidget(self.switchButton, alignment=Qt.AlignCenter)
+        self.card2.addWidget(self.switchButton, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.vBoxLayout.addWidget(self.card1)
         self.vBoxLayout.addWidget(self.card2)
@@ -538,7 +538,7 @@ class FileTab(BasicTab):
         self.thread1.start()
         for i in data:
             self.infoCard = ModFileInfoCard(i, self)
-            self.vBoxLayout.addWidget(self.infoCard, 0, Qt.AlignTop)
+            self.vBoxLayout.addWidget(self.infoCard, 0, Qt.AlignmentFlag.AlignTop)
             self.cardGroup1.addWidget(self.infoCard)
 
     def thread1_1(self, msg):
@@ -575,12 +575,12 @@ class FileTab(BasicTab):
         self.showWidget(False)
 
         self.progressBar = ProgressBar(self)
-        self.progressBar.setAlignment(Qt.AlignCenter)
+        self.progressBar.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.progressBar.setRange(0, 100)
         self.progressBar.setValue(0)
         self.progressBar.setMinimumWidth(200)
 
-        self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"正在通过{self.comboBox2_1.currentText()}检查资源在{self.comboBox2_2.currentText()}{self.comboBox2_3.currentText()}的更新", Qt.Vertical, False, -1, InfoBarPosition.TOP_RIGHT, self)
+        self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"正在通过{self.comboBox2_1.currentText()}检查资源在{self.comboBox2_2.currentText()}{self.comboBox2_3.currentText()}的更新", Qt.Orientation.Vertical, False, -1, InfoBarPosition.TOP_RIGHT, self)
         self.infoBar.addWidget(self.progressBar)
         self.infoBar.show()
 
@@ -607,7 +607,7 @@ class FileTab(BasicTab):
         list1 = sorted(list1, key=lambda x: x[0]["文件名称"])
         self.infoBar.isClosable = True
         self.infoBar.closeButton.click()
-        self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"有{len(list1)}个资源在{self.comboBox2_2.currentText()}{self.comboBox2_3.currentText()}有新版本", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self)
+        self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"有{len(list1)}个资源在{self.comboBox2_2.currentText()}{self.comboBox2_3.currentText()}有新版本", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self)
         self.infoBar.show()
         self.modUpdateMessageBox = ModUpdateMessageBox("资源更新", list1, f.pathJoin(setting.read("minecraftJavaPath"), FILE_PATH[self.comboBox1_1.currentText()]), self)
         self.modUpdateMessageBox.exec()
@@ -617,7 +617,7 @@ class FileTab(BasicTab):
             self.showWidget(True)
             self.infoBar.isClosable = True
             self.infoBar.closeButton.click()
-            self.infoBar = InfoBar(InfoBarIcon.WARNING, "错误", f"检查更新失败", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self)
+            self.infoBar = InfoBar(InfoBarIcon.WARNING, "错误", f"检查更新失败", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self)
             self.infoBar.show()
 
     def thread3_3(self, msg):

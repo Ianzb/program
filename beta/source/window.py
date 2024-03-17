@@ -42,17 +42,17 @@ class MainPage(BasicPage):
         self.card3 = GrayCard("游戏功能", self.view)
         self.card3.addWidget(self.button3_1)
 
-        self.vBoxLayout.addWidget(self.card1, 0, Qt.AlignTop)
-        self.vBoxLayout.addWidget(self.card2, 0, Qt.AlignTop)
-        self.vBoxLayout.addWidget(self.card3, 0, Qt.AlignTop)
+        self.vBoxLayout.addWidget(self.card1, 0, Qt.AlignmentFlag.AlignTop)
+        self.vBoxLayout.addWidget(self.card2, 0, Qt.AlignmentFlag.AlignTop)
+        self.vBoxLayout.addWidget(self.card3, 0, Qt.AlignmentFlag.AlignTop)
 
     def button1_1Clicked(self):
         if setting.read("sortPath") == "":
-            self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", "当前未设置整理文件目录，无法整理！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self)
+            self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", "当前未设置整理文件目录，无法整理！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self)
             self.infoBar.show()
             return
         if setting.read("wechatPath") == "":
-            self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", "当前未设置微信文件目录，无法整理微信文件！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self)
+            self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", "当前未设置微信文件目录，无法整理微信文件！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self)
             self.infoBar.show()
 
         self.button1_1.setEnabled(False)
@@ -155,9 +155,9 @@ class SettingPage(BasicPage):
         self.cardGroup3.addWidget(self.sortFolderSettingCard)
         self.cardGroup3.addWidget(self.downloadSettingCard)
 
-        self.vBoxLayout.addWidget(self.cardGroup1, 0, Qt.AlignTop)
-        self.vBoxLayout.addWidget(self.cardGroup2, 0, Qt.AlignTop)
-        self.vBoxLayout.addWidget(self.cardGroup3, 0, Qt.AlignTop)
+        self.vBoxLayout.addWidget(self.cardGroup1, 0, Qt.AlignmentFlag.AlignTop)
+        self.vBoxLayout.addWidget(self.cardGroup2, 0, Qt.AlignmentFlag.AlignTop)
+        self.vBoxLayout.addWidget(self.cardGroup3, 0, Qt.AlignmentFlag.AlignTop)
 
 
 class AboutPage(BasicPage):
@@ -205,21 +205,21 @@ class AboutPage(BasicPage):
         self.bigInfoCard.mainButton.clicked.connect(lambda: webbrowser.open(program.AUTHOR_URL))
         self.bigInfoCard.mainButton.setIcon(FIF.LINK)
 
-        self.vBoxLayout.addWidget(self.bigInfoCard, 0, Qt.AlignTop)
-        self.vBoxLayout.addWidget(self.cardGroup1, 0, Qt.AlignTop)
-        self.vBoxLayout.addWidget(self.cardGroup2, 0, Qt.AlignTop)
+        self.vBoxLayout.addWidget(self.bigInfoCard, 0, Qt.AlignmentFlag.AlignTop)
+        self.vBoxLayout.addWidget(self.cardGroup1, 0, Qt.AlignmentFlag.AlignTop)
+        self.vBoxLayout.addWidget(self.cardGroup2, 0, Qt.AlignmentFlag.AlignTop)
 
 
 class Window(FluentWindow):
     """
     主窗口
     """
-    signalStr = pyqtSignal(str)
-    signalInt = pyqtSignal(int)
-    signalBool = pyqtSignal(bool)
-    signalList = pyqtSignal(list)
-    signalDict = pyqtSignal(dict)
-    signalObject = pyqtSignal(object)
+    signalStr = Signal(str)
+    signalInt = Signal(int)
+    signalBool = Signal(bool)
+    signalList = Signal(list)
+    signalDict = Signal(dict)
+    signalObject = Signal(object)
 
     def __init__(self):
         super().__init__()
@@ -244,7 +244,7 @@ class Window(FluentWindow):
         self.setWindowTitle(f"{program.PROGRAM_TITLE} {setting.read("updateChannel")}")
         self.navigationInterface.setReturnButtonVisible(False)
         # 窗口居中
-        desktop = QApplication.desktop().availableGeometry()
+        desktop = QApplication.screens()[0].size()
         w, h = desktop.width(), desktop.height()
         self.move(w // 2 - self.width() // 2, h // 2 - self.height() // 2)
 
@@ -264,7 +264,7 @@ class Window(FluentWindow):
 
     def __initActivity(self):
         # 报错检测
-        sys.excepthook = self.getException
+        # sys.excepthook = self.getException
         # 循环监测事件
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.detectRepeatRun)
@@ -294,7 +294,7 @@ class Window(FluentWindow):
         自定义按键事件
         """
         # Esc键
-        if QKeyEvent.key() == Qt.Key_Escape:
+        if QKeyEvent.key() == Qt.Key.Key_Escape:
             if setting.read("hideWhenClose"):
                 self.hide()
 
@@ -318,14 +318,14 @@ class Window(FluentWindow):
         info = "".join(format_exception(type, value, traceback))
         logging.fatal(f"程序发生异常\n{info}")
         self.messageBox = MessageBox("程序发生异常", info, self)
-        self.messageBox.contentLabel.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        self.messageBox.contentLabel.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
         self.messageBox.yesButton.setText("重启")
         self.messageBox.yesButton.setIcon(FIF.SYNC)
         self.messageBox.yesButton.clicked.connect(program.restart)
         self.messageBox.cancelButton.setText("关闭")
         self.messageBox.exec()
 
-    def addPage(self, page: QWidget, pos: str):
+    def addPage(self, page, pos: str):
         """
         添加导航栏页面简易版
         @param page: 页面对象
@@ -387,7 +387,7 @@ class Window(FluentWindow):
         f.delete(f.pathJoin(program.ADDON_PATH, data["id"]))
         logging.info(f"插件{data["name"]}删除成功")
 
-        self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{data["name"]}删除成功！", Qt.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.aboutPage)
+        self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{data["name"]}删除成功！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.aboutPage)
 
         self.button1 = PushButton("重启", self, FIF.SYNC)
         self.button1.clicked.connect(program.restart)
