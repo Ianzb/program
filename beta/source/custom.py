@@ -1,4 +1,4 @@
-from .thread import *
+from .preload import *
 
 
 class Tray(QSystemTrayIcon):
