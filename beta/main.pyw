@@ -2,7 +2,7 @@ from source.window import *
 
 QApplication.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
 
-app = QApplication(sys.argv)
+app = QApplication()
 translator = FluentTranslator()
 app.installTranslator(translator)
 window = Window()

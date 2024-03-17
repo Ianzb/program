@@ -56,7 +56,6 @@ class Program:
                       "zbprogram": PROGRAM_VERSION}  # 程序默认网络请求头
 
     REQUIRE_LIB = ["PySide6-Fluent-Widgets[full]",
-                   # "qt6-tools",
                    "requests",
                    "bs4",
                    "lxml",
@@ -66,7 +65,31 @@ class Program:
                    "xmltodict",
                    "DownloadKit",
                    ]
-    EXTRA_LIB = []
+    EXTRA_LIB = ["DataRecoder",
+                 "PySide6",
+                 "PySide6_Addons",
+                 "PySide6_Essentials",
+                 "PySideSix-Frameless_Window",
+                 "beautifulsoup4",
+                 "certifi",
+                 "charset-normalizer",
+                 "colorthief",
+                 "darkdetect",
+                 "et-xmlfile",
+                 "idna",
+                 "numpy",
+                 "openpyxl",
+                 "pillow",
+                 "python-dateutil",
+                 "pytz",
+                 "pywin32",
+                 "scipy",
+                 "shiboken6",
+                 "six",
+                 "soupsieve",
+                 "tzdata",
+                 "urllib3",
+                 ]
 
     def __init__(self):
         # 创建数据目录

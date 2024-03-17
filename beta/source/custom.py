@@ -7,7 +7,7 @@ class Tray(QSystemTrayIcon):
     """
 
     def __init__(self, window):
-        super(Tray, self).__init__()
+        super(Tray, self).__init__(QIcon(program.PROGRAM_ICON))
         self.window = window
 
         self.setIcon(QIcon(program.PROGRAM_ICON))
@@ -52,6 +52,7 @@ class Tray(QSystemTrayIcon):
 
     def contextMenuEvent(self):
         self.menu.exec(QCursor.pos(), ani=True, aniType=MenuAnimationType.PULL_UP)
+        self.menu.show()
 
     def action2Clicked(self):
         self.action2.setEnabled(False)
