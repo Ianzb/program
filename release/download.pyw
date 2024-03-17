@@ -37,8 +37,7 @@ class ProgramInit():
     STARTUP_ARGUMENT = sys.argv[1:]  # 程序启动参数
     CHANNEL = "正式版"  # 程序更新通道
     REQUEST_HEADER = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 Edg/122.0.0.0"}  # 程序默认网络请求头
-    REQUIRE_LIB = ["PyQt-Fluent-Widgets[full]",
-                   "qt5-tools",
+    REQUIRE_LIB = ["PySide6-Fluent-Widgets[full]",
                    "requests",
                    "bs4",
                    "lxml",
@@ -48,6 +47,41 @@ class ProgramInit():
                    "xmltodict",
                    "DownloadKit",
                    ]
+    OLD_LIB = ["PyQt-Fluent-Widgets[full]",
+               "qt5-tools",
+               "requests",
+               "bs4",
+               "lxml",
+               "pypiwin32",
+               "pandas",
+               "winshell",
+               "xmltodict",
+               "DownloadKit",
+               "PyQt5",
+               "PyQt5-Frameless-Window",
+               "PyQt5-Qt5",
+               "PyQt5-sip",
+               "beautifulsoup4",
+               "certifi",
+               "charset-normalizer",
+               "click",
+               "colorama",
+               "colorthief",
+               "darkdetect",
+               "idna",
+               "numpy",
+               "pillow",
+               "python-dateutil",
+               "pytz",
+               "pywin32",
+               "qt5-applications",
+               "scipy",
+               "setuptools",
+               "six",
+               "some-package",
+               "soupsieve",
+               "tzdata",
+               "urllib3"]
 
     @property
     def DESKTOP_PATH(self) -> str:
@@ -204,6 +238,12 @@ class Functions():
         button3.config(state=DISABLED)
         combobox.config(state=DISABLED)
         if f.pipTest():
+            try:
+                import PyQt5
+                showerror("公告", f"zb小程序即将从PyQt5升级到PySide6，并放弃对Windows 7及以下系统的支持，但将会重新支持Python 3.8-3.11，程序将卸载全部有关运行库并安装PySide6！")
+                self.cmd(f"pip uninstall -y {' '.join(program.OLD_LIB)}", True)
+            except:
+                pass
             if type(lib_name) is str:
                 self.cmd(f"pip install {lib_name} -i https://pypi.tuna.tsinghua.edu.cn/simple some-package", True)
             elif type(lib_name) is list:
@@ -310,8 +350,7 @@ class Functions():
 
 f = Functions()
 if "error" in program.STARTUP_ARGUMENT:
-    showerror("提示", f"{program.PROGRAM_NAME}无法正常运行，可能是由于运行库缺失，现已自动启动安装器，请您自行点击安装运行库！")
-
+    showerror("提示", f"{program.PROGRAM_NAME}无法正常运行，可能是由于运行库缺失，现已自动启动安装器，请您自行点击安装运行库！\n公告：zb小程序即将从PyQt5升级到PySide6，并放弃对Windows 7及以下系统的支持，但将会重新支持Python 3.8-3.11，若从旧版本升级的用户请重新安装")
 tk = Tk()
 tk.title(f"{program.PROGRAM_NAME}安装器")
 x = 500

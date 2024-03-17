@@ -13,7 +13,13 @@ try:
     import requests
     import bs4
     import lxml
-    from PyQt5.Qt import *
+    from PySide6 import *
+    from PySide6.QtCore import *
+    from PySide6.QtGui import *
+    from PySide6.QtWidgets import *
+    from PySide6 import QtCore
+    from PySide6 import QtGui
+    from PySide6 import QtWidgets
     from qfluentwidgets import *
     from qfluentwidgets.components.material import *
     from qfluentwidgets import FluentIcon as FIF
@@ -27,7 +33,7 @@ class Program:
     程序信息
     """
     PROGRAM_NAME = "zb小程序"  # 程序名称
-    PROGRAM_VERSION = "3.8.4"  # 程序版本
+    PROGRAM_VERSION = "4.0.0"  # 程序版本
     PROGRAM_TITLE = f"{PROGRAM_NAME} {PROGRAM_VERSION}"  # 程序窗口标题
     AUTHOR_NAME = "Ianzb"  # 作者名称
     AUTHOR_URL = "https://ianzb.github.io/"  # 作者网址
@@ -49,8 +55,7 @@ class Program:
     REQUEST_HEADER = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 Edg/122.0.0.0",
                       "zbprogram": PROGRAM_VERSION}  # 程序默认网络请求头
 
-    REQUIRE_LIB = ["PyQt-Fluent-Widgets[full]",
-                   "qt5-tools",
+    REQUIRE_LIB = ["PySide6-Fluent-Widgets[full]",
                    "requests",
                    "bs4",
                    "lxml",
@@ -60,31 +65,31 @@ class Program:
                    "xmltodict",
                    "DownloadKit",
                    ]
-    EXTRA_LIB = ["PyQt5",
-                 "PyQt5-Frameless-Window",
-                 "PyQt5-Qt5",
-                 "PyQt5-sip",
+    EXTRA_LIB = ["DataRecoder",
+                 "PySide6",
+                 "PySide6_Addons",
+                 "PySide6_Essentials",
+                 "PySideSix-Frameless_Window",
                  "beautifulsoup4",
                  "certifi",
                  "charset-normalizer",
-                 "click",
-                 "colorama",
                  "colorthief",
                  "darkdetect",
+                 "et-xmlfile",
                  "idna",
                  "numpy",
+                 "openpyxl",
                  "pillow",
                  "python-dateutil",
                  "pytz",
                  "pywin32",
-                 "qt5-applications",
                  "scipy",
-                 "setuptools",
+                 "shiboken6",
                  "six",
-                 "some-package",
                  "soupsieve",
                  "tzdata",
-                 "urllib3"]
+                 "urllib3",
+                 ]
 
     def __init__(self):
         # 创建数据目录
@@ -204,7 +209,7 @@ class LoggingFunctions:
         self.log = logging.getLogger(__name__)
         self.log.setLevel(logging.DEBUG)
         handler1 = logging.StreamHandler(sys.stderr)
-        handler1.setLevel(logging.INFO)
+        handler1.setLevel(logging.DEBUG)
         handler1.setFormatter(logging.Formatter("[%(levelname)s %(asctime)s %(filename)s %(process)d]:%(message)s"))
 
         handler2 = logging.FileHandler(program.LOGGING_FILE_PATH)
@@ -347,6 +352,16 @@ class SettingFunctions:
             self.settings = self.DEFAULT_SETTING
             self.__save()
             program.restart()
+
+    def add(self, name: str, data):
+        """
+        添加设置项
+        @param name: 选项名称
+        @param data: 默认数据
+        """
+        self.DEFAULT_SETTING[name] = data
+        if name not in self.settings.keys():
+            self.save(name, data)
 
 
 class ProcessFunctions:
@@ -933,13 +948,16 @@ class FileFunctions(ProcessFunctions):
                     data.append(self.splitPath(i))
         return data
 
-    def startFile(self, path: str):
+    def showFile(self, path: str):
         """
         在文件资源管理器中打开目录
         @param path: 路径
         """
         if path and self.existPath(path):
-            os.startfile(path)
+            if f.isDir(path):
+                os.startfile(path)
+            else:
+                f.cmd(f"explorer /select,{path}")
 
     def extractZip(self, path: str, goal: str, delete=False):
         """
@@ -1090,7 +1108,7 @@ class ProgramFunctions(FileFunctions):
         response = self.requestGet(self.urlJoin(url, "addon.json"), program.REQUEST_HEADER, (15, 30))
         data = json.loads(response)
         data["url"] = url
-        logging.debug(f"插件{data["name"]}信息获取成功")
+        logging.debug(f"插件{data['name']}信息获取成功")
         return data
 
     def downloadAddon(self, data: dict):
@@ -1112,7 +1130,7 @@ class ProgramFunctions(FileFunctions):
         for i in data["lib"]:
             self.pipInstall(i)
             self.pipUpdate(i)
-        logging.debug(f"插件{data["name"]}下载成功")
+        logging.debug(f"插件{data['name']}下载成功")
 
     def getInstalledAddonInfo(self) -> dict:
         """
@@ -1227,13 +1245,13 @@ class DownloadFile:
             path = f.pathJoin(path, link.split("/")[-1])
         if f.existPath(path):
             i = 1
-            while f.existPath(f.pathJoin(f.splitPath(path, 3), f.splitPath(path, 1) + " (" + str(i) + ")" + f.splitPath(path, 2))):
+            while f.existPath(f.pathJoin(f.splitPath(path, 3), f.splitPath(path, 1) + " (" + str(i) + ")" + f.splitPath(path, 2))) or f.existPath(f.pathJoin(f.splitPath(path, 3), f.splitPath(path, 1) + " (" + str(i) + ")" + f.splitPath(path, 2) + ("." if suffix else "") + suffix)):
                 i = i + 1
             path = f.pathJoin(f.splitPath(path, 3), f.splitPath(path, 1) + " (" + str(i) + ")" + f.splitPath(path, 2))
         self.path = path + ("." if suffix else "") + suffix
         logging.info(f"开始使用DownloadKit下载{link}到{self.path}")
         self.d = DownloadKit(f.splitPath(path, 3))
-        self.file = self.d.add(link, rename=f.splitPath(path, 0), suffix=suffix, headers=header, allow_redirects=True)
+        self.file = self.d.add(link, rename=f.splitPath(path, 0), suffix=suffix, headers=header, allow_redirects=True, file_exists="skip")
         if wait:
             self.file.wait()
 
@@ -1245,6 +1263,8 @@ class DownloadFile:
             return True
         elif self.file.result == None:
             return None
+        elif self.file.result == "skipped":
+            return False
 
     def stop(self):
         self.file.cancel()

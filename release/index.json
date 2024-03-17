@@ -1,11 +1,10 @@
 {
-    "version": "3.8.4",
+    "version": "4.0.0",
     "list": [
         "main.pyw",
         "download.pyw",
         "source/function.py",
-        "source/init.py",
-        "source/thread.py",
+        "source/preload.py",
         "source/custom.py",
         "source/widget.py",
         "source/window.py",

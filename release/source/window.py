@@ -42,17 +42,17 @@ class MainPage(BasicPage):
         self.card3 = GrayCard("游戏功能", self.view)
         self.card3.addWidget(self.button3_1)
 
-        self.vBoxLayout.addWidget(self.card1, 0, Qt.AlignTop)
-        self.vBoxLayout.addWidget(self.card2, 0, Qt.AlignTop)
-        self.vBoxLayout.addWidget(self.card3, 0, Qt.AlignTop)
+        self.vBoxLayout.addWidget(self.card1, 0, Qt.AlignmentFlag.AlignTop)
+        self.vBoxLayout.addWidget(self.card2, 0, Qt.AlignmentFlag.AlignTop)
+        self.vBoxLayout.addWidget(self.card3, 0, Qt.AlignmentFlag.AlignTop)
 
     def button1_1Clicked(self):
         if setting.read("sortPath") == "":
-            self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", "当前未设置整理文件目录，无法整理！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self)
+            self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", "当前未设置整理文件目录，无法整理！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self)
             self.infoBar.show()
             return
         if setting.read("wechatPath") == "":
-            self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", "当前未设置微信文件目录，无法整理微信文件！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self)
+            self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", "当前未设置微信文件目录，无法整理微信文件！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self)
             self.infoBar.show()
 
         self.button1_1.setEnabled(False)
@@ -116,30 +116,6 @@ class MainPage(BasicPage):
         )
 
 
-class ToolPage(BasicTabPage):
-    """
-    工具页面
-    """
-    title = "工具"
-    subtitle = "实用工具"
-
-    def __init__(self, parent=None):
-        super().__init__(parent=parent)
-        self.setIcon(FIF.DEVELOPER_TOOLS)
-
-
-class GamePage(BasicTabPage):
-    """
-    游戏页面
-    """
-    title = "游戏"
-    subtitle = "游戏功能"
-
-    def __init__(self, parent=None):
-        super().__init__(parent=parent)
-        self.setIcon(FIF.GAME)
-
-
 class SettingPage(BasicPage):
     """
     设置页面
@@ -179,9 +155,9 @@ class SettingPage(BasicPage):
         self.cardGroup3.addWidget(self.sortFolderSettingCard)
         self.cardGroup3.addWidget(self.downloadSettingCard)
 
-        self.vBoxLayout.addWidget(self.cardGroup1, 0, Qt.AlignTop)
-        self.vBoxLayout.addWidget(self.cardGroup2, 0, Qt.AlignTop)
-        self.vBoxLayout.addWidget(self.cardGroup3, 0, Qt.AlignTop)
+        self.vBoxLayout.addWidget(self.cardGroup1, 0, Qt.AlignmentFlag.AlignTop)
+        self.vBoxLayout.addWidget(self.cardGroup2, 0, Qt.AlignmentFlag.AlignTop)
+        self.vBoxLayout.addWidget(self.cardGroup3, 0, Qt.AlignmentFlag.AlignTop)
 
 
 class AboutPage(BasicPage):
@@ -229,21 +205,21 @@ class AboutPage(BasicPage):
         self.bigInfoCard.mainButton.clicked.connect(lambda: webbrowser.open(program.AUTHOR_URL))
         self.bigInfoCard.mainButton.setIcon(FIF.LINK)
 
-        self.vBoxLayout.addWidget(self.bigInfoCard, 0, Qt.AlignTop)
-        self.vBoxLayout.addWidget(self.cardGroup1, 0, Qt.AlignTop)
-        self.vBoxLayout.addWidget(self.cardGroup2, 0, Qt.AlignTop)
+        self.vBoxLayout.addWidget(self.bigInfoCard, 0, Qt.AlignmentFlag.AlignTop)
+        self.vBoxLayout.addWidget(self.cardGroup1, 0, Qt.AlignmentFlag.AlignTop)
+        self.vBoxLayout.addWidget(self.cardGroup2, 0, Qt.AlignmentFlag.AlignTop)
 
 
 class Window(FluentWindow):
     """
     主窗口
     """
-    signalStr = pyqtSignal(str)
-    signalInt = pyqtSignal(int)
-    signalBool = pyqtSignal(bool)
-    signalList = pyqtSignal(list)
-    signalDict = pyqtSignal(dict)
-    signalObject = pyqtSignal(object)
+    signalStr = Signal(str)
+    signalInt = Signal(int)
+    signalBool = Signal(bool)
+    signalList = Signal(list)
+    signalDict = Signal(dict)
+    signalObject = Signal(object)
 
     def __init__(self):
         super().__init__()
@@ -251,6 +227,8 @@ class Window(FluentWindow):
         self.__initWindow()
         self.__initWidget()
         self.__initActivity()
+        self.updateFrameless()
+        self.setMicaEffectEnabled(True)
 
     def __initWindow(self):
         """
@@ -265,10 +243,10 @@ class Window(FluentWindow):
         self.resize(900, 700)
         self.setMinimumSize(700, 500)
         self.setWindowIcon(QIcon(program.PROGRAM_ICON))
-        self.setWindowTitle(f"{program.PROGRAM_TITLE} {setting.read("updateChannel")}")
+        self.setWindowTitle(f"{program.PROGRAM_TITLE} {setting.read('updateChannel')}")
         self.navigationInterface.setReturnButtonVisible(False)
         # 窗口居中
-        desktop = QApplication.desktop().availableGeometry()
+        desktop = QApplication.screens()[0].size()
         w, h = desktop.width(), desktop.height()
         self.move(w // 2 - self.width() // 2, h // 2 - self.height() // 2)
 
@@ -277,22 +255,18 @@ class Window(FluentWindow):
         组件初始化
         """
         self.mainPage = MainPage(self)
-        self.toolPage = ToolPage(self)
-        self.gamePage = GamePage(self)
         self.settingPage = SettingPage(self)
         self.aboutPage = AboutPage(self)
 
         self.addPage(self.mainPage, "top")
         self.addSeparator("top")
-        self.addPage(self.toolPage, "scroll")
-        self.addPage(self.gamePage, "scroll")
         self.addSeparator("bottom")
         self.addPage(self.settingPage, "bottom")
         self.addPage(self.aboutPage, "bottom")
 
     def __initActivity(self):
         # 报错检测
-        sys.excepthook = self.getException
+        # sys.excepthook = self.getException
         # 循环监测事件
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.detectRepeatRun)
@@ -311,8 +285,6 @@ class Window(FluentWindow):
             self.thread2.signalDict.connect(self.autoUpdateFinish)
             self.thread2.signalBool.connect(self.autoUpdateFinish)
             self.thread2.start()
-        if program.PYTHON_VERSION.split(".")[1] != "12":
-            QMessageBox(QMessageBox.Warning, "警告", f"当前Python版本为{program.PYTHON_VERSION}，{program.PROGRAM_NAME}推荐使用Python3.12版本！").exec()
 
         # 插件安装
         self.addAddon(f.getInstalledAddonInfo())
@@ -322,7 +294,7 @@ class Window(FluentWindow):
         自定义按键事件
         """
         # Esc键
-        if QKeyEvent.key() == Qt.Key_Escape:
+        if QKeyEvent.key() == Qt.Key.Key_Escape:
             if setting.read("hideWhenClose"):
                 self.hide()
 
@@ -346,14 +318,14 @@ class Window(FluentWindow):
         info = "".join(format_exception(type, value, traceback))
         logging.fatal(f"程序发生异常\n{info}")
         self.messageBox = MessageBox("程序发生异常", info, self)
-        self.messageBox.contentLabel.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        self.messageBox.contentLabel.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
         self.messageBox.yesButton.setText("重启")
         self.messageBox.yesButton.setIcon(FIF.SYNC)
         self.messageBox.yesButton.clicked.connect(program.restart)
         self.messageBox.cancelButton.setText("关闭")
         self.messageBox.exec()
 
-    def addPage(self, page: QWidget, pos: str):
+    def addPage(self, page, pos: str):
         """
         添加导航栏页面简易版
         @param page: 页面对象
@@ -399,31 +371,23 @@ class Window(FluentWindow):
         import importlib
         try:
             lib = importlib.import_module(data["id"])
-            if data["pos"] == "tool":
-                self.page = lib.AddonTab(self)
-                self.toolPage.addPage(self.page)
-            elif data["pos"] == "game":
-                self.page = lib.AddonTab(self)
-                self.gamePage.addPage(self.page)
-            elif data["pos"] == "page":
-                self.page = lib.AddonPage(self)
-                if not self.page.title:
-                    self.page.title = data["name"]
-                self.addPage(self.page, "scroll")
+            self.page = lib.AddonPage(self)
+            if not self.page.title:
+                self.page.title = data["name"]
+            self.addPage(self.page, "scroll")
         except Exception as ex:
-            self.signalStr.emit(data["id"])
-            logging.warning(f"插件{data["name"]}安装失败{ex}")
+            logging.warning(f"插件{data['name']}安装失败{ex}")
 
     def __removeAddon(self, data):
         """
         移除插件
         @param data: 数据
         """
-        f.cmd(f"del /F /Q {f.pathJoin(program.ADDON_PATH, data["id"])}", True)
+        f.cmd(f"del /F /Q {f.pathJoin(program.ADDON_PATH, data['id'])}", True)
         f.delete(f.pathJoin(program.ADDON_PATH, data["id"]))
-        logging.info(f"插件{data["name"]}删除成功")
+        logging.info(f"插件{data['name']}删除成功")
 
-        self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{data["name"]}删除成功！", Qt.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.aboutPage)
+        self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{data['name']}删除成功！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.aboutPage)
 
         self.button1 = PushButton("重启", self, FIF.SYNC)
         self.button1.clicked.connect(program.restart)

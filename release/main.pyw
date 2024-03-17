@@ -1,10 +1,8 @@
 from source.window import *
 
 QApplication.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
-QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
-QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
 
-app = QApplication(sys.argv)
+app = QApplication()
 translator = FluentTranslator()
 app.installTranslator(translator)
 window = Window()
