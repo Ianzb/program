@@ -524,13 +524,7 @@ class FileTab(BasicTab):
         if not f.existPath(f.pathJoin(setting.read("minecraftJavaPath"), FILE_PATH[self.comboBox1_1.currentText()])):
             return
         self.data = []
-        self.comboBox1_1.setEnabled(False)
-        self.reloadButton.setEnabled(False)
-        self.settingButton.setEnabled(False)
-        self.updateButton.setEnabled(False)
-        self.switchButton.setEnabled(False)
-        self.comboBox2_2.setEnabled(False)
-        self.comboBox2_3.setEnabled(False)
+        self.showWidget(False)
 
         self.cardGroup1.deleteLater()
         self.cardGroup1 = CardGroup(self.view)
@@ -575,23 +569,10 @@ class FileTab(BasicTab):
             self.comboBox2_2.setCurrentText(version)
 
     def thread2_1(self, msg):
-        self.comboBox1_1.setEnabled(True)
-        self.reloadButton.setEnabled(True)
-        self.settingButton.setEnabled(True)
-        self.updateButton.setEnabled(True)
-        self.switchButton.setEnabled(True)
-        self.comboBox2_2.setEnabled(True)
-        self.comboBox2_3.setEnabled(True)
+        self.showWidget(True)
 
     def updateButtonClicked(self):
-        self.comboBox1_1.setEnabled(False)
-        self.reloadButton.setEnabled(False)
-        self.settingButton.setEnabled(False)
-        self.updateButton.setEnabled(False)
-        self.switchButton.setEnabled(False)
-        self.comboBox2_1.setEnabled(False)
-        self.comboBox2_2.setEnabled(False)
-        self.comboBox2_3.setEnabled(False)
+        self.showWidget(False)
 
         self.progressBar = ProgressBar(self)
         self.progressBar.setAlignment(Qt.AlignCenter)
@@ -610,14 +591,7 @@ class FileTab(BasicTab):
         self.thread3.start()
 
     def thread3_1(self, msg):
-        self.comboBox1_1.setEnabled(True)
-        self.reloadButton.setEnabled(True)
-        self.settingButton.setEnabled(True)
-        self.updateButton.setEnabled(True)
-        self.switchButton.setEnabled(True)
-        self.comboBox2_1.setEnabled(True)
-        self.comboBox2_2.setEnabled(True)
-        self.comboBox2_3.setEnabled(True)
+        self.showWidget(True)
 
         list1 = []
 
@@ -640,6 +614,7 @@ class FileTab(BasicTab):
 
     def thread3_2(self, msg):
         if not msg:
+            self.showWidget(True)
             self.infoBar.isClosable = True
             self.infoBar.closeButton.click()
             self.infoBar = InfoBar(InfoBarIcon.WARNING, "错误", f"检查更新失败", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self)
@@ -650,3 +625,11 @@ class FileTab(BasicTab):
             self.progressBar.setValue(msg)
         except:
             pass
+
+    def showWidget(self, stat: bool):
+        self.comboBox1_1.setEnabled(stat)
+        self.updateButton.setEnabled(stat)
+        self.switchButton.setEnabled(stat)
+        self.comboBox2_1.setEnabled(stat)
+        self.comboBox2_2.setEnabled(stat)
+        self.comboBox2_3.setEnabled(stat)
