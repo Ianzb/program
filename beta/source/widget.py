@@ -174,9 +174,8 @@ class AddonEditMessageBox(MessageBoxBase):
     可编辑插件的弹出框
     """
 
-    def __init__(self, title: str, parent=None, error: list = []):
+    def __init__(self, title: str, parent=None):
         super().__init__(parent)
-        self.errorAddonList = error
         self.titleLabel = SubtitleLabel(title, self)
 
         self.tableView = TableWidget(self)
@@ -267,8 +266,6 @@ class AddonEditMessageBox(MessageBoxBase):
             for i in range(self.tableView.rowCount()):
                 if self.tableView.item(i, 3).text() == "加载中...":
                     self.tableView.setItem(i, 3, QTableWidgetItem("云端无数据"))
-                if self.tableView.item(i, 0).text() in self.errorAddonList:
-                    self.tableView.setItem(i, 2, QTableWidgetItem("安装失败"))
         else:
             self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", f"无网络连接！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().aboutPage)
             self.infoBar.show()
@@ -286,8 +283,6 @@ class AddonEditMessageBox(MessageBoxBase):
         self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{msg["name"]}安装成功！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().aboutPage)
         self.infoBar.show()
         self.parent().addAddon(msg)
-        if msg["id"] in self.parent().aboutPage.addonSettingCard.errorAddonList:
-            self.parent().aboutPage.addonSettingCard.errorAddonList.remove(msg["id"])
 
     def threadEvent2_2(self, msg):
         if msg:
@@ -686,7 +681,6 @@ class AddonSettingCard(SettingCard):
 
     def __init__(self, parent=None):
         super().__init__(FIF.ADD, "插件", f"管理{program.PROGRAM_NAME}的插件", parent)
-        self.errorAddonList = []
 
         self.progressBarLoading = IndeterminateProgressBar(self)
         self.progressBarLoading.setMaximumWidth(200)
@@ -702,14 +696,10 @@ class AddonSettingCard(SettingCard):
         self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
-        self.parent().parent().signalStr.connect(self.errorAddonEvent)
 
     def button1Clicked(self):
-        self.addonEditMessageBox = AddonEditMessageBox("加载中...", self.parent().parent().parent().parent().parent().parent().parent(), self.errorAddonList)
+        self.addonEditMessageBox = AddonEditMessageBox("加载中...", self.parent().parent().parent().parent().parent().parent().parent())
         self.addonEditMessageBox.show()
-
-    def errorAddonEvent(self, msg):
-        self.errorAddonList.append(msg)
 
 
 class UpdateSettingCard(SettingCard):

@@ -25,15 +25,13 @@ def searchSoftware(name: str, source: str) -> list:
         data = json.loads(data)["list"]
         for i in range(len(data)):
             data[i]["xmlInfo"] = f.xmlToJson(data[i]["xmlInfo"])
-            if len(data[i]["xmlInfo"]["soft"]["feature"]) >= 20:
-                data[i]["xmlInfo"]["soft"]["feature"] = data[i]["xmlInfo"]["soft"]["feature"][:20] + "..."
         for i in data:
             list.append({"名称": i["SoftName"],
                          "图标": f"https://pc3.gtimg.com/softmgr/logo/48/{i["xmlInfo"]["soft"]["logo48"]}",
                          "介绍": i["xmlInfo"]["soft"]["feature"],
                          "当前版本": i["xmlInfo"]["soft"]["versionname"],
                          "更新日期": i["xmlInfo"]["soft"]["publishdate"],
-                         "文件大小": f"{eval("%.2f" % eval("%.5g" % (eval(i["xmlInfo"]["soft"]["filesize"]) / 1024 / 1024)))} MB",
+                         "文件大小": f.fileSizeAddUnit(int(i["xmlInfo"]["soft"]["filesize"])),
                          "文件名称": i["xmlInfo"]["soft"]["filename"],
                          "下载链接": i["xmlInfo"]["soft"]["url"],
                          })
@@ -107,10 +105,10 @@ class AppInfoCard(SmallInfoCard):
         self.setInfo(f"更新日期：{self.data["更新日期"]}", 3)
 
     def mainButtonClicked(self):
-        DownloadWidget(self.data["下载链接"], self.data["文件名称"], self.parent().parent().parent().parent())
+        DownloadWidget(self.data["下载链接"], self.data["文件名称"], self.parent().parent().parent())
 
 
-class AddonTab(BasicTab):
+class AddonPage(BasicTab):
     """
     插件主页面
     """
@@ -139,7 +137,7 @@ class AddonTab(BasicTab):
         self.comboBox.setToolTip("选择下载应用来源")
         self.comboBox.installEventFilter(ToolTipFilter(self.comboBox, 1000))
 
-        self.card = GrayCard()
+        self.card = GrayCard("应用商店")
         self.card.addWidget(self.lineEdit)
         self.card.addWidget(self.comboBox)
 

@@ -284,18 +284,13 @@ class SmallFileInfoCard(SmallInfoCard):
             self.infoBar = InfoBar(InfoBarIcon.WARNING, "警告", "该文件暂无下载链接，请更换版本或更换下载源重试！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
             self.infoBar.show()
             return
-        DownloadWidget(self.data["下载链接"], self.data["文件名称"], self.parent().parent().parent().parent())
+        DownloadWidget(self.data["下载链接"], self.data["文件名称"], self.parent().parent().parent())
 
 
-class AddonTab(BasicTab):
-    """
-    插件主页面
-    """
-
+class SearchTab(BasicTab):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setObjectName("资源下载")
-
         self.onShowPage = None
         self.isInit = False
 
@@ -362,8 +357,6 @@ class AddonTab(BasicTab):
 
         self.cardGroup1 = CardGroup(self.view)
         self.vBoxLayout.addWidget(self.cardGroup1)
-
-        self.parent().gamePage.addPage(FileManageTab())
 
     def showEvent(self, QShowEvent):
         if not self.isInit:
@@ -486,3 +479,17 @@ class AddonTab(BasicTab):
             self.bigModInfoCard.signalDict.connect(self.showModPage)
             self.onShowPage = self.bigModInfoCard
             self.vBoxLayout.insertWidget(0, self.bigModInfoCard)
+
+
+class AddonPage(BasicTabPage):
+    """
+    插件主页面
+    """
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setIcon(FIF.GAME)
+        self.setObjectName("资源下载")
+
+        self.addPage(SearchTab(self))
+        self.addPage(FileTab(self))

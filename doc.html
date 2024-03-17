@@ -36,7 +36,6 @@
                         "id": "appstore", // 插件ID要求同上<br>
                         "name": "应用商店", // 插件名称，建议简洁明了<br>
                         "version": "1.0.1", // 版本号，注意尽量是三段式，不要有除数字和.的符号<br>
-                        "pos": "tool", // 插件页面出现位置：tool-在程序的工具页面作为标签页加入。game-在程序的游戏页面作为标签页加入。page-在程序左侧导航栏作为单独页面加入<br>
                         "file": [ // 为列表形式，储存着项目所有文件的相对（addon.json的）路径（或绝对网址），必需有__init__.py<br>
                         "init.py" // 文件格式不限，如果为zip文件会自动解压到程序的addon文件夹（由于Github
                         Pages无法下载双下划线开头的文件，请将__init__.py改为init.py，其他方式网站无需此操作）<br>
@@ -53,8 +52,7 @@
                         sys.path = [os.path.dirname(sys.argv[0])] + sys.path<br>
                         from source.custom import *<br>
                         os.chdir(os.path.dirname(__file__))<br>
-                        如果插件addon.json中的“pos”为“tool”或“game”，插件主页组件必须设置为为class AddonTab(BasicTab):<br>
-                        如“pos”为“page”，插件主页必须设置为class AddonTab(BasicTab):，同时还需要设置self.title和self.subtitle作为页面标题和子标题<br>
+                        插件主页必须设置为class AddonTab():，同时还需要设置self.title和self.subtitle作为页面标题和子标题<br>
                         self.setIcon()可设置页面图标，可为FIF.图标或本地图片文件<br>
                         self.setObjectName("")可设置页面名称<br>
                     </p>

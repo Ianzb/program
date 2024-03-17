@@ -187,10 +187,10 @@ class SearchButton(ToolButton):
         self.clicked.connect(self.searchButtonClicked)
 
     def searchButtonClicked(self):
-        widget = self.parent().parent().parent().parent().parent().parent().widget(1)
+        widget = self.parent().parent().parent().parent().parent().parent().parent().stackedWidget.widget(0)
         widget.showModPage(self.data, self.parent().parent().parent().parent().parent().comboBox2.currentText(), self.parent().parent().parent().parent().parent().comboBox3.currentText())
         self.parent().parent().parent().parent().parent().parent().parent().pivot.setCurrentItem("资源下载")
-        self.parent().parent().parent().parent().parent().parent().setCurrentWidget(widget)
+        self.parent().parent().parent().parent().parent().parent().parent().stackedWidget.setCurrentWidget(widget)
 
 
 class ModFileInfoCard(SmallInfoCard):
@@ -266,7 +266,7 @@ class ModFileInfoCard(SmallInfoCard):
                 self.hBoxLayout.insertWidget(4, SearchButton(data, self), alignment=Qt.AlignRight)
 
 
-class FileManageTab(BasicTab):
+class FileTab(BasicTab):
     """
     插件第二页面
     """

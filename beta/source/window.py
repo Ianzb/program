@@ -116,30 +116,6 @@ class MainPage(BasicPage):
         )
 
 
-class ToolPage(BasicTabPage):
-    """
-    工具页面
-    """
-    title = "工具"
-    subtitle = "实用工具"
-
-    def __init__(self, parent=None):
-        super().__init__(parent=parent)
-        self.setIcon(FIF.DEVELOPER_TOOLS)
-
-
-class GamePage(BasicTabPage):
-    """
-    游戏页面
-    """
-    title = "游戏"
-    subtitle = "游戏功能"
-
-    def __init__(self, parent=None):
-        super().__init__(parent=parent)
-        self.setIcon(FIF.GAME)
-
-
 class SettingPage(BasicPage):
     """
     设置页面
@@ -277,15 +253,11 @@ class Window(FluentWindow):
         组件初始化
         """
         self.mainPage = MainPage(self)
-        self.toolPage = ToolPage(self)
-        self.gamePage = GamePage(self)
         self.settingPage = SettingPage(self)
         self.aboutPage = AboutPage(self)
 
         self.addPage(self.mainPage, "top")
         self.addSeparator("top")
-        self.addPage(self.toolPage, "scroll")
-        self.addPage(self.gamePage, "scroll")
         self.addSeparator("bottom")
         self.addPage(self.settingPage, "bottom")
         self.addPage(self.aboutPage, "bottom")
@@ -399,19 +371,11 @@ class Window(FluentWindow):
         import importlib
         try:
             lib = importlib.import_module(data["id"])
-            if data["pos"] == "tool":
-                self.page = lib.AddonTab(self)
-                self.toolPage.addPage(self.page)
-            elif data["pos"] == "game":
-                self.page = lib.AddonTab(self)
-                self.gamePage.addPage(self.page)
-            elif data["pos"] == "page":
-                self.page = lib.AddonPage(self)
-                if not self.page.title:
-                    self.page.title = data["name"]
-                self.addPage(self.page, "scroll")
+            self.page = lib.AddonPage(self)
+            if not self.page.title:
+                self.page.title = data["name"]
+            self.addPage(self.page, "scroll")
         except Exception as ex:
-            self.signalStr.emit(data["id"])
             logging.warning(f"插件{data["name"]}安装失败{ex}")
 
     def __removeAddon(self, data):

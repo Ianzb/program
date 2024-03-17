@@ -1,8 +1,7 @@
 {
     "id": "mcmanager",
     "name": "MC资源管理器",
-    "version": "2.0.0",
-    "pos": "game",
+    "version": "2.1.0",
     "file": [
         "init.py",
         "api.py",
