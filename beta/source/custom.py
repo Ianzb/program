@@ -35,10 +35,10 @@ class Tray(QSystemTrayIcon):
         super().showMessage(title, msg, QIcon(program.PROGRAM_ICON))
 
     def iconClicked(self, reason):
-        if reason == 3:
-            self.trayClickedEvent()
-        elif reason == 1:
+        if reason == QSystemTrayIcon.ActivationReason.Context:
             self.contextMenuEvent()
+        elif reason == QSystemTrayIcon.ActivationReason.DoubleClick or QSystemTrayIcon.ActivationReason.MiddleClick:
+            self.trayClickedEvent()
 
     def trayClickedEvent(self):
         if self.window.isHidden():

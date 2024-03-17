@@ -203,7 +203,7 @@ class SearchButton(ToolButton):
 
         self.setIcon(FIF.SEARCH)
 
-        self.setToolTip(f"在{data["来源"]}上搜索组件")
+        self.setToolTip(f"在{data['来源']}上搜索组件")
         self.installEventFilter(ToolTipFilter(self, 1000))
         self.clicked.connect(self.searchButtonClicked)
 
@@ -270,7 +270,7 @@ class UpdateModWidget(QWidget):
                 self.infoBar.closeButton.click()
             except:
                 self.thread1.cancel()
-            self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", f"下载失败", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent)
+            self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", "下载失败", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent)
             self.infoBar.show()
 
     def button1Clicked(self):
@@ -387,9 +387,9 @@ class ModFileInfoCard(SmallInfoCard):
             for data in list1:
                 self.data[data["来源"]] = data
                 if {} in self.data.values():
-                    self.setInfo(f"文件大小：{f.fileSizeAddUnit(data["文件大小"])}", 1)
-                    self.setInfo(f"下载量：{f.numberAddUnit(data["下载量"])}", 2)
-                    self.setInfo(f"更新日期：{data["更新日期"]}", 3)
+                    self.setInfo(f"文件大小：{f.fileSizeAddUnit(data['文件大小'])}", 1)
+                    self.setInfo(f"下载量：{f.numberAddUnit(data['下载量'])}", 2)
+                    self.setInfo(f"更新日期：{data['更新日期']}", 3)
                 self.hBoxLayout.insertWidget(4, CopyButton(data["下载链接"]), alignment=Qt.AlignmentFlag.AlignRight)
         else:
             self.setInfo("文件无在线数据！", 0)
@@ -403,7 +403,7 @@ class ModFileInfoCard(SmallInfoCard):
         list1 = [i for i in msg if i["id"] in mod_id]
         if list1:
             self.image.show()
-            self.setImg(f"{list1[0]["来源"]}/{f.removeIllegalPath(list1[0]["名称"])}.png", list1[0]["图标"])
+            self.setImg(f"{list1[0]['来源']}/{f.removeIllegalPath(list1[0]['名称'])}.png", list1[0]["图标"])
             self.setInfo(list1[0]["介绍"], 0)
             for data in list1:
                 self.mod[data["来源"]] = data

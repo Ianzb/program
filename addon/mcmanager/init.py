@@ -56,12 +56,12 @@ class SmallModInfoCard(SmallInfoCard):
             self.setTitle("信息加载失败！")
 
     def loadInfo(self):
-        self.setImg(f"{self.source}/{f.removeIllegalPath(self.data["名称"])}.png", self.data["图标"])
-        self.setTitle(f"{self.data["名称"]}")
+        self.setImg(f"{self.source}/{f.removeIllegalPath(self.data['名称'])}.png", self.data["图标"])
+        self.setTitle(f"{self.data['名称']}")
         self.setInfo(self.data["介绍"], 0)
-        self.setInfo(f"下载量：{f.numberAddUnit(self.data["下载量"])}", 1)
-        self.setInfo(f"游戏版本：{self.data["游戏版本"][0] + "-" + self.data["游戏版本"][-1] if len(self.data["游戏版本"]) > 1 else self.data["游戏版本"][0] if len(self.data["游戏版本"]) > 0 else "无"}", 2)
-        self.setInfo(f"更新日期：{self.data["更新日期"]}", 3)
+        self.setInfo(f"下载量：{f.numberAddUnit(self.data['下载量'])}", 1)
+        self.setInfo(f"游戏版本：{self.data['游戏版本'][0] + '-' + self.data['游戏版本'][-1] if len(self.data['游戏版本']) > 1 else self.data['游戏版本'][0] if len(self.data['游戏版本']) > 0 else '无'}", 2)
+        self.setInfo(f"更新日期：{self.data['更新日期']}", 3)
 
     def mousePressEvent(self, event):
         if isinstance(self.data, dict):
@@ -104,7 +104,7 @@ class BigModInfoCard(BigInfoCard):
 
         self.setTitle(data["名称"])
         self.setInfo(data["介绍"])
-        self.setImg(f"{data["来源"]}/{f.removeIllegalPath(data["名称"])}.png", data["图标"])
+        self.setImg(f"{data['来源']}/{f.removeIllegalPath(data['名称'])}.png", data["图标"])
         try:
             self.addData("作者", data["作者"])
         except:
@@ -125,11 +125,11 @@ class BigModInfoCard(BigInfoCard):
     def thread1_1(self, msg):
         self.setTitle(msg["名称"])
         self.setInfo(msg["介绍"])
-        self.setImg(f"{msg["来源"]}/{f.removeIllegalPath(msg["名称"])}.png", msg["图标"])
+        self.setImg(f"{msg['来源']}/{f.removeIllegalPath(msg['名称'])}.png", msg["图标"])
         self.addUrl(msg["来源"], msg["网站链接"], FIF.LINK)
         if msg["源代码链接"]:
             self.addUrl("源代码", msg["源代码链接"], FIF.GITHUB)
-        self.addUrl("MC百科", f"https://search.mcmod.cn/s?key={msg["名称"]}", FIF.SEARCH)
+        self.addUrl("MC百科", f"https://search.mcmod.cn/s?key={msg['名称']}", FIF.SEARCH)
 
         for i in msg["加载器"]:
             self.addTag(i)
@@ -267,11 +267,11 @@ class SmallFileInfoCard(SmallInfoCard):
 
         self.image.deleteLater()
 
-        self.setTitle(f"{data["名称"]}{" · " if data["版本类型"] else ""}{data["版本类型"]}")
-        self.setInfo("、".join(data["加载器"]) + (" | " if len(data["加载器"]) > 0 else "") + ("、".join(data["游戏版本"]) if len(data["游戏版本"]) <= 10 else f"支持{data["游戏版本"][0]}-{data["游戏版本"][-1]}共{len(data["游戏版本"])}个版本"), 0)
-        self.setInfo(f"文件大小：{f.fileSizeAddUnit(data["文件大小"])}", 1)
-        self.setInfo(f"下载量：{f.numberAddUnit(data["下载量"])}", 2)
-        self.setInfo(f"更新日期：{data["更新日期"]}", 3)
+        self.setTitle(f"{data['名称']}{' · ' if data['版本类型'] else ''}{data['版本类型']}")
+        self.setInfo("、".join(data["加载器"]) + (" | " if len(data["加载器"]) > 0 else "") + ("、".join(data["游戏版本"]) if len(data["游戏版本"]) <= 10 else f"支持{data['游戏版本'][0]}-{data['游戏版本'][-1]}共{len(data['游戏版本'])}个版本"), 0)
+        self.setInfo(f"文件大小：{f.fileSizeAddUnit(data['文件大小'])}", 1)
+        self.setInfo(f"下载量：{f.numberAddUnit(data['下载量'])}", 2)
+        self.setInfo(f"更新日期：{data['更新日期']}", 3)
 
         self.mainButton.setText("下载")
         self.mainButton.setIcon(FIF.DOWNLOAD)

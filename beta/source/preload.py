@@ -169,7 +169,7 @@ class NewThread(QThread):
                         return
                 if d.result() == False:
                     self.signalBool.emit(False)
-                    logging.debug(f"文件{data[1]}下载失败")
+                    logging.debug(f"文件{self.data[1]}下载失败")
                     f.delete(d.path.replace(".downloading", ""))
                 if not f.existPath(d.path.replace(".downloading", "")):
                     f.moveFile(d.path, d.path.replace(".downloading", ""))

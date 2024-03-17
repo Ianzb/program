@@ -188,7 +188,7 @@ def getModInfo(mod_id, source: str = "CurseForge") -> dict:
             "源代码链接": data["source_url"],
             "加载器": [(LOADER_TYPE_REVERSE[i] if i in LOADER_TYPE_REVERSE.keys() else i) for i in data["loaders"]],
             "发布日期": data["published"].split("T")[0],
-            "网站链接": f"https://modrinth.com/mod/{data["slug"]}",
+            "网站链接": f"https://modrinth.com/mod/{data['slug']}",
         })
     elif source == "CurseForge":
         data = f.requestGet(f"https://api.curseforge.com/v1/mods/{mod_id}", CURSEFORGE_API_KEY)
@@ -230,7 +230,8 @@ def getModsInfo(mod_ids, source: str = "CurseForge") -> dict:
     if source == "Modrinth":
         mod_ids = [mod_ids[i:i + 75] for i in range(0, len(mod_ids), 75)]
         for id in mod_ids:
-            response = f.requestGet(f"https://api.modrinth.com/v2/projects?ids={str(id).replace("'", '"')}", program.REQUEST_HEADER)
+            id = str(id).replace("'", '"')
+            response = f.requestGet(f"https://api.modrinth.com/v2/projects?ids={id}", program.REQUEST_HEADER)
             response = json.loads(response)
             for i in response:
                 data.append({
@@ -245,7 +246,7 @@ def getModsInfo(mod_ids, source: str = "CurseForge") -> dict:
                     "源代码链接": i["source_url"],
                     "加载器": [(LOADER_TYPE_REVERSE[j] if j in LOADER_TYPE_REVERSE.keys() else j) for j in i["loaders"]],
                     "发布日期": i["published"].split("T")[0],
-                    "网站链接": f"https://modrinth.com/mod/{i["slug"]}",
+                    "网站链接": f"https://modrinth.com/mod/{i['slug']}",
                 })
     elif source == "CurseForge":
         post_info = {

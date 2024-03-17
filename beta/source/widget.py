@@ -280,7 +280,7 @@ class AddonEditMessageBox(MessageBoxBase):
         self.tableView.setItem(i, 2, QTableWidgetItem("连接失败"))
 
     def threadEvent2_1(self, msg):
-        self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{msg["name"]}安装成功！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().aboutPage)
+        self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{msg['name']}安装成功！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().aboutPage)
         self.infoBar.show()
         self.parent().addAddon(msg)
 
@@ -786,7 +786,7 @@ class UpdateSettingCard(SettingCard):
         self.thread1.start()
 
     def threadEvent1_1(self, msg):
-        self.label.setText(f"{str(msg["进度"])}% 正在更新 {msg["名称"]}")
+        self.label.setText(f"{str(msg['进度'])}% 正在更新 {msg['名称']}")
         self.progressBar.setValue(msg["进度"])
 
     def threadEvent1_2(self, msg):
@@ -821,7 +821,7 @@ class UpdateSettingCard(SettingCard):
         self.thread2.start()
 
     def threadEvent2_1(self, msg):
-        self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", f"检测到新版本{msg["版本"]}！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+        self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", f"检测到新版本{msg['版本']}！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
 
         self.button3 = PushButton("立刻更新", self, FIF.DOWNLOAD)
         self.button3.clicked.connect(self.button3Clicked)
@@ -883,7 +883,7 @@ class UpdateSettingCard(SettingCard):
             self.button2.setEnabled(True)
         else:
             value = int(msg["序号"] / msg["数量"] * 100)
-            self.label.setText(f"{str(value)}% 正在更新 {msg["名称"]}")
+            self.label.setText(f"{str(value)}% 正在更新 {msg['名称']}")
             self.progressBar.setValue(value)
 
     def threadEvent3_2(self, msg):
@@ -1011,7 +1011,7 @@ class AboutSettingCard(SettingCard):
     """
 
     def __init__(self, parent=None):
-        super().__init__(FIF.INFO, "关于", f"© 2022-2024 Ianzb. GPLv3 License.\n当前版本 {program.PROGRAM_VERSION} {setting.read("updateChannel")}", parent)
+        super().__init__(FIF.INFO, "关于", f"© 2022-2024 Ianzb. GPLv3 License.\n当前版本 {program.PROGRAM_VERSION} {setting.read('updateChannel')}", parent)
         self.button1 = HyperlinkButton(program.PROGRAM_URL, "程序官网", self, FIF.LINK)
         self.button1.setToolTip("打开程序官网")
         self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))

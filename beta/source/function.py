@@ -1108,7 +1108,7 @@ class ProgramFunctions(FileFunctions):
         response = self.requestGet(self.urlJoin(url, "addon.json"), program.REQUEST_HEADER, (15, 30))
         data = json.loads(response)
         data["url"] = url
-        logging.debug(f"插件{data["name"]}信息获取成功")
+        logging.debug(f"插件{data['name']}信息获取成功")
         return data
 
     def downloadAddon(self, data: dict):
@@ -1130,7 +1130,7 @@ class ProgramFunctions(FileFunctions):
         for i in data["lib"]:
             self.pipInstall(i)
             self.pipUpdate(i)
-        logging.debug(f"插件{data["name"]}下载成功")
+        logging.debug(f"插件{data['name']}下载成功")
 
     def getInstalledAddonInfo(self) -> dict:
         """
