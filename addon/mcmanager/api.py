@@ -83,6 +83,7 @@ FILE_PATH = {
     "模组": "mods",
     "光影": "shaderpacks",
     "资源包": "resourcepacks",
+    "存档": "saves"
 }
 FILE_SUFFIX = {
     "模组": [".jar", ".zip", ".disabled"],
@@ -282,7 +283,7 @@ def getModsInfo(mod_ids, source: str = "CurseForge") -> dict:
     return data
 
 
-def getModFile(id, source: str = "CurseForge", version: str = "", loader: str = "") -> dict:
+def getModFile(id, version: str = "", loader: str = "", source: str = "CurseForge") -> dict:
     """
     获得模组文件
     @param id: 模组id
@@ -317,7 +318,10 @@ def getModFile(id, source: str = "CurseForge", version: str = "", loader: str = 
             })
     elif source == "CurseForge":
         version = f"&gameVersion={version}" if version not in ["全部", "", None] else ""
-        loader = f"&modLoaderType={CURSEFORGE_LOADER_TYPE_REVERSE[loader.lower()]}" if loader not in ["全部", "", None] else ""
+        if (LOADER_TYPE[loader] if loader in LOADER_TYPE.keys() else loader) in list(CURSEFORGE_LOADER_TYPE_REVERSE.keys()) + ["全部", "", None]:
+            loader = f"&modLoaderType={CURSEFORGE_LOADER_TYPE_REVERSE[LOADER_TYPE[loader]]}" if loader not in ["全部", "", None] else ""
+        else:
+            loader = ""
         data = f.requestGet(f"https://api.curseforge.com/v1/mods/{id}/files?a=0{version}{loader}", CURSEFORGE_API_KEY)
         data = json.loads(data)["data"]
 
@@ -518,44 +522,9 @@ def getNewestFromHash(path, version: str, loader: str, source: str = "CurseForge
                 "文件大小": i["files"][0]["size"],
             })
     elif source == "CurseForge":
-        if f.isDir(path):
-            path = f.walkFile(path, 1)
-        elif f.isFile(path):
-            path = [path]
-        elif type(path) == list:
-            pass
-        else:
-            return False
-        path = [i for i in path if not i.endswith(".old")]
-        hash = {}
-        for i in path:
-            hash[f.splitPath(i)] = CurseForgeHash(i)
-        post_info = {
-            "fingerprints": list(hash.values())
-        }
-        hash_reverse = dict([val, key] for key, val in hash.items())
-        response = f.requestPost("https://api.curseforge.com/v1/fingerprints/432", post_info, CURSEFORGE_POST_API_KEY)
-        response = response.json()["data"]["exactMatches"]  # [0]["file"]
+        response = getInfoFromHash(path, source)
         data = []
         for i in response:
-            i = i["file"]
-            data.append({
-                "id": i["id"],
-                "模组id": i["modId"],
-                "名称": i["displayName"],
-                # "版本号": i["version_number"],
-                "前置": [j["modId"] for j in i["dependencies"] if j["relationType"] == 3],
-                "游戏版本": f.sortVersion([j for j in i["gameVersions"] if j in RELEASE_VERSIONS]),
-                "版本类型": CURSEFORGE_VERSION_TYPE[i["releaseType"]],
-                "加载器": [(LOADER_TYPE_REVERSE[j.lower()] if j.lower() in LOADER_TYPE_REVERSE.keys() else j.lower()) for j in i["gameVersions"] if j.lower() in CURSEFORGE_LOADER_TYPE.values()],
-                "下载量": i["downloadCount"],
-                "更新日期": i["fileDate"].split("T")[0],
-                "来源": "CurseForge",
-                "哈希值": i["fileFingerprint"],
-                "下载链接": i["downloadUrl"].replace("edge.forgecdn.net", "mediafilez.forgecdn.net") if i["downloadUrl"] else i["downloadUrl"],
-                "文件名称": i["fileName"],
-                "文件大小": i["fileLength"],
-                "源文件名称": hash_reverse[i["fileFingerprint"]],
-            })
+            data.append(getModFile(i["模组id"], version, loader, source))
 
     return data

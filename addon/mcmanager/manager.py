@@ -91,6 +91,27 @@ class MyThread(QThread):
                 self.signalList.emit(data1 + data2)
             except Exception as ex:
                 self.signalBool.emit(False)
+        if self.mode == "获得模组最新版本":
+            try:
+                if self.data[3] == "Modrinth":
+                    self.signalInt.emit(0)
+                    data = getNewestFromHash(self.data[0], self.data[1], self.data[2], self.data[3])
+                elif self.data[3] == "CurseForge":
+                    self.signalInt.emit(0)
+                    response = getInfoFromHash(self.data[0], self.data[3])
+                    data = []
+                    self.signalInt.emit(int(100 / (len(response) + 1)))
+                    for i in range(len(response)):
+                        try:
+                            data1 = getModFile(response[i]["模组id"], self.data[1], self.data[2], self.data[3])
+                            data.append(data1[self.data[1]][0])
+                        except:
+                            pass
+                        self.signalInt.emit(int(100 * (i + 2) / (len(response) + 1)))
+                self.signalInt.emit(100)
+                self.signalList.emit(data)
+            except Exception as ex:
+                self.signalBool.emit(False)
 
 
 class MinecraftJavaSettingCard(SettingCard):
@@ -188,9 +209,132 @@ class SearchButton(ToolButton):
 
     def searchButtonClicked(self):
         widget = self.parent().parent().parent().parent().parent().parent().parent().stackedWidget.widget(0)
-        widget.showModPage(self.data, self.parent().parent().parent().parent().parent().comboBox2.currentText(), self.parent().parent().parent().parent().parent().comboBox3.currentText())
+        widget.showModPage(self.data, self.parent().parent().parent().parent().parent().comboBox2_2.currentText(), self.parent().parent().parent().parent().parent().comboBox2_3.currentText())
         self.parent().parent().parent().parent().parent().parent().parent().pivot.setCurrentItem("资源下载")
         self.parent().parent().parent().parent().parent().parent().parent().stackedWidget.setCurrentWidget(widget)
+
+
+class UpdateModWidget(QWidget):
+    """
+    下载文件ui接口
+    """
+
+    def __init__(self, link: str, name: str, old: str = "", parent=None):
+        super().__init__(parent=parent)
+        self.parent = parent
+        self.name = name
+        self.link = link
+        self.old = old
+
+        self.thread1 = NewThread("下载文件", (link, name))
+        self.thread1.signalInt.connect(self.thread1_1)
+        self.thread1.signalBool.connect(self.thread1_2)
+        self.thread1.start()
+
+        self.progressBar = ProgressBar(self.parent)
+        self.progressBar.setAlignment(Qt.AlignCenter)
+        self.progressBar.setRange(0, 100)
+        self.progressBar.setValue(0)
+        self.progressBar.setMinimumWidth(200)
+
+        self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "下载", f"正在下载文件 {f.splitPath(name)}", Qt.Vertical, True, -1, InfoBarPosition.TOP_RIGHT, self.parent)
+        self.infoBar.addWidget(self.progressBar)
+        self.infoBar.show()
+        self.infoBar.closeButton.clicked.connect(self.thread1.cancel)
+
+    def thread1_1(self, msg):
+        try:
+            self.infoBar.contentLabel.setText(f"正在下载文件 {f.splitPath(self.name)}")
+            self.progressBar.setValue(msg)
+        except:
+            return
+        if msg == 100:
+            self.infoBar.contentLabel.setText(f"{self.name} 下载成功")
+            self.infoBar.closeButton.click()
+
+            self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "下载", f"资源 {f.splitPath(self.name)} 下载成功", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent)
+            self.infoBar.show()
+            self.button1 = PushButton("打开目录", self.parent, FIF.FOLDER)
+            self.button1.clicked.connect(self.button1Clicked)
+            self.infoBar.addWidget(self.button1)
+
+            if self.old:
+                f.moveFile(self.old, self.old + ".old")
+
+            self.progressBar.setValue(0)
+            self.progressBar.deleteLater()
+
+    def thread1_2(self, msg):
+        if not msg:
+            try:
+                self.infoBar.closeButton.click()
+            except:
+                self.thread1.cancel()
+            self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", f"下载失败", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent)
+            self.infoBar.show()
+
+    def button1Clicked(self):
+        if f.existPath(self.name):
+            f.showFile(self.name)
+        else:
+            f.showFile(f.splitPath(self.name, 3))
+
+        self.infoBar.closeButton.click()
+
+
+class ModUpdateMessageBox(MessageBoxBase):
+    """
+    更新资源的弹出框
+    """
+
+    def __init__(self, title: str, data: list, path: str, parent=None):
+        super().__init__(parent.parent().parent().parent().parent().parent())
+        self.data = data
+        self.path = path
+        self.parent = parent
+
+        self.titleLabel = SubtitleLabel(title, self)
+
+        self.tableView = TableWidget(self)
+
+        self.tableView.setBorderVisible(True)
+        self.tableView.setBorderRadius(8)
+        self.tableView.setWordWrap(False)
+        self.tableView.setColumnCount(3)
+        self.tableView.setEditTriggers(QAbstractItemView.NoEditTriggers)
+
+        self.tableView.verticalHeader().hide()
+        self.tableView.setHorizontalHeaderLabels(["文件名", "本地版本号", "在线版本号"])
+        self.tableView.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+
+        self.viewLayout.addWidget(self.titleLabel)
+        self.viewLayout.addWidget(self.tableView, 0, Qt.AlignTop)
+
+        self.yesButton.setText("更新")
+        self.yesButton.clicked.connect(self.yesButtonClicked)
+
+        self.cancelButton.setText("取消")
+
+        self.widget.setMinimumWidth(690)
+
+        self.setMinimumWidth(690)
+
+        import string
+
+        abc = string.ascii_lowercase + string.ascii_uppercase + "-_. \n"
+
+        self.tableView.setRowCount(len(data))
+        for i in range(len(data)):
+            self.tableView.setItem(i, 0, QTableWidgetItem(data[i][0]["源文件名称"]))
+            self.tableView.setItem(i, 1, QTableWidgetItem(data[i][0]["文件名称"].strip(abc)))
+            self.tableView.setItem(i, 2, QTableWidgetItem(data[i][1]["文件名称"].strip(abc)))
+            if not data[i][1]["下载链接"]:
+                self.tableView.hideRow(i)
+
+    def yesButtonClicked(self):
+        for i in self.data:
+            if i[1]["下载链接"]:
+                UpdateModWidget(i[1]["下载链接"], f.pathJoin(self.path, i[1]["文件名称"]), f.pathJoin(self.path, i[0]["源文件名称"]), self.parent)
 
 
 class ModFileInfoCard(SmallInfoCard):
@@ -243,7 +387,6 @@ class ModFileInfoCard(SmallInfoCard):
             for data in list1:
                 self.data[data["来源"]] = data
                 if {} in self.data.values():
-                    self.setInfo("、".join(data["加载器"]) + (" | " if len(data["加载器"]) > 0 else "") + ("、".join(data["游戏版本"]) if len(data["游戏版本"]) <= 10 else f"支持{data["游戏版本"][0]}-{data["游戏版本"][-1]}共{len(data["游戏版本"])}个版本"), 0)
                     self.setInfo(f"文件大小：{f.fileSizeAddUnit(data["文件大小"])}", 1)
                     self.setInfo(f"下载量：{f.numberAddUnit(data["下载量"])}", 2)
                     self.setInfo(f"更新日期：{data["更新日期"]}", 3)
@@ -261,6 +404,7 @@ class ModFileInfoCard(SmallInfoCard):
         if list1:
             self.image.show()
             self.setImg(f"{list1[0]["来源"]}/{f.removeIllegalPath(list1[0]["名称"])}.png", list1[0]["图标"])
+            self.setInfo(list1[0]["介绍"], 0)
             for data in list1:
                 self.mod[data["来源"]] = data
                 self.hBoxLayout.insertWidget(4, SearchButton(data, self), alignment=Qt.AlignRight)
@@ -274,19 +418,18 @@ class FileTab(BasicTab):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setObjectName("资源管理")
-        self.isInit = False
 
         self.vBoxLayout.setSpacing(8)
 
-        self.label1 = StrongBodyLabel("类型", self)
+        self.label1_1 = StrongBodyLabel("类型", self)
 
-        self.comboBox1 = AcrylicComboBox(self)
-        self.comboBox1.setPlaceholderText("Minecraft路径")
-        self.comboBox1.addItems(["模组", "光影", "资源包"])
-        self.comboBox1.setCurrentIndex(0)
-        self.comboBox1.setToolTip("选择资源类型")
-        self.comboBox1.installEventFilter(ToolTipFilter(self.comboBox1, 1000))
-        self.comboBox1.currentIndexChanged.connect(self.loadModList)
+        self.comboBox1_1 = AcrylicComboBox(self)
+        self.comboBox1_1.setPlaceholderText("Minecraft路径")
+        self.comboBox1_1.addItems(["模组", "光影", "资源包"])
+        self.comboBox1_1.setCurrentIndex(0)
+        self.comboBox1_1.setToolTip("选择资源类型")
+        self.comboBox1_1.installEventFilter(ToolTipFilter(self.comboBox1_1, 1000))
+        self.comboBox1_1.currentIndexChanged.connect(self.loadModList)
 
         self.button1 = PushButton("打开目录", self, FIF.FOLDER)
         self.button1.clicked.connect(self.button1Clicked)
@@ -301,67 +444,101 @@ class FileTab(BasicTab):
         self.reloadButton.setToolTip("刷新")
         self.reloadButton.installEventFilter(ToolTipFilter(self.reloadButton, 1000))
 
-        self.label2 = StrongBodyLabel("版本", self)
+        self.updateButton = PushButton("立刻更新", self, FIF.UPDATE)
+        self.updateButton.clicked.connect(self.updateButtonClicked)
+        self.updateButton.setToolTip("更新资源")
+        self.updateButton.installEventFilter(ToolTipFilter(self.updateButton, 1000))
 
-        self.comboBox2 = AcrylicComboBox(self)
-        self.comboBox2.setPlaceholderText("版本")
-        self.comboBox2.addItems(["全部"] + RELEASE_VERSIONS)
-        self.comboBox2.setCurrentIndex(0)
-        self.comboBox2.setToolTip("选择资源版本")
-        self.comboBox2.installEventFilter(ToolTipFilter(self.comboBox2, 1000))
-        self.comboBox2.setMaxVisibleItems(15)
+        self.label2_1 = StrongBodyLabel("更新方式", self)
 
-        self.label3 = StrongBodyLabel("加载器", self)
+        self.comboBox2_1 = AcrylicComboBox(self)
+        self.comboBox2_1.setPlaceholderText("更新方式")
+        self.comboBox2_1.addItems(["CurseForge", "Modrinth"])
+        self.comboBox2_1.setCurrentIndex(0)
+        self.comboBox2_1.setToolTip("选择更新方式")
+        self.comboBox2_1.installEventFilter(ToolTipFilter(self.comboBox2_1, 1000))
+        self.comboBox2_1.setMinimumWidth(0)
 
-        self.comboBox3 = AcrylicComboBox(self)
-        self.comboBox3.setPlaceholderText("加载器版本")
-        self.comboBox3.addItems(["全部"] + sorted(list(LOADER_TYPE.keys())))
-        self.comboBox3.setCurrentIndex(0)
-        self.comboBox3.setToolTip("选择加载器版本")
-        self.comboBox3.installEventFilter(ToolTipFilter(self.comboBox1, 1000))
+        self.label2_2 = StrongBodyLabel("目标版本", self)
 
-        self.card1 = GrayCard("资源管理")
-        self.card1.addWidget(self.label1, alignment=Qt.AlignCenter)
-        self.card1.addWidget(self.comboBox1)
-        self.card1.addWidget(self.label2, alignment=Qt.AlignCenter)
-        self.card1.addWidget(self.comboBox2)
-        self.card1.addWidget(self.label3, alignment=Qt.AlignCenter)
-        self.card1.addWidget(self.comboBox3)
+        self.comboBox2_2 = AcrylicComboBox(self)
+        self.comboBox2_2.setPlaceholderText("目标版本")
+        self.comboBox2_2.addItems(RELEASE_VERSIONS)
+        self.comboBox2_2.setCurrentIndex(0)
+        self.comboBox2_2.setToolTip("选择目标版本")
+        self.comboBox2_2.installEventFilter(ToolTipFilter(self.comboBox2_2, 1000))
+        self.comboBox2_2.setMaxVisibleItems(15)
+        self.comboBox2_2.setMinimumWidth(0)
+
+        self.label2_3 = StrongBodyLabel("目标加载器", self)
+
+        self.comboBox2_3 = AcrylicComboBox(self)
+        self.comboBox2_3.setPlaceholderText("目标加载器")
+        self.comboBox2_3.addItems(sorted(list(LOADER_TYPE.keys())))
+        self.comboBox2_3.setCurrentIndex(0)
+        self.comboBox2_3.setToolTip("选择目标加载器")
+        self.comboBox2_3.installEventFilter(ToolTipFilter(self.comboBox1_1, 1000))
+        self.comboBox2_3.setMinimumWidth(0)
+
+        self.switchButton = SwitchButton("跨版本", self, IndicatorPosition.RIGHT)
+        self.switchButton.setChecked(False)
+        self.switchButton.setOnText("跨版本")
+        self.switchButton.setOffText("跨版本")
+        self.switchButton.setToolTip("如果要将模组更新到与现有版本不同的版本与加载器，请勾选！")
+        self.switchButton.installEventFilter(ToolTipFilter(self.switchButton, 1000))
+        self.switchButton.setMinimumWidth(0)
+
+        self.card1 = GrayCard("管理")
+        self.card1.addWidget(self.label1_1, alignment=Qt.AlignCenter)
+        self.card1.addWidget(self.comboBox1_1)
 
         self.card1.addWidget(self.button1)
         self.card1.addWidget(self.settingButton)
         self.card1.addWidget(self.reloadButton)
 
+        self.card2 = GrayCard("更新")
+
+        self.card2.addWidget(self.updateButton)
+        self.card2.addWidget(self.label2_1, alignment=Qt.AlignCenter)
+        self.card2.addWidget(self.comboBox2_1)
+        self.card2.addWidget(self.label2_2, alignment=Qt.AlignCenter)
+        self.card2.addWidget(self.comboBox2_2)
+        self.card2.addWidget(self.label2_3, alignment=Qt.AlignCenter)
+        self.card2.addWidget(self.comboBox2_3)
+        self.card2.addWidget(self.switchButton, alignment=Qt.AlignCenter)
+
         self.vBoxLayout.addWidget(self.card1)
+        self.vBoxLayout.addWidget(self.card2)
 
         self.cardGroup1 = CardGroup(self.view)
         self.vBoxLayout.addWidget(self.cardGroup1)
 
-    def showEvent(self, QShowEvent):
-        if not self.isInit:
-            self.isInit = True
-            self.loadModList()
-
     def button1Clicked(self):
-        f.showFile(f.pathJoin(setting.read("minecraftJavaPath"), FILE_PATH[self.comboBox1.currentText()]))
+        f.showFile(f.pathJoin(setting.read("minecraftJavaPath"), FILE_PATH[self.comboBox1_1.currentText()]))
 
     def settingButtonClicked(self):
         self.modSettingMessageBox = ModSettingMessageBox(self.parent().parent().parent().parent().parent())
         self.modSettingMessageBox.show()
 
     def loadModList(self):
-        if not f.existPath(f.pathJoin(setting.read("minecraftJavaPath"), FILE_PATH[self.comboBox1.currentText()])):
+        if not f.existPath(f.pathJoin(setting.read("minecraftJavaPath"), FILE_PATH[self.comboBox1_1.currentText()])):
             return
-        self.comboBox2.setEnabled(False)
-        self.comboBox3.setEnabled(False)
+        self.data = []
+        self.comboBox1_1.setEnabled(False)
+        self.reloadButton.setEnabled(False)
+        self.settingButton.setEnabled(False)
+        self.updateButton.setEnabled(False)
+        self.switchButton.setEnabled(False)
+        self.comboBox2_2.setEnabled(False)
+        self.comboBox2_3.setEnabled(False)
 
         self.cardGroup1.deleteLater()
         self.cardGroup1 = CardGroup(self.view)
         self.vBoxLayout.addWidget(self.cardGroup1)
 
-        data = [i for i in f.walkFile(f.pathJoin(setting.read("minecraftJavaPath"), FILE_PATH[self.comboBox1.currentText()]), 1) if f.splitPath(i, 2) in FILE_SUFFIX[self.comboBox1.currentText()]]
-        self.cardGroup1.setTitle(f"发现{self.comboBox1.currentText()}{len(data)}个")
-        self.thread1 = MyThread("获得文件信息", f.pathJoin(setting.read("minecraftJavaPath"), FILE_PATH[self.comboBox1.currentText()]))
+        data = [i for i in f.walkFile(f.pathJoin(setting.read("minecraftJavaPath"), FILE_PATH[self.comboBox1_1.currentText()]), 1) if f.splitPath(i, 2) in FILE_SUFFIX[self.comboBox1_1.currentText()]]
+        self.cardGroup1.setTitle(f"发现{self.comboBox1_1.currentText()}{len(data)}个")
+        self.thread1 = MyThread("获得文件信息", f.pathJoin(setting.read("minecraftJavaPath"), FILE_PATH[self.comboBox1_1.currentText()]))
         self.thread2 = MyThread("从文件获得模组信息")
         self.thread1.signalList.connect(self.thread1_1)
         self.thread1.start()
@@ -371,7 +548,10 @@ class FileTab(BasicTab):
             self.cardGroup1.addWidget(self.infoCard)
 
     def thread1_1(self, msg):
+        self.data = msg
+
         self.thread2.signalList.connect(self.thread2_1)
+        self.thread2.signalBool.connect(self.thread2_1)
         self.thread2.data = msg
         self.thread2.start()
 
@@ -386,13 +566,87 @@ class FileTab(BasicTab):
             loader = Counter(loader)
             loader = dict([val, key] for key, val in loader.items())
             loader = loader[sorted(loader.keys())[-1]]
-            self.comboBox3.setCurrentText(loader)
+            self.comboBox2_3.setCurrentText(loader)
         if version:
             version = Counter(version)
             version = dict([val, key] for key, val in version.items())
             version = version[sorted(version.keys())[-1]]
-            self.comboBox2.setCurrentText(version)
+
+            self.comboBox2_2.setCurrentText(version)
 
     def thread2_1(self, msg):
-        self.comboBox2.setEnabled(True)
-        self.comboBox3.setEnabled(True)
+        self.comboBox1_1.setEnabled(True)
+        self.reloadButton.setEnabled(True)
+        self.settingButton.setEnabled(True)
+        self.updateButton.setEnabled(True)
+        self.switchButton.setEnabled(True)
+        self.comboBox2_2.setEnabled(True)
+        self.comboBox2_3.setEnabled(True)
+
+    def updateButtonClicked(self):
+        self.comboBox1_1.setEnabled(False)
+        self.reloadButton.setEnabled(False)
+        self.settingButton.setEnabled(False)
+        self.updateButton.setEnabled(False)
+        self.switchButton.setEnabled(False)
+        self.comboBox2_1.setEnabled(False)
+        self.comboBox2_2.setEnabled(False)
+        self.comboBox2_3.setEnabled(False)
+
+        self.progressBar = ProgressBar(self)
+        self.progressBar.setAlignment(Qt.AlignCenter)
+        self.progressBar.setRange(0, 100)
+        self.progressBar.setValue(0)
+        self.progressBar.setMinimumWidth(200)
+
+        self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"正在通过{self.comboBox2_1.currentText()}检查资源在{self.comboBox2_2.currentText()}{self.comboBox2_3.currentText()}的更新", Qt.Vertical, False, -1, InfoBarPosition.TOP_RIGHT, self)
+        self.infoBar.addWidget(self.progressBar)
+        self.infoBar.show()
+
+        self.thread3 = MyThread("获得模组最新版本", [f.pathJoin(setting.read("minecraftJavaPath"), FILE_PATH[self.comboBox1_1.currentText()]), self.comboBox2_2.currentText(), self.comboBox2_3.currentText(), self.comboBox2_1.currentText()])
+        self.thread3.signalList.connect(self.thread3_1)
+        self.thread3.signalBool.connect(self.thread3_2)
+        self.thread3.signalInt.connect(self.thread3_3)
+        self.thread3.start()
+
+    def thread3_1(self, msg):
+        self.comboBox1_1.setEnabled(True)
+        self.reloadButton.setEnabled(True)
+        self.settingButton.setEnabled(True)
+        self.updateButton.setEnabled(True)
+        self.switchButton.setEnabled(True)
+        self.comboBox2_1.setEnabled(True)
+        self.comboBox2_2.setEnabled(True)
+        self.comboBox2_3.setEnabled(True)
+
+        list1 = []
+
+        for i in msg:
+            for j in self.data:
+                if i["模组id"] == j["模组id"]:
+                    if i["id"] != j["id"]:
+                        if not self.switchButton.checked:
+                            if i["更新日期"] < j["更新日期"]:
+                                continue
+                        list1.append([j, i])
+                        break
+        list1 = sorted(list1, key=lambda x: x[0]["文件名称"])
+        self.infoBar.isClosable = True
+        self.infoBar.closeButton.click()
+        self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"有{len(list1)}个资源在{self.comboBox2_2.currentText()}{self.comboBox2_3.currentText()}有新版本", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self)
+        self.infoBar.show()
+        self.modUpdateMessageBox = ModUpdateMessageBox("资源更新", list1, f.pathJoin(setting.read("minecraftJavaPath"), FILE_PATH[self.comboBox1_1.currentText()]), self)
+        self.modUpdateMessageBox.exec()
+
+    def thread3_2(self, msg):
+        if not msg:
+            self.infoBar.isClosable = True
+            self.infoBar.closeButton.click()
+            self.infoBar = InfoBar(InfoBarIcon.WARNING, "错误", f"检查更新失败", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self)
+            self.infoBar.show()
+
+    def thread3_3(self, msg):
+        try:
+            self.progressBar.setValue(msg)
+        except:
+            pass

@@ -176,7 +176,7 @@ class BigModInfoCard(BigInfoCard):
         self.comboBox1.setEnabled(False)
         self.comboBox2.setEnabled(False)
 
-        self.thread2 = MyThread("获得资源文件", [self.data["id"], self.data["来源"], self.comboBox1.currentText(), self.comboBox2.currentText()])
+        self.thread2 = MyThread("获得资源文件", [self.data["id"], self.comboBox1.currentText(), self.comboBox2.currentText(), self.data["来源"]])
         self.thread2.signalDict.connect(self.thread2_1)
         self.thread2.signalBool.connect(self.thread2_2)
         self.thread2.start()
@@ -284,7 +284,14 @@ class SmallFileInfoCard(SmallInfoCard):
             self.infoBar = InfoBar(InfoBarIcon.WARNING, "警告", "该文件暂无下载链接，请更换版本或更换下载源重试！", Qt.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
             self.infoBar.show()
             return
-        DownloadWidget(self.data["下载链接"], self.data["文件名称"], self.parent().parent().parent())
+        open = setting.read("minecraftJavaPath")
+        if self.parent().parent().parent().parent().comboBox3.currentText() in FILE_PATH.keys():
+            open = f.pathJoin(open, FILE_PATH[self.parent().parent().parent().parent().comboBox3.currentText()])
+        path = QFileDialog.getExistingDirectory(self, "选择下载目录", open)
+        if not path:
+            return
+        path = f.pathJoin(path, self.data["文件名称"])
+        UpdateModWidget(self.data["下载链接"], path, parent=self.parent().parent().parent())
 
 
 class SearchTab(BasicTab):
