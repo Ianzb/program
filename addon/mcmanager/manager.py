@@ -95,6 +95,8 @@ class MyThread(QThread):
             try:
                 if self.data[3] == "Modrinth":
                     self.signalInt.emit(0)
+                    response = getInfoFromHash(self.data[0], self.data[3])
+                    self.signalInt.emit(50)
                     data = getNewestFromHash(self.data[0], self.data[1], self.data[2], self.data[3])
                 elif self.data[3] == "CurseForge":
                     self.signalInt.emit(0)
@@ -109,8 +111,8 @@ class MyThread(QThread):
                             pass
                         self.signalInt.emit(int(100 * (i + 2) / (len(response) + 1)))
                 self.signalInt.emit(100)
-                self.signalList.emit(data)
-            except Exception as ex:
+                self.signalDict.emit({"old": response, "new": data})
+            except:
                 self.signalBool.emit(False)
 
 
@@ -586,7 +588,7 @@ class FileTab(BasicTab):
         self.infoBar.show()
 
         self.thread3 = MyThread("获得模组最新版本", [f.pathJoin(setting.read("minecraftJavaPath"), FILE_PATH[self.comboBox1_1.currentText()]), self.comboBox2_2.currentText(), self.comboBox2_3.currentText(), self.comboBox2_1.currentText()])
-        self.thread3.signalList.connect(self.thread3_1)
+        self.thread3.signalDict.connect(self.thread3_1)
         self.thread3.signalBool.connect(self.thread3_2)
         self.thread3.signalInt.connect(self.thread3_3)
         self.thread3.start()
@@ -594,10 +596,12 @@ class FileTab(BasicTab):
     def thread3_1(self, msg):
         self.showWidget(True)
 
+        self.data = msg["old"]
+
         list1 = []
 
-        for i in msg:
-            for j in self.data:
+        for i in msg["new"]:
+            for j in msg["old"]:
                 if i["模组id"] == j["模组id"]:
                     if i["id"] != j["id"]:
                         if not self.switchButton.checked:
