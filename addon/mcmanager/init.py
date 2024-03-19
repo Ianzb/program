@@ -122,6 +122,8 @@ class BigModInfoCard(BigInfoCard):
         self.thread1.signalBool.connect(self.thread1_2)
         self.thread1.start()
 
+        self.backButton.setEnabled(False)
+
     def thread1_1(self, msg):
         self.setTitle(msg["名称"])
         self.setInfo(msg["介绍"])
@@ -180,6 +182,8 @@ class BigModInfoCard(BigInfoCard):
         self.thread2.signalDict.connect(self.thread2_1)
         self.thread2.signalBool.connect(self.thread2_2)
         self.thread2.start()
+
+        self.backButton.setEnabled(False)
 
     def thread1_2(self, msg):
         if not msg:
@@ -240,6 +244,7 @@ class BigModInfoCard(BigInfoCard):
         self.loadingCard.hide()
         self.comboBox1.setEnabled(True)
         self.comboBox2.setEnabled(True)
+        self.backButton.setEnabled(True)
 
     def thread2_2(self, msg):
         if not msg:
