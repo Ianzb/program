@@ -397,18 +397,18 @@ class BigInfoCard(CardWidget):
         self.hBoxLayout1.addWidget(self.titleLabel, 0, Qt.AlignmentFlag.AlignLeft)
         self.hBoxLayout1.addWidget(self.mainButton, 0, Qt.AlignmentFlag.AlignRight)
 
-        self.hBoxLayout2 = FlowLayout(needAni=True)
+        self.hBoxLayout2 = FlowLayout()
         self.hBoxLayout2.setAnimation(200)
         self.hBoxLayout2.setSpacing(0)
         self.hBoxLayout2.setAlignment(Qt.AlignmentFlag.AlignLeft)
 
-        self.hBoxLayout3 = FlowLayout(needAni=True)
+        self.hBoxLayout3 = FlowLayout()
         self.hBoxLayout3.setAnimation(200)
         self.hBoxLayout3.setContentsMargins(0, 0, 0, 0)
         self.hBoxLayout3.setSpacing(10)
         self.hBoxLayout3.setAlignment(Qt.AlignmentFlag.AlignLeft)
 
-        self.hBoxLayout4 = FlowLayout(needAni=True)
+        self.hBoxLayout4 = FlowLayout()
         self.hBoxLayout4.setAnimation(200)
         self.hBoxLayout4.setSpacing(8)
         self.hBoxLayout4.setAlignment(Qt.AlignmentFlag.AlignLeft)
