@@ -214,6 +214,9 @@ class SearchButton(ToolButton):
         widget.showModPage(self.data, self.parent().parent().parent().parent().parent().comboBox2_2.currentText(), self.parent().parent().parent().parent().parent().comboBox2_3.currentText())
         self.parent().parent().parent().parent().parent().parent().parent().pivot.setCurrentItem("资源下载")
         self.parent().parent().parent().parent().parent().parent().parent().stackedWidget.setCurrentWidget(widget)
+        widget.comboBox3.currentIndexChanged.disconnect(widget.searchButtonClicked)
+        widget.comboBox3.setCurrentText(self.parent().parent().parent().parent().parent().comboBox1_1.currentText())
+        widget.comboBox3.currentIndexChanged.connect(widget.searchButtonClicked)
 
 
 class UpdateModWidget(QWidget):
@@ -599,6 +602,7 @@ class FileTab(BasicTab):
         self.data = msg["old"]
 
         list1 = []
+        name_list = []
 
         for i in msg["new"]:
             for j in msg["old"]:
@@ -607,8 +611,10 @@ class FileTab(BasicTab):
                         if not self.switchButton.checked:
                             if i["更新日期"] < j["更新日期"]:
                                 continue
+                        if j["源文件名称"] in name_list:
+                            continue
+                        name_list.append(j["源文件名称"])
                         list1.append([j, i])
-                        break
         list1 = sorted(list1, key=lambda x: x[0]["文件名称"])
         self.infoBar.isClosable = True
         self.infoBar.closeButton.click()

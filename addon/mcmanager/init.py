@@ -228,7 +228,7 @@ class BigModInfoCard(BigInfoCard):
         else:
             self.cardGroup.addWidget(StrongBodyLabel(f"前置数量过多，无法展示，请前往资源网页查看！", self))
         i = 0
-        for k in msg.keys():
+        for k in f.sortVersion(msg.keys(), True):
             if k == self.comboBox1.currentText() or self.comboBox1.currentText() == "全部":
                 self.cardGroup.addWidget(StrongBodyLabel(k, self))
                 for v in msg[k]:

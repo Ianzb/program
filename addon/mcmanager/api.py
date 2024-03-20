@@ -228,7 +228,7 @@ def getModsInfo(mod_ids, source: str = "CurseForge") -> dict:
     """
     data = []
     if source == "Modrinth":
-        mod_ids = [mod_ids[i:i + 75] for i in range(0, len(mod_ids), 75)]
+        mod_ids = [mod_ids[i:i + 150] for i in range(0, len(mod_ids), 150)]
         for id in mod_ids:
             id = str(id).replace("'", '"')
             response = f.requestGet(f"https://api.modrinth.com/v2/projects?ids={id}", program.REQUEST_HEADER)
