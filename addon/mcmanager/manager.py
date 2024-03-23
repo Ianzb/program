@@ -31,36 +31,38 @@ class MyThread(QThread):
         self.data = data
 
     def run(self):
+        logging.info(f"MC资源管理器插件 {self.mode} 线程开始")
+
         if self.mode == "搜索资源":
             try:
                 data = searchMod(self.data[0], self.data[1], self.data[2], type=self.data[3])
                 self.signalList.emit(data)
             except Exception as ex:
                 self.signalBool.emit(False)
-        if self.mode == "获得游戏版本列表":
+        elif self.mode == "获得游戏版本列表":
             try:
                 self.signalList.emit(getVersionList())
             except:
                 self.signalBool.emit(False)
-        if self.mode == "获得资源信息":
+        elif self.mode == "获得资源信息":
             try:
                 data = getModInfo(self.data[0], self.data[1])
                 self.signalDict.emit(data)
             except Exception as ex:
                 self.signalBool.emit(False)
-        if self.mode == "获得资源文件":
+        elif self.mode == "获得资源文件":
             try:
                 data = getModFile(self.data[0], self.data[1], self.data[2], self.data[3])
                 self.signalDict.emit(data)
             except Exception as ex:
                 self.signalBool.emit(False)
-        if self.mode == "获得单独模组信息":
+        elif self.mode == "获得单独模组信息":
             try:
                 data = getModInfo(self.data[0], self.data[1])
                 self.signalDict.emit(data)
             except Exception as ex:
                 self.signalBool.emit(False)
-        if self.mode == "获得文件信息":
+        elif self.mode == "获得文件信息":
             try:
                 try:
                     data1 = getInfoFromHash(self.data)
@@ -75,7 +77,7 @@ class MyThread(QThread):
                 self.signalList.emit(data1 + data2)
             except Exception as ex:
                 self.signalBool.emit(False)
-        if self.mode == "从文件获得模组信息":
+        elif self.mode == "从文件获得模组信息":
             try:
                 list = [i["模组id"] for i in self.data]
                 try:
@@ -91,7 +93,7 @@ class MyThread(QThread):
                 self.signalList.emit(data1 + data2)
             except Exception as ex:
                 self.signalBool.emit(False)
-        if self.mode == "获得模组最新版本":
+        elif self.mode == "获得模组最新版本":
             try:
                 if self.data[3] == "Modrinth":
                     self.signalInt.emit(0)
@@ -114,6 +116,7 @@ class MyThread(QThread):
                 self.signalDict.emit({"old": response, "new": data})
             except:
                 self.signalBool.emit(False)
+        logging.info(f"MC资源管理器插件 {self.mode} 线程结束")
 
 
 class MinecraftJavaSettingCard(SettingCard):

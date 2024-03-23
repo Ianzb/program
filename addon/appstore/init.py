@@ -73,12 +73,15 @@ class MyThread(QThread):
         self.data = data
 
     def run(self):
+        logging.info(f"应用商店插件 {self.mode} 线程开始")
         if self.mode == "搜索应用":
             try:
                 data = searchSoftware(self.data[0], self.data[1])
                 self.signalList.emit(data)
             except Exception as ex:
                 self.signalBool.emit(False)
+        logging.info(f"应用商店插件 {self.mode} 线程结束")
+
 
 
 class AppInfoCard(SmallInfoCard):

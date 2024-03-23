@@ -203,7 +203,10 @@ class AddonEditMessageBox(MessageBoxBase):
 
         self.cancelButton.setText("取消")
 
-        self.widget.setMinimumWidth(500)
+        self.yesButton.setEnabled(False)
+        self.removeButton.setEnabled(False)
+
+        self.widget.setMinimumWidth(600)
 
         self.installed = f.getInstalledAddonInfo()
         self.tableView.setRowCount(len(self.installed.values()))
@@ -222,8 +225,9 @@ class AddonEditMessageBox(MessageBoxBase):
         self.thread1.start()
 
     def yesButtonClicked(self):
-        self.parent().aboutPage.addonSettingCard.button1.setEnabled(False)
-        self.parent().aboutPage.addonSettingCard.progressBarLoading.show()
+        self.parent().settingPage.addonSettingCard.button1.setEnabled(False)
+        self.parent().settingPage.addonSettingCard.button2.setEnabled(False)
+        self.parent().settingPage.addonSettingCard.progressBarLoading.show()
 
         list = [self.tableView.itemFromIndex(i).text() for i in self.tableView.selectedIndexes()[::4]]
         self.thread2 = NewThread("下载插件", list)
@@ -232,8 +236,9 @@ class AddonEditMessageBox(MessageBoxBase):
         self.thread2.start()
 
     def removeButtonClicked(self):
-        self.parent().aboutPage.addonSettingCard.button1.setEnabled(False)
-        self.parent().aboutPage.addonSettingCard.progressBarLoading.show()
+        self.parent().settingPage.addonSettingCard.button1.setEnabled(False)
+        self.parent().settingPage.addonSettingCard.button2.setEnabled(False)
+        self.parent().settingPage.addonSettingCard.progressBarLoading.show()
 
         id_list = [self.tableView.itemFromIndex(i).text() for i in self.tableView.selectedIndexes()[::4]]
         name_list = [self.tableView.itemFromIndex(i).text() for i in self.tableView.selectedIndexes()[1::4]]
@@ -244,8 +249,9 @@ class AddonEditMessageBox(MessageBoxBase):
 
         self.accept()
         self.accepted.emit()
-        self.parent().aboutPage.addonSettingCard.button1.setEnabled(True)
-        self.parent().aboutPage.addonSettingCard.progressBarLoading.hide()
+        self.parent().settingPage.addonSettingCard.button1.setEnabled(True)
+        self.parent().settingPage.addonSettingCard.button2.setEnabled(True)
+        self.parent().settingPage.addonSettingCard.progressBarLoading.hide()
 
     def threadEvent1_1(self, msg):
         if msg["id"] in self.installed.keys():
@@ -267,27 +273,30 @@ class AddonEditMessageBox(MessageBoxBase):
                 if self.tableView.item(i, 3).text() == "加载中...":
                     self.tableView.setItem(i, 3, QTableWidgetItem("云端无数据"))
         else:
-            self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", f"无网络连接！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().aboutPage)
+            self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", f"无网络连接！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().settingPage)
             self.infoBar.show()
             for i in range(self.tableView.rowCount()):
                 self.tableView.setItem(i, 3, QTableWidgetItem("无网络连接"))
             self.yesButton.setEnabled(False)
             self.removeButton.setEnabled(False)
         self.titleLabel.setText("管理插件")
+        self.yesButton.setEnabled(True)
+        self.removeButton.setEnabled(True)
 
     def threadEvent1_3(self, msg):
         i = self.tableView.findItems(msg["id"], Qt.MatchFlag.MatchExactly)[0].row()
         self.tableView.setItem(i, 2, QTableWidgetItem("连接失败"))
 
     def threadEvent2_1(self, msg):
-        self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{msg['name']}安装成功！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().aboutPage)
+        self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{msg['name']}安装成功！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().settingPage)
         self.infoBar.show()
         self.parent().addAddon(msg)
 
     def threadEvent2_2(self, msg):
         if msg:
-            self.parent().aboutPage.addonSettingCard.button1.setEnabled(True)
-            self.parent().aboutPage.addonSettingCard.progressBarLoading.hide()
+            self.parent().settingPage.addonSettingCard.button1.setEnabled(True)
+            self.parent().settingPage.addonSettingCard.button2.setEnabled(True)
+            self.parent().settingPage.addonSettingCard.progressBarLoading.hide()
 
 
 class ThemeSettingCard(ExpandSettingCard):
@@ -686,18 +695,30 @@ class AddonSettingCard(SettingCard):
         self.progressBarLoading.setMaximumWidth(200)
         self.progressBarLoading.hide()
 
-        self.button1 = PushButton("管理插件", self, FIF.EDIT)
+        self.button1 = PushButton("手动导入", self, FIF.ADD)
         self.button1.clicked.connect(self.button1Clicked)
-        self.button1.setToolTip("管理程序插件")
+        self.button1.setToolTip("手动导入程序插件")
         self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
+
+        self.button2 = PushButton("管理", self, FIF.EDIT)
+        self.button2.clicked.connect(self.button2Clicked)
+        self.button2.setToolTip("管理程序插件")
+        self.button2.installEventFilter(ToolTipFilter(self.button1, 1000))
 
         self.hBoxLayout.addWidget(self.progressBarLoading, Qt.AlignmentFlag.AlignRight)
         self.hBoxLayout.addSpacing(8)
         self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignmentFlag.AlignRight)
+        self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignmentFlag.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
-
     def button1Clicked(self):
+        get = QFileDialog.getOpenFileUrl(self, "选择插件文件", "", "zb小程序插件 (*.zip)")[0]
+        get = f.pathJoin(get.path()[1:])
+        print(get)
+        if f.existPath(get):
+            f.extractZip(get, f.pathJoin(program.ADDON_PATH, f.splitPath(get)), True)
+
+    def button2Clicked(self):
         self.addonEditMessageBox = AddonEditMessageBox("加载中...", self.parent().parent().parent().parent().parent().parent().parent())
         self.addonEditMessageBox.show()
 

@@ -1,3 +1,5 @@
+import logging
+
 from .function import *
 
 
@@ -19,6 +21,8 @@ class Init():
 
 
 Init()
+
+
 class Thread(threading.Thread):
     """
     threading多线程优化
@@ -55,6 +59,7 @@ class NewThread(QThread):
         self.isCancel = False
 
     def run(self):
+        logging.info(f"{self.mode} 线程开始")
         if self.mode == "更新运行库":
             if not f.checkInternet("https://mirrors.tuna.tsinghua.edu.cn/"):
                 self.signalBool.emit(False)
@@ -64,7 +69,7 @@ class NewThread(QThread):
                 self.signalDict.emit({"名称": lib_list[i], "进度": int(i / len(lib_list) * 100)})
                 f.pipUpdate(lib_list[i])
             self.signalBool.emit(True)
-        if self.mode == "检查更新":
+        elif self.mode == "检查更新":
             if not f.checkInternet(program.UPDATE_URL):
                 self.signalBool.emit(False)
                 return
@@ -77,7 +82,7 @@ class NewThread(QThread):
                 self.signalBool.emit(True)
             else:
                 self.signalDict.emit({"版本": data})
-        if self.mode == "立刻更新":
+        elif self.mode == "立刻更新":
             if not f.checkInternet(program.UPDATE_URL):
                 self.signalBool.emit(False)
                 return
@@ -97,7 +102,7 @@ class NewThread(QThread):
             open(f.pathJoin(program.PROGRAM_PATH, "source/__init__.py"), "w").close()
             self.signalDict.emit({"完成": True})
             logging.debug(f"更新{data}成功")
-        if self.mode == "一键整理+清理":
+        elif self.mode == "一键整理+清理":
             try:
                 Thread(lambda: f.clearRubbish())
                 Thread(lambda: f.clearSystemCache())
@@ -116,18 +121,18 @@ class NewThread(QThread):
             except Exception as ex:
                 self.signalBool.emit(False)
                 logging.warning("一键整理失败")
-        if self.mode == "重启文件资源管理器":
+        elif self.mode == "重启文件资源管理器":
             f.cmd("taskkill /f /im explorer.exe", True)
             self.signalStr.emit("完成")
             f.cmd("start C:/windows/explorer.exe", True)
             logging.debug("重启文件资源管理器")
-        if self.mode == "Minecraft最新版本":
+        elif self.mode == "Minecraft最新版本":
             self.signalStr.emit(f.getMC())
-        if self.mode == "下载图片":
+        elif self.mode == "下载图片":
             if not f.existPath(self.data[1]):
                 f.downloadFile(self.data[0], self.data[1])
             self.signalBool.emit(True)
-        if self.mode == "下载插件":
+        elif self.mode == "下载插件":
             try:
                 data = f.getAddonDict()
                 for k, v in data.items():
@@ -138,7 +143,7 @@ class NewThread(QThread):
                 self.signalBool.emit(True)
             except Exception as ex:
                 logging.warning(f"插件下载失败{ex}")
-        if self.mode == "云端插件信息":
+        elif self.mode == "云端插件信息":
             try:
                 data = f.getAddonDict()
                 for k, v in data.items():
@@ -150,11 +155,11 @@ class NewThread(QThread):
                 self.signalBool.emit(True)
             except Exception as ex:
                 self.signalBool.emit(False)
-                logging.warning(f"插件信息获取败{ex}")
-        if self.mode == "清理程序缓存":
+                logging.warning(f"插件信息获取失败{ex}")
+        elif self.mode == "清理程序缓存":
             f.clearProgramCache()
             self.signalBool.emit(True)
-        if self.mode == "下载文件":
+        elif self.mode == "下载文件":
             try:
                 d = DownloadFile(self.data[0], f.pathJoin(setting.read("downloadPath"), self.data[1]), False, ".downloading", program.REQUEST_HEADER)
                 while d.result() == None:
@@ -185,6 +190,8 @@ class NewThread(QThread):
                 self.signalInt.emit(d.rate())
             except:
                 self.signalBool.emit(False)
+        logging.info(f"{self.mode} 线程结束")
+
 
     def cancel(self):
         logging.debug("取消下载")

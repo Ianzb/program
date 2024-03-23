@@ -26,6 +26,7 @@ try:
     from DownloadKit import DownloadKit
 except ImportError:
     os.popen("download.pyw error")
+    sys.exit()
 
 
 class Program:

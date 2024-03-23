@@ -127,9 +127,12 @@ class SettingPage(BasicPage):
         super().__init__(parent=parent)
         self.setIcon(FIF.SETTING)
 
-        self.cardGroup1 = CardGroup("外观", self)
-        self.cardGroup2 = CardGroup("行为", self)
-        self.cardGroup3 = CardGroup("功能", self)
+        self.cardGroup1 = CardGroup("插件", self)
+        self.cardGroup2 = CardGroup("外观", self)
+        self.cardGroup3 = CardGroup("行为", self)
+        self.cardGroup4 = CardGroup("功能", self)
+
+        self.addonSettingCard = AddonSettingCard(self)
 
         self.themeSettingCard = ThemeSettingCard(self)
         self.colorSettingCard = ColorSettingCard(self)
@@ -143,21 +146,24 @@ class SettingPage(BasicPage):
         self.sortFolderSettingCard = SortSettingCard(self)
         self.downloadSettingCard = DownloadSettingCard(self)
 
-        self.cardGroup1.addWidget(self.themeSettingCard)
-        self.cardGroup1.addWidget(self.colorSettingCard)
-        self.cardGroup1.addWidget(self.micaEffectSettingCard)
+        self.cardGroup1.addWidget(self.addonSettingCard)
 
-        self.cardGroup2.addWidget(self.startupSettingCard)
-        self.cardGroup2.addWidget(self.traySettingCard)
-        self.cardGroup2.addWidget(self.hideSettingCard)
+        self.cardGroup2.addWidget(self.themeSettingCard)
+        self.cardGroup2.addWidget(self.colorSettingCard)
+        self.cardGroup2.addWidget(self.micaEffectSettingCard)
 
-        self.cardGroup3.addWidget(self.sortSettingCard)
-        self.cardGroup3.addWidget(self.sortFolderSettingCard)
-        self.cardGroup3.addWidget(self.downloadSettingCard)
+        self.cardGroup3.addWidget(self.startupSettingCard)
+        self.cardGroup3.addWidget(self.traySettingCard)
+        self.cardGroup3.addWidget(self.hideSettingCard)
+
+        self.cardGroup4.addWidget(self.sortSettingCard)
+        self.cardGroup4.addWidget(self.sortFolderSettingCard)
+        self.cardGroup4.addWidget(self.downloadSettingCard)
 
         self.vBoxLayout.addWidget(self.cardGroup1, 0, Qt.AlignmentFlag.AlignTop)
         self.vBoxLayout.addWidget(self.cardGroup2, 0, Qt.AlignmentFlag.AlignTop)
         self.vBoxLayout.addWidget(self.cardGroup3, 0, Qt.AlignmentFlag.AlignTop)
+        self.vBoxLayout.addWidget(self.cardGroup4, 0, Qt.AlignmentFlag.AlignTop)
 
 
 class AboutPage(BasicPage):
@@ -171,10 +177,7 @@ class AboutPage(BasicPage):
         super().__init__(parent=parent)
         self.setIcon(FIF.INFO)
 
-        self.cardGroup1 = CardGroup("插件", self)
-        self.cardGroup2 = CardGroup("关于", self)
-
-        self.addonSettingCard = AddonSettingCard(self)
+        self.cardGroup1 = CardGroup("关于", self)
 
         self.updateSettingCard = UpdateSettingCard(self)
         self.helpSettingCard = HelpSettingCard(self)
@@ -182,13 +185,11 @@ class AboutPage(BasicPage):
         self.shortcutSettingCard = ShortcutSettingCard(self)
         self.aboutSettingCard = AboutSettingCard(self)
 
-        self.cardGroup1.addWidget(self.addonSettingCard)
-
-        self.cardGroup2.addWidget(self.updateSettingCard)
-        self.cardGroup2.addWidget(self.helpSettingCard)
-        self.cardGroup2.addWidget(self.controlSettingCard)
-        self.cardGroup2.addWidget(self.shortcutSettingCard)
-        self.cardGroup2.addWidget(self.aboutSettingCard)
+        self.cardGroup1.addWidget(self.updateSettingCard)
+        self.cardGroup1.addWidget(self.helpSettingCard)
+        self.cardGroup1.addWidget(self.controlSettingCard)
+        self.cardGroup1.addWidget(self.shortcutSettingCard)
+        self.cardGroup1.addWidget(self.aboutSettingCard)
 
         self.bigInfoCard = BigInfoCard(self, data=False)
         self.bigInfoCard.setImg("Ianzb.png", "https://vip.123pan.cn/1813801926/%E8%B5%84%E6%BA%90/%E4%B8%AA%E4%BA%BA/%E5%A4%B4%E5%83%8F/png/%E5%A4%B4%E5%83%8F%E9%AB%98%E6%B8%85%E9%80%8F%E6%98%8E.png")
@@ -207,7 +208,6 @@ class AboutPage(BasicPage):
 
         self.vBoxLayout.addWidget(self.bigInfoCard, 0, Qt.AlignmentFlag.AlignTop)
         self.vBoxLayout.addWidget(self.cardGroup1, 0, Qt.AlignmentFlag.AlignTop)
-        self.vBoxLayout.addWidget(self.cardGroup2, 0, Qt.AlignmentFlag.AlignTop)
 
 
 class Window(FluentWindow):
