@@ -1,7 +1,7 @@
 {
     "id": "mcmanager",
     "name": "MC资源管理器",
-    "version": "2.2.0",
+    "version": "2.1.2",
     "file": [
         "init.py",
         "api.py",

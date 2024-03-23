@@ -42,7 +42,7 @@ class SmallModInfoCard(SmallInfoCard):
             self.loadInfo()
         else:
             self.setTitle("信息正在加载中...")
-            self.thread1 = MyThread("获得单独模组信息", [self.data, self.source])
+            self.thread1 = MyThread("获得单独模组信息", [self.data, self.source], self.parent().parent().parent())
             self.thread1.signalDict.connect(self.thread1_1)
             self.thread1.signalBool.connect(self.thread1_2)
             self.thread1.start()
@@ -117,7 +117,7 @@ class BigModInfoCard(BigInfoCard):
         self.vBoxLayout.insertWidget(3, self.cardGroup)
         self.cardGroup.hide()
 
-        self.thread1 = MyThread("获得资源信息", [data["id"], data["来源"]])
+        self.thread1 = MyThread("获得资源信息", [data["id"], data["来源"]], self.parent().parent().parent())
         self.thread1.signalDict.connect(self.thread1_1)
         self.thread1.signalBool.connect(self.thread1_2)
         self.thread1.start()
@@ -176,7 +176,7 @@ class BigModInfoCard(BigInfoCard):
         self.comboBox1.setEnabled(False)
         self.comboBox2.setEnabled(False)
 
-        self.thread2 = MyThread("获得资源文件", [self.data["id"], self.comboBox1.currentText(), self.comboBox2.currentText(), self.data["来源"]])
+        self.thread2 = MyThread("获得资源文件", [self.data["id"], self.comboBox1.currentText(), self.comboBox2.currentText(), self.data["来源"]], self.parent().parent().parent())
         self.thread2.signalDict.connect(self.thread2_1)
         self.thread2.signalBool.connect(self.thread2_2)
         self.thread2.start()
@@ -222,7 +222,7 @@ class BigModInfoCard(BigInfoCard):
             self.cardGroup.addWidget(StrongBodyLabel(f"前置（{len(dependencies)}个）", self))
         if len(dependencies) <= 10:
             for i in dependencies:
-                self.infoCard = SmallModInfoCard(i, self.data["来源"])
+                self.infoCard = SmallModInfoCard(i, self.data["来源"], self)
                 self.infoCard.signalDict.connect(self.signalDict.emit)
                 self.cardGroup.addWidget(self.infoCard)
         else:
@@ -368,7 +368,7 @@ class SearchTab(BasicTab):
     def showEvent(self, QShowEvent):
         if not self.isInit:
             self.isInit = True
-            self.thread1 = MyThread("获得游戏版本列表")
+            self.thread1 = MyThread("获得游戏版本列表", parent=self.parent().parent().parent())
             self.thread1.signalList.connect(self.thread1_1)
             self.thread1.signalBool.connect(self.thread1_2)
             self.thread1.start()
@@ -402,7 +402,7 @@ class SearchTab(BasicTab):
         self.loadingCard.setText("搜索中...")
         self.loadingCard.show()
 
-        self.thread2 = MyThread("搜索资源", [self.lineEdit.text(), self.comboBox1.currentText(), self.comboBox2.currentText(), self.comboBox3.currentText()])
+        self.thread2 = MyThread("搜索资源", [self.lineEdit.text(), self.comboBox1.currentText(), self.comboBox2.currentText(), self.comboBox3.currentText()], self.parent().parent().parent())
         self.thread2.signalList.connect(self.thread2_1)
         self.thread2.signalBool.connect(self.thread2_2)
         self.thread2.start()
@@ -423,7 +423,7 @@ class SearchTab(BasicTab):
     def thread2_1(self, msg):
         self.loadingCard.hide()
         for i in msg:
-            self.infoCard = SmallModInfoCard(i, self.comboBox1.currentText())
+            self.infoCard = SmallModInfoCard(i, self.comboBox1.currentText(), self)
             self.infoCard.signalDict.connect(self.showModPage)
             self.vBoxLayout.addWidget(self.infoCard, 0, Qt.AlignmentFlag.AlignTop)
             self.cardGroup1.addWidget(self.infoCard)

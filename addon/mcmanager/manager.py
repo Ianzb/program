@@ -118,6 +118,11 @@ class MyThread(QThread):
                 self.signalBool.emit(False)
         logging.info(f"MC资源管理器插件 {self.mode} 线程结束")
 
+    def deleteLater(self):
+        self.quit()
+        self.exit()
+        super(MyThread, self).deleteLater()
+
 
 class MinecraftJavaSettingCard(SettingCard):
     """
@@ -541,8 +546,8 @@ class FileTab(BasicTab):
 
         data = [i for i in f.walkFile(f.pathJoin(setting.read("minecraftJavaPath"), FILE_PATH[self.comboBox1_1.currentText()]), 1) if f.splitPath(i, 2) in FILE_SUFFIX[self.comboBox1_1.currentText()]]
         self.cardGroup1.setTitle(f"发现{self.comboBox1_1.currentText()}{len(data)}个")
-        self.thread1 = MyThread("获得文件信息", f.pathJoin(setting.read("minecraftJavaPath"), FILE_PATH[self.comboBox1_1.currentText()]))
-        self.thread2 = MyThread("从文件获得模组信息")
+        self.thread1 = MyThread("获得文件信息", f.pathJoin(setting.read("minecraftJavaPath"), FILE_PATH[self.comboBox1_1.currentText()]), self.parent().parent().parent())
+        self.thread2 = MyThread("从文件获得模组信息", parent=self.parent().parent().parent())
         self.thread1.signalList.connect(self.thread1_1)
         self.thread1.start()
         for i in data:
@@ -593,7 +598,7 @@ class FileTab(BasicTab):
         self.infoBar.addWidget(self.progressBar)
         self.infoBar.show()
 
-        self.thread3 = MyThread("获得模组最新版本", [f.pathJoin(setting.read("minecraftJavaPath"), FILE_PATH[self.comboBox1_1.currentText()]), self.comboBox2_2.currentText(), self.comboBox2_3.currentText(), self.comboBox2_1.currentText()])
+        self.thread3 = MyThread("获得模组最新版本", [f.pathJoin(setting.read("minecraftJavaPath"), FILE_PATH[self.comboBox1_1.currentText()]), self.comboBox2_2.currentText(), self.comboBox2_3.currentText(), self.comboBox2_1.currentText()], self.parent().parent().parent())
         self.thread3.signalDict.connect(self.thread3_1)
         self.thread3.signalBool.connect(self.thread3_2)
         self.thread3.signalInt.connect(self.thread3_3)
