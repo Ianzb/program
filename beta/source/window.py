@@ -264,8 +264,8 @@ class Window(FluentWindow):
         self.addPage(self.settingPage, "bottom")
         self.addPage(self.aboutPage, "bottom")
 
-        from .web_ui import AddonPage
-        self.addPage(AddonPage(self), "scroll")
+        # from .web_ui import AddonPage
+        # self.addPage(AddonPage(self), "scroll")
 
     def __initActivity(self):
         # 报错检测
