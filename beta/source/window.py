@@ -387,7 +387,7 @@ class Window(FluentWindow):
         f.delete(f.pathJoin(program.ADDON_PATH, data["id"]))
         logging.info(f"插件{data['name']}删除成功")
 
-        self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{data['name']}删除成功！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.aboutPage)
+        self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{data['name']}删除成功！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.settingPage)
 
         self.button1 = PushButton("重启", self, FIF.SYNC)
         self.button1.clicked.connect(program.restart)
