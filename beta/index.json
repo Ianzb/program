@@ -9,6 +9,10 @@
         "source/widget.py",
         "source/window.py",
         "img/program.ico",
-        "img/program.png"
+        "img/program.png",
+        "source/manager_api.py",
+        "source/manager_ui.py",
+        "source/web_api.py",
+        "source/web_ui.py"
     ]
 }

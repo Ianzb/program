@@ -69,7 +69,7 @@ def getSaveInfo(path: str):
             "种子": data["WorldGenSettings"]["value"]["seed"]["value"],
             "游戏模式": {0: "生存模式", 1: "创造模式", 2: "冒险模式", 3: "旁观模式"}[data["GameType"]["value"]],
             "游戏难度": {0: "和平", 1: "简单", 2: "普通", 3: "困难"}[data["Difficulty"]["value"]],
-            "最近游玩": datetime.fromtimestamp(data["LastPlayed"]["value"] / 1000).strftime("%Y-%m-%d"),
+            "最近游玩": datetime.fromtimestamp(data["LastPlayed"]["value"] / 1000).strftime("%Y-%m-%d %H:%M:%S"),
             "封面": f.pathJoin(path, "icon.png") if f.existPath(f.pathJoin(path, "icon.png")) else None,
             }
     return data
