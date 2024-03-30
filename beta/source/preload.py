@@ -59,7 +59,7 @@ class NewThread(QThread):
         self.isCancel = False
 
     def run(self):
-        logging.info(f"{self.mode} 线程开始")
+        logging.debug(f"{self.mode} 线程开始")
         if self.mode == "更新运行库":
             if not f.checkInternet("https://mirrors.tuna.tsinghua.edu.cn/"):
                 self.signalBool.emit(False)
@@ -190,7 +190,7 @@ class NewThread(QThread):
                 self.signalInt.emit(d.rate())
             except:
                 self.signalBool.emit(False)
-        logging.info(f"{self.mode} 线程结束")
+        logging.debug(f"{self.mode} 线程结束")
 
 
     def cancel(self):
