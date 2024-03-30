@@ -75,6 +75,3 @@ def getSaveInfo(path: str):
     return data
 
 
-data = getSaveInfo(r"D:\Minecraft\Minecraft Java Edition\.minecraft\versions\CM外挂端1.20.1-2.4.0\saves\CM外挂端")
-
-print(data)
