@@ -27,7 +27,3 @@
 ## 运行环境
 - Windows 8/8.1/10/11
 - Python 3.12
-
-## 截图
-<img src="https://picss.sunbangyan.cn/2023/11/12/3c98205d9e3910b83543c5d345808e14.png" width="25%" />
-<img src="https://picss.sunbangyan.cn/2023/11/12/e2d7bbf9c2245470d9e520867c5002d7.png" width="25%" />
