@@ -543,6 +543,8 @@ def getPathGameInfo(path: str):
                 for i in data["patches"]:
                     if i["id"] != "game" and "version" in i.keys():
                         result["加载器"].append([i["id"], i["version"].replace(result["游戏版本"], "").strip("-_ ")])
+                    if i["id"] == "game":
+                        result["游戏版本"] = i["version"]
             if "libraries" in data.keys() and not result["加载器"]:
                 for i in data["libraries"]:
                     if "net.minecraftforge:forge:" in i["name"]:
@@ -578,3 +580,14 @@ def getSaveInfo(path: str):
             "封面": f.pathJoin(path, "icon.png") if f.existPath(f.pathJoin(path, "icon.png")) else None,
             }
     return data
+
+
+def isMinecraftPath(path: str):
+    """
+    判断路径是否为Minecraft路径
+    @param path: 路径
+    @return: 是否
+    """
+    if f.isDir(path):
+        if f.existPath(f.pathJoin(path, f.splitPath(path) + ".json")) and f.existPath(f.pathJoin(path, "options.txt")):
+            return True

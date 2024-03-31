@@ -240,7 +240,7 @@ class Functions():
         if f.pipTest():
             try:
                 import PyQt5
-                showwarning("公告", f"zb小程序即将从PyQt5升级到PySide6，并放弃对Windows 7及以下系统的支持，但将会重新支持Python 3.8-3.11，程序将卸载全部有关运行库并安装PySide6！")
+                showwarning("公告", f"zb小程序即将从PyQt5升级到PySide6，并放弃对Windows 7及以下系统的支持，建议使用Python3.12，程序将卸载全部有关运行库并安装PySide6！")
                 self.cmd(f"pip uninstall -y {' '.join(program.OLD_LIB)}", True)
             except:
                 pass
