@@ -61,6 +61,9 @@ class NewThread(QThread):
     def run(self):
         logging.debug(f"{self.mode} 线程开始")
         if self.mode == "更新运行库":
+            if program.isEXE:
+                self.signalBool.emit(False)
+                return
             if not f.checkInternet("https://mirrors.tuna.tsinghua.edu.cn/"):
                 self.signalBool.emit(False)
                 return
@@ -70,6 +73,9 @@ class NewThread(QThread):
                 f.pipUpdate(lib_list[i])
             self.signalBool.emit(True)
         elif self.mode == "检查更新":
+            if program.isEXE:
+                self.signalBool.emit(False)
+                return
             if not f.checkInternet(program.UPDATE_URL):
                 self.signalBool.emit(False)
                 return
@@ -83,6 +89,9 @@ class NewThread(QThread):
             else:
                 self.signalDict.emit({"版本": data})
         elif self.mode == "立刻更新":
+            if program.isEXE:
+                self.signalBool.emit(False)
+                return
             if not f.checkInternet(program.UPDATE_URL):
                 self.signalBool.emit(False)
                 return
@@ -191,7 +200,6 @@ class NewThread(QThread):
             except:
                 self.signalBool.emit(False)
         logging.debug(f"{self.mode} 线程结束")
-
 
     def cancel(self):
         logging.debug("取消下载")

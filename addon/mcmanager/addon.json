@@ -8,7 +8,5 @@
         "manager.py"
     ],
     "lib": [
-        "murmurhash2",
-        "Python-NBT"
     ]
 }

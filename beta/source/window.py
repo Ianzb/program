@@ -272,7 +272,7 @@ class Window(FluentWindow):
 
     def __initActivity(self):
         # 报错检测
-        # sys.excepthook = self.getException
+        sys.excepthook = self.getException
         # 循环监测事件
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.detectRepeatRun)

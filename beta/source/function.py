@@ -65,6 +65,8 @@ class Program:
                    "winshell",
                    "xmltodict",
                    "DownloadKit",
+                   "murmurhash2",
+                   "Python-NBT",
                    ]
     EXTRA_LIB = ["DataRecoder",
                  "PySide6",
@@ -151,6 +153,14 @@ class Program:
         """
         return "startup" in self.STARTUP_ARGUMENT
 
+    @property
+    def isEXE(self) -> bool:
+        """
+        判断程序是否为
+        @return:
+        """
+        return ".exe" in self.FILE_NAME
+
     def source(self, name: str) -> str:
         """
         快捷获取程序资源文件路径
@@ -189,7 +199,8 @@ class Program:
             with open(f.pathJoin(self.PROGRAM_DATA_PATH, "zb.lock"), "r+", encoding="utf-8") as file:
                 pid = file.read().strip()
                 if pid:
-                    if "python" in f.cmd(f"tasklist |findstr {pid}", True):
+                    data = f.cmd(f"tasklist |findstr {pid}", True)
+                    if "python" in data or ".exe" in data:
                         value = True
         if value:
             open(f.pathJoin(self.PROGRAM_DATA_PATH, "zb.unlock"), "w").close()
