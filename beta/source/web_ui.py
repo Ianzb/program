@@ -1,4 +1,4 @@
-from .web_api import *
+from .mc_api import *
 from .manager_ui import *
 
 mod_page_list = []

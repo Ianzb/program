@@ -1,4 +1,4 @@
-from .manager_api import *
+from .mc_api import *
 
 
 class MyThread(QThread):
