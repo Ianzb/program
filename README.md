@@ -19,6 +19,11 @@
 
 ## [官网](https://ianzb.github.io/program/)
 
+## 下载
+<a href="https://vip.123pan.cn/1813801926/code/program/download.pyw" class="btn btn-light">Python版</a>
+<a href="https://vip.123pan.cn/1813801926/code/program_exe/zbProgram_setup.exe" class="btn btn-light">exe安装包</a>
+<a href="https://vip.123pan.cn/1813801926/code/program_exe/zbProgram.zip" class="btn btn-light">exe压缩包</a>
+
 ## 运行环境
 - Windows 8/8.1/10/11
 - Python 3.12

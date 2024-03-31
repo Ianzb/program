@@ -24,7 +24,7 @@ InfoBeforeFile=D:\编程\program\LICENSE
 ; Uncomment the following line to run in non administrative install mode (install for current user only.)
 ;PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=dialog
-OutputDir=D:\编程\打包
+OutputDir=D:\编程\打包\zbProgram
 OutputBaseFilename=zbProgram_setup
 SetupIconFile=D:\编程\program\beta\source\img\program.ico
 Compression=lzma
@@ -38,8 +38,8 @@ Name: "chinesesimplified"; MessagesFile: "compiler:Languages\ChineseSimplified.i
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "D:\编程\打包\dist\zbProgram\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\编程\打包\dist\zbProgram\source\*"; DestDir: "{app}\source"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "D:\编程\打包\zbProgram\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "D:\编程\打包\zbProgram\source\*"; DestDir: "{app}\source"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
@@ -48,4 +48,3 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: de
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
-
