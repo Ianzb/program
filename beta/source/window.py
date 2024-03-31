@@ -266,6 +266,9 @@ class Window(FluentWindow):
 
         from .web_ui import AddonPage
         self.addPage(AddonPage(self), "scroll")
+        from .mc_ui import AddonPage
+        self.addPage(AddonPage(self), "scroll")
+
 
     def __initActivity(self):
         # 报错检测

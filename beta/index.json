@@ -12,7 +12,8 @@
         "img/program.png",
         "source/manager_api.py",
         "source/manager_ui.py",
-        "source/web_api.py",
+        "source/mc_api.py",
+        "source/mc_ui.py",
         "source/web_ui.py"
     ]
 }

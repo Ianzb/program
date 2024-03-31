@@ -123,7 +123,7 @@ class MinecraftJavaSettingCard(SettingCard):
 
     def button1Clicked(self):
         get = QFileDialog.getExistingDirectory(self, "选择要添加的Minecraft Java版目录", setting.read("minecraftJavaPath"))
-        if f.existPath(get):
+        if isMinecraftPath(get):
             setting.save("minecraftJavaPath", get)
 
 
