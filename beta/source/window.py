@@ -185,6 +185,10 @@ class AboutPage(BasicPage):
         self.shortcutSettingCard = ShortcutSettingCard(self)
         self.aboutSettingCard = AboutSettingCard(self)
 
+        if program.isEXE:
+            self.updateSettingCard.hide()
+            self.shortcutSettingCard.hide()
+
         self.cardGroup1.addWidget(self.updateSettingCard)
         self.cardGroup1.addWidget(self.helpSettingCard)
         self.cardGroup1.addWidget(self.controlSettingCard)
@@ -268,7 +272,6 @@ class Window(FluentWindow):
         self.addPage(AddonPage(self), "scroll")
         from .mc_ui import AddonPage
         self.addPage(AddonPage(self), "scroll")
-
 
     def __initActivity(self):
         # 报错检测
