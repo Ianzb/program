@@ -29,53 +29,6 @@ class AddonThread(QThread):
         logging.info(f"MC资源管理器插件 {self.mode} 线程结束")
 
 
-class ChangeableTab(BasicTab):
-    """
-    多页面标签页
-    """
-
-    def __init__(self, parent=None):
-        super().__init__(parent=parent)
-        self.setObjectName("资源管理")
-        self.page = {}
-        self.onShowPage = None
-        self.onShowName = None
-
-        self.vBoxLayout = QVBoxLayout(self)
-        self.vBoxLayout.setContentsMargins(0, 0, 0, 0)
-        self.vBoxLayout.setSpacing(0)
-
-    def addPage(self, widget, name=None):
-        """
-        添加页面
-        @param widget: 组件
-        @param name: 组件名称（默认为objectName）
-        """
-        widget.setParent(self)
-        widget.hide()
-        if not name:
-            name = widget.objectName()
-        self.page[name] = widget
-        self.vBoxLayout.addWidget(widget)
-
-    def showPage(self, name):
-        """
-        展示页面
-        @param name: 组件名称
-        """
-        self.hidePage()
-        self.page[name].show()
-        self.onShowPage = self.page[name]
-        self.onShowName = name
-
-    def hidePage(self):
-        """
-        隐藏页面
-        """
-        if self.onShowPage:
-            self.onShowPage.hide()
-
-
 class MinecraftPathSettingCard(SettingCard):
     """
     我的世界路径设置卡片
@@ -98,12 +51,12 @@ class MinecraftPathSettingCard(SettingCard):
         if get:
             self.saveSetting(get)
 
-    def saveSetting(self, data):
-        if isMinecraftPath(data):
-            setting.save("minecraftJavaPath", data)
-            self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "成功", f"您选择的目录保存成功！\n{data}", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+    def saveSetting(self, path: str):
+        if isMinecraftPath(path):
+            setting.save("minecraftJavaPath", path)
+            self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "成功", f"您选择的目录保存成功！\n{path}", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
             self.infoBar.show()
-            self.contentLabel.setText(f"当前路径：{data}")
+            self.contentLabel.setText(f"当前路径：{path}")
         else:
             self.infoBar = InfoBar(InfoBarIcon.WARNING, "警告", "您选择的目录无效！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
             self.infoBar.show()

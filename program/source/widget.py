@@ -218,7 +218,7 @@ class AddonEditMessageBox(MessageBoxBase):
             self.tableView.setItem(i, 2, QTableWidgetItem(self.installed[names[i]]["version"]))
             self.tableView.setItem(i, 3, QTableWidgetItem("加载中..."))
 
-        self.thread1 = NewThread("云端插件信息")
+        self.thread1 = CustomThread("云端插件信息")
         self.thread1.signalDict.connect(self.threadEvent1_1)
         self.thread1.signalBool.connect(self.threadEvent1_2)
         self.thread1.signalStr.connect(self.threadEvent1_3)
@@ -230,7 +230,7 @@ class AddonEditMessageBox(MessageBoxBase):
         self.parent().settingPage.addonSettingCard.progressBarLoading.show()
 
         list = [self.tableView.itemFromIndex(i).text() for i in self.tableView.selectedIndexes()[::4]]
-        self.thread2 = NewThread("下载插件", list)
+        self.thread2 = CustomThread("下载插件", list)
         self.thread2.signalDict.connect(self.threadEvent2_1)
         self.thread2.signalBool.connect(self.threadEvent2_2)
         self.thread2.start()
@@ -288,7 +288,7 @@ class AddonEditMessageBox(MessageBoxBase):
         self.tableView.setItem(i, 2, QTableWidgetItem("连接失败"))
 
     def threadEvent2_1(self, msg):
-        self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{msg['name']}安装成功！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().settingPage)
+        self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{msg["name"]}安装成功！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().settingPage)
         self.infoBar.show()
         self.parent().addAddon(msg)
 
@@ -297,6 +297,63 @@ class AddonEditMessageBox(MessageBoxBase):
             self.parent().settingPage.addonSettingCard.button1.setEnabled(True)
             self.parent().settingPage.addonSettingCard.button2.setEnabled(True)
             self.parent().settingPage.addonSettingCard.progressBarLoading.hide()
+
+
+class AddonSettingCard(SettingCard):
+    """
+    插件设置卡片
+    """
+
+    def __init__(self, parent=None):
+        super().__init__(FIF.ADD, "插件", f"管理{program.NAME}的插件", parent)
+
+        self.progressBarLoading = IndeterminateProgressBar(self)
+        self.progressBarLoading.setMaximumWidth(200)
+        self.progressBarLoading.hide()
+
+        self.button1 = PushButton("手动导入", self, FIF.ADD)
+        self.button1.clicked.connect(self.button1Clicked)
+        self.button1.setToolTip("手动导入程序插件")
+        self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
+
+        self.button2 = PushButton("管理", self, FIF.EDIT)
+        self.button2.clicked.connect(self.button2Clicked)
+        self.button2.setToolTip("管理程序插件")
+        self.button2.installEventFilter(ToolTipFilter(self.button1, 1000))
+
+        self.hBoxLayout.addWidget(self.progressBarLoading, Qt.AlignmentFlag.AlignRight)
+        self.hBoxLayout.addSpacing(8)
+        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignmentFlag.AlignRight)
+        self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignmentFlag.AlignRight)
+        self.hBoxLayout.addSpacing(16)
+
+        self.setAcceptDrops(True)
+
+    def button1Clicked(self):
+        get = QFileDialog.getOpenFileUrl(self, "选择插件文件", "", "zb小程序插件 (*.zbaddon)")[0]
+        get = f.pathJoin(get.path()[1:])
+        if f.existPath(get):
+            f.extractZip(get, f.pathJoin(program.ADDON_PATH, f.splitPath(get)), True)
+
+    def button2Clicked(self):
+        self.addonEditMessageBox = AddonEditMessageBox("加载中...", self.parent().parent().parent().parent().parent().parent().parent())
+        self.addonEditMessageBox.show()
+
+    def dragEnterEvent(self, event):
+        if event.mimeData().hasUrls():
+            if len(event.mimeData().urls()) == 1:
+                if f.isFile(event.mimeData().urls()[0].toLocalFile()):
+                    if f.splitPath(event.mimeData().urls()[0].toLocalFile(), 2) == ".zbaddon":
+                        event.acceptProposedAction()
+                        self.contentLabel.setText("拖拽到此卡片即可快速导入插件！")
+
+    def dragLeaveEvent(self, event):
+        self.contentLabel.setText(f"管理{program.NAME}的插件")
+
+    def dropEvent(self, event):
+        if event.mimeData().hasUrls():
+            file = event.mimeData().urls()[0].toLocalFile()
+            f.extractZip(file, f.pathJoin(program.ADDON_PATH, f.splitPath(file)), True)
 
 
 class ThemeSettingCard(ExpandSettingCard):
@@ -478,7 +535,7 @@ class MicaEffectSettingCard(SettingCard):
         self.button1 = SwitchButton(self, IndicatorPosition.RIGHT)
         self.button1.setChecked(setting.read("micaEffect"))
         self.button1.checkedChanged.connect(self.button1Clicked)
-        self.button1.setToolTip("开启Windows11的窗口模糊效果")
+        self.button1.setToolTip("开启 Windows 11 的窗口模糊效果")
         self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
 
         self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignmentFlag.AlignRight)
@@ -510,43 +567,28 @@ class StartupSettingCard(SettingCard):
         self.checkBox2.setToolTip("设置程序在开机自启动时自动最小化窗口")
         self.checkBox2.installEventFilter(ToolTipFilter(self.checkBox2, 1000))
 
-        self.checkBox3 = CheckBox("开机自动更新", self)
-        self.checkBox3.setChecked(setting.read("autoUpdate"))
-        self.checkBox3.clicked.connect(self.button3Clicked)
-        self.checkBox3.setToolTip("设置程序在开机自启动时自动更新新版本")
-        self.checkBox3.installEventFilter(ToolTipFilter(self.checkBox3, 1000))
-
         if setting.read("autoStartup"):
             self.checkBox2.setEnabled(True)
-            self.checkBox3.setEnabled(True)
         else:
             self.checkBox2.setEnabled(False)
-            self.checkBox3.setEnabled(False)
 
         self.hBoxLayout.addWidget(self.checkBox1, 0, Qt.AlignmentFlag.AlignRight)
         self.hBoxLayout.addSpacing(8)
         self.hBoxLayout.addWidget(self.checkBox2, 0, Qt.AlignmentFlag.AlignRight)
-        self.hBoxLayout.addSpacing(8)
-        self.hBoxLayout.addWidget(self.checkBox3, 0, Qt.AlignmentFlag.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
     def button1Clicked(self):
         if self.checkBox1.isChecked():
             setting.save("autoStartup", True)
             self.checkBox2.setEnabled(True)
-            self.checkBox3.setEnabled(True)
-            f.addToStartup(program.PROGRAM_NAME, program.PROGRAM_MAIN_FILE_PATH, True)
+            f.addToStartup(program.NAME, program.MAIN_FILE_PATH, True)
         else:
             setting.save("autoStartup", False)
             self.checkBox2.setEnabled(False)
-            self.checkBox3.setEnabled(False)
-            f.addToStartup(program.PROGRAM_NAME, program.PROGRAM_MAIN_FILE_PATH, False)
+            f.addToStartup(program.NAME, program.MAIN_FILE_PATH, False)
 
     def button2Clicked(self):
         setting.save("autoHide", self.checkBox2.isChecked())
-
-    def button3Clicked(self):
-        setting.save("autoUpdate", self.checkBox3.isChecked())
 
 
 class TraySettingCard(SettingCard):
@@ -596,10 +638,10 @@ class SortPathSettingCard(SettingCard):
     """
 
     def __init__(self, parent=None):
-        super().__init__(FIF.ALIGNMENT, "整理文件", "设置整理文件夹的目录", parent)
-        self.button1 = PushButton("整理目录", self, FIF.FOLDER_ADD)
+        super().__init__(FIF.ALIGNMENT, "整理文件", f"整理目标路径：{setting.read("sortPath")}\n微信路径：{setting.read("wechatPath")}", parent)
+        self.button1 = PushButton("整理目标目录", self, FIF.FOLDER_ADD)
         self.button1.clicked.connect(self.button1Clicked)
-        self.button1.setToolTip("设置整理文件夹目录")
+        self.button1.setToolTip("设置整理目标目录")
         self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
 
         self.button2 = PushButton("微信目录", self, FIF.FOLDER_ADD)
@@ -611,15 +653,41 @@ class SortPathSettingCard(SettingCard):
         self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignmentFlag.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
+        self.setAcceptDrops(True)
+
     def button1Clicked(self):
-        get = QFileDialog.getExistingDirectory(self, "选择整理目录", setting.read("sortPath"))
-        if f.existPath(get):
-            setting.save("sortPath", str(get))
+        get = QFileDialog.getExistingDirectory(self, "选择整理目标目录", setting.read("sortPath"))
+        self.saveSetting(get)
 
     def button2Clicked(self):
         get = QFileDialog.getExistingDirectory(self, "选择微信WeChat Files文件夹目录", setting.read("wechatPath"))
-        if f.existPath(get):
-            setting.save("wechatPath", str(get))
+        if get:
+            if "WeChat Files" != f.splitPath(get):
+                return
+        self.saveSetting(get)
+
+    def saveSetting(self, path: str):
+        if f.existPath(path):
+            if "WeChat Files" == f.splitPath(path):
+                setting.save("wechatPath", path)
+            else:
+                setting.save("sortPath", path)
+        self.contentLabel.setText(f"整理目标路径：{setting.read("sortPath")}\n微信路径：{setting.read("wechatPath")}")
+
+    def dragEnterEvent(self, event):
+        if event.mimeData().hasUrls():
+            if len(event.mimeData().urls()) == 1:
+                if f.isDir(event.mimeData().urls()[0].toLocalFile()):
+                    event.acceptProposedAction()
+                    self.contentLabel.setText("拖拽到此卡片即可快速导入目录！")
+
+    def dragLeaveEvent(self, event):
+        self.contentLabel.setText(f"整理目标路径：{setting.read("sortPath")}\n微信路径：{setting.read("wechatPath")}")
+
+    def dropEvent(self, event):
+        if event.mimeData().hasUrls():
+            file = event.mimeData().urls()[0].toLocalFile()
+            self.saveSetting(file)
 
 
 class SortSettingCard(SettingCard):
@@ -668,7 +736,7 @@ class DownloadSettingCard(SettingCard):
     """
 
     def __init__(self, parent=None):
-        super().__init__(FIF.DOWNLOAD, "下载文件", "设置下载文件的目录", parent)
+        super().__init__(FIF.DOWNLOAD, "下载文件", f"当前路径：{setting.read("downloadPath")}", parent)
         self.button1 = PushButton("下载目录", self, FIF.FOLDER_ADD)
         self.button1.clicked.connect(self.button1Clicked)
         self.button1.setToolTip("设置下载文件夹目录")
@@ -677,50 +745,31 @@ class DownloadSettingCard(SettingCard):
         self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignmentFlag.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
+        self.setAcceptDrops(True)
+
+    def saveSetting(self, path: str):
+        if f.existPath(path):
+            setting.save("downloadPath", path)
+        self.contentLabel.setText(f"当前路径：{setting.read("downloadPath")}")
+
     def button1Clicked(self):
         get = QFileDialog.getExistingDirectory(self, "选择下载目录", setting.read("downloadPath"))
-        if f.existPath(get):
-            setting.save("downloadPath", str(get))
+        self.saveSetting(get)
 
+    def dragEnterEvent(self, event):
+        if event.mimeData().hasUrls():
+            if len(event.mimeData().urls()) == 1:
+                if f.isDir(event.mimeData().urls()[0].toLocalFile()):
+                    event.acceptProposedAction()
+                    self.contentLabel.setText("拖拽到此卡片即可快速导入目录！")
 
-class AddonSettingCard(SettingCard):
-    """
-    插件设置卡片
-    """
+    def dragLeaveEvent(self, event):
+        self.contentLabel.setText(f"当前路径：{setting.read("downloadPath")}")
 
-    def __init__(self, parent=None):
-        super().__init__(FIF.ADD, "插件", f"管理{program.PROGRAM_NAME}的插件", parent)
-
-        self.progressBarLoading = IndeterminateProgressBar(self)
-        self.progressBarLoading.setMaximumWidth(200)
-        self.progressBarLoading.hide()
-
-        self.button1 = PushButton("手动导入", self, FIF.ADD)
-        self.button1.clicked.connect(self.button1Clicked)
-        self.button1.setToolTip("手动导入程序插件")
-        self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
-
-        self.button2 = PushButton("管理", self, FIF.EDIT)
-        self.button2.clicked.connect(self.button2Clicked)
-        self.button2.setToolTip("管理程序插件")
-        self.button2.installEventFilter(ToolTipFilter(self.button1, 1000))
-
-        self.hBoxLayout.addWidget(self.progressBarLoading, Qt.AlignmentFlag.AlignRight)
-        self.hBoxLayout.addSpacing(8)
-        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignmentFlag.AlignRight)
-        self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignmentFlag.AlignRight)
-        self.hBoxLayout.addSpacing(16)
-
-    def button1Clicked(self):
-        get = QFileDialog.getOpenFileUrl(self, "选择插件文件", "", "zb小程序插件 (*.zip)")[0]
-        get = f.pathJoin(get.path()[1:])
-        print(get)
-        if f.existPath(get):
-            f.extractZip(get, f.pathJoin(program.ADDON_PATH, f.splitPath(get)), True)
-
-    def button2Clicked(self):
-        self.addonEditMessageBox = AddonEditMessageBox("加载中...", self.parent().parent().parent().parent().parent().parent().parent())
-        self.addonEditMessageBox.show()
+    def dropEvent(self, event):
+        if event.mimeData().hasUrls():
+            file = event.mimeData().urls()[0].toLocalFile()
+            self.saveSetting(file)
 
 
 class UpdateSettingCard(SettingCard):
@@ -730,198 +779,52 @@ class UpdateSettingCard(SettingCard):
 
     def __init__(self, parent=None):
         super().__init__(FIF.UPDATE, "更新", "更新程序至新版本", parent)
-        self.button1 = PushButton("更新运行库", self, FIF.LIBRARY)
+
+        self.button1 = PrimaryPushButton("检查更新", self, FIF.DOWNLOAD)
         self.button1.clicked.connect(self.button1Clicked)
-        self.button1.setToolTip("更新程序运行库")
+        self.button1.setToolTip("检查程序新版本更新")
         self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
 
-        self.button2 = PrimaryPushButton("检查更新", self, FIF.DOWNLOAD)
-        self.button2.clicked.connect(self.button2Clicked)
-        self.button2.setToolTip("检查程序新版本更新")
-        self.button2.installEventFilter(ToolTipFilter(self.button2, 1000))
-
-        self.comboBox = AcrylicComboBox(self)
-        self.comboBox.setPlaceholderText("更新通道")
-        self.comboBox.addItems(["正式版", "抢先版", "测试版"])
-        self.comboBox.currentIndexChanged.connect(self.comboBoxIndexChanged)
-        self.comboBox.setToolTip("选择更新通道：\n 正式版：于123云盘发布，下载快，最稳定，更新慢\n 抢先版：于Github/release发布，下载慢，较稳定，更新慢，通常与正式版相同\n 测试版：于Github/beta发布，下载慢，不稳定，更新快，若非测试不推荐该版本")
-        self.comboBox.installEventFilter(ToolTipFilter(self.comboBox, 1000))
-        if setting.read("updateChannel") == "正式版":
-            self.comboBox.setCurrentIndex(0)
-        elif setting.read("updateChannel") == "抢先版":
-            self.comboBox.setCurrentIndex(1)
-        elif setting.read("updateChannel") == "测试版":
-            self.comboBox.setCurrentIndex(2)
-        else:
-            self.comboBox.setCurrentIndex(0)
-
-        self.label = QLabel(self)
-        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.label.setFont(QFont())
-        self.label.setText("")
-
-        self.progressBar = ProgressBar(self)
-        self.progressBar.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.progressBar.setRange(0, 100)
-        self.progressBar.setValue(0)
-        self.progressBar.setMinimumWidth(250)
-
-        self.vBoxLayout2 = QVBoxLayout()
-        self.vBoxLayout2.setSpacing(0)
-        self.vBoxLayout2.setContentsMargins(0, 0, 0, 0)
-        self.vBoxLayout2.setAlignment(Qt.AlignmentFlag.AlignVCenter)
-
-        self.vBoxLayout2.addWidget(self.label)
-        self.vBoxLayout2.addSpacing(2)
-        self.vBoxLayout2.addWidget(self.progressBar)
-
-        self.hBoxLayout.addLayout(self.vBoxLayout2)
-        self.hBoxLayout.addSpacing(8)
-        self.hBoxLayout.addWidget(self.comboBox, 0, Qt.AlignmentFlag.AlignRight)
         self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignmentFlag.AlignRight)
-        self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignmentFlag.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
-        self.label.hide()
-        self.progressBar.hide()
-
-    def comboBoxIndexChanged(self):
-        setting.save("updateChannel", self.comboBox.currentText())
-
     def button1Clicked(self):
-        if not f.pipTest():
-            self.infoBar = InfoBar(InfoBarIcon.WARNING, "警告", "Python未添加环境变量，pip无法使用，无法安装运行库！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
-            self.infoBar.show()
-            return
-
-        self.comboBox.setEnabled(False)
         self.button1.setEnabled(False)
-        self.button2.setEnabled(False)
 
-        self.label.show()
-        self.progressBar.show()
-
-        self.thread1 = NewThread("更新运行库")
-        self.thread1.signalDict.connect(self.threadEvent1_1)
+        self.thread1 = CustomThread("检查更新")
+        self.thread1.signalStr.connect(self.threadEvent1_1)
         self.thread1.signalBool.connect(self.threadEvent1_2)
         self.thread1.start()
 
     def threadEvent1_1(self, msg):
-        self.label.setText(f"{str(msg['进度'])}% 正在更新 {msg['名称']}")
-        self.progressBar.setValue(msg["进度"])
+        self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", f"检测到新版本{msg}！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+
+        self.button2 = PushButton("立刻更新", self, FIF.DOWNLOAD)
+        self.button2.clicked.connect(self.button2Clicked)
+
+        self.infoBar.addWidget(self.button2)
+        self.infoBar.show()
+
+        self.button1.setEnabled(True)
 
     def threadEvent1_2(self, msg):
         if msg:
-            self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", "运行库更新成功！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+            self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"{program.VERSION}已为最新版本！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
         else:
-            self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", "无网络连接，无法更新运行库！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+            self.infoBar = InfoBar(InfoBarIcon.WARNING, "警告", "网络连接失败，无法检查程序更新！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
         self.infoBar.show()
 
-        self.label.hide()
-        self.progressBar.hide()
-
-        self.label.setText("")
-        self.progressBar.setValue(0)
-
-        self.comboBox.setEnabled(True)
         self.button1.setEnabled(True)
-        self.button2.setEnabled(True)
 
     def button2Clicked(self):
-        if "beta" in program.PROGRAM_VERSION:
-            self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", "当前版本为内测版无法更新！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
-            self.infoBar.show()
-            return
-        self.comboBox.setEnabled(False)
-        self.button1.setEnabled(False)
-        self.button2.setEnabled(False)
+        self.infoBar.close()
+        f.delete(program.cache("zbProgramUpdate.exe"))
+        self.download = DownloadWidget(program.UPDATE_INSTALLER_URL, program.cache("zbProgramUpdate.exe"), self.parent().parent().parent().parent())
+        self.download.signalBool.connect(self.updateProgram)
 
-        self.thread2 = NewThread("检查更新")
-        self.thread2.signalDict.connect(self.threadEvent2_1)
-        self.thread2.signalBool.connect(self.threadEvent2_2)
-        self.thread2.start()
-
-    def threadEvent2_1(self, msg):
-        self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", f"检测到新版本{msg['版本']}！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
-
-        self.button3 = PushButton("立刻更新", self, FIF.DOWNLOAD)
-        self.button3.clicked.connect(self.button3Clicked)
-
-        self.infoBar.addWidget(self.button3)
-        self.infoBar.show()
-
-        self.comboBox.setEnabled(True)
-        self.button1.setEnabled(True)
-        self.button2.setEnabled(True)
-
-    def threadEvent2_2(self, msg):
+    def updateProgram(self, msg):
         if msg:
-            self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"{program.PROGRAM_VERSION}已为最新版本！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
-        else:
-            self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", "无网络连接，无法检查程序更新！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
-        self.infoBar.show()
-
-        self.comboBox.setEnabled(True)
-        self.button1.setEnabled(True)
-        self.button2.setEnabled(True)
-
-    def button3Clicked(self):
-        self.comboBox.setEnabled(False)
-        self.button1.setEnabled(False)
-        self.button2.setEnabled(False)
-        try:
-            self.button3.setEnabled(False)
-        except:
-            pass
-        self.label.setText("正在连接服务器")
-
-        self.label.show()
-        self.progressBar.show()
-
-        self.thread3 = NewThread("立刻更新")
-        self.thread3.signalDict.connect(self.threadEvent3_1)
-        self.thread3.signalBool.connect(self.threadEvent3_2)
-        self.thread3.start()
-
-    def threadEvent3_1(self, msg):
-        if msg["完成"]:
-            self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", "更新成功！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
-
-            self.button4 = PushButton("重启", self, FIF.SYNC)
-            self.button4.clicked.connect(program.restart)
-
-            self.infoBar.addWidget(self.button4)
-            self.infoBar.show()
-
-            self.label.hide()
-            self.progressBar.hide()
-
-            self.label.setText("")
-            self.progressBar.setValue(0)
-
-            self.comboBox.setEnabled(True)
-            self.button1.setEnabled(True)
-            self.button2.setEnabled(True)
-        else:
-            value = int(msg["序号"] / msg["数量"] * 100)
-            self.label.setText(f"{str(value)}% 正在更新 {msg['名称']}")
-            self.progressBar.setValue(value)
-
-    def threadEvent3_2(self, msg):
-        if msg:
-            self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"{program.PROGRAM_VERSION}已为最新版本！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
-        else:
-            self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", "无网络连接，无法检查程序更新！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
-        self.infoBar.show()
-        self.label.hide()
-        self.progressBar.hide()
-
-        self.label.setText("")
-        self.progressBar.setValue(0)
-
-        self.comboBox.setEnabled(True)
-        self.button1.setEnabled(True)
-        self.button2.setEnabled(True)
+            os.popen(program.cache("zbProgramUpdate.exe"))
 
 
 class HelpSettingCard(SettingCard):
@@ -931,13 +834,13 @@ class HelpSettingCard(SettingCard):
 
     def __init__(self, parent=None):
         super().__init__(FIF.HELP, "帮助", "查看程序相关信息", parent)
-        self.button1 = HyperlinkButton(program.PROGRAM_PATH, "程序安装路径", self, FIF.FOLDER)
-        self.button1.clicked.connect(lambda: f.showFile(program.PROGRAM_PATH))
+        self.button1 = HyperlinkButton(program.INSTALL_PATH, "程序安装路径", self, FIF.FOLDER)
+        self.button1.clicked.connect(lambda: f.showFile(program.INSTALL_PATH))
         self.button1.setToolTip("打开程序安装路径")
         self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
 
-        self.button2 = HyperlinkButton(program.PROGRAM_PATH, "程序数据路径", self, FIF.FOLDER)
-        self.button2.clicked.connect(lambda: f.showFile(program.PROGRAM_DATA_PATH))
+        self.button2 = HyperlinkButton(program.INSTALL_PATH, "程序数据路径", self, FIF.FOLDER)
+        self.button2.clicked.connect(lambda: f.showFile(program.DATA_PATH))
         self.button2.setToolTip("打开程序数据路径")
         self.button2.installEventFilter(ToolTipFilter(self.button2, 1000))
 
@@ -954,7 +857,7 @@ class HelpSettingCard(SettingCard):
     def button3Clicked(self):
         self.button3.setEnabled(False)
 
-        self.thread3 = NewThread("清理程序缓存")
+        self.thread3 = CustomThread("清理程序缓存")
         self.thread3.signalBool.connect(self.threadEvent3)
         self.thread3.start()
 
@@ -1004,36 +907,14 @@ class ControlSettingCard(SettingCard):
         self.infoBar.show()
 
 
-class ShortcutSettingCard(SettingCard):
-    """
-    快捷方式设置卡片
-    """
-
-    def __init__(self, parent=None):
-        super().__init__(FIF.ADD_TO, "添加快捷方式", "", parent)
-        self.button1 = HyperlinkButton("", "桌面", self)
-        self.button1.clicked.connect(lambda: f.createShortcut(program.PROGRAM_MAIN_FILE_PATH, f.pathJoin(program.DESKTOP_PATH, "zb小程序.lnk"), program.source("program.ico")))
-        self.button1.setToolTip("将程序添加到桌面快捷方式")
-        self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
-
-        self.button2 = HyperlinkButton("", "开始菜单", self)
-        self.button2.clicked.connect(lambda: f.createShortcut(program.PROGRAM_MAIN_FILE_PATH, f.pathJoin(program.USER_PATH, r"AppData\Roaming\Microsoft\Windows\Start Menu\Programs", "zb小程序.lnk"), program.source("program.ico")))
-        self.button2.setToolTip("将程序添加到开始菜单列表")
-        self.button2.installEventFilter(ToolTipFilter(self.button2, 1000))
-
-        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignmentFlag.AlignRight)
-        self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignmentFlag.AlignRight)
-        self.hBoxLayout.addSpacing(16)
-
-
 class AboutSettingCard(SettingCard):
     """
     关于设置卡片
     """
 
     def __init__(self, parent=None):
-        super().__init__(FIF.INFO, "关于", f"© 2022-2024 Ianzb. GPLv3 License.\n当前版本 {program.PROGRAM_VERSION} {setting.read('updateChannel')}", parent)
-        self.button1 = HyperlinkButton(program.PROGRAM_URL, "程序官网", self, FIF.LINK)
+        super().__init__(FIF.INFO, "关于", f"© 2022-2024 Ianzb. GPLv3 License.\n当前版本 {program.VERSION}", parent)
+        self.button1 = HyperlinkButton(program.URL, "程序官网", self, FIF.LINK)
         self.button1.setToolTip("打开程序官网")
         self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
 

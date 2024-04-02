@@ -63,7 +63,7 @@ class MainPage(BasicPage):
         self.stateTooltip.move(self.stateTooltip.getSuitablePos())
         self.stateTooltip.show()
 
-        self.thread1_1 = NewThread("一键整理+清理")
+        self.thread1_1 = CustomThread("一键整理+清理")
         self.thread1_1.signalBool.connect(self.threadEvent1_1)
         self.thread1_1.start()
 
@@ -79,7 +79,7 @@ class MainPage(BasicPage):
     def button2_1Clicked(self):
         self.button2_1.setEnabled(False)
 
-        self.thread2_1 = NewThread("重启文件资源管理器")
+        self.thread2_1 = CustomThread("重启文件资源管理器")
         self.thread2_1.signalStr.connect(self.threadEvent2_1)
         self.thread2_1.start()
 
@@ -89,7 +89,7 @@ class MainPage(BasicPage):
     def button3_1Clicked(self):
         self.button3_1.setEnabled(False)
 
-        self.thread3_1 = NewThread("Minecraft最新版本")
+        self.thread3_1 = CustomThread("Minecraft最新版本")
         self.thread3_1.signalStr.connect(self.threadEvent3_1)
         self.thread3_1.start()
         self.flyout1 = AcrylicFlyout(FlyoutViewBase())
@@ -165,6 +165,9 @@ class SettingPage(BasicPage):
         self.vBoxLayout.addWidget(self.cardGroup3, 0, Qt.AlignmentFlag.AlignTop)
         self.vBoxLayout.addWidget(self.cardGroup4, 0, Qt.AlignmentFlag.AlignTop)
 
+        if not (program.WINDOWS_VERSION[0] >= 10 and program.WINDOWS_VERSION[2] >= 22000):
+            self.micaEffectSettingCard.hide()
+
 
 class AboutPage(BasicPage):
     """
@@ -182,17 +185,11 @@ class AboutPage(BasicPage):
         self.updateSettingCard = UpdateSettingCard(self)
         self.helpSettingCard = HelpSettingCard(self)
         self.controlSettingCard = ControlSettingCard(self)
-        self.shortcutSettingCard = ShortcutSettingCard(self)
         self.aboutSettingCard = AboutSettingCard(self)
-
-        if program.isEXE:
-            self.updateSettingCard.hide()
-            self.shortcutSettingCard.hide()
 
         self.cardGroup1.addWidget(self.updateSettingCard)
         self.cardGroup1.addWidget(self.helpSettingCard)
         self.cardGroup1.addWidget(self.controlSettingCard)
-        self.cardGroup1.addWidget(self.shortcutSettingCard)
         self.cardGroup1.addWidget(self.aboutSettingCard)
 
         self.bigInfoCard = BigInfoCard(self, data=False)
@@ -231,23 +228,21 @@ class Window(FluentWindow):
         self.__initWindow()
         self.__initWidget()
         self.__initActivity()
-        self.updateFrameless()
-        self.setMicaEffectEnabled(True)
 
     def __initWindow(self):
         """
         窗口初始化
         """
-
         # 外观调整
         setTheme(eval(setting.read("theme")))
         setThemeColor("#0078D4")
         self.navigationInterface.setAcrylicEnabled(True)
+        self.setMicaEffectEnabled(setting.read("micaEffect"))
         # 窗口属性
         self.resize(900, 700)
         self.setMinimumSize(700, 500)
-        self.setWindowIcon(QIcon(program.PROGRAM_ICON))
-        self.setWindowTitle(f"{program.PROGRAM_TITLE} {setting.read('updateChannel')}")
+        self.setWindowIcon(QIcon(program.ICON))
+        self.setWindowTitle(f"{program.TITLE}")
         self.navigationInterface.setReturnButtonVisible(False)
         # 窗口居中
         desktop = QApplication.screens()[0].size()
@@ -268,10 +263,10 @@ class Window(FluentWindow):
         self.addPage(self.settingPage, "bottom")
         self.addPage(self.aboutPage, "bottom")
 
-        from .web_ui import AddonPage
-        self.addPage(AddonPage(self), "scroll")
-        from .mc_ui import AddonPage
-        self.addPage(AddonPage(self), "scroll")
+        # from .web_ui import AddonPage
+        # self.addPage(AddonPage(self), "scroll")
+        # from .mc_ui import AddonPage
+        # self.addPage(AddonPage(self), "scroll")
 
     def __initActivity(self):
         # 报错检测
@@ -284,16 +279,6 @@ class Window(FluentWindow):
         # 托盘组件
         self.tray = Tray(self)
         self.tray.setVisible(setting.read("showTray"))
-
-        self.setMicaEffectEnabled(setting.read("micaEffect"))
-        if setting.read("autoUpdate") and program.isStartup:
-            self.aboutPage.updateSettingCard.setEnabled(False)
-            self.thread1 = NewThread("更新运行库")
-            self.thread1.start()
-            self.thread2 = NewThread("立刻更新")
-            self.thread2.signalDict.connect(self.autoUpdateFinish)
-            self.thread2.signalBool.connect(self.autoUpdateFinish)
-            self.thread2.start()
 
         # 插件安装
         self.addAddon(f.getInstalledAddonInfo())
@@ -385,18 +370,18 @@ class Window(FluentWindow):
                 self.page.title = data["name"]
             self.addPage(self.page, "scroll")
         except Exception as ex:
-            logging.warning(f"插件{data['name']}安装失败{ex}")
+            logging.warning(f"插件{data["name"]}安装失败{ex}")
 
     def __removeAddon(self, data):
         """
         移除插件
         @param data: 数据
         """
-        f.cmd(f"del /F /Q {f.pathJoin(program.ADDON_PATH, data['id'])}", True)
+        f.cmd(f"del /F /Q {f.pathJoin(program.ADDON_PATH, data["id"])}", True)
         f.delete(f.pathJoin(program.ADDON_PATH, data["id"]))
-        logging.info(f"插件{data['name']}删除成功")
+        logging.info(f"插件{data["name"]}删除成功")
 
-        self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{data['name']}删除成功！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.settingPage)
+        self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{data["name"]}删除成功！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.settingPage)
 
         self.button1 = PushButton("重启", self, FIF.SYNC)
         self.button1.clicked.connect(program.restart)
@@ -418,8 +403,8 @@ class Window(FluentWindow):
         """
         重复运行展示窗口
         """
-        if f.existPath(f.pathJoin(program.PROGRAM_DATA_PATH, "zb.unlock")):
-            f.delete(f.pathJoin(program.PROGRAM_DATA_PATH, "zb.unlock"))
+        if f.existPath(f.pathJoin(program.DATA_PATH, "zb.unlock")):
+            f.delete(f.pathJoin(program.DATA_PATH, "zb.unlock"))
             self.show()
 
 

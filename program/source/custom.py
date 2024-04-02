@@ -7,17 +7,16 @@ class Tray(QSystemTrayIcon):
     """
 
     def __init__(self, window):
-        super(Tray, self).__init__(QIcon(program.PROGRAM_ICON))
+        super(Tray, self).__init__(QIcon(program.ICON))
         self.window = window
 
-        self.setIcon(QIcon(program.PROGRAM_ICON))
-        self.setToolTip(program.PROGRAM_TITLE)
-        self.installEventFilter(ToolTipFilter(self, 1000))
+        self.setIcon(QIcon(program.ICON))
+        self.setToolTip(program.TITLE)
         self.activated.connect(self.iconClicked)
 
         self.action1 = Action(FIF.HOME, "打开", triggered=self.window.show)
         self.action2 = Action(FIF.ALIGNMENT, "整理", triggered=self.action2Clicked)
-        self.action3 = Action(FIF.LINK, "官网", triggered=lambda: webbrowser.open(program.PROGRAM_URL))
+        self.action3 = Action(FIF.LINK, "官网", triggered=lambda: webbrowser.open(program.URL))
         self.action4 = Action(FIF.SYNC, "重启", triggered=program.restart)
         self.action5 = Action(FIF.CLOSE, "退出", triggered=program.close)
 
@@ -32,7 +31,7 @@ class Tray(QSystemTrayIcon):
         self.window.mainPage.signalBool.connect(self.threadEvent2)
 
     def showTrayMessage(self, title, msg):
-        super().showMessage(title, msg, QIcon(program.PROGRAM_ICON))
+        super().showMessage(title, msg, QIcon(program.ICON))
 
     def iconClicked(self, reason):
         if reason == QSystemTrayIcon.ActivationReason.Context:
@@ -51,7 +50,7 @@ class Tray(QSystemTrayIcon):
             self.window.setHidden(True)
 
     def contextMenuEvent(self):
-        self.menu.exec(QCursor.pos(), ani=True, aniType=MenuAnimationType.PULL_UP)
+        self.menu.exec(QCursor.pos(), aniType=MenuAnimationType.PULL_UP)
         self.menu.show()
 
     def action2Clicked(self):
@@ -155,6 +154,53 @@ class BasicTab(BasicPage):
         self.setViewportMargins(0, 0, 0, 0)
 
 
+class ChangeableTab(BasicTab):
+    """
+    多页面标签页
+    """
+
+    def __init__(self, parent=None):
+        super().__init__(parent=parent)
+        self.setObjectName("资源管理")
+        self.page = {}
+        self.onShowPage = None
+        self.onShowName = None
+
+        self.vBoxLayout = QVBoxLayout(self)
+        self.vBoxLayout.setContentsMargins(0, 0, 0, 0)
+        self.vBoxLayout.setSpacing(0)
+
+    def addPage(self, widget, name=None):
+        """
+        添加页面
+        @param widget: 组件
+        @param name: 组件名称（默认为objectName）
+        """
+        widget.setParent(self)
+        widget.hide()
+        if not name:
+            name = widget.objectName()
+        self.page[name] = widget
+        self.vBoxLayout.addWidget(widget)
+
+    def showPage(self, name):
+        """
+        展示页面
+        @param name: 组件名称
+        """
+        self.hidePage()
+        self.page[name].show()
+        self.onShowPage = self.page[name]
+        self.onShowName = name
+
+    def hidePage(self):
+        """
+        隐藏页面
+        """
+        if self.onShowPage:
+            self.onShowPage.hide()
+
+
 class ToolBar(QWidget):
     """
     页面顶端工具栏
@@ -240,7 +286,7 @@ class Image(QLabel):
             self.loading = True
             self.path = program.cache(path)
             self.url = url
-            self.thread1 = NewThread("下载图片", [self.url, self.path])
+            self.thread1 = CustomThread("下载图片", [self.url, self.path])
             self.thread1.signalBool.connect(self.threadEvent1)
             self.thread1.start()
         else:
@@ -351,7 +397,7 @@ class GrayCard(QWidget):
             self.setStyleSheet("QLabel {background-color: transparent; color: black}")
             self.card.setStyleSheet("#GrayCard {background-color: rgba(175,175,175,0.1); border:1px solid rgba(150,150,150,0.15); border-radius: 10px}")
 
-    def addWidget(self, widget: object, spacing=0, alignment=Qt.AlignmentFlag.AlignTop):
+    def addWidget(self, widget, spacing=0, alignment=Qt.AlignmentFlag.AlignTop):
         """
         添加组件
         @param widget: 组件
@@ -600,7 +646,7 @@ class SmallInfoCard(CardWidget):
         @param data: 文本
         @param pos: 位置：0 左上 1 左下 2 右上 3 右下
         """
-        data = data.replace(r"\n", "").replace(r"\r", "").replace(r"\t", "").strip()
+        data = f.clearString(data)
         self.info[pos] = data
         self.contentLabel1.setText(f"{self.info[0]}\n{self.info[1]}".strip())
         self.contentLabel2.setText(f"{self.info[2]}\n{self.info[3]}".strip())
@@ -671,6 +717,12 @@ class DownloadWidget(QWidget):
     """
     下载文件ui接口
     """
+    signalStr = Signal(str)
+    signalInt = Signal(int)
+    signalBool = Signal(bool)
+    signalList = Signal(list)
+    signalDict = Signal(dict)
+    signalObject = Signal(object)
 
     def __init__(self, link: str, name: str, parent=None):
         super().__init__(parent=parent)
@@ -678,7 +730,7 @@ class DownloadWidget(QWidget):
         self.name = name
         self.link = link
 
-        self.thread1 = NewThread("下载文件", (link, name))
+        self.thread1 = CustomThread("下载文件", (link, name))
         self.thread1.signalInt.connect(self.thread1_1)
         self.thread1.signalBool.connect(self.thread1_2)
         self.thread1.start()
@@ -701,6 +753,8 @@ class DownloadWidget(QWidget):
         except:
             return
         if msg == 100:
+            self.signalBool.emit(True)
+
             self.infoBar.contentLabel.setText(f"{self.name} 下载成功")
             self.infoBar.closeButton.click()
 
@@ -715,6 +769,7 @@ class DownloadWidget(QWidget):
 
     def thread1_2(self, msg):
         if not msg:
+            self.signalBool.emit(False)
             try:
                 self.infoBar.closeButton.click()
             except:

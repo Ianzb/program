@@ -7,9 +7,20 @@ from source.custom import *
 os.chdir(os.path.dirname(__file__))
 
 try:
-    from beta.source.custom import *
+    from program.source.custom import *
 except:
     pass
+
+
+def xmlToJson(self, data: str) -> dict:
+    """
+    xml转json
+    @param data: xml字符串
+    @return: 字典格式json数据
+    """
+    from .xmltodict import parse
+    data = parse(data)
+    return data
 
 
 def searchSoftware(name: str, source: str) -> list:
@@ -81,7 +92,6 @@ class MyThread(QThread):
             except Exception as ex:
                 self.signalBool.emit(False)
         logging.info(f"应用商店插件 {self.mode} 线程结束")
-
 
 
 class AppInfoCard(SmallInfoCard):

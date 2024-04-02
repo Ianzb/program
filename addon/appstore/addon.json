@@ -1,9 +1,10 @@
 {
     "id": "appstore",
     "name": "应用商店",
-    "version": "1.4.1",
+    "version": "1.4.2",
     "file": [
-        "init.py"
+        "__init__.py",
+        "xmltodict.py"
     ],
     "lib": []
 }

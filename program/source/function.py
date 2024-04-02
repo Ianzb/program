@@ -6,55 +6,50 @@ import shutil
 import threading
 import webbrowser
 import time
-import logging
+import requests
+import bs4
+import lxml
 from traceback import format_exception
-
-try:
-    import requests
-    import bs4
-    import lxml
-    from PySide6 import *
-    from PySide6.QtCore import *
-    from PySide6.QtGui import *
-    from PySide6.QtWidgets import *
-    from PySide6 import QtCore
-    from PySide6 import QtGui
-    from PySide6 import QtWidgets
-    from qfluentwidgets import *
-    from qfluentwidgets.components.material import *
-    from qfluentwidgets import FluentIcon as FIF
-    from DownloadKit import DownloadKit
-except ImportError:
-    os.popen("download.pyw error")
-    sys.exit()
+from PySide6 import *
+from PySide6.QtCore import *
+from PySide6.QtGui import *
+from PySide6.QtWidgets import *
+from PySide6 import QtCore
+from PySide6 import QtGui
+from PySide6 import QtWidgets
+from qfluentwidgets import *
+from qfluentwidgets.components.material import *
+from qfluentwidgets import FluentIcon as FIF
+from DownloadKit import DownloadKit
 
 
 class Program:
     """
     程序信息
     """
-    PROGRAM_NAME = "zb小程序"  # 程序名称
-    PROGRAM_VERSION = "4.0.0"  # 程序版本
-    PROGRAM_TITLE = f"{PROGRAM_NAME} {PROGRAM_VERSION}"  # 程序窗口标题
+    NAME = "zb小程序"  # 程序名称
+    VERSION = "4.0.0"  # 程序版本
+    TITLE = f"{NAME} {VERSION}"  # 程序窗口标题
+    URL = "https://ianzb.github.io/project/"  # 程序网址
     AUTHOR_NAME = "Ianzb"  # 作者名称
     AUTHOR_URL = "https://ianzb.github.io/"  # 作者网址
-    PROGRAM_URL = "https://ianzb.github.io/project/"  # 程序网址
+    UPDATE_URL = "https://vip.123pan.cn/1813801926/code/program/index.json"  # 更新网址
+    UPDATE_INSTALLER_URL = "https://vip.123pan.cn/1813801926/code/program/zbProgram_setup.exe"  # 更新安装包链接
     GITHUB_URL = "https://github.com/Ianzb/program/"  # Github网址
-    PROGRAM_MAIN_FILE_PATH = sys.argv[0]  # 程序主文件路径
-    PROGRAM_PATH = os.path.dirname(PROGRAM_MAIN_FILE_PATH)  # 程序安装路径
-    SOURCE_PATH = os.path.join(PROGRAM_PATH, "source/img")  # 程序资源文件路径
-    FILE_NAME = os.path.basename(PROGRAM_MAIN_FILE_PATH)  # 当前程序文件名称
+    MAIN_FILE_PATH = sys.argv[0]  # 程序主文件路径
+    MAIN_FILE_NAME = os.path.basename(MAIN_FILE_PATH)  # 当前程序文件名称
+    INSTALL_PATH = os.path.dirname(MAIN_FILE_PATH)  # 程序安装路径
+    SOURCE_PATH = os.path.join(INSTALL_PATH, "source/img")  # 程序资源文件路径
     PROGRAM_PID = os.getpid()  # 程序pid
     USER_PATH = os.path.expanduser("~")  # 系统用户路径
-    PROGRAM_DATA_PATH = os.path.join(USER_PATH, "zb")  # 程序数据路径
-    SETTING_FILE_PATH = os.path.join(PROGRAM_DATA_PATH, "settings.json")  # 程序设置文件路径
-    LOGGING_FILE_PATH = os.path.join(PROGRAM_DATA_PATH, "logging.log")  # 程序日志文件路径
-    ADDON_PATH = os.path.join(PROGRAM_DATA_PATH, "addon")  # 程序插件路径
-    ADDON_URL = "https://ianzb.github.io/program/addon/addon.json"  # 插件信息网址
+    DATA_PATH = os.path.join(USER_PATH, "zb")  # 程序数据路径
+    SETTING_FILE_PATH = os.path.join(DATA_PATH, "settings.json")  # 程序设置文件路径
+    LOGGING_FILE_PATH = os.path.join(DATA_PATH, "logging.log")  # 程序日志文件路径
+    ADDON_PATH = os.path.join(DATA_PATH, "addon")  # 程序插件路径
+    ADDON_URL = "https://vip.123pan.cn/1813801926/code/addon/addon.json"  # 插件信息网址
     STARTUP_ARGUMENT = sys.argv[1:]  # 程序启动参数
-    PYTHON_VERSION = sys.version[:sys.version.find(" ")]  # Python版本
-    REQUEST_HEADER = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 Edg/122.0.0.0",
-                      "zbprogram": PROGRAM_VERSION}  # 程序默认网络请求头
+    REQUEST_HEADER = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36 Edg/123.0.0.0",
+                      "zbprogram": VERSION}  # 程序默认网络请求头
 
     REQUIRE_LIB = ["PySide6-Fluent-Widgets[full]",
                    "requests",
@@ -63,52 +58,33 @@ class Program:
                    "pypiwin32",
                    "pandas",
                    "winshell",
-                   "xmltodict",
                    "DownloadKit",
-                   "murmurhash2",
-                   "Python-NBT",
                    ]
-    EXTRA_LIB = ["DataRecoder",
-                 "PySide6",
-                 "PySide6_Addons",
-                 "PySide6_Essentials",
-                 "PySideSix-Frameless_Window",
-                 "beautifulsoup4",
-                 "certifi",
-                 "charset-normalizer",
-                 "colorthief",
-                 "darkdetect",
-                 "et-xmlfile",
-                 "idna",
-                 "numpy",
-                 "openpyxl",
-                 "pillow",
-                 "python-dateutil",
-                 "pytz",
-                 "pywin32",
-                 "scipy",
-                 "shiboken6",
-                 "six",
-                 "soupsieve",
-                 "tzdata",
-                 "urllib3",
-                 ]
 
     def __init__(self):
         # 创建数据目录
-        if not os.path.exists(self.PROGRAM_DATA_PATH):
-            os.mkdir(self.PROGRAM_DATA_PATH)
+        if not os.path.exists(self.DATA_PATH):
+            os.mkdir(self.DATA_PATH)
         # 切换运行路径
-        os.chdir(self.PROGRAM_PATH)
+        os.chdir(self.INSTALL_PATH)
 
         # 设置任务栏
         import ctypes
 
-        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(self.PROGRAM_NAME)
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(self.NAME)
         # 关闭SSL证书验证
         import ssl
 
         ssl._create_default_https_context = ssl._create_unverified_context()
+
+    @property
+    def WINDOWS_VERSION(self) -> list:
+        """
+        获得windows版本
+        @return: 返回列表，例：[10,0,22631]
+        """
+        version = sys.getwindowsversion()
+        return [version.major, version.minor, version.build]
 
     @property
     def DESKTOP_PATH(self) -> str:
@@ -129,21 +105,8 @@ class Program:
         return winreg.QueryValueEx(winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders"), "{374DE290-123F-4565-9164-39C4925E467B}")[0]
 
     @property
-    def PROGRAM_ICON(self) -> str:
+    def ICON(self) -> str:
         return program.source("program.png")
-
-    @property
-    def UPDATE_URL(self) -> str:
-        """
-        获得更新网址
-        @return: 网址
-        """
-        if setting.read("updateChannel") == "正式版":
-            return "https://vip.123pan.cn/1813801926/code/program/index.json"
-        elif setting.read("updateChannel") == "抢先版":
-            return "https://ianzb.github.io/program/release/index.json"
-        elif setting.read("updateChannel") == "测试版":
-            return "https://ianzb.github.io/program/beta/index.json"
 
     @property
     def isStartup(self) -> bool:
@@ -159,7 +122,7 @@ class Program:
         判断程序是否为
         @return:
         """
-        return ".exe" in self.FILE_NAME
+        return ".exe" in self.MAIN_FILE_NAME
 
     def source(self, name: str) -> str:
         """
@@ -175,7 +138,7 @@ class Program:
         @param name: 文件名
         @return: 文件路径
         """
-        return f.pathJoin(self.PROGRAM_DATA_PATH, "cache", name)
+        return f.pathJoin(self.DATA_PATH, "cache", name)
 
     def close(self):
         """
@@ -187,7 +150,7 @@ class Program:
         """
         重启程序
         """
-        f.cmd(self.PROGRAM_MAIN_FILE_PATH)
+        f.cmd(self.MAIN_FILE_PATH)
         sys.exit()
 
     def detectRepeatRun(self):
@@ -195,20 +158,20 @@ class Program:
         程序重复运行检测
         """
         value = False
-        if f.existPath(f.pathJoin(self.PROGRAM_DATA_PATH, "zb.lock")):
-            with open(f.pathJoin(self.PROGRAM_DATA_PATH, "zb.lock"), "r+", encoding="utf-8") as file:
+        if f.existPath(f.pathJoin(self.DATA_PATH, "zb.lock")):
+            with open(f.pathJoin(self.DATA_PATH, "zb.lock"), "r+", encoding="utf-8") as file:
                 pid = file.read().strip()
                 if pid:
                     data = f.cmd(f"tasklist |findstr {pid}", True)
                     if "python" in data or ".exe" in data:
                         value = True
         if value:
-            open(f.pathJoin(self.PROGRAM_DATA_PATH, "zb.unlock"), "w").close()
+            open(f.pathJoin(self.DATA_PATH, "zb.unlock"), "w").close()
             logging.info(f"当前程序为重复运行，自动退出")
             self.close()
         else:
-            f.delete(f.pathJoin(self.PROGRAM_DATA_PATH, "zb.unlock"))
-            with open(f.pathJoin(self.PROGRAM_DATA_PATH, "zb.lock"), "w+", encoding="utf-8") as file:
+            f.delete(f.pathJoin(self.DATA_PATH, "zb.unlock"))
+            with open(f.pathJoin(self.DATA_PATH, "zb.lock"), "w+", encoding="utf-8") as file:
                 file.write(str(self.PROGRAM_PID))
 
 
@@ -218,6 +181,7 @@ class LoggingFunctions:
     """
 
     def __init__(self):
+        import logging
         self.log = logging.getLogger(__name__)
         self.log.setLevel(logging.DEBUG)
         handler1 = logging.StreamHandler(sys.stderr)
@@ -296,7 +260,6 @@ class SettingFunctions:
                                 "downloadPath": program.DOWNLOAD_PATH,
                                 "showWindow": False,
                                 "sortBlacklist": [],
-                                "updateChannel": "正式版",
                                 "micaEffect": True,
                                 "showTray": True,
                                 "hideWhenClose": True,
@@ -387,17 +350,7 @@ class ProcessFunctions:
         @param data: 源字符串
         @return: 处理结果
         """
-        data = data.replace("\n", "").replace("\r", "").replace(" ", "")
-        return data
-
-    def xmlToJson(self, data: str) -> dict:
-        """
-        xml转json
-        @param data: xml字符串
-        @return: 字典格式json数据
-        """
-        import xmltodict
-        data = xmltodict.parse(data)
+        data = data.replace(r"\n", "").replace(r"\r", "").replace(r"\t", "").strip()
         return data
 
     def removeIllegalPath(self, path: str, mode: int = 0) -> str:
@@ -463,7 +416,7 @@ class ProcessFunctions:
         """
         简单的使用cmd
         @param command: 命令
-        @param pause: 是否返回输出结果
+        @param pause: 是否等待并返回输出结果
         @return: 输出结果
         """
         logging.debug(f"cmd执行命令{command}")
@@ -522,7 +475,7 @@ class ProcessFunctions:
         size = 10000.0
         for i in range(len(units)):
             if (value / size) < 1:
-                return f"%.{i}f%s" % (value, units[i])
+                return f"%ds.{i}f%s" % (value, units[i])
             value = value / size
 
     def fileSizeAddUnit(self, value: int) -> str:
@@ -564,7 +517,7 @@ class FileFunctions(ProcessFunctions):
         """
         path = ""
         for i in data:
-            path = os.path.join(path, i)
+            path = os.path.join(path, str(i))
         return self.formatPath(path)
 
     def isSameFile(self, path1: str, path2: str) -> bool:
@@ -643,7 +596,7 @@ class FileFunctions(ProcessFunctions):
             data = open(path, "rb").read()
             return md5(data).hexdigest()
 
-    def getHash(self, path: str) -> str:
+    def getSha1(self, path: str) -> str:
         """
         获取文件sha1值
         @param path: 文件路径
@@ -928,7 +881,7 @@ class FileFunctions(ProcessFunctions):
         """
         try:
             logging.reset()
-            self.clearDir(f.pathJoin(program.PROGRAM_DATA_PATH, "cache"))
+            self.clearDir(f.pathJoin(program.DATA_PATH, "cache"))
         except:
             pass
 
@@ -999,37 +952,6 @@ class ProgramFunctions(FileFunctions):
     def __init__(self):
         super().__init__()
 
-    def pipTest(self):
-        """
-        测试pip是否生效
-        @return: 是否生效
-        """
-        return "pip <command> [options]" in self.cmd("pip", True)
-
-    def pipInstall(self, lib_name: str | list):
-        """
-        pip安装运行库
-        @param lib_name: 运行库名称
-        """
-        logging.debug(f"pip安装{lib_name}")
-        if type(lib_name) is str:
-            self.cmd(f"pip install {lib_name} -i https://pypi.tuna.tsinghua.edu.cn/simple some-package", True)
-        elif type(lib_name) is list:
-            for i in lib_name:
-                self.cmd(f"pip install {i} -i https://pypi.tuna.tsinghua.edu.cn/simple some-package", True)
-
-    def pipUpdate(self, lib_name: str | list):
-        """
-        pip更新运行库
-        @param lib_name: 运行库名称
-        """
-        logging.debug(f"pip更新{lib_name}")
-        if type(lib_name) is str:
-            self.cmd(f"pip install --upgrade {lib_name} -i https://pypi.tuna.tsinghua.edu.cn/simple some-package", True)
-        elif type(lib_name) is list:
-            for i in lib_name:
-                self.cmd(f"pip install --upgrade {i} -i https://pypi.tuna.tsinghua.edu.cn/simple some-package", True)
-
     def downloadFile(self, link: str, path: str):
         """
         下载文件
@@ -1045,28 +967,6 @@ class ProgramFunctions(FileFunctions):
             logging.debug(f"文件{link}下载成功")
         except Exception as ex:
             logging.warning(f"文件{link}下载失败{ex}")
-
-    def createShortcut(self, old: str, new: str, icon: str, arguments: str = ""):
-        """
-        创建快捷方式
-        @param old: 源文件路径
-        @param new: 新文件路径
-        @param icon: 图标
-        @param arguments: 参数
-        """
-        try:
-            import win32com.client
-            if not new.endswith(".lnk"):
-                new += ".lnk"
-            shell = win32com.client.Dispatch("WScript.Shell")
-            shortcut = shell.CreateShortCut(new)
-            shortcut.Targetpath = old
-            shortcut.IconLocation = icon
-            shortcut.Arguments = arguments
-            shortcut.save()
-            logging.debug(f"快捷方式{new}添加成功")
-        except Exception as ex:
-            logging.warning(f"快捷方式添加失败{ex}")
 
     def addToStartup(self, name: str, path: str, mode: bool = True):
         """
@@ -1112,7 +1012,7 @@ class ProgramFunctions(FileFunctions):
     def getAddonInfo(self, url: str) -> dict:
         """
         获取指定插件信息
-        @param data: 链接
+        @param url: 链接
         @return: 信息
         """
         if not url.endswith("/"):
@@ -1120,7 +1020,7 @@ class ProgramFunctions(FileFunctions):
         response = self.requestGet(self.urlJoin(url, "addon.json"), program.REQUEST_HEADER, (15, 30))
         data = json.loads(response)
         data["url"] = url
-        logging.debug(f"插件{data['name']}信息获取成功")
+        logging.debug(f"插件{data["name"]}信息获取成功")
         return data
 
     def downloadAddon(self, data: dict):
@@ -1139,10 +1039,7 @@ class ProgramFunctions(FileFunctions):
                 f.extractZip(self.pathJoin(program.ADDON_PATH, i), program.ADDON_PATH, True)
             else:
                 self.downloadFile(self.urlJoin(data["url"], i), self.pathJoin(program.ADDON_PATH, data["id"], i).replace("init.py", "__init__.py"))
-        for i in data["lib"]:
-            self.pipInstall(i)
-            self.pipUpdate(i)
-        logging.debug(f"插件{data['name']}下载成功")
+        logging.debug(f"插件{data["name"]}下载成功")
 
     def getInstalledAddonInfo(self) -> dict:
         """
@@ -1155,21 +1052,6 @@ class ProgramFunctions(FileFunctions):
                 with open(f.pathJoin(i, "addon.json"), encoding="utf-8") as file:
                     data[f.splitPath(i)] = json.loads(file.read())
         return data
-
-    def checkInternet(self, link: str = "https://www.baidu.com/", header=None):
-        """
-        测试链接是否有效
-        @param link: 链接
-        @param header: 请求头
-        @return: 是否连接
-        """
-        try:
-            response = requests.get(link, headers=header, stream=True)
-            logging.debug(f"访问{link}的结果为{response.status_code == 200}")
-            return response.status_code == 200
-        except:
-            logging.warning(f"访问{link}失败")
-            return False
 
 
 class Functions(ProgramFunctions):
@@ -1230,11 +1112,11 @@ class Functions(ProgramFunctions):
                 v1[i] = v1[i] + "正式版"
             if v3[i] == "{{v|china-win}}":
                 v1[i] = "中国版端游"
-            if v3[i] == "{{v|china-android}}":
+            elif v3[i] == "{{v|china-android}}":
                 v1[i] = "中国版手游"
-            if v3[i] == "{{v|legends-win}}":
+            elif v3[i] == "{{v|legends-win}}":
                 v1[i] = "我的世界：传奇"
-            if v3[i] == "{{v|dungeons}}":
+            elif v3[i] == "{{v|dungeons}}":
                 v1[i] = "我的世界：地下城"
             if v3[i] in useful and v2[i] != "":
                 str1 += v1[i] + "版本：" + v2[i] + "\n"

@@ -221,7 +221,7 @@ class UpdateModWidget(QWidget):
         self.link = link
         self.old = old
 
-        self.thread1 = NewThread("下载文件", (link, name))
+        self.thread1 = CustomThread("下载文件", (link, name))
         self.thread1.signalInt.connect(self.thread1_1)
         self.thread1.signalBool.connect(self.thread1_2)
         self.thread1.start()

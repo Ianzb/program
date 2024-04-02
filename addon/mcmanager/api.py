@@ -6,7 +6,7 @@ from source.custom import *
 os.chdir(os.path.dirname(__file__))
 
 try:
-    from beta.source.custom import *
+    from program.source.custom import *
 except:
     pass
 
@@ -391,7 +391,7 @@ def getInfoFromHash(path, source: str = "CurseForge"):
         path = [i for i in path if not i.endswith(".old")]
         hash = {}
         for i in path:
-            hash[f.splitPath(i)] = f.getHash(i)
+            hash[f.splitPath(i)] = f.getSha1(i)
         post_info = {
             "hashes": list(hash.values()),
             "algorithm": "sha1"
@@ -486,7 +486,7 @@ def getNewestFromHash(path, version: str, loader: str, source: str = "CurseForge
         path = [i for i in path if not i.endswith(".old")]
         hash = {}
         for i in path:
-            hash[f.splitPath(i)] = f.getHash(i)
+            hash[f.splitPath(i)] = f.getSha1(i)
         post_info = {
             "hashes": list(hash.values()),
             "algorithm": "sha1",

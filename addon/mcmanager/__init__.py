@@ -7,7 +7,7 @@ from source.custom import *
 os.chdir(os.path.dirname(__file__))
 
 try:
-    from beta.source.custom import *
+    from program.source.custom import *
 except:
     pass
 from .manager import *
