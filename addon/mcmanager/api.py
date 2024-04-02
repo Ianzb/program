@@ -359,7 +359,7 @@ def getModFile(id, version: str = "", loader: str = "", source: str = "CurseForg
 
 
 def CurseForgeHash(file: str):
-    from murmurhash2 import murmurhash2
+    from .murmurhash2 import murmurhash2
     with open(file, 'rb') as file:
         filtered_bytes = bytearray()
         while True:
