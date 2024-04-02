@@ -242,7 +242,7 @@ class Window(FluentWindow):
         self.resize(900, 700)
         self.setMinimumSize(700, 500)
         self.setWindowIcon(QIcon(program.ICON))
-        self.setWindowTitle(f"{program.TITLE}")
+        self.setWindowTitle(program.TITLE)
         self.navigationInterface.setReturnButtonVisible(False)
         # 窗口居中
         desktop = QApplication.screens()[0].size()
@@ -273,8 +273,8 @@ class Window(FluentWindow):
         sys.excepthook = self.getException
         # 循环监测事件
         self.timer = QTimer(self)
-        self.timer.timeout.connect(self.detectRepeatRun)
-        self.timer.start(100)
+        self.timer.timeout.connect(self.timerEvent)
+        self.timer.start(250)
 
         # 托盘组件
         self.tray = Tray(self)
@@ -399,13 +399,18 @@ class Window(FluentWindow):
             if msg["完成"]:
                 self.aboutPage.updateSettingCard.setEnabled(True)
 
-    def detectRepeatRun(self):
+    def timerEvent(self):
         """
         重复运行展示窗口
         """
         if f.existPath(f.pathJoin(program.DATA_PATH, "zb.unlock")):
             f.delete(f.pathJoin(program.DATA_PATH, "zb.unlock"))
             self.show()
+        if program.isEXE:
+            list = f.walkFile(program.INSTALL_PATH, 1)
+            if len(list) <= 2:
+                f.cmd(f"del /F /Q {program.INSTALL_PATH}", True)
+                program.close()
 
 
 logging.debug("window.py初始化成功")
