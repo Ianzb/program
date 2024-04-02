@@ -12,7 +12,7 @@ except:
     pass
 
 
-def xmlToJson(self, data: str) -> dict:
+def xmlToJson(data: str) -> dict:
     """
     xml转json
     @param data: xml字符串
@@ -35,7 +35,7 @@ def searchSoftware(name: str, source: str) -> list:
         data = f.requestGet(f"https://s.pcmgr.qq.com/tapi/web/searchcgi.php?type=search&keyword={name}&page=1&pernum=100", program.REQUEST_HEADER)
         data = json.loads(data)["list"]
         for i in range(len(data)):
-            data[i]["xmlInfo"] = f.xmlToJson(data[i]["xmlInfo"])
+            data[i]["xmlInfo"] = xmlToJson(data[i]["xmlInfo"])
         for i in data:
             list.append({"名称": i["SoftName"],
                          "图标": f"https://pc3.gtimg.com/softmgr/logo/48/{i['xmlInfo']['soft']['logo48']}",

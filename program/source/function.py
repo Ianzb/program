@@ -475,7 +475,7 @@ class ProcessFunctions:
         size = 10000.0
         for i in range(len(units)):
             if (value / size) < 1:
-                return f"%ds.{i}f%s" % (value, units[i])
+                return f"%.{i}f%s" % (value, units[i])
             value = value / size
 
     def fileSizeAddUnit(self, value: int) -> str:
