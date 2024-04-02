@@ -5,6 +5,5 @@
     "file": [
         "__init__.py",
         "xmltodict.py"
-    ],
-    "lib": []
+    ]
 }

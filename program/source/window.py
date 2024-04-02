@@ -1,3 +1,5 @@
+import os
+
 from .widget import *
 
 
@@ -377,7 +379,7 @@ class Window(FluentWindow):
         移除插件
         @param data: 数据
         """
-        f.cmd(f"del /F /Q {f.pathJoin(program.ADDON_PATH, data["id"])}", True)
+        f.cmd(f"del /F /Q /S {f.pathJoin(program.ADDON_PATH, data["id"])}", True)
         f.delete(f.pathJoin(program.ADDON_PATH, data["id"]))
         logging.info(f"插件{data["name"]}删除成功")
 
@@ -409,7 +411,9 @@ class Window(FluentWindow):
         if program.isEXE:
             list = f.walkFile(program.INSTALL_PATH, 1)
             if len(list) <= 2:
-                f.cmd(f"del /F /Q {program.INSTALL_PATH}", True)
+                with open("remove.bat", "w", encoding="utf-8") as file:
+                    file.write(f'\nchoice /t 2 /d y /n \nrmdir /S /Q "{program.INSTALL_PATH}"')
+                os.system("powershell -Command Start-Process -FilePath remove.bat -WindowStyle Hidden")
                 program.close()
 
 
