@@ -39,7 +39,7 @@ class Program:
     MAIN_FILE_PATH = sys.argv[0]  # 程序主文件路径
     MAIN_FILE_NAME = os.path.basename(MAIN_FILE_PATH)  # 当前程序文件名称
     INSTALL_PATH = os.path.dirname(MAIN_FILE_PATH)  # 程序安装路径
-    SOURCE_PATH = os.path.join(INSTALL_PATH, "source/img")  # 程序资源文件路径
+    SOURCE_PATH = "source/img"  # 程序资源文件路径
     PROGRAM_PID = os.getpid()  # 程序pid
     USER_PATH = os.path.expanduser("~")  # 系统用户路径
     DATA_PATH = os.path.join(USER_PATH, "zb")  # 程序数据路径
@@ -50,16 +50,6 @@ class Program:
     STARTUP_ARGUMENT = sys.argv[1:]  # 程序启动参数
     REQUEST_HEADER = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36 Edg/123.0.0.0",
                       "zbprogram": VERSION}  # 程序默认网络请求头
-
-    REQUIRE_LIB = ["PySide6-Fluent-Widgets[full]",
-                   "requests",
-                   "bs4",
-                   "lxml",
-                   "pypiwin32",
-                   "pandas",
-                   "winshell",
-                   "DownloadKit",
-                   ]
 
     def __init__(self):
         # 创建数据目录
@@ -76,6 +66,8 @@ class Program:
         import ssl
 
         ssl._create_default_https_context = ssl._create_unverified_context()
+
+        self.IS_INSTALL_EDITION = os.path.exists("unins000.exe")
 
     @property
     def WINDOWS_VERSION(self) -> list:

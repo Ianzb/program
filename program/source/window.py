@@ -409,12 +409,12 @@ class Window(FluentWindow):
             f.delete(f.pathJoin(program.DATA_PATH, "zb.unlock"))
             self.show()
         if program.isEXE:
-            list = f.walkFile(program.INSTALL_PATH, 1)
-            if len(list) <= 2:
-                with open("remove.bat", "w", encoding="utf-8") as file:
-                    file.write(f'\nchoice /t 2 /d y /n \nrmdir /S /Q "{program.INSTALL_PATH}"')
-                os.system("powershell -Command Start-Process -FilePath remove.bat -WindowStyle Hidden")
-                program.close()
+            if program.IS_INSTALL_EDITION:
+                if not f.existPath("unins000.exe"):
+                    with open("remove.bat", "w", encoding="utf-8") as file:
+                        file.write(f'\nchoice /t 2 /d y /n \nrmdir /S /Q "{program.INSTALL_PATH}"')
+                    os.system("powershell -Command Start-Process -FilePath remove.bat -WindowStyle Hidden")
+                    program.close()
 
 
 logging.debug("window.py初始化成功")
