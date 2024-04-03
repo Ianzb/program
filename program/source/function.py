@@ -48,6 +48,8 @@ class Program:
     ADDON_PATH = os.path.join(DATA_PATH, "addon")  # 程序插件路径
     ADDON_URL = "https://vip.123pan.cn/1813801926/code/addon/addon.json"  # 插件信息网址
     STARTUP_ARGUMENT = sys.argv[1:]  # 程序启动参数
+    UNINSTALL_FILE = "unins000.exe"  # 卸载程序
+    IS_UNINSTALLABLE = os.path.exists(UNINSTALL_FILE)  # 卸载文件
     REQUEST_HEADER = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36 Edg/123.0.0.0",
                       "zbprogram": VERSION}  # 程序默认网络请求头
 
@@ -66,8 +68,6 @@ class Program:
         import ssl
 
         ssl._create_default_https_context = ssl._create_unverified_context()
-
-        self.IS_INSTALL_EDITION = os.path.exists("unins000.exe")
 
     @property
     def WINDOWS_VERSION(self) -> list:

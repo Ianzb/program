@@ -373,6 +373,8 @@ class Window(FluentWindow):
             self.addPage(self.page, "scroll")
         except Exception as ex:
             logging.warning(f"插件{data["name"]}安装失败{ex}")
+            self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", f"插件{data["name"]}安装失败{ex}！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.settingPage)
+            self.infoBar.show()
 
     def __removeAddon(self, data):
         """
@@ -409,8 +411,8 @@ class Window(FluentWindow):
             f.delete(f.pathJoin(program.DATA_PATH, "zb.unlock"))
             self.show()
         if program.isEXE:
-            if program.IS_INSTALL_EDITION:
-                if not f.existPath("unins000.exe"):
+            if program.IS_UNINSTALLABLE:
+                if len(f.walkFile(program.INSTALL_PATH, 1)) < 3:
                     with open("remove.bat", "w", encoding="utf-8") as file:
                         file.write(f'\nchoice /t 2 /d y /n \nrmdir /S /Q "{program.INSTALL_PATH}"')
                     os.system("powershell -Command Start-Process -FilePath remove.bat -WindowStyle Hidden")
