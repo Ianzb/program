@@ -894,16 +894,9 @@ class ControlSettingCard(SettingCard):
         self.button3.setToolTip("重启程序")
         self.button3.installEventFilter(ToolTipFilter(self.button3, 1000))
 
-        self.button4 = PrimaryPushButton("卸载", self, FIF.DELETE)
-        self.button4.clicked.connect(lambda: f.cmd(f'start "{f.pathJoin(program.INSTALL_PATH, program.UNINSTALL_FILE)}"'))
-        self.button4.setToolTip("卸载程序")
-        self.button4.installEventFilter(ToolTipFilter(self.button4, 1000))
-        self.button4.setHidden(not program.IS_UNINSTALLABLE)
-
         self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignmentFlag.AlignRight)
         self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignmentFlag.AlignRight)
         self.hBoxLayout.addWidget(self.button3, 0, Qt.AlignmentFlag.AlignRight)
-        self.hBoxLayout.addWidget(self.button4, 0, Qt.AlignmentFlag.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
     def button1Clicked(self):
