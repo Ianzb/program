@@ -20,12 +20,6 @@ class AddonThread(QThread):
     def run(self):
         logging.info(f"MC资源管理器插件 {self.mode} 线程开始")
 
-        if self.mode == "加载目录游戏信息":
-            try:
-                data = getPathGameInfo(setting.read("minecraftJavaPath"))
-                self.signalDict.emit(data)
-            except Exception as ex:
-                self.signalBool.emit(False)
         logging.info(f"MC资源管理器插件 {self.mode} 线程结束")
 
 
@@ -90,13 +84,43 @@ class AddonSettingTab(BasicTab):
         self.backButton.clicked.connect(self.backButtonClicked)
         self.backButton.setToolTip("返回管理页面")
         self.backButton.installEventFilter(ToolTipFilter(self.backButton, 1000))
-        self.backButton.move(8, 0)
+        self.backButton.move(8, 8)
+        self.backButton.setFixedSize(32, 32)
 
         self.vBoxLayout.addWidget(self.cardGroup1)
 
     def backButtonClicked(self):
         self.parent().page["管理"].loadPage()
         self.parent().showPage("管理")
+
+
+class MinecraftVersionCard(SmallInfoCard):
+    """
+    我的世界版本信息卡片
+    """
+
+    def __init__(self, path: str, parent=None):
+        super().__init__(parent)
+        self.path = path
+        self.data = getPathGameInfo(path)
+
+        self.mainButton.setText("管理")
+        self.mainButton.setIcon(FIF.INFO)
+        self.mainButton.setEnabled(False)
+
+        self.setImg(getVersionImg(self.data["游戏版本"])[0], getVersionImg(self.data["游戏版本"])[1])
+
+        self.setTitle(self.data["id"])
+        data = self.data["游戏版本"]
+        for j in self.data["加载器"]:
+            data += f" | {j[0]} {j[1]}"
+        self.setInfo(data, 0)
+
+        self.mainButton.setEnabled(True)
+
+    def mainButtonClicked(self):
+        self.parent().parent().parent().parent().parent().page["版本"].setData(self.data)
+        self.parent().parent().parent().parent().parent().showPage("版本")
 
 
 class AddonManageTab(BasicTab):
@@ -106,12 +130,6 @@ class AddonManageTab(BasicTab):
 
         self.cardGroup1 = CardGroup("管理", self)
 
-        self.smallInfoCard = SmallInfoCard(self)
-        self.smallInfoCard.setImg("grass_block.png", "https://patchwiki.biligame.com/images/mc/d/d0/jsva4b20p50dyilh54o7jnzmt5eytt4.png")
-        self.smallInfoCard.mainButton.setText("打开")
-        self.smallInfoCard.mainButton.setIcon(FIF.FOLDER)
-        self.smallInfoCard.mainButton.clicked.connect(lambda: f.showFile(setting.read("minecraftJavaPath")))
-
         self.grayCard = GrayCard("设置", self)
 
         self.settingButton = PushButton("设置", self, FIF.SETTING)
@@ -119,12 +137,16 @@ class AddonManageTab(BasicTab):
         self.settingButton.setToolTip("打开插件设置")
         self.settingButton.installEventFilter(ToolTipFilter(self.settingButton, 1000))
 
-        self.grayCard.addWidget(self.settingButton)
+        self.reloadButton = ToolButton(FIF.SYNC, self)
+        self.reloadButton.clicked.connect(self.loadPage)
+        self.reloadButton.setToolTip("刷新")
+        self.reloadButton.installEventFilter(ToolTipFilter(self.reloadButton, 1000))
 
-        self.cardGroup1.addWidget(self.smallInfoCard)
-        self.cardGroup1.addWidget(self.grayCard)
+        self.grayCard.addWidget(self.settingButton)
+        self.grayCard.addWidget(self.reloadButton)
 
         self.vBoxLayout.addWidget(self.cardGroup1, 0, Qt.AlignmentFlag.AlignTop)
+        self.vBoxLayout.addWidget(self.grayCard)
 
         self.loadPage()
 
@@ -132,26 +154,110 @@ class AddonManageTab(BasicTab):
         self.parent().showPage("设置")
 
     def loadPage(self):
-        self.smallInfoCard.setTitle(f.splitPath(setting.read("minecraftJavaPath")))
+        self.cardGroup1.clearWidget()
 
-        self.thread1 = AddonThread("加载目录游戏信息")
-        self.thread1.signalDict.connect(self.thread1_1)
-        self.thread1.signalBool.connect(self.thread1_2)
-        self.thread1.run()
-
-    def thread1_1(self, msg):
-        self.smallInfoCard.setTitle(msg["id"])
-        data = msg["游戏版本"]
-        for i in msg["加载器"]:
-            data += f" | {i[0]} {i[1]}"
-        self.smallInfoCard.setInfo(data, 0)
+        if isMinecraftPath(setting.read("minecraftJavaPath")) == "version":
+            versionList = [setting.read("minecraftJavaPath")]
+        elif isMinecraftPath(setting.read("minecraftJavaPath")) == "minecraft":
+            versionList = [i for i in f.walkDir(f.pathJoin(setting.read("minecraftJavaPath"), "versions"), 1) if isMinecraftPath(i)]
+        else:
+            return
+        for i in versionList:
+            self.smallInfoCard = MinecraftVersionCard(i, self)
+            self.cardGroup1.addWidget(self.smallInfoCard)
 
     def thread1_2(self, msg):
         if not msg:
             self.smallInfoCard.setInfo(f"目录{setting.read('minecraftJavaPath')}的Minecraft版本信息读取失败！", 0)
 
 
-class AddonPage(BasicTabPage):
+class VersionManageTab(BasicTab):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setObjectName("版本")
+        self.data = []
+
+        self.backButton = TransparentToolButton(FIF.RETURN, self)
+        self.backButton.clicked.connect(self.backButtonClicked)
+        self.backButton.setToolTip("返回管理页面")
+        self.backButton.installEventFilter(ToolTipFilter(self.backButton, 1000))
+        self.backButton.move(8, 8)
+        self.backButton.setFixedSize(32, 32)
+
+        self.grayCard = GrayCard("功能", self)
+
+        self.reloadButton = ToolButton(FIF.SYNC, self)
+        self.reloadButton.clicked.connect(self.loadPage)
+        self.reloadButton.setToolTip("刷新")
+        self.reloadButton.installEventFilter(ToolTipFilter(self.reloadButton, 1000))
+
+        self.grayCard.addWidget(self.reloadButton)
+
+        self.bigInfoCard = BigInfoCard(self)
+        self.cardGroup = CardGroup("管理", self)
+        self.label = StrongBodyLabel("截图", self)
+        self.flipView = HorizontalFlipView(self)
+        self.pager = HorizontalPipsPager(self)
+
+        self.vBoxLayout.addWidget(self.bigInfoCard)
+        self.vBoxLayout.addWidget(self.grayCard)
+        self.vBoxLayout.addWidget(self.cardGroup)
+        self.vBoxLayout.addWidget(self.label)
+        self.vBoxLayout.addWidget(self.flipView)
+        self.vBoxLayout.addWidget(self.pager)
+
+    def backButtonClicked(self):
+        self.parent().page["管理"].loadPage()
+        self.parent().showPage("管理")
+
+    def setData(self, data):
+        if data == self.data:
+            return
+        else:
+            self.loadPage(data)
+
+    def loadPage(self, data=None):
+        if data:
+            self.data = data
+
+        if self.data["加载器"] and isRelease(self.data["游戏版本"]):
+            for i in FILE_PATH.values():
+                f.makeDir(f.pathJoin(self.data["路径"], i))
+
+        self.bigInfoCard.deleteLater()
+        self.bigInfoCard = BigInfoCard(self, url=False)
+        self.bigInfoCard.setTitle(self.data["id"])
+        self.bigInfoCard.setImg(getVersionImg(self.data["游戏版本"])[0], getVersionImg(self.data["游戏版本"])[1])
+        self.bigInfoCard.addData("游戏版本", self.data["游戏版本"])
+        self.bigInfoCard.setInfo(f"该版本为Minecraft Java版{"正式版" if isRelease(self.data["游戏版本"]) else "测试版"}，{"已安装" if self.data["加载器"] else "未安装"}模组加载器，{"支持" if self.data["加载器"] and isRelease(self.data["游戏版本"]) else "不支持"}本程序的模组管理")
+        for i in self.data["加载器"]:
+            self.bigInfoCard.addData(i[1], i[0])
+        self.bigInfoCard.backButton.deleteLater()
+        self.bigInfoCard.mainButton.setText("打开")
+        self.bigInfoCard.mainButton.setIcon(FIF.FOLDER)
+        self.bigInfoCard.mainButton.clicked.connect(lambda: f.showFile(self.data["路径"]))
+        self.vBoxLayout.insertWidget(0, self.bigInfoCard)
+
+        self.flipView.deleteLater()
+        self.pager.deleteLater()
+        self.flipView = HorizontalFlipView(self)
+        self.flipView.setAspectRatioMode(Qt.AspectRatioMode.KeepAspectRatio)
+        img = [i for i in f.walkFile(f.pathJoin(self.data["路径"], "screenshots"), 1) if i.endswith(".png") or i.endswith(".jpg")]
+        self.flipView.addImages(img if len(img) <= 15 else img[:15])
+        self.pager = HorizontalPipsPager(self)
+        self.pager.setPageNumber(self.flipView.count())
+        self.pager.currentIndexChanged.connect(self.flipView.setCurrentIndex)
+        self.pager.setVisibleNumber(self.flipView.count() if self.flipView.count() <= 25 else 25)
+        self.flipView.currentIndexChanged.connect(self.pager.setCurrentIndex)
+        self.label.setHidden(not bool(img))
+        self.flipView.setHidden(not bool(img))
+        self.pager.setHidden(not bool(img))
+
+        self.vBoxLayout.insertWidget(7, self.flipView)
+        self.vBoxLayout.insertWidget(8, self.pager, 0, Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignTop)
+
+
+class AddonPage(ChangeableTab):
     """
     插件主页面
     """
@@ -160,14 +266,17 @@ class AddonPage(BasicTabPage):
         super().__init__(parent)
         self.setIcon(FIF.GAME)
         self.setObjectName("MC资源管理器")
+        self.isInit = False
 
-        self.page = ChangeableTab(self)
+    def showEvent(self, QShowEvent):
+        if not self.isInit:
+            self.isInit = True
 
-        self.addonManageTab = AddonManageTab()
-        self.addonSettingTab = AddonSettingTab()
+            self.addonManageTab = AddonManageTab(self)
+            self.addonSettingTab = AddonSettingTab(self)
+            self.versionManageTab = VersionManageTab(self)
 
-        self.page.addPage(self.addonManageTab)
-        self.page.addPage(self.addonSettingTab)
-        self.page.showPage("管理")
-
-        self.addPage(self.page)
+            self.addPage(self.addonManageTab)
+            self.addPage(self.addonSettingTab)
+            self.addPage(self.versionManageTab)
+            self.showPage("管理")

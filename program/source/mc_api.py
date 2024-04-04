@@ -526,7 +526,7 @@ def getPathGameInfo(path: str):
     @param path: 游戏版本路径
     @return: 数据
     """
-    result = {"id": "", "游戏版本": "", "加载器": []}
+    result = {"路径": path, "id": "", "游戏版本": "", "加载器": []}
     json_path = f.pathJoin(path, f.splitPath(path) + ".json")
     if f.existPath(json_path):
         try:
@@ -546,13 +546,31 @@ def getPathGameInfo(path: str):
                     if i["id"] == "game":
                         result["游戏版本"] = i["version"]
             if "libraries" in data.keys() and not result["加载器"]:
+                def findVersionCode(lst):
+                    import re
+                    strings_with_numbers = [s for s in lst if re.search(r'\d', s)]
+                    last_string_with_number = strings_with_numbers[-1] if strings_with_numbers else None
+                    return last_string_with_number.replace(result["游戏版本"], "").strip("-_ ")
+
+                forge = False
+                fabric = False
+                optifine = False
+                liteloader = False
+
                 for i in data["libraries"]:
-                    if "net.minecraftforge:forge:" in i["name"]:
-                        result["加载器"].append(["forge", i["name"].split(":")[-1].replace(result["游戏版本"], "").strip("-").split("-")[-1].strip("-_ ")])
-                    elif "optifine:OptiFine" in i["name"]:
-                        result["加载器"].append(["optifine", i["name"].replace(":installer", "").split(":")[-1].replace(result["游戏版本"], "").strip("-").split("-")[-1].strip("-_ ")])
-                    elif "com.mumfrey:liteloader" in i["name"]:
-                        result["加载器"].append(["liteloader", i["name"].split(":")[-1].strip("-").split("-")[-1].replace(result["游戏版本"], "").strip("-_ ")])
+                    if "net.minecraftforge:forge:" in i["name"] and not forge:
+                        result["加载器"].append(["forge", findVersionCode(i["name"].split(":"))])
+                        forge = True
+                    elif "optifine:OptiFine" in i["name"] and not optifine:
+                        result["加载器"].append(["optifine", findVersionCode(i["name"].split(":"))])
+                        optifine = True
+                    elif "com.mumfrey:liteloader" in i["name"] and not liteloader:
+                        result["加载器"].append(["liteloader", findVersionCode(i["name"].split(":"))])
+                        liteloader = True
+                    elif "net.fabricmc:fabric-loader:" in i["name"] and not fabric:
+                        result["加载器"].append(["fabric", findVersionCode(i["name"].split(":"))])
+                        fabric = True
+
             for i in range(len(result["加载器"])):
                 if result["加载器"][i][0] in LOADER_TYPE.values():
                     result["加载器"][i][0] = LOADER_TYPE_REVERSE[result["加载器"][i][0]]
@@ -589,5 +607,28 @@ def isMinecraftPath(path: str):
     @return: 是否
     """
     if f.isDir(path):
-        if f.existPath(f.pathJoin(path, f.splitPath(path) + ".json")) and f.existPath(f.pathJoin(path, "options.txt")):
-            return True
+        if f.existPath(f.pathJoin(path, f.splitPath(path) + ".json")):
+            return "version"
+        elif f.existPath(f.pathJoin(path, "versions")) and f.existPath(f.pathJoin(path, "assets")) and f.existPath(f.pathJoin(path, "libraries")):
+            return "minecraft"
+
+
+def isRelease(version: str):
+    """
+    判断是否为正式版
+    @param version: 版本
+    @return: 是否
+    """
+    return not any(c.isalpha() for c in version)
+
+
+def getVersionImg(version: str):
+    """
+    获得正式版/测试版版本图标
+    @param version: 版本
+    @return: 图片链接
+    """
+    if isRelease(version):
+        return "grass_block.png", "https://patchwiki.biligame.com/images/mc/d/d0/jsva4b20p50dyilh54o7jnzmt5eytt4.png"
+    else:
+        return "dirt_block.png", "https://patchwiki.biligame.com/images/mc/a/af/7js1n1i51sg8z5j6phsci4sr7pc83u8.png"
