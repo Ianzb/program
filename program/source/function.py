@@ -155,7 +155,7 @@ class Program:
                 pid = file.read().strip()
                 if pid:
                     data = f.cmd(f"tasklist |findstr {pid}", True)
-                    if "python" in data or ".exe" in data:
+                    if "zbProgram.exe" in data:
                         value = True
         if value:
             open(f.pathJoin(self.DATA_PATH, "zb.unlock"), "w").close()
