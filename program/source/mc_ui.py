@@ -369,6 +369,12 @@ class SaveManageTab(ResourceManageTab):
         self.cardGroup = CardGroup("存档列表", self)
         self.vBoxLayout.insertWidget(0, self.cardGroup, 0)
 
+        self.openButton = PushButton("打开", self, FIF.FOLDER)
+        self.openButton.clicked.connect(lambda: f.showFile(f.pathJoin(self.data["路径"], "saves")))
+        self.openButton.setToolTip("打开存档目录")
+        self.openButton.installEventFilter(ToolTipFilter(self.openButton, 1000))
+        self.grayCard.insertWidget(0, self.openButton)
+
     def loadPage(self, data=None):
         if data:
             self.data = data
@@ -386,6 +392,12 @@ class ModManageTab(ResourceManageTab):
         super().__init__(parent)
         self.setObjectName("模组")
 
+        self.openButton = PushButton("打开", self, FIF.FOLDER)
+        self.openButton.clicked.connect(lambda: f.showFile(f.pathJoin(self.data["路径"], "mods")))
+        self.openButton.setToolTip("打开模组目录")
+        self.openButton.installEventFilter(ToolTipFilter(self.openButton, 1000))
+        self.grayCard.insertWidget(0, self.openButton)
+
     def loadPage(self, data=None):
         if data:
             self.data = data
@@ -396,6 +408,12 @@ class ResourcePackManageTab(ResourceManageTab):
         super().__init__(parent)
         self.setObjectName("资源包")
 
+        self.openButton = PushButton("打开", self, FIF.FOLDER)
+        self.openButton.clicked.connect(lambda: f.showFile(f.pathJoin(self.data["路径"], "resourcepacks")))
+        self.openButton.setToolTip("打开资源包目录")
+        self.openButton.installEventFilter(ToolTipFilter(self.openButton, 1000))
+        self.grayCard.insertWidget(0, self.openButton)
+
     def loadPage(self, data=None):
         if data:
             self.data = data
@@ -405,6 +423,12 @@ class ShaderPackManageTab(ResourceManageTab):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setObjectName("光影包")
+
+        self.openButton = PushButton("打开", self, FIF.FOLDER)
+        self.openButton.clicked.connect(lambda: f.showFile(f.pathJoin(self.data["路径"], "shaderpacks")))
+        self.openButton.setToolTip("打开光影包目录")
+        self.openButton.installEventFilter(ToolTipFilter(self.openButton, 1000))
+        self.grayCard.insertWidget(0, self.openButton)
 
     def loadPage(self, data=None):
         if data:

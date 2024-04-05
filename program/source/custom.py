@@ -529,7 +529,7 @@ class GrayCard(QWidget):
         @param widget: 组件
         @param alignment: 对齐方式
         """
-        self.hBoxLayout.insertWidget(index, widget, alignment)
+        self.hBoxLayout.insertWidget(index, widget, 0, alignment)
 
 
 class BigInfoCard(CardWidget):
