@@ -9,6 +9,7 @@ import time
 import requests
 import bs4
 import lxml
+from send2trash import *
 from traceback import format_exception
 from PySide6 import *
 from PySide6.QtCore import *
@@ -563,18 +564,28 @@ class FileFunctions(ProcessFunctions):
             else:
                 os.chmod(path, S_IWRITE)
 
-    def delete(self, path: str):
+    def delete(self, path: str, trash: bool = False, force: bool = False):
         """
         删除文件/目录
         @param path: 文件路径
+        @param trash: 是否发送到回收站
+        @param force: 是否使用命令行强制删除
         """
         try:
-            if self.isFile(path):
-                self.setOnlyRead(path, False)
-                os.remove(path)
-            if self.isDir(path):
-                shutil.rmtree(path)
+            if trash:
+                if self.existPath(path):
+                    send2trash(path)
+            else:
+                if self.isFile(path):
+                    self.setOnlyRead(path, False)
+                    os.remove(path)
+                elif self.isDir(path):
+                    shutil.rmtree(path)
         except Exception as ex:
+            if self.isFile(path):
+                self.cmd(f'del /F /Q "{path}"', True)
+            elif self.isDir(path):
+                self.cmd(f'rmdir /S /Q "{path}"', True)
             logging.warning(f"文件{path}无法删除{ex}")
 
     def getMD5(self, path: str) -> str:

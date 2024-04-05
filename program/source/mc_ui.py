@@ -1,16 +1,10 @@
 from .web_ui import *
 
 
-class AddonThread(QThread):
+class AddonThread(QThread, SignalBase):
     """
     多线程模块
     """
-    signalStr = Signal(str)
-    signalInt = Signal(int)
-    signalBool = Signal(bool)
-    signalList = Signal(list)
-    signalDict = Signal(dict)
-    signalObject = Signal(object)
 
     def __init__(self, mode: str, data=None, parent: QWidget = None):
         super().__init__(parent=parent)
@@ -94,7 +88,7 @@ class AddonSettingTab(BasicTab):
         self.parent().showPage("管理")
 
 
-class MinecraftVersionCard(SmallInfoCard):
+class VersionCard(SmallInfoCard):
     """
     我的世界版本信息卡片
     """
@@ -106,7 +100,6 @@ class MinecraftVersionCard(SmallInfoCard):
 
         self.mainButton.setText("管理")
         self.mainButton.setIcon(FIF.INFO)
-        self.mainButton.setEnabled(False)
 
         self.setImg(getVersionImg(self.data["游戏版本"])[0], getVersionImg(self.data["游戏版本"])[1])
 
@@ -115,8 +108,6 @@ class MinecraftVersionCard(SmallInfoCard):
         for j in self.data["加载器"]:
             data += f" | {j[0]} {j[1]}"
         self.setInfo(data, 0)
-
-        self.mainButton.setEnabled(True)
 
     def mainButtonClicked(self):
         self.parent().parent().parent().parent().parent().page["版本"].setData(self.data)
@@ -163,7 +154,7 @@ class AddonManageTab(BasicTab):
         else:
             return
         for i in versionList:
-            self.smallInfoCard = MinecraftVersionCard(i, self)
+            self.smallInfoCard = VersionCard(i, self)
             self.cardGroup1.addWidget(self.smallInfoCard)
 
     def thread1_2(self, msg):
@@ -184,31 +175,55 @@ class VersionManageTab(BasicTab):
         self.backButton.move(8, 8)
         self.backButton.setFixedSize(32, 32)
 
-        self.grayCard = GrayCard("功能", self)
+        self.grayCard = GrayCard("管理", self)
+
+        self.saveButton = PushButton("存档", self, FIF.SAVE)
+        self.saveButton.clicked.connect(self.saveButtonClicked)
+        self.saveButton.setToolTip("存档管理")
+        self.saveButton.installEventFilter(ToolTipFilter(self.saveButton, 1000))
+
+        self.modButton = PushButton("模组", self, FIF.APPLICATION)
+        self.modButton.clicked.connect(self.modButtonClicked)
+        self.modButton.setToolTip("模组管理")
+        self.modButton.installEventFilter(ToolTipFilter(self.modButton, 1000))
+
+        self.resourcePackButton = PushButton("资源包", self, FIF.TILES)
+        self.resourcePackButton.clicked.connect(self.resourcePackButtonClicked)
+        self.resourcePackButton.setToolTip("资源包管理")
+        self.resourcePackButton.installEventFilter(ToolTipFilter(self.resourcePackButton, 1000))
+
+        self.shaderPackButton = PushButton("光影包", self, FIF.BRIGHTNESS)
+        self.shaderPackButton.clicked.connect(self.shaderPackButtonClicked)
+        self.shaderPackButton.setToolTip("光影包管理")
+        self.shaderPackButton.installEventFilter(ToolTipFilter(self.shaderPackButton, 1000))
+
+        self.screenshotButton = PushButton("截图", self, FIF.PHOTO)
+        self.screenshotButton.clicked.connect(lambda: f.showFile(f.pathJoin(self.data["路径"], "screenshots")))
+        self.screenshotButton.setToolTip("截图管理")
+        self.screenshotButton.installEventFilter(ToolTipFilter(self.screenshotButton, 1000))
 
         self.reloadButton = ToolButton(FIF.SYNC, self)
         self.reloadButton.clicked.connect(self.loadPage)
         self.reloadButton.setToolTip("刷新")
         self.reloadButton.installEventFilter(ToolTipFilter(self.reloadButton, 1000))
 
+        self.grayCard.addWidget(self.saveButton)
+        self.grayCard.addWidget(self.modButton)
+        self.grayCard.addWidget(self.resourcePackButton)
+        self.grayCard.addWidget(self.shaderPackButton)
+        self.grayCard.addWidget(self.screenshotButton)
         self.grayCard.addWidget(self.reloadButton)
 
         self.bigInfoCard = BigInfoCard(self)
-        self.cardGroup = CardGroup("管理", self)
         self.label = StrongBodyLabel("截图", self)
         self.flipView = HorizontalFlipView(self)
         self.pager = HorizontalPipsPager(self)
 
         self.vBoxLayout.addWidget(self.bigInfoCard)
         self.vBoxLayout.addWidget(self.grayCard)
-        self.vBoxLayout.addWidget(self.cardGroup)
         self.vBoxLayout.addWidget(self.label)
         self.vBoxLayout.addWidget(self.flipView)
         self.vBoxLayout.addWidget(self.pager)
-
-    def backButtonClicked(self):
-        self.parent().page["管理"].loadPage()
-        self.parent().showPage("管理")
 
     def setData(self, data):
         if data == self.data:
@@ -219,10 +234,6 @@ class VersionManageTab(BasicTab):
     def loadPage(self, data=None):
         if data:
             self.data = data
-
-        if self.data["加载器"] and isRelease(self.data["游戏版本"]):
-            for i in FILE_PATH.values():
-                f.makeDir(f.pathJoin(self.data["路径"], i))
 
         self.bigInfoCard.deleteLater()
         self.bigInfoCard = BigInfoCard(self, url=False)
@@ -253,8 +264,151 @@ class VersionManageTab(BasicTab):
         self.flipView.setHidden(not bool(img))
         self.pager.setHidden(not bool(img))
 
-        self.vBoxLayout.insertWidget(7, self.flipView)
-        self.vBoxLayout.insertWidget(8, self.pager, 0, Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignTop)
+        self.vBoxLayout.insertWidget(6, self.flipView)
+        self.vBoxLayout.insertWidget(7, self.pager, 0, Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignTop)
+
+        self.saveButton.setEnabled(f.existPath(f.pathJoin(self.data["路径"], "saves")))
+        self.modButton.setEnabled(f.existPath(f.pathJoin(self.data["路径"], "mods")))
+        self.resourcePackButton.setEnabled(f.existPath(f.pathJoin(self.data["路径"], "resourcepacks")))
+        self.shaderPackButton.setEnabled(f.existPath(f.pathJoin(self.data["路径"], "shaderpacks")))
+        self.screenshotButton.setEnabled(f.existPath(f.pathJoin(self.data["路径"], "screenshots")))
+
+    def backButtonClicked(self):
+        self.parent().page["管理"].loadPage()
+        self.parent().showPage("管理")
+
+    def saveButtonClicked(self):
+        self.parent().page["存档"].loadPage(self.data)
+        self.parent().showPage("存档")
+
+    def modButtonClicked(self):
+        self.parent().page["模组"].loadPage(self.data)
+        self.parent().showPage("模组")
+
+    def resourcePackButtonClicked(self):
+        self.parent().page["资源包"].loadPage(self.data)
+        self.parent().showPage("资源包")
+
+    def shaderPackButtonClicked(self):
+        self.parent().page["光影包"].loadPage(self.data)
+        self.parent().showPage("光影包")
+
+
+class ResourceManageTab(BasicTab):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.data = []
+
+        self.backButton = TransparentToolButton(FIF.RETURN, self)
+        self.backButton.clicked.connect(self.backButtonClicked)
+        self.backButton.setToolTip("返回版本页面")
+        self.backButton.installEventFilter(ToolTipFilter(self.backButton, 1000))
+        self.backButton.move(8, 8)
+        self.backButton.setFixedSize(32, 32)
+
+        self.grayCard = GrayCard("管理", self)
+
+        self.reloadButton = ToolButton(FIF.SYNC, self)
+        self.reloadButton.clicked.connect(self.loadPage)
+        self.reloadButton.setToolTip("刷新")
+        self.reloadButton.installEventFilter(ToolTipFilter(self.reloadButton, 1000))
+
+        self.grayCard.addWidget(self.reloadButton)
+
+        self.vBoxLayout.addWidget(self.grayCard)
+
+    def backButtonClicked(self):
+        self.parent().page["版本"].loadPage()
+        self.parent().showPage("版本")
+
+    def setData(self, data):
+        if data == self.data:
+            return
+        else:
+            self.loadPage(data)
+
+    def loadPage(self, data=None):
+        if data:
+            self.data = data
+
+
+class SaveCard(SmallInfoCard):
+    """
+    存档信息卡片
+    """
+
+    def __init__(self, path: str, parent=None):
+        super().__init__(parent)
+        self.path = path
+        self.data = getSaveInfo(path)
+
+        self.mainButton.setText("打开")
+        self.mainButton.setIcon(FIF.FOLDER)
+
+        if self.data["封面"]:
+            self.setImg(self.data["封面"])
+
+        self.setTitle(self.data["名称"])
+        self.setInfo(f"{self.data["游戏模式"]} | {self.data["游戏难度"]}", 0)
+        self.setInfo(self.data["最近游玩"], 1)
+
+        self.hBoxLayout.insertWidget(3, CopyTextButton(self.data["种子"], "种子", self))
+        self.hBoxLayout.insertWidget(4, CopyTextButton(self.data["路径"], "路径", self))
+        self.hBoxLayout.insertSpacing(4, -24)
+        self.hBoxLayout.insertSpacing(5, 16)
+
+    def mainButtonClicked(self):
+        f.showFile(self.path)
+
+
+class SaveManageTab(ResourceManageTab):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setObjectName("存档")
+
+        self.cardGroup = CardGroup("存档列表", self)
+        self.vBoxLayout.insertWidget(0, self.cardGroup, 0)
+
+    def loadPage(self, data=None):
+        if data:
+            self.data = data
+        self.cardGroup.clearWidget()
+
+        savelist = [i for i in f.walkDir(f.pathJoin(self.data["路径"], "saves"), 1) if f.existPath(f.pathJoin(i, "level.dat"))]
+        for i in savelist:
+            self.saveCard = SaveCard(i, self)
+            self.cardGroup.addWidget(self.saveCard)
+        self.cardGroup.setTitle(f"存档列表（{len(savelist)}个）")
+
+
+class ModManageTab(ResourceManageTab):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setObjectName("模组")
+
+    def loadPage(self, data=None):
+        if data:
+            self.data = data
+
+
+class ResourcePackManageTab(ResourceManageTab):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setObjectName("资源包")
+
+    def loadPage(self, data=None):
+        if data:
+            self.data = data
+
+
+class ShaderPackManageTab(ResourceManageTab):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setObjectName("光影包")
+
+    def loadPage(self, data=None):
+        if data:
+            self.data = data
 
 
 class AddonPage(ChangeableTab):
@@ -275,8 +429,16 @@ class AddonPage(ChangeableTab):
             self.addonManageTab = AddonManageTab(self)
             self.addonSettingTab = AddonSettingTab(self)
             self.versionManageTab = VersionManageTab(self)
+            self.saveManageTab = SaveManageTab(self)
+            self.modManageTab = ModManageTab(self)
+            self.resourcePackManageTab = ResourcePackManageTab(self)
+            self.shaderPackManageTab = ShaderPackManageTab(self)
 
             self.addPage(self.addonManageTab)
             self.addPage(self.addonSettingTab)
             self.addPage(self.versionManageTab)
+            self.addPage(self.saveManageTab)
+            self.addPage(self.modManageTab)
+            self.addPage(self.resourcePackManageTab)
+            self.addPage(self.shaderPackManageTab)
             self.showPage("管理")

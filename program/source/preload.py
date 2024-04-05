@@ -39,9 +39,9 @@ class EasyThread(threading.Thread):
         self.func(*self.args)
 
 
-class CustomThread(QThread):
+class SignalBase:
     """
-    QThread多线程模块
+    信号基类
     """
     signalStr = Signal(str)
     signalInt = Signal(int)
@@ -49,6 +49,15 @@ class CustomThread(QThread):
     signalList = Signal(list)
     signalDict = Signal(dict)
     signalObject = Signal(object)
+
+    def __init__(self, parent=None):
+        pass
+
+
+class CustomThread(QThread, SignalBase):
+    """
+    QThread多线程模块
+    """
 
     def __init__(self, mode: str, data=None, parent: QWidget = None):
         super().__init__(parent=parent)

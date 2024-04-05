@@ -48,7 +48,7 @@ MODRINTH_TYPE = {
     "模组": "mod",
     "整合包": "modpack",
     "资源包": "resourcepack",
-    "光影": "shader",
+    "光影包": "shader",
     "数据包": "datapack",
     "插件": "plugin",
 }
@@ -56,7 +56,7 @@ CURSEFORGE_TYPE = {
     "模组": 6,
     "整合包": 4471,
     "资源包": 12,
-    "光影": 6552,
+    "光影包": 6552,
     "数据包": 6945,
     "插件": 5,
     "地图": 17,
@@ -596,6 +596,7 @@ def getSaveInfo(path: str):
             "游戏难度": {0: "和平", 1: "简单", 2: "普通", 3: "困难"}[data["Difficulty"]["value"]],
             "最近游玩": datetime.fromtimestamp(data["LastPlayed"]["value"] / 1000).strftime("%Y-%m-%d %H:%M:%S"),
             "封面": f.pathJoin(path, "icon.png") if f.existPath(f.pathJoin(path, "icon.png")) else None,
+            "路径": path,
             }
     return data
 

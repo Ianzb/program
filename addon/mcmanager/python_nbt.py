@@ -366,7 +366,7 @@ class NBTTagSingleValue(NBTTagBase):
         self.value = json_obj['value']
 
 
-class NBTTagContainerList(NBTTagBase, _util.RestrictedList):
+class NBTTagContainerList(NBTTagBase, RestrictedList):
     """
     Just for code reuse and better interfaces
     """
@@ -377,7 +377,7 @@ class NBTTagContainerList(NBTTagBase, _util.RestrictedList):
         # This should be filled by subclasses ahead of calling this initializer
         # If unfilled, self._validate should be filled as default set in RestrictedList
         if not self._validate:
-            _util.RestrictedList.__init__()
+            RestrictedList.__init__()
 
         __buffer = None
         if hasattr(kwargs.get('buffer', None), 'read'):
@@ -408,7 +408,7 @@ class NBTTagByte(NBTTagSingleValue):
         super().__init__(value=value, **kwargs)
 
     def _validate(self, v):
-        return _util.JavaByte.validate(v)
+        return JavaByte.validate(v)
 
 
 class NBTTagShort(NBTTagSingleValue):
@@ -419,7 +419,7 @@ class NBTTagShort(NBTTagSingleValue):
         super().__init__(value=value, **kwargs)
 
     def _validate(self, v):
-        return _util.JavaShort.validate(v)
+        return JavaShort.validate(v)
 
 
 class NBTTagInt(NBTTagSingleValue):
@@ -430,7 +430,7 @@ class NBTTagInt(NBTTagSingleValue):
         super().__init__(value=value, **kwargs)
 
     def _validate(self, v):
-        return _util.JavaInteger.validate(v)
+        return JavaInteger.validate(v)
 
 
 class NBTTagLong(NBTTagSingleValue):
@@ -441,7 +441,7 @@ class NBTTagLong(NBTTagSingleValue):
         super().__init__(value=value, **kwargs)
 
     def _validate(self, v):
-        return _util.JavaLong.validate(v)
+        return JavaLong.validate(v)
 
 
 class NBTTagFloat(NBTTagSingleValue):
@@ -493,7 +493,7 @@ class NBTTagByteArray(NBTTagContainerList):
     _type_id = TAG_BYTE_ARRAY
 
     def __init__(self, value=None, **kwargs):
-        self._validate = _util.JavaByte.validate
+        self._validate = JavaByte.validate
         super().__init__(value=value, **kwargs)
 
     def _read_buffer(self, buffer):
@@ -514,7 +514,7 @@ class NBTTagIntArray(NBTTagContainerList):
     _type_id = TAG_INT_ARRAY
 
     def __init__(self, value=None, **kwargs):
-        self._validate = _util.JavaInteger.validate
+        self._validate = JavaInteger.validate
         super().__init__(value=value, **kwargs)
 
     def _read_buffer(self, buffer):
@@ -538,7 +538,7 @@ class NBTTagLongArray(NBTTagContainerList):
     _type_id = TAG_LONG_ARRAY
 
     def __init__(self, value=None, **kwargs):
-        self._validate = _util.JavaLong.validate
+        self._validate = JavaLong.validate
         super().__init__(value=value, **kwargs)
 
     def _read_buffer(self, buffer):
@@ -620,7 +620,7 @@ class NBTTagList(NBTTagContainerList):
         self.extend([self.tag_type(v) for v in json_obj['value']])
 
 
-class NBTTagCompound(NBTTagBase, _util.TypeRestrictedDict):
+class NBTTagCompound(NBTTagBase, TypeRestrictedDict):
     _type_id = TAG_COMPOUND
 
     def _read_buffer(self, buffer):
@@ -663,7 +663,7 @@ class NBTTagCompound(NBTTagBase, _util.TypeRestrictedDict):
         self[key] = value
 
     def __init__(self, value=None, **kwargs):
-        _util.TypeRestrictedDict.__init__(self, value_types=NBTTagBase, key_types=str)
+        TypeRestrictedDict.__init__(self, value_types=NBTTagBase, key_types=str)
         __buffer = kwargs.get('buffer', None) if hasattr(kwargs.get('buffer', None), 'read') else value
         if hasattr(__buffer, 'read'):  # If there is a buffer, read from it
             self._read_buffer(__buffer)

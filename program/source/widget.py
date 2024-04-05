@@ -550,7 +550,6 @@ class StartupSettingCard(SettingCard):
     """
     开机自启动设置卡片
     """
-    clicked = Signal()
 
     def __init__(self, parent=None):
 

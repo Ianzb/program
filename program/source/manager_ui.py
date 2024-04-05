@@ -1,16 +1,10 @@
 from .mc_api import *
 
 
-class MyThread(QThread):
+class MyThread(QThread, SignalBase):
     """
     多线程模块
     """
-    signalStr = Signal(str)
-    signalInt = Signal(int)
-    signalBool = Signal(bool)
-    signalList = Signal(list)
-    signalDict = Signal(dict)
-    signalObject = Signal(object)
 
     def __init__(self, mode: str, data=None, parent: QWidget = None):
         super().__init__(parent=parent)
@@ -162,26 +156,7 @@ class ModSettingMessageBox(MessageBoxBase):
         self.accepted.emit()
 
 
-class CopyButton(ToolButton):
-    """
-    复制按钮
-    """
 
-    def __init__(self, link, parent=None):
-        super().__init__(parent)
-        self.link = link
-
-        self.setIcon(FIF.COPY)
-
-        self.setToolTip(link if link else "")
-        self.installEventFilter(ToolTipFilter(self, 1000))
-        self.clicked.connect(self.copyButtonClicked)
-        if not link:
-            self.setEnabled(False)
-
-    def copyButtonClicked(self):
-        clipboard = QApplication.clipboard()
-        clipboard.setText(self.link)
 
 
 class SearchButton(ToolButton):
@@ -332,16 +307,10 @@ class ModUpdateMessageBox(MessageBoxBase):
                 UpdateModWidget(i[1]["下载链接"], f.pathJoin(self.path, i[1]["文件名称"]), f.pathJoin(self.path, i[0]["源文件名称"]), self.parent)
 
 
-class ModFileInfoCard(SmallInfoCard):
+class ModFileInfoCard(SmallInfoCard, SignalBase):
     """
     文件信息小卡片
     """
-    signalStr = Signal(str)
-    signalInt = Signal(int)
-    signalBool = Signal(bool)
-    signalList = Signal(list)
-    signalDict = Signal(dict)
-    signalObject = Signal(object)
 
     def __init__(self, path: str, parent: QWidget = None):
         """
@@ -385,7 +354,7 @@ class ModFileInfoCard(SmallInfoCard):
                     self.setInfo(f"文件大小：{f.fileSizeAddUnit(data['文件大小'])}", 1)
                     self.setInfo(f"下载量：{f.numberAddUnit(data['下载量'])}", 2)
                     self.setInfo(f"更新日期：{data['更新日期']}", 3)
-                self.hBoxLayout.insertWidget(4, CopyButton(data["下载链接"]), alignment=Qt.AlignmentFlag.AlignRight)
+                self.hBoxLayout.insertWidget(4, CopyTextButton(data["下载链接"]), alignment=Qt.AlignmentFlag.AlignRight)
         else:
             self.setInfo("文件无在线数据！", 0)
 

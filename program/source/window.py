@@ -213,16 +213,10 @@ class AboutPage(BasicPage):
         self.vBoxLayout.addWidget(self.cardGroup1, 0, Qt.AlignmentFlag.AlignTop)
 
 
-class Window(FluentWindow):
+class Window(FluentWindow, SignalBase):
     """
     主窗口
     """
-    signalStr = Signal(str)
-    signalInt = Signal(int)
-    signalBool = Signal(bool)
-    signalList = Signal(list)
-    signalDict = Signal(dict)
-    signalObject = Signal(object)
 
     def __init__(self):
         super().__init__()

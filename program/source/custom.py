@@ -61,16 +61,10 @@ class Tray(QSystemTrayIcon):
         self.action2.setEnabled(msg)
 
 
-class BetterScrollArea(ScrollArea):
+class BetterScrollArea(ScrollArea, SignalBase):
     """
     优化样式的滚动区域
     """
-    signalStr = Signal(str)
-    signalInt = Signal(int)
-    signalBool = Signal(bool)
-    signalList = Signal(list)
-    signalDict = Signal(dict)
-    signalObject = Signal(object)
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
@@ -299,6 +293,7 @@ class FixedExpandLayout(QLayout):
             if widget is not None:
                 widget.deleteLater()
 
+
 class ToolBar(QWidget):
     """
     页面顶端工具栏
@@ -390,6 +385,28 @@ class Image(QLabel):
         else:
             self.loading = False
             self.setPixmap(QPixmap(path))
+
+
+class CopyTextButton(ToolButton):
+    """
+    复制文本按钮
+    """
+
+    def __init__(self, text, data: str | None = None, parent=None):
+        super().__init__(parent)
+        if not text:
+            self.setEnabled(False)
+            return
+        self.text = str(text)
+
+        self.setIcon(FIF.COPY)
+        self.setToolTip(f"点击复制{data if data else ""}信息{"\n" + self.text if self.text else ""}")
+        self.installEventFilter(ToolTipFilter(self, 1000))
+        self.clicked.connect(self.copyButtonClicked)
+
+    def copyButtonClicked(self):
+        clipboard = QApplication.clipboard()
+        clipboard.setText(self.text)
 
 
 class DisplayCard(ElevatedCardWidget):
@@ -504,6 +521,15 @@ class GrayCard(QWidget):
         """
         self.hBoxLayout.addWidget(widget, alignment=alignment)
         self.hBoxLayout.addSpacing(spacing)
+
+    def insertWidget(self, index: int, widget, alignment=Qt.AlignmentFlag.AlignTop):
+        """
+        插入组件
+        @param index: 序号
+        @param widget: 组件
+        @param alignment: 对齐方式
+        """
+        self.hBoxLayout.insertWidget(index, widget, alignment)
 
 
 class BigInfoCard(CardWidget):
@@ -817,16 +843,11 @@ class CardGroup(QWidget):
         """
         self.cardLayout.clearWidget()
 
-class DownloadWidget(QWidget):
+
+class DownloadWidget(QWidget, SignalBase):
     """
     下载文件ui接口
     """
-    signalStr = Signal(str)
-    signalInt = Signal(int)
-    signalBool = Signal(bool)
-    signalList = Signal(list)
-    signalDict = Signal(dict)
-    signalObject = Signal(object)
 
     def __init__(self, link: str, name: str, parent=None):
         super().__init__(parent=parent)

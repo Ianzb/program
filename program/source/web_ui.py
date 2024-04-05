@@ -4,16 +4,10 @@ from .manager_ui import *
 mod_page_list = []
 
 
-class SmallModInfoCard(SmallInfoCard):
+class SmallModInfoCard(SmallInfoCard, SignalBase):
     """
     资源信息小卡片
     """
-    signalStr = Signal(str)
-    signalInt = Signal(int)
-    signalBool = Signal(bool)
-    signalList = Signal(list)
-    signalDict = Signal(dict)
-    signalObject = Signal(object)
 
     def __init__(self, data: dict, source: str, parent: QWidget = None):
         """
@@ -57,16 +51,10 @@ class SmallModInfoCard(SmallInfoCard):
             self.signalDict.emit(self.data)
 
 
-class BigModInfoCard(BigInfoCard):
+class BigModInfoCard(BigInfoCard, SignalBase):
     """
     资源信息大卡片
     """
-    signalStr = Signal(str)
-    signalInt = Signal(int)
-    signalBool = Signal(bool)
-    signalList = Signal(list)
-    signalDict = Signal(dict)
-    signalObject = Signal(object)
 
     def __init__(self, data: dict, parent: QWidget = None, widgets=[], version=None, loader=None):
         """
@@ -236,16 +224,10 @@ class BigModInfoCard(BigInfoCard):
             self.loadingCard.show()
 
 
-class SmallFileInfoCard(SmallInfoCard):
+class SmallFileInfoCard(SmallInfoCard, SignalBase):
     """
     文件信息小卡片
     """
-    signalStr = Signal(str)
-    signalInt = Signal(int)
-    signalBool = Signal(bool)
-    signalList = Signal(list)
-    signalDict = Signal(dict)
-    signalObject = Signal(object)
 
     def __init__(self, data: dict, parent: QWidget = None):
         """
