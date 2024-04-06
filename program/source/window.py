@@ -321,7 +321,7 @@ class Window(FluentWindow, SignalBase):
         @param page: 页面对象
         @param pos: 位置top/scroll/bottom
         """
-        self.addSubInterface(page, page.icon, page.title, eval(f"NavigationItemPosition.{pos.upper()}"))
+        self.addSubInterface(page, page.icon, page.objectName(), eval(f"NavigationItemPosition.{pos.upper()}"))
 
     def addSeparator(self, pos: str):
         """

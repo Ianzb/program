@@ -240,7 +240,7 @@ class VersionManageTab(BasicTab):
         self.bigInfoCard.setTitle(self.data["id"])
         self.bigInfoCard.setImg(getVersionImg(self.data["游戏版本"])[0], getVersionImg(self.data["游戏版本"])[1])
         self.bigInfoCard.addData("游戏版本", self.data["游戏版本"])
-        self.bigInfoCard.setInfo(f"该版本为Minecraft Java版{"正式版" if isRelease(self.data["游戏版本"]) else "测试版"}，{"已安装" if self.data["加载器"] else "未安装"}模组加载器，{"支持" if self.data["加载器"] and isRelease(self.data["游戏版本"]) else "不支持"}本程序的模组管理")
+        self.bigInfoCard.setInfo(f"该版本为Minecraft Java版{"正式版" if isRelease(self.data["游戏版本"]) else "测试版"}，{"已安装" if self.data["加载器"] else "未安装"}模组加载器！")
         for i in self.data["加载器"]:
             self.bigInfoCard.addData(i[1], i[0])
         self.bigInfoCard.backButton.deleteLater()
@@ -354,8 +354,8 @@ class SaveCard(SmallInfoCard):
 
         self.hBoxLayout.insertWidget(3, CopyTextButton(self.data["种子"], "种子", self))
         self.hBoxLayout.insertWidget(4, CopyTextButton(self.data["路径"], "路径", self))
-        self.hBoxLayout.insertSpacing(4, -24)
-        self.hBoxLayout.insertSpacing(5, 16)
+        self.hBoxLayout.insertSpacing(5, -24)
+        self.hBoxLayout.insertSpacing(4, -8)
 
     def mainButtonClicked(self):
         f.showFile(self.path)
