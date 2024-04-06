@@ -496,7 +496,6 @@ class AddonPage(BasicTabPage):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setIcon(FIF.GAME)
-        self.setObjectName("资源下载")
 
         self.addPage(SearchTab(self))
         self.addPage(FileTab(self))

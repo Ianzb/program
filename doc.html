@@ -34,7 +34,7 @@
                         文件夹下有addon.json文件，其中包括插件相关信息，实例如下：<br>
                         {<br>
                         "id": "appstore", // 插件ID要求同上<br>
-                        "name": "应用商店", // 插件名称，建议简洁明了<br>
+                        "name": "应用商店", // 插件名称，建议简洁明了，会作为程序中页面名称展示<br>
                         "version": "1.0.1", // 版本号，注意尽量是三段式，不要有除数字和.的符号<br>
                         "file": [ // 为列表形式，储存着项目所有文件的相对（addon.json的）路径（或绝对网址），必需有__init__.py<br>
                         "init.py" // 文件格式不限，如果为zip文件会自动解压到程序的addon文件夹（由于Github
@@ -53,7 +53,6 @@
                         os.chdir(os.path.dirname(__file__))<br>
                         插件主页必须设置为class AddonTab():，同时还需要设置self.title和self.subtitle作为页面标题和子标题<br>
                         self.setIcon()可设置页面图标，可为FIF.图标或本地图片文件<br>
-                        self.setObjectName("")可设置页面名称<br>
                     </p>
                 </div>
                 <div id="item-1-3">

@@ -362,8 +362,8 @@ class Window(FluentWindow, SignalBase):
         try:
             lib = importlib.import_module(data["id"])
             self.page = lib.AddonPage(self)
-            if not self.page.title:
-                self.page.title = data["name"]
+            self.page.setObjectName(data["name"])
+            self.navigationInterface.removeWidget(self.page.objectName())
             self.addPage(self.page, "scroll")
         except Exception as ex:
             logging.warning(f"插件{data["name"]}安装失败{ex}")
@@ -375,16 +375,12 @@ class Window(FluentWindow, SignalBase):
         移除插件
         @param data: 数据
         """
+        self.navigationInterface.removeWidget(data["name"])
         f.cmd(f"del /F /Q /S {f.pathJoin(program.ADDON_PATH, data["id"])}", True)
         f.delete(f.pathJoin(program.ADDON_PATH, data["id"]))
         logging.info(f"插件{data["name"]}删除成功")
 
         self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{data["name"]}删除成功！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.settingPage)
-
-        self.button1 = PushButton("重启", self, FIF.SYNC)
-        self.button1.clicked.connect(program.restart)
-
-        self.infoBar.addWidget(self.button1)
         self.infoBar.show()
 
     def autoUpdateFinish(self, msg):
