@@ -23,7 +23,7 @@ class MinecraftPathSettingCard(SettingCard):
     """
 
     def __init__(self, parent=None):
-        super().__init__(FIF.ALIGNMENT, "Java版目录", f"当前路径：{setting.read('minecraftJavaPath')}", parent)
+        super().__init__(FIF.ALIGNMENT, "Java版目录", f"当前路径：{setting.read("minecraftJavaPath")}", parent)
         self.button1 = PushButton("选择", self, FIF.FOLDER_ADD)
         self.button1.clicked.connect(self.button1Clicked)
         self.button1.setToolTip("设置Java版目录")
@@ -40,15 +40,16 @@ class MinecraftPathSettingCard(SettingCard):
             self.saveSetting(get)
 
     def saveSetting(self, path: str):
-        if isMinecraftPath(path):
+        if mc.isMinecraftPath(path):
             setting.save("minecraftJavaPath", path)
             self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "成功", f"您选择的目录保存成功！\n{path}", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
             self.infoBar.show()
             self.contentLabel.setText(f"当前路径：{path}")
+            mc.FILE_DOWNLOAD_PATH = setting.read("minecraftJavaPath")
         else:
             self.infoBar = InfoBar(InfoBarIcon.WARNING, "警告", "您选择的目录无效！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
             self.infoBar.show()
-            self.contentLabel.setText(f"当前路径：{setting.read('minecraftJavaPath')}")
+            self.contentLabel.setText(f"当前路径：{setting.read("minecraftJavaPath")}")
 
     def dragEnterEvent(self, event):
         if event.mimeData().hasUrls():
@@ -58,7 +59,7 @@ class MinecraftPathSettingCard(SettingCard):
                     self.contentLabel.setText("拖拽到此卡片即可快速导入目录！")
 
     def dragLeaveEvent(self, event):
-        self.contentLabel.setText(f"当前路径：{setting.read('minecraftJavaPath')}")
+        self.contentLabel.setText(f"当前路径：{setting.read("minecraftJavaPath")}")
 
     def dropEvent(self, event):
         if event.mimeData().hasUrls():
@@ -96,12 +97,12 @@ class VersionCard(SmallInfoCard):
     def __init__(self, path: str, parent=None):
         super().__init__(parent)
         self.path = path
-        self.data = getPathGameInfo(path)
+        self.data = mc.getPathGameInfo(path)
 
         self.mainButton.setText("管理")
         self.mainButton.setIcon(FIF.INFO)
 
-        self.setImg(getVersionImg(self.data["游戏版本"])[0], getVersionImg(self.data["游戏版本"])[1])
+        self.setImg(mc.getVersionImg(self.data["游戏版本"])[0], mc.getVersionImg(self.data["游戏版本"])[1])
 
         self.setTitle(self.data["id"])
         data = self.data["游戏版本"]
@@ -114,7 +115,7 @@ class VersionCard(SmallInfoCard):
         self.parent().parent().parent().parent().parent().showPage("版本")
 
 
-class AddonManageTab(BasicTab):
+class VersionsManageTab(BasicTab):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setObjectName("管理")
@@ -145,12 +146,13 @@ class AddonManageTab(BasicTab):
         self.parent().showPage("设置")
 
     def loadPage(self):
+        mc.FILE_DOWNLOAD_PATH = setting.read("minecraftJavaPath")
         self.cardGroup1.clearWidget()
 
-        if isMinecraftPath(setting.read("minecraftJavaPath")) == "version":
+        if mc.isMinecraftPath(setting.read("minecraftJavaPath")) == "version":
             versionList = [setting.read("minecraftJavaPath")]
-        elif isMinecraftPath(setting.read("minecraftJavaPath")) == "minecraft":
-            versionList = [i for i in f.walkDir(f.pathJoin(setting.read("minecraftJavaPath"), "versions"), 1) if isMinecraftPath(i)]
+        elif mc.isMinecraftPath(setting.read("minecraftJavaPath")) == "minecraft":
+            versionList = [i for i in f.walkDir(f.pathJoin(setting.read("minecraftJavaPath"), "versions"), 1) if mc.isMinecraftPath(i)]
         else:
             return
         for i in versionList:
@@ -159,7 +161,7 @@ class AddonManageTab(BasicTab):
 
     def thread1_2(self, msg):
         if not msg:
-            self.smallInfoCard.setInfo(f"目录{setting.read('minecraftJavaPath')}的Minecraft版本信息读取失败！", 0)
+            self.smallInfoCard.setInfo(f"目录{setting.read("minecraftJavaPath")}的Minecraft版本信息读取失败！", 0)
 
 
 class VersionManageTab(BasicTab):
@@ -226,6 +228,7 @@ class VersionManageTab(BasicTab):
         self.vBoxLayout.addWidget(self.pager)
 
     def setData(self, data):
+        mc.FILE_DOWNLOAD_PATH = data["路径"]
         if data == self.data:
             return
         else:
@@ -238,9 +241,9 @@ class VersionManageTab(BasicTab):
         self.bigInfoCard.deleteLater()
         self.bigInfoCard = BigInfoCard(self, url=False)
         self.bigInfoCard.setTitle(self.data["id"])
-        self.bigInfoCard.setImg(getVersionImg(self.data["游戏版本"])[0], getVersionImg(self.data["游戏版本"])[1])
+        self.bigInfoCard.setImg(mc.getVersionImg(self.data["游戏版本"])[0], mc.getVersionImg(self.data["游戏版本"])[1])
         self.bigInfoCard.addData("游戏版本", self.data["游戏版本"])
-        self.bigInfoCard.setInfo(f"该版本为Minecraft Java版{"正式版" if isRelease(self.data["游戏版本"]) else "测试版"}，{"已安装" if self.data["加载器"] else "未安装"}模组加载器！")
+        self.bigInfoCard.setInfo(f"该版本为Minecraft Java版{"正式版" if mc.isRelease(self.data["游戏版本"]) else "测试版"}，{"已安装" if self.data["加载器"] else "未安装"}模组加载器！")
         for i in self.data["加载器"]:
             self.bigInfoCard.addData(i[1], i[0])
         self.bigInfoCard.backButton.deleteLater()
@@ -340,7 +343,7 @@ class SaveCard(SmallInfoCard):
     def __init__(self, path: str, parent=None):
         super().__init__(parent)
         self.path = path
-        self.data = getSaveInfo(path)
+        self.data = mc.getSaveInfo(path)
 
         self.mainButton.setText("打开")
         self.mainButton.setIcon(FIF.FOLDER)
@@ -450,7 +453,7 @@ class AddonPage(ChangeableTab):
         if not self.isInit:
             self.isInit = True
 
-            self.addonManageTab = AddonManageTab(self)
+            self.versionsManageTab = VersionsManageTab(self)
             self.addonSettingTab = AddonSettingTab(self)
             self.versionManageTab = VersionManageTab(self)
             self.saveManageTab = SaveManageTab(self)
@@ -458,7 +461,7 @@ class AddonPage(ChangeableTab):
             self.resourcePackManageTab = ResourcePackManageTab(self)
             self.shaderPackManageTab = ShaderPackManageTab(self)
 
-            self.addPage(self.addonManageTab)
+            self.addPage(self.versionsManageTab)
             self.addPage(self.addonSettingTab)
             self.addPage(self.versionManageTab)
             self.addPage(self.saveManageTab)

@@ -256,8 +256,8 @@ class SmallFileInfoCard(SmallInfoCard, SignalBase):
             self.infoBar.show()
             return
         open = setting.read("minecraftJavaPath")
-        if self.parent().parent().parent().parent().comboBox3.currentText() in FILE_PATH.keys():
-            open = f.pathJoin(open, FILE_PATH[self.parent().parent().parent().parent().comboBox3.currentText()])
+        if self.parent().parent().parent().parent().comboBox3.currentText() in mc.FILE_PATH.keys():
+            open = f.pathJoin(open, mc.FILE_PATH[self.parent().parent().parent().parent().comboBox3.currentText()])
         path = QFileDialog.getExistingDirectory(self, "选择下载目录", open)
         if not path:
             return
@@ -308,7 +308,7 @@ class SearchTab(BasicTab):
 
         self.comboBox3 = AcrylicComboBox(self)
         self.comboBox3.setPlaceholderText("类型")
-        self.comboBox3.addItems(list(CURSEFORGE_TYPE.keys()))
+        self.comboBox3.addItems(list(mc.CURSEFORGE_TYPE.keys()))
         self.comboBox3.setCurrentIndex(0)
         self.comboBox3.setToolTip("选择资源类型")
         self.comboBox3.installEventFilter(ToolTipFilter(self.comboBox3, 1000))
@@ -356,7 +356,7 @@ class SearchTab(BasicTab):
 
     def searchButtonClicked(self):
         if self.comboBox1.currentText() == "Modrinth":
-            if self.comboBox3.currentText() not in MODRINTH_TYPE.keys():
+            if self.comboBox3.currentText() not in mc.MODRINTH_TYPE.keys():
                 self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"{self.comboBox1.currentText()}不支持搜索{self.comboBox3.currentText()}类资源", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
                 self.infoBar.show()
                 return
@@ -389,7 +389,7 @@ class SearchTab(BasicTab):
 
     def thread1_2(self, msg):
         if not msg:
-            self.comboBox2.addItems(RELEASE_VERSIONS)
+            self.comboBox2.addItems(mc.RELEASE_VERSIONS)
 
     def thread2_1(self, msg):
         self.loadingCard.hide()

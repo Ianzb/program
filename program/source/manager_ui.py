@@ -16,41 +16,41 @@ class MyThread(QThread, SignalBase):
 
         if self.mode == "搜索资源":
             try:
-                data = searchMod(self.data[0], self.data[1], self.data[2], type=self.data[3])
+                data = mc.searchMod(self.data[0], self.data[1], self.data[2], type=self.data[3])
                 self.signalList.emit(data)
             except Exception as ex:
                 self.signalBool.emit(False)
         elif self.mode == "获得游戏版本列表":
             try:
-                self.signalList.emit(getVersionList())
+                self.signalList.emit(mc.getVersionList())
             except:
                 self.signalBool.emit(False)
         elif self.mode == "获得资源信息":
             try:
-                data = getModInfo(self.data[0], self.data[1])
+                data = mc.getModInfo(self.data[0], self.data[1])
                 self.signalDict.emit(data)
             except Exception as ex:
                 self.signalBool.emit(False)
         elif self.mode == "获得资源文件":
             try:
-                data = getModFile(self.data[0], self.data[1], self.data[2], self.data[3])
+                data = mc.getModFile(self.data[0], self.data[1], self.data[2], self.data[3])
                 self.signalDict.emit(data)
             except Exception as ex:
                 self.signalBool.emit(False)
         elif self.mode == "获得单独模组信息":
             try:
-                data = getModInfo(self.data[0], self.data[1])
+                data = mc.getModInfo(self.data[0], self.data[1])
                 self.signalDict.emit(data)
             except Exception as ex:
                 self.signalBool.emit(False)
         elif self.mode == "获得文件信息":
             try:
                 try:
-                    data1 = getInfoFromHash(self.data)
+                    data1 = mc.getInfoFromHash(self.data)
                 except:
                     data1 = []
                 try:
-                    data2 = getInfoFromHash(self.data, source="Modrinth")
+                    data2 = mc.getInfoFromHash(self.data, source="Modrinth")
                 except:
                     data2 = []
                 if not data1 and not data2:
@@ -62,11 +62,11 @@ class MyThread(QThread, SignalBase):
             try:
                 list = [i["模组id"] for i in self.data]
                 try:
-                    data2 = getModsInfo([i for i in list if isinstance(i, int)])
+                    data2 = mc.getModsInfo([i for i in list if isinstance(i, int)])
                 except:
                     data2 = []
                 try:
-                    data1 = getModsInfo([i for i in list if isinstance(i, str)], source="Modrinth")
+                    data1 = mc.getModsInfo([i for i in list if isinstance(i, str)], source="Modrinth")
                 except:
                     data1 = []
                 if not data1 and not data2:
@@ -78,17 +78,17 @@ class MyThread(QThread, SignalBase):
             try:
                 if self.data[3] == "Modrinth":
                     self.signalInt.emit(0)
-                    response = getInfoFromHash(self.data[0], self.data[3])
+                    response = mc.getInfoFromHash(self.data[0], self.data[3])
                     self.signalInt.emit(50)
-                    data = getNewestFromHash(self.data[0], self.data[1], self.data[2], self.data[3])
+                    data = mc.getNewestFromHash(self.data[0], self.data[1], self.data[2], self.data[3])
                 elif self.data[3] == "CurseForge":
                     self.signalInt.emit(0)
-                    response = getInfoFromHash(self.data[0], self.data[3])
+                    response = mc.getInfoFromHash(self.data[0], self.data[3])
                     data = []
                     self.signalInt.emit(int(100 / (len(response) + 1)))
                     for i in range(len(response)):
                         try:
-                            data1 = getModFile(response[i]["模组id"], self.data[1], self.data[2], self.data[3])
+                            data1 = mc.getModFile(response[i]["模组id"], self.data[1], self.data[2], self.data[3])
                             data.append(data1[self.data[1]][0])
                         except:
                             pass
@@ -117,7 +117,7 @@ class MinecraftJavaSettingCard(SettingCard):
 
     def button1Clicked(self):
         get = QFileDialog.getExistingDirectory(self, "选择要添加的Minecraft Java版目录", setting.read("minecraftJavaPath"))
-        if isMinecraftPath(get):
+        if mc.isMinecraftPath(get):
             setting.save("minecraftJavaPath", get)
 
 
@@ -427,7 +427,7 @@ class FileTab(BasicTab):
 
         self.comboBox2_2 = AcrylicComboBox(self)
         self.comboBox2_2.setPlaceholderText("目标版本")
-        self.comboBox2_2.addItems(RELEASE_VERSIONS)
+        self.comboBox2_2.addItems(mc.RELEASE_VERSIONS)
         self.comboBox2_2.setCurrentIndex(0)
         self.comboBox2_2.setToolTip("选择目标版本")
         self.comboBox2_2.installEventFilter(ToolTipFilter(self.comboBox2_2, 1000))
@@ -438,7 +438,7 @@ class FileTab(BasicTab):
 
         self.comboBox2_3 = AcrylicComboBox(self)
         self.comboBox2_3.setPlaceholderText("目标加载器")
-        self.comboBox2_3.addItems(sorted(list(LOADER_TYPE.keys())))
+        self.comboBox2_3.addItems(sorted(list(mc.LOADER_TYPE.keys())))
         self.comboBox2_3.setCurrentIndex(0)
         self.comboBox2_3.setToolTip("选择目标加载器")
         self.comboBox2_3.installEventFilter(ToolTipFilter(self.comboBox1_1, 1000))
@@ -479,14 +479,14 @@ class FileTab(BasicTab):
         self.vBoxLayout.addWidget(self.cardGroup1)
 
     def button1Clicked(self):
-        f.showFile(f.pathJoin(setting.read("minecraftJavaPath"), FILE_PATH[self.comboBox1_1.currentText()]))
+        f.showFile(f.pathJoin(setting.read("minecraftJavaPath"), mc.FILE_PATH[self.comboBox1_1.currentText()]))
 
     def settingButtonClicked(self):
         self.modSettingMessageBox = ModSettingMessageBox(self.parent().parent().parent().parent().parent())
         self.modSettingMessageBox.show()
 
     def loadModList(self):
-        if not f.existPath(f.pathJoin(setting.read("minecraftJavaPath"), FILE_PATH[self.comboBox1_1.currentText()])):
+        if not f.existPath(f.pathJoin(setting.read("minecraftJavaPath"), mc.FILE_PATH[self.comboBox1_1.currentText()])):
             return
         self.data = []
         self.showWidget(False)
@@ -495,9 +495,9 @@ class FileTab(BasicTab):
         self.cardGroup1 = CardGroup(self.view)
         self.vBoxLayout.addWidget(self.cardGroup1)
 
-        data = [i for i in f.walkFile(f.pathJoin(setting.read("minecraftJavaPath"), FILE_PATH[self.comboBox1_1.currentText()]), 1) if f.splitPath(i, 2) in FILE_SUFFIX[self.comboBox1_1.currentText()]]
+        data = [i for i in f.walkFile(f.pathJoin(setting.read("minecraftJavaPath"), mc.FILE_PATH[self.comboBox1_1.currentText()]), 1) if f.splitPath(i, 2) in mc.FILE_SUFFIX[self.comboBox1_1.currentText()]]
         self.cardGroup1.setTitle(f"发现{self.comboBox1_1.currentText()}{len(data)}个")
-        self.thread1 = MyThread("获得文件信息", f.pathJoin(setting.read("minecraftJavaPath"), FILE_PATH[self.comboBox1_1.currentText()]))
+        self.thread1 = MyThread("获得文件信息", f.pathJoin(setting.read("minecraftJavaPath"), mc.FILE_PATH[self.comboBox1_1.currentText()]))
         self.thread2 = MyThread("从文件获得模组信息")
         self.thread1.signalList.connect(self.thread1_1)
         self.thread1.start()
@@ -549,7 +549,7 @@ class FileTab(BasicTab):
         self.infoBar.addWidget(self.progressBar)
         self.infoBar.show()
 
-        self.thread3 = MyThread("获得模组最新版本", [f.pathJoin(setting.read("minecraftJavaPath"), FILE_PATH[self.comboBox1_1.currentText()]), self.comboBox2_2.currentText(), self.comboBox2_3.currentText(), self.comboBox2_1.currentText()])
+        self.thread3 = MyThread("获得模组最新版本", [f.pathJoin(setting.read("minecraftJavaPath"), mc.FILE_PATH[self.comboBox1_1.currentText()]), self.comboBox2_2.currentText(), self.comboBox2_3.currentText(), self.comboBox2_1.currentText()])
         self.thread3.signalDict.connect(self.thread3_1)
         self.thread3.signalBool.connect(self.thread3_2)
         self.thread3.signalInt.connect(self.thread3_3)
@@ -579,7 +579,7 @@ class FileTab(BasicTab):
         self.infoBar.closeButton.click()
         self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"有{len(list1)}个资源在{self.comboBox2_2.currentText()}{self.comboBox2_3.currentText()}有新版本", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self)
         self.infoBar.show()
-        self.modUpdateMessageBox = ModUpdateMessageBox("资源更新", list1, f.pathJoin(setting.read("minecraftJavaPath"), FILE_PATH[self.comboBox1_1.currentText()]), self)
+        self.modUpdateMessageBox = ModUpdateMessageBox("资源更新", list1, f.pathJoin(setting.read("minecraftJavaPath"), mc.FILE_PATH[self.comboBox1_1.currentText()]), self)
         self.modUpdateMessageBox.exec()
 
     def thread3_2(self, msg):
