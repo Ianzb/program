@@ -405,7 +405,7 @@ class CopyTextButton(ToolButton):
 
         self.setIcon(FIF.COPY)
         self.setToolTip(f"点击复制{data if data else ""}信息{"\n" + self.text if self.text else ""}")
-        self.installEventFilter(ToolTipFilter(self, 1000))
+        self.installEventFilter(ToolTipFilter(self, 50))
         self.clicked.connect(self.copyButtonClicked)
 
     def copyButtonClicked(self):

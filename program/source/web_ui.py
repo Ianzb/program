@@ -4,51 +4,7 @@ from .manager_ui import *
 mod_page_list = []
 
 
-class SmallModInfoCard(SmallInfoCard, SignalBase):
-    """
-    资源信息小卡片
-    """
 
-    def __init__(self, data: dict, source: str, parent: QWidget = None):
-        """
-        @param data: 资源数据
-        @param source: 资源来源
-        """
-        super().__init__(parent)
-
-        self.data = data
-        self.source = source
-
-        self.mainButton.deleteLater()
-
-        if isinstance(self.data, dict):
-            self.loadInfo()
-        else:
-            self.setTitle("信息正在加载中...")
-            self.thread1 = MyThread("获得单独模组信息", [self.data, self.source])
-            self.thread1.signalDict.connect(self.thread1_1)
-            self.thread1.signalBool.connect(self.thread1_2)
-            self.thread1.start()
-
-    def thread1_1(self, msg):
-        self.data = msg
-        self.loadInfo()
-
-    def thread1_2(self, msg):
-        if not msg:
-            self.setTitle("信息加载失败！")
-
-    def loadInfo(self):
-        self.setImg(f"{self.source}/{f.removeIllegalPath(self.data['名称'])}.png", self.data["图标"])
-        self.setTitle(f"{self.data['名称']}")
-        self.setInfo(self.data["介绍"], 0)
-        self.setInfo(f"下载量：{f.numberAddUnit(self.data['下载量'])}", 1)
-        self.setInfo(f"游戏版本：{self.data['游戏版本'][0] + '-' + self.data['游戏版本'][-1] if len(self.data['游戏版本']) > 1 else self.data['游戏版本'][0] if len(self.data['游戏版本']) > 0 else '无'}", 2)
-        self.setInfo(f"更新日期：{self.data['更新日期']}", 3)
-
-    def mousePressEvent(self, event):
-        if isinstance(self.data, dict):
-            self.signalDict.emit(self.data)
 
 
 class BigModInfoCard(BigInfoCard, SignalBase):
@@ -94,7 +50,7 @@ class BigModInfoCard(BigInfoCard, SignalBase):
         self.vBoxLayout.insertWidget(3, self.cardGroup)
         self.cardGroup.hide()
 
-        self.thread1 = MyThread("获得资源信息", [data["id"], data["来源"]])
+        self.thread1 = AddonThread("获得资源信息", [data["id"], data["来源"]])
         self.thread1.signalDict.connect(self.thread1_1)
         self.thread1.signalBool.connect(self.thread1_2)
         self.thread1.start()
@@ -153,7 +109,7 @@ class BigModInfoCard(BigInfoCard, SignalBase):
         self.comboBox1.setEnabled(False)
         self.comboBox2.setEnabled(False)
 
-        self.thread2 = MyThread("获得资源文件", [self.data["id"], self.comboBox1.currentText(), self.comboBox2.currentText(), self.data["来源"]])
+        self.thread2 = AddonThread("获得资源文件", [self.data["id"], self.comboBox1.currentText(), self.comboBox2.currentText(), self.data["来源"]])
         self.thread2.signalDict.connect(self.thread2_1)
         self.thread2.signalBool.connect(self.thread2_2)
         self.thread2.start()
@@ -339,7 +295,7 @@ class SearchTab(BasicTab):
     def showEvent(self, QShowEvent):
         if not self.isInit:
             self.isInit = True
-            self.thread1 = MyThread("获得游戏版本列表")
+            self.thread1 = AddonThread("获得游戏版本列表")
             self.thread1.signalList.connect(self.thread1_1)
             self.thread1.signalBool.connect(self.thread1_2)
             self.thread1.start()
@@ -373,7 +329,7 @@ class SearchTab(BasicTab):
         self.loadingCard.setText("搜索中...")
         self.loadingCard.show()
 
-        self.thread2 = MyThread("搜索资源", [self.lineEdit.text(), self.comboBox1.currentText(), self.comboBox2.currentText(), self.comboBox3.currentText()])
+        self.thread2 = AddonThread("搜索资源", [self.lineEdit.text(), self.comboBox1.currentText(), self.comboBox2.currentText(), self.comboBox3.currentText()])
         self.thread2.signalList.connect(self.thread2_1)
         self.thread2.signalBool.connect(self.thread2_2)
         self.thread2.start()

@@ -1,105 +1,6 @@
 from .mc_api import *
 
 
-class MyThread(QThread, SignalBase):
-    """
-    多线程模块
-    """
-
-    def __init__(self, mode: str, data=None, parent: QWidget = None):
-        super().__init__(parent=parent)
-        self.mode = mode
-        self.data = data
-
-    def run(self):
-        logging.info(f"MC资源管理器插件 {self.mode} 线程开始")
-
-        if self.mode == "搜索资源":
-            try:
-                data = mc.searchMod(self.data[0], self.data[1], self.data[2], type=self.data[3])
-                self.signalList.emit(data)
-            except Exception as ex:
-                self.signalBool.emit(False)
-        elif self.mode == "获得游戏版本列表":
-            try:
-                self.signalList.emit(mc.getVersionList())
-            except:
-                self.signalBool.emit(False)
-        elif self.mode == "获得资源信息":
-            try:
-                data = mc.getModInfo(self.data[0], self.data[1])
-                self.signalDict.emit(data)
-            except Exception as ex:
-                self.signalBool.emit(False)
-        elif self.mode == "获得资源文件":
-            try:
-                data = mc.getModFile(self.data[0], self.data[1], self.data[2], self.data[3])
-                self.signalDict.emit(data)
-            except Exception as ex:
-                self.signalBool.emit(False)
-        elif self.mode == "获得单独模组信息":
-            try:
-                data = mc.getModInfo(self.data[0], self.data[1])
-                self.signalDict.emit(data)
-            except Exception as ex:
-                self.signalBool.emit(False)
-        elif self.mode == "获得文件信息":
-            try:
-                try:
-                    data1 = mc.getInfoFromHash(self.data)
-                except:
-                    data1 = []
-                try:
-                    data2 = mc.getInfoFromHash(self.data, source="Modrinth")
-                except:
-                    data2 = []
-                if not data1 and not data2:
-                    self.signalBool.emit(False)
-                self.signalList.emit(data1 + data2)
-            except Exception as ex:
-                self.signalBool.emit(False)
-        elif self.mode == "从文件获得模组信息":
-            try:
-                list = [i["模组id"] for i in self.data]
-                try:
-                    data2 = mc.getModsInfo([i for i in list if isinstance(i, int)])
-                except:
-                    data2 = []
-                try:
-                    data1 = mc.getModsInfo([i for i in list if isinstance(i, str)], source="Modrinth")
-                except:
-                    data1 = []
-                if not data1 and not data2:
-                    self.signalBool.emit(False)
-                self.signalList.emit(data1 + data2)
-            except Exception as ex:
-                self.signalBool.emit(False)
-        elif self.mode == "获得模组最新版本":
-            try:
-                if self.data[3] == "Modrinth":
-                    self.signalInt.emit(0)
-                    response = mc.getInfoFromHash(self.data[0], self.data[3])
-                    self.signalInt.emit(50)
-                    data = mc.getNewestFromHash(self.data[0], self.data[1], self.data[2], self.data[3])
-                elif self.data[3] == "CurseForge":
-                    self.signalInt.emit(0)
-                    response = mc.getInfoFromHash(self.data[0], self.data[3])
-                    data = []
-                    self.signalInt.emit(int(100 / (len(response) + 1)))
-                    for i in range(len(response)):
-                        try:
-                            data1 = mc.getModFile(response[i]["模组id"], self.data[1], self.data[2], self.data[3])
-                            data.append(data1[self.data[1]][0])
-                        except:
-                            pass
-                        self.signalInt.emit(int(100 * (i + 2) / (len(response) + 1)))
-                self.signalInt.emit(100)
-                self.signalDict.emit({"old": response, "new": data})
-            except:
-                self.signalBool.emit(False)
-        logging.info(f"MC资源管理器插件 {self.mode} 线程结束")
-
-
 class MinecraftJavaSettingCard(SettingCard):
     """
     整理文件设置卡片
@@ -154,9 +55,6 @@ class ModSettingMessageBox(MessageBoxBase):
     def yesButtonClicked(self):
         self.accept()
         self.accepted.emit()
-
-
-
 
 
 class SearchButton(ToolButton):
@@ -497,8 +395,8 @@ class FileTab(BasicTab):
 
         data = [i for i in f.walkFile(f.pathJoin(setting.read("minecraftJavaPath"), mc.FILE_PATH[self.comboBox1_1.currentText()]), 1) if f.splitPath(i, 2) in mc.FILE_SUFFIX[self.comboBox1_1.currentText()]]
         self.cardGroup1.setTitle(f"发现{self.comboBox1_1.currentText()}{len(data)}个")
-        self.thread1 = MyThread("获得文件信息", f.pathJoin(setting.read("minecraftJavaPath"), mc.FILE_PATH[self.comboBox1_1.currentText()]))
-        self.thread2 = MyThread("从文件获得模组信息")
+        self.thread1 = AddonThread("获得文件信息", f.pathJoin(setting.read("minecraftJavaPath"), mc.FILE_PATH[self.comboBox1_1.currentText()]))
+        self.thread2 = AddonThread("从文件获得模组信息")
         self.thread1.signalList.connect(self.thread1_1)
         self.thread1.start()
         for i in data:
@@ -549,7 +447,7 @@ class FileTab(BasicTab):
         self.infoBar.addWidget(self.progressBar)
         self.infoBar.show()
 
-        self.thread3 = MyThread("获得模组最新版本", [f.pathJoin(setting.read("minecraftJavaPath"), mc.FILE_PATH[self.comboBox1_1.currentText()]), self.comboBox2_2.currentText(), self.comboBox2_3.currentText(), self.comboBox2_1.currentText()])
+        self.thread3 = AddonThread("获得模组最新版本", [f.pathJoin(setting.read("minecraftJavaPath"), mc.FILE_PATH[self.comboBox1_1.currentText()]), self.comboBox2_2.currentText(), self.comboBox2_3.currentText(), self.comboBox2_1.currentText()])
         self.thread3.signalDict.connect(self.thread3_1)
         self.thread3.signalBool.connect(self.thread3_2)
         self.thread3.signalInt.connect(self.thread3_3)
