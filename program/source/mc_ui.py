@@ -29,7 +29,7 @@ class MinecraftPathSettingCard(SettingCard):
         self.button1.setToolTip("设置Java版目录")
         self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
 
-        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignmentFlag.AlignRight)
+        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
         self.setAcceptDrops(True)
@@ -137,7 +137,7 @@ class VersionsManageTab(BasicTab):
         self.grayCard.addWidget(self.settingButton)
         self.grayCard.addWidget(self.reloadButton)
 
-        self.vBoxLayout.addWidget(self.cardGroup1, 0, Qt.AlignmentFlag.AlignTop)
+        self.vBoxLayout.addWidget(self.cardGroup1, 0, Qt.AlignTop)
         self.vBoxLayout.addWidget(self.grayCard)
 
         self.loadPage()
@@ -268,7 +268,7 @@ class VersionManageTab(BasicTab):
         self.pager.setHidden(not bool(img))
 
         self.vBoxLayout.insertWidget(6, self.flipView)
-        self.vBoxLayout.insertWidget(7, self.pager, 0, Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignTop)
+        self.vBoxLayout.insertWidget(7, self.pager, 0, Qt.AlignCenter | Qt.AlignTop)
 
         self.saveButton.setEnabled(f.existPath(f.pathJoin(self.data["路径"], "saves")))
         self.modButton.setEnabled(f.existPath(f.pathJoin(self.data["路径"], "mods")))

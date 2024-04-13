@@ -56,7 +56,7 @@ class SortFolderEditMessageBox(MessageBoxBase):
 
         self.addButton = PushButton("选择目录", self.buttonGroup)
         self.addButton.clicked.connect(self.addButtonClicked)
-        self.buttonLayout.insertWidget(1, self.addButton, 1, Qt.AlignmentFlag.AlignVCenter)
+        self.buttonLayout.insertWidget(1, self.addButton, 1, Qt.AlignVCenter)
 
         self.cancelButton.setText("取消")
 
@@ -119,9 +119,9 @@ class SortFormatEditMessageBox(MessageBoxBase):
         self.resetButton = PushButton("重置", self.buttonGroup)
         self.resetButton.clicked.connect(self.resetButtonClicked)
 
-        self.buttonLayout.insertWidget(1, self.addButton, 1, Qt.AlignmentFlag.AlignVCenter)
-        self.buttonLayout.insertWidget(2, self.removeButton, 1, Qt.AlignmentFlag.AlignVCenter)
-        self.buttonLayout.insertWidget(3, self.resetButton, 1, Qt.AlignmentFlag.AlignVCenter)
+        self.buttonLayout.insertWidget(1, self.addButton, 1, Qt.AlignVCenter)
+        self.buttonLayout.insertWidget(2, self.removeButton, 1, Qt.AlignVCenter)
+        self.buttonLayout.insertWidget(3, self.resetButton, 1, Qt.AlignVCenter)
 
         self.cancelButton.setText("取消")
 
@@ -192,14 +192,14 @@ class AddonEditMessageBox(MessageBoxBase):
         self.tableView.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
 
         self.viewLayout.addWidget(self.titleLabel)
-        self.viewLayout.addWidget(self.tableView, 0, Qt.AlignmentFlag.AlignTop)
+        self.viewLayout.addWidget(self.tableView, 0, Qt.AlignTop)
 
         self.yesButton.setText("安装选中")
         self.yesButton.clicked.connect(self.yesButtonClicked)
 
         self.removeButton = PrimaryPushButton("删除选中", self.buttonGroup)
         self.removeButton.clicked.connect(self.removeButtonClicked)
-        self.buttonLayout.insertWidget(1, self.removeButton, 1, Qt.AlignmentFlag.AlignVCenter)
+        self.buttonLayout.insertWidget(1, self.removeButton, 1, Qt.AlignVCenter)
 
         self.cancelButton.setText("取消")
 
@@ -288,8 +288,6 @@ class AddonEditMessageBox(MessageBoxBase):
         self.tableView.setItem(i, 2, QTableWidgetItem("连接失败"))
 
     def threadEvent2_1(self, msg):
-        self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{msg["name"]}安装成功！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().settingPage)
-        self.infoBar.show()
         self.parent().addAddon(msg)
 
     def threadEvent2_2(self, msg):
@@ -321,19 +319,18 @@ class AddonSettingCard(SettingCard):
         self.button2.setToolTip("管理程序插件")
         self.button2.installEventFilter(ToolTipFilter(self.button1, 1000))
 
-        self.hBoxLayout.addWidget(self.progressBarLoading, Qt.AlignmentFlag.AlignRight)
+        self.hBoxLayout.addWidget(self.progressBarLoading, Qt.AlignRight)
         self.hBoxLayout.addSpacing(8)
-        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignmentFlag.AlignRight)
-        self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignmentFlag.AlignRight)
+        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
+        self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
         self.setAcceptDrops(True)
 
     def button1Clicked(self):
-        get = QFileDialog.getOpenFileUrl(self, "选择插件文件", "", "zb小程序插件 (*.zbaddon)")[0]
+        get = QFileDialog.getOpenFileUrl(self, "选择插件文件", QUrl(""), "zb小程序插件 (*.zbaddon);;压缩包 (*.zip)")[0]
         get = f.pathJoin(get.path()[1:])
-        if f.existPath(get):
-            f.extractZip(get, f.pathJoin(program.ADDON_PATH, f.splitPath(get)), True)
+        self.importAddon(get)
 
     def button2Clicked(self):
         self.addonEditMessageBox = AddonEditMessageBox("加载中...", self.parent().parent().parent().parent().parent().parent().parent())
@@ -343,7 +340,7 @@ class AddonSettingCard(SettingCard):
         if event.mimeData().hasUrls():
             if len(event.mimeData().urls()) == 1:
                 if f.isFile(event.mimeData().urls()[0].toLocalFile()):
-                    if f.splitPath(event.mimeData().urls()[0].toLocalFile(), 2) == ".zbaddon":
+                    if f.splitPath(event.mimeData().urls()[0].toLocalFile(), 2) in [".zbaddon", ".zip"]:
                         event.acceptProposedAction()
                         self.contentLabel.setText("拖拽到此卡片即可快速导入插件！")
 
@@ -353,14 +350,20 @@ class AddonSettingCard(SettingCard):
     def dropEvent(self, event):
         if event.mimeData().hasUrls():
             file = event.mimeData().urls()[0].toLocalFile()
-            f.extractZip(file, f.pathJoin(program.ADDON_PATH, f.splitPath(file)), True)
+            self.importAddon(file)
+
+    def importAddon(self, path: str):
+        if not f.existPath(path):
+            return
+        id = f.importAddon(path)
+        self.parent().parent().parent().parent().parent().parent().parent().addAddon(id)
 
 
 class ThemeSettingCard(ExpandSettingCard):
     """
     主题设置卡片
     """
-    themeChanged = Signal(OptionsConfigItem)
+    themeChanged = pyqtSignal(OptionsConfigItem)
 
     def __init__(self, parent=None):
         super().__init__(FIF.BRUSH, "程序主题", "修改程序明暗主题", parent)
@@ -427,7 +430,7 @@ class ColorSettingCard(ExpandGroupSettingCard):
     """
     主题色设置卡片
     """
-    colorChanged = Signal(QColor)
+    colorChanged = pyqtSignal(QColor)
 
     def __init__(self, parent=None):
         super().__init__(FIF.PALETTE, "主题色", "修改程序的主题色", parent=parent)
@@ -445,7 +448,7 @@ class ColorSettingCard(ExpandGroupSettingCard):
         self.radioLayout = QVBoxLayout(self.radioWidget)
 
         self.radioLayout.setSpacing(19)
-        self.radioLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        self.radioLayout.setAlignment(Qt.AlignTop)
         self.radioLayout.setContentsMargins(48, 18, 0, 18)
         self.radioLayout.setSizeConstraint(QVBoxLayout.SizeConstraint.SetMinimumSize)
 
@@ -472,8 +475,8 @@ class ColorSettingCard(ExpandGroupSettingCard):
         self.customColorLayout.setContentsMargins(48, 18, 44, 18)
         self.customColorLayout.setSizeConstraint(QHBoxLayout.SizeConstraint.SetMinimumSize)
 
-        self.customColorLayout.addWidget(self.label2, 0, Qt.AlignmentFlag.AlignLeft)
-        self.customColorLayout.addWidget(self.button3, 0, Qt.AlignmentFlag.AlignRight)
+        self.customColorLayout.addWidget(self.label2, 0, Qt.AlignLeft)
+        self.customColorLayout.addWidget(self.button3, 0, Qt.AlignRight)
 
         self.viewLayout.setSpacing(0)
         self.viewLayout.setContentsMargins(0, 0, 0, 0)
@@ -538,7 +541,7 @@ class MicaEffectSettingCard(SettingCard):
         self.button1.setToolTip("开启 Windows 11 的窗口模糊效果")
         self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
 
-        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignmentFlag.AlignRight)
+        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
     def button1Clicked(self):
@@ -571,9 +574,9 @@ class StartupSettingCard(SettingCard):
         else:
             self.checkBox2.setEnabled(False)
 
-        self.hBoxLayout.addWidget(self.checkBox1, 0, Qt.AlignmentFlag.AlignRight)
+        self.hBoxLayout.addWidget(self.checkBox1, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(8)
-        self.hBoxLayout.addWidget(self.checkBox2, 0, Qt.AlignmentFlag.AlignRight)
+        self.hBoxLayout.addWidget(self.checkBox2, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
     def button1Clicked(self):
@@ -603,7 +606,7 @@ class TraySettingCard(SettingCard):
         self.button1.setToolTip("在系统托盘展示软件图标")
         self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
 
-        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignmentFlag.AlignRight)
+        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
     def button1Clicked(self):
@@ -624,7 +627,7 @@ class HideSettingCard(SettingCard):
         self.button1.setToolTip("关闭窗口时程序自动隐藏")
         self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
 
-        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignmentFlag.AlignRight)
+        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
     def button1Clicked(self):
@@ -648,8 +651,8 @@ class SortPathSettingCard(SettingCard):
         self.button2.setToolTip("设置微信WeChat Files文件夹目录")
         self.button2.installEventFilter(ToolTipFilter(self.button2, 1000))
 
-        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignmentFlag.AlignRight)
-        self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignmentFlag.AlignRight)
+        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
+        self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
         self.setAcceptDrops(True)
@@ -711,9 +714,9 @@ class SortSettingCard(SettingCard):
         self.button3.setToolTip("自定义整理文件类型")
         self.button3.installEventFilter(ToolTipFilter(self.button3, 1000))
 
-        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignmentFlag.AlignRight)
-        self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignmentFlag.AlignRight)
-        self.hBoxLayout.addWidget(self.button3, 0, Qt.AlignmentFlag.AlignRight)
+        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
+        self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignRight)
+        self.hBoxLayout.addWidget(self.button3, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
     def button1Clicked(self):
@@ -741,7 +744,7 @@ class DownloadSettingCard(SettingCard):
         self.button1.setToolTip("设置下载文件夹目录")
         self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
 
-        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignmentFlag.AlignRight)
+        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
         self.setAcceptDrops(True)
@@ -784,7 +787,7 @@ class UpdateSettingCard(SettingCard):
         self.button1.setToolTip("检查程序新版本更新")
         self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
 
-        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignmentFlag.AlignRight)
+        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
     def button1Clicked(self):
@@ -848,9 +851,9 @@ class HelpSettingCard(SettingCard):
         self.button3.setToolTip("清理程序运行过程中生成的缓存文件")
         self.button3.installEventFilter(ToolTipFilter(self.button3, 1000))
 
-        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignmentFlag.AlignRight)
-        self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignmentFlag.AlignRight)
-        self.hBoxLayout.addWidget(self.button3, 0, Qt.AlignmentFlag.AlignRight)
+        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
+        self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignRight)
+        self.hBoxLayout.addWidget(self.button3, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
     def button3Clicked(self):
@@ -893,9 +896,15 @@ class ControlSettingCard(SettingCard):
         self.button3.setToolTip("重启程序")
         self.button3.installEventFilter(ToolTipFilter(self.button3, 1000))
 
-        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignmentFlag.AlignRight)
-        self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignmentFlag.AlignRight)
-        self.hBoxLayout.addWidget(self.button3, 0, Qt.AlignmentFlag.AlignRight)
+        self.button4 = PrimaryPushButton("卸载", self, FIF.DELETE)
+        self.button4.clicked.connect(lambda: os.popen("unins000.exe"))
+        self.button4.setToolTip("卸载程序")
+        self.button4.installEventFilter(ToolTipFilter(self.button4, 1000))
+
+        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
+        self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignRight)
+        self.hBoxLayout.addWidget(self.button3, 0, Qt.AlignRight)
+        self.hBoxLayout.addWidget(self.button4, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
     def button1Clicked(self):
@@ -921,8 +930,8 @@ class AboutSettingCard(SettingCard):
         self.button2.setToolTip("打开程序GitHub页面")
         self.button2.installEventFilter(ToolTipFilter(self.button2, 1000))
 
-        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignmentFlag.AlignRight)
-        self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignmentFlag.AlignRight)
+        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
+        self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
 

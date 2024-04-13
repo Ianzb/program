@@ -61,7 +61,7 @@ class Tray(QSystemTrayIcon):
         self.action2.setEnabled(msg)
 
 
-class BetterScrollArea(ScrollArea, SignalBase):
+class BetterScrollArea(SmoothScrollArea, SignalBase):
     """
     优化样式的滚动区域
     """
@@ -71,6 +71,10 @@ class BetterScrollArea(ScrollArea, SignalBase):
         self.setWidgetResizable(True)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.setStyleSheet("QScrollArea {background-color: rgba(0,0,0,0); border: none}")
+
+        self.setScrollAnimation(Qt.Vertical, 500, QEasingCurve.OutQuint)
+        self.setScrollAnimation(Qt.Horizontal, 500, QEasingCurve.OutQuint)
+
         self.view = QWidget(self)
         self.view.setStyleSheet("QWidget {background-color: rgba(0,0,0,0); border: none}")
 
@@ -78,7 +82,7 @@ class BetterScrollArea(ScrollArea, SignalBase):
 
         self.vBoxLayout = QVBoxLayout(self.view)
         self.vBoxLayout.setSpacing(30)
-        self.vBoxLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        self.vBoxLayout.setAlignment(Qt.AlignTop)
         self.vBoxLayout.setContentsMargins(36, 20, 36, 36)
 
 
@@ -117,7 +121,7 @@ class BasicTabPage(BasicPage):
         self.vBoxLayout.setContentsMargins(0, 0, 0, 0)
 
         self.pivot = Pivot(self)
-        self.vBoxLayout.addWidget(self.pivot, 0, Qt.AlignmentFlag.AlignHCenter)
+        self.vBoxLayout.addWidget(self.pivot, 0, Qt.AlignHCenter)
 
         self.stackedWidget = QStackedWidget(self)
         self.stackedWidget.currentChanged.connect(self.onCurrentIndexChanged)
@@ -125,7 +129,7 @@ class BasicTabPage(BasicPage):
 
     def addPage(self, widget):
         name = widget.objectName()
-        widget.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        widget.setAlignment(Qt.AlignCenter)
         self.stackedWidget.addWidget(widget)
         self.pivot.addItem(name, name, lambda: self.stackedWidget.setCurrentWidget(widget), widget.icon)
         if self.stackedWidget.count() == 1:
@@ -316,7 +320,7 @@ class ToolBar(QWidget):
         self.vBoxLayout.addWidget(self.titleLabel)
         self.vBoxLayout.addSpacing(4)
         self.vBoxLayout.addWidget(self.subtitleLabel)
-        self.vBoxLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        self.vBoxLayout.setAlignment(Qt.AlignTop)
 
 
 class StatisticsWidget(QWidget):
@@ -335,8 +339,8 @@ class StatisticsWidget(QWidget):
 
         self.vBoxLayout = QVBoxLayout(self)
         self.vBoxLayout.setContentsMargins(16, 0, 16, 0)
-        self.vBoxLayout.addWidget(self.valueLabel, 0, Qt.AlignmentFlag.AlignTop)
-        self.vBoxLayout.addWidget(self.titleLabel, 0, Qt.AlignmentFlag.AlignBottom)
+        self.vBoxLayout.addWidget(self.valueLabel, 0, Qt.AlignTop)
+        self.vBoxLayout.addWidget(self.titleLabel, 0, Qt.AlignBottom)
 
         setFont(self.valueLabel, 18, QFont.Weight.DemiBold)
         self.titleLabel.setTextColor(QColor(96, 96, 96), QColor(206, 206, 206))
@@ -424,11 +428,11 @@ class DisplayCard(ElevatedCardWidget):
         self.label = CaptionLabel(self)
 
         self.vBoxLayout = QVBoxLayout(self)
-        self.vBoxLayout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.vBoxLayout.setAlignment(Qt.AlignCenter)
         self.vBoxLayout.addStretch(1)
-        self.vBoxLayout.addWidget(self.widget, 0, Qt.AlignmentFlag.AlignCenter)
+        self.vBoxLayout.addWidget(self.widget, 0, Qt.AlignCenter)
         self.vBoxLayout.addStretch(1)
-        self.vBoxLayout.addWidget(self.label, 0, Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignBottom)
+        self.vBoxLayout.addWidget(self.label, 0, Qt.AlignHCenter | Qt.AlignBottom)
 
         self.setTheme()
         qconfig.themeChanged.connect(self.setTheme)
@@ -472,7 +476,7 @@ class GrayCard(QWidget):
     灰色背景组件卡片
     """
 
-    def __init__(self, title: str = None, parent=None, alignment=Qt.AlignmentFlag.AlignLeft):
+    def __init__(self, title: str = None, parent=None, alignment=Qt.AlignLeft):
         """
         @param title: 标题
         """
@@ -488,12 +492,12 @@ class GrayCard(QWidget):
         self.card.setObjectName("GrayCard")
 
         self.vBoxLayout = QVBoxLayout(self)
-        self.vBoxLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        self.vBoxLayout.setAlignment(Qt.AlignTop)
         self.vBoxLayout.setSizeConstraint(QVBoxLayout.SizeConstraint.SetMinimumSize)
         self.vBoxLayout.setSpacing(12)
         self.vBoxLayout.setContentsMargins(0, 0, 0, 0)
-        self.vBoxLayout.addWidget(self.titleLabel, 0, Qt.AlignmentFlag.AlignTop)
-        self.vBoxLayout.addWidget(self.card, 0, Qt.AlignmentFlag.AlignTop)
+        self.vBoxLayout.addWidget(self.titleLabel, 0, Qt.AlignTop)
+        self.vBoxLayout.addWidget(self.card, 0, Qt.AlignTop)
 
         self.hBoxLayout = QHBoxLayout(self.card)
         self.hBoxLayout.setAlignment(alignment)
@@ -512,7 +516,7 @@ class GrayCard(QWidget):
             self.setStyleSheet("QLabel {background-color: transparent; color: black}")
             self.card.setStyleSheet("#GrayCard {background-color: rgba(175,175,175,0.1); border:1px solid rgba(150,150,150,0.15); border-radius: 10px}")
 
-    def addWidget(self, widget, spacing=0, alignment=Qt.AlignmentFlag.AlignTop):
+    def addWidget(self, widget, spacing=0, alignment=Qt.AlignTop):
         """
         添加组件
         @param widget: 组件
@@ -522,7 +526,7 @@ class GrayCard(QWidget):
         self.hBoxLayout.addWidget(widget, alignment=alignment)
         self.hBoxLayout.addSpacing(spacing)
 
-    def insertWidget(self, index: int, widget, alignment=Qt.AlignmentFlag.AlignTop):
+    def insertWidget(self, index: int, widget, alignment=Qt.AlignTop):
         """
         插入组件
         @param index: 序号
@@ -564,24 +568,24 @@ class BigInfoCard(CardWidget):
 
         self.hBoxLayout1 = QHBoxLayout()
         self.hBoxLayout1.setContentsMargins(0, 0, 0, 0)
-        self.hBoxLayout1.addWidget(self.titleLabel, 0, Qt.AlignmentFlag.AlignLeft)
-        self.hBoxLayout1.addWidget(self.mainButton, 0, Qt.AlignmentFlag.AlignRight)
+        self.hBoxLayout1.addWidget(self.titleLabel, 0, Qt.AlignLeft)
+        self.hBoxLayout1.addWidget(self.mainButton, 0, Qt.AlignRight)
 
         self.hBoxLayout2 = FlowLayout()
         self.hBoxLayout2.setAnimation(200)
         self.hBoxLayout2.setSpacing(0)
-        self.hBoxLayout2.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        self.hBoxLayout2.setAlignment(Qt.AlignLeft)
 
         self.hBoxLayout3 = FlowLayout()
         self.hBoxLayout3.setAnimation(200)
         self.hBoxLayout3.setContentsMargins(0, 0, 0, 0)
         self.hBoxLayout3.setSpacing(10)
-        self.hBoxLayout3.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        self.hBoxLayout3.setAlignment(Qt.AlignLeft)
 
         self.hBoxLayout4 = FlowLayout()
         self.hBoxLayout4.setAnimation(200)
         self.hBoxLayout4.setSpacing(8)
-        self.hBoxLayout4.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        self.hBoxLayout4.setAlignment(Qt.AlignLeft)
 
         self.vBoxLayout = QVBoxLayout()
         self.vBoxLayout.setContentsMargins(0, 0, 0, 0)
@@ -609,7 +613,7 @@ class BigInfoCard(CardWidget):
         self.hBoxLayout = QHBoxLayout(self)
         self.hBoxLayout.setSpacing(30)
         self.hBoxLayout.setContentsMargins(34, 24, 24, 24)
-        self.hBoxLayout.addWidget(self.image, 0, Qt.AlignmentFlag.AlignVCenter)
+        self.hBoxLayout.addWidget(self.image, 0, Qt.AlignVCenter)
         self.hBoxLayout.addLayout(self.vBoxLayout)
 
         self.setTheme()
@@ -703,11 +707,11 @@ class SmallInfoCard(CardWidget):
         self.info = ["", "", "", ""]
         self.contentLabel1 = CaptionLabel(f"{self.info[0]}\n{self.info[1]}", self)
         self.contentLabel1.setTextColor("#606060", "#d2d2d2")
-        self.contentLabel1.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        self.contentLabel1.setAlignment(Qt.AlignLeft)
 
         self.contentLabel2 = CaptionLabel(f"{self.info[2]}\n{self.info[3]}", self)
         self.contentLabel2.setTextColor("#606060", "#d2d2d2")
-        self.contentLabel2.setAlignment(Qt.AlignmentFlag.AlignRight)
+        self.contentLabel2.setAlignment(Qt.AlignRight)
 
         self.mainButton = PushButton("进入", self, FIF.CHEVRON_RIGHT)
         self.mainButton.clicked.connect(self.mainButtonClicked)
@@ -716,15 +720,15 @@ class SmallInfoCard(CardWidget):
 
         self.vBoxLayout1.setContentsMargins(0, 0, 0, 0)
         self.vBoxLayout1.setSpacing(0)
-        self.vBoxLayout1.addWidget(self.titleLabel, 0, Qt.AlignmentFlag.AlignVCenter)
-        self.vBoxLayout1.addWidget(self.contentLabel1, 0, Qt.AlignmentFlag.AlignVCenter)
-        self.vBoxLayout1.setAlignment(Qt.AlignmentFlag.AlignVCenter)
+        self.vBoxLayout1.addWidget(self.titleLabel, 0, Qt.AlignVCenter)
+        self.vBoxLayout1.addWidget(self.contentLabel1, 0, Qt.AlignVCenter)
+        self.vBoxLayout1.setAlignment(Qt.AlignVCenter)
 
         self.vBoxLayout2 = QVBoxLayout()
         self.vBoxLayout2.setContentsMargins(0, 0, 0, 0)
         self.vBoxLayout2.setSpacing(0)
-        self.vBoxLayout2.addWidget(self.contentLabel2, 0, Qt.AlignmentFlag.AlignVCenter)
-        self.vBoxLayout2.setAlignment(Qt.AlignmentFlag.AlignRight)
+        self.vBoxLayout2.addWidget(self.contentLabel2, 0, Qt.AlignVCenter)
+        self.vBoxLayout2.setAlignment(Qt.AlignRight)
 
         self.hBoxLayout = QHBoxLayout(self)
         self.hBoxLayout.setContentsMargins(20, 11, 11, 11)
@@ -734,7 +738,7 @@ class SmallInfoCard(CardWidget):
         self.hBoxLayout.addStretch(5)
         self.hBoxLayout.addLayout(self.vBoxLayout2)
         self.hBoxLayout.addStretch(0)
-        self.hBoxLayout.addWidget(self.mainButton, 0, Qt.AlignmentFlag.AlignRight)
+        self.hBoxLayout.addWidget(self.mainButton, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
         self.setTheme()
@@ -793,7 +797,7 @@ class CardGroup(QWidget):
         self.cardLayout = FixedExpandLayout()
 
         self.vBoxLayout.setContentsMargins(0, 0, 0, 0)
-        self.vBoxLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        self.vBoxLayout.setAlignment(Qt.AlignTop)
         self.vBoxLayout.setSpacing(0)
         self.cardLayout.setContentsMargins(0, 0, 0, 0)
         self.cardLayout.setSpacing(2)
@@ -861,7 +865,7 @@ class DownloadWidget(QWidget, SignalBase):
         self.thread1.start()
 
         self.progressBar = ProgressBar(self.parent)
-        self.progressBar.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.progressBar.setAlignment(Qt.AlignCenter)
         self.progressBar.setRange(0, 100)
         self.progressBar.setValue(0)
         self.progressBar.setMinimumWidth(200)

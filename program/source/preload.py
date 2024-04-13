@@ -43,14 +43,14 @@ class SignalBase:
     """
     信号基类
     """
-    signalStr = Signal(str)
-    signalInt = Signal(int)
-    signalBool = Signal(bool)
-    signalList = Signal(list)
-    signalDict = Signal(dict)
-    signalObject = Signal(object)
+    signalStr = pyqtSignal(str)
+    signalInt = pyqtSignal(int)
+    signalBool = pyqtSignal(bool)
+    signalList = pyqtSignal(list)
+    signalDict = pyqtSignal(dict)
+    signalObject = pyqtSignal(object)
 
-    def __init__(self, parent=None):
+    def __init__(self, **args):
         pass
 
 

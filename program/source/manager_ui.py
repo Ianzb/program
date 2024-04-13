@@ -112,7 +112,7 @@ class MinecraftJavaSettingCard(SettingCard):
         self.button1.setToolTip("设置Java版目录")
         self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
 
-        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignmentFlag.AlignRight)
+        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
     def button1Clicked(self):
@@ -139,7 +139,7 @@ class ModSettingMessageBox(MessageBoxBase):
 
         self.cardGroup1.addWidget(self.minecraftJavaSettingCard)
 
-        self.scrollArea.vBoxLayout.addWidget(self.cardGroup1, 0, Qt.AlignmentFlag.AlignTop)
+        self.scrollArea.vBoxLayout.addWidget(self.cardGroup1, 0, Qt.AlignTop)
 
         self.viewLayout.addWidget(self.titleLabel)
         self.viewLayout.addWidget(self.scrollArea)
@@ -202,7 +202,7 @@ class UpdateModWidget(QWidget):
         self.thread1.start()
 
         self.progressBar = ProgressBar(self.parent)
-        self.progressBar.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.progressBar.setAlignment(Qt.AlignCenter)
         self.progressBar.setRange(0, 100)
         self.progressBar.setValue(0)
         self.progressBar.setMinimumWidth(200)
@@ -278,7 +278,7 @@ class ModUpdateMessageBox(MessageBoxBase):
         self.tableView.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
 
         self.viewLayout.addWidget(self.titleLabel)
-        self.viewLayout.addWidget(self.tableView, 0, Qt.AlignmentFlag.AlignTop)
+        self.viewLayout.addWidget(self.tableView, 0, Qt.AlignTop)
 
         self.yesButton.setText("更新")
         self.yesButton.clicked.connect(self.yesButtonClicked)
@@ -336,7 +336,7 @@ class ModFileInfoCard(SmallInfoCard, SignalBase):
         self.openButton.clicked.connect(self.openButtonClicked)
         self.openButton.setToolTip("在文件夹中展示文件")
         self.openButton.installEventFilter(ToolTipFilter(self.openButton, 1000))
-        self.hBoxLayout.insertWidget(5, self.openButton, alignment=Qt.AlignmentFlag.AlignRight)
+        self.hBoxLayout.insertWidget(5, self.openButton, alignment=Qt.AlignRight)
 
         self.parent().thread1.signalList.connect(self.thread1_1)
         self.parent().thread1.signalBool.connect(self.thread1_2)
@@ -354,7 +354,7 @@ class ModFileInfoCard(SmallInfoCard, SignalBase):
                     self.setInfo(f"文件大小：{f.fileSizeAddUnit(data['文件大小'])}", 1)
                     self.setInfo(f"下载量：{f.numberAddUnit(data['下载量'])}", 2)
                     self.setInfo(f"更新日期：{data['更新日期']}", 3)
-                self.hBoxLayout.insertWidget(4, CopyTextButton(data["下载链接"]), alignment=Qt.AlignmentFlag.AlignRight)
+                self.hBoxLayout.insertWidget(4, CopyTextButton(data["下载链接"]), alignment=Qt.AlignRight)
         else:
             self.setInfo("文件无在线数据！", 0)
 
@@ -371,7 +371,7 @@ class ModFileInfoCard(SmallInfoCard, SignalBase):
             self.setInfo(list1[0]["介绍"], 0)
             for data in list1:
                 self.mod[data["来源"]] = data
-                self.hBoxLayout.insertWidget(4, SearchButton(data, self), alignment=Qt.AlignmentFlag.AlignRight)
+                self.hBoxLayout.insertWidget(4, SearchButton(data, self), alignment=Qt.AlignRight)
 
 
 class FileTab(BasicTab):
@@ -454,7 +454,7 @@ class FileTab(BasicTab):
         self.switchButton.setMinimumWidth(0)
 
         self.card1 = GrayCard("管理")
-        self.card1.addWidget(self.label1_1, alignment=Qt.AlignmentFlag.AlignCenter)
+        self.card1.addWidget(self.label1_1, alignment=Qt.AlignCenter)
         self.card1.addWidget(self.comboBox1_1)
 
         self.card1.addWidget(self.button1)
@@ -464,13 +464,13 @@ class FileTab(BasicTab):
         self.card2 = GrayCard("更新")
 
         self.card2.addWidget(self.updateButton)
-        self.card2.addWidget(self.label2_1, alignment=Qt.AlignmentFlag.AlignCenter)
+        self.card2.addWidget(self.label2_1, alignment=Qt.AlignCenter)
         self.card2.addWidget(self.comboBox2_1)
-        self.card2.addWidget(self.label2_2, alignment=Qt.AlignmentFlag.AlignCenter)
+        self.card2.addWidget(self.label2_2, alignment=Qt.AlignCenter)
         self.card2.addWidget(self.comboBox2_2)
-        self.card2.addWidget(self.label2_3, alignment=Qt.AlignmentFlag.AlignCenter)
+        self.card2.addWidget(self.label2_3, alignment=Qt.AlignCenter)
         self.card2.addWidget(self.comboBox2_3)
-        self.card2.addWidget(self.switchButton, alignment=Qt.AlignmentFlag.AlignCenter)
+        self.card2.addWidget(self.switchButton, alignment=Qt.AlignCenter)
 
         self.vBoxLayout.addWidget(self.card1)
         self.vBoxLayout.addWidget(self.card2)
@@ -503,7 +503,7 @@ class FileTab(BasicTab):
         self.thread1.start()
         for i in data:
             self.infoCard = ModFileInfoCard(i, self)
-            self.vBoxLayout.addWidget(self.infoCard, 0, Qt.AlignmentFlag.AlignTop)
+            self.vBoxLayout.addWidget(self.infoCard, 0, Qt.AlignTop)
             self.cardGroup1.addWidget(self.infoCard)
 
     def thread1_1(self, msg):
@@ -540,7 +540,7 @@ class FileTab(BasicTab):
         self.showWidget(False)
 
         self.progressBar = ProgressBar(self)
-        self.progressBar.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.progressBar.setAlignment(Qt.AlignCenter)
         self.progressBar.setRange(0, 100)
         self.progressBar.setValue(0)
         self.progressBar.setMinimumWidth(200)

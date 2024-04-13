@@ -1,10 +1,7 @@
 import sys, os
-import time
 
-sys.path = [os.path.dirname(sys.argv[0])] + sys.path
+sys.path.append(os.path.dirname(sys.argv[0]))
 from source.custom import *
-
-os.chdir(os.path.dirname(__file__))
 
 try:
     from program.source.custom import *
@@ -66,17 +63,11 @@ def searchSoftware(name: str, source: str) -> list:
     return list
 
 
-class MyThread(QThread):
+class MyThread(QThread, SignalBase):
     """
     多线程模块
     """
 
-    signalStr = Signal(str)
-    signalInt = Signal(int)
-    signalBool = Signal(bool)
-    signalList = Signal(list)
-    signalDict = Signal(dict)
-    signalObject = Signal(object)
 
     def __init__(self, mode: str, data=None, parent: QWidget = None):
         super().__init__(parent=parent)
@@ -158,7 +149,7 @@ class AddonPage(BasicTab):
         self.loadingCard.hide()
 
         self.vBoxLayout.addWidget(self.card)
-        self.vBoxLayout.addWidget(self.loadingCard, 0, Qt.AlignmentFlag.AlignCenter)
+        self.vBoxLayout.addWidget(self.loadingCard, 0, Qt.AlignCenter)
 
         self.cardGroup = CardGroup(self.view)
         self.vBoxLayout.addWidget(self.cardGroup)
@@ -191,7 +182,7 @@ class AddonPage(BasicTab):
         self.loadingCard.hide()
         for i in msg:
             self.infoCard = AppInfoCard(i, self.comboBox.currentText())
-            self.vBoxLayout.addWidget(self.infoCard, 0, Qt.AlignmentFlag.AlignTop)
+            self.vBoxLayout.addWidget(self.infoCard, 0, Qt.AlignTop)
             self.cardGroup.addWidget(self.infoCard)
         if msg:
             self.cardGroup.setTitle(f"搜索结果（{len(msg)}个）")

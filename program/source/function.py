@@ -11,13 +11,15 @@ import bs4
 import lxml
 from send2trash import *
 from traceback import format_exception
-from PySide6 import *
-from PySide6.QtCore import *
-from PySide6.QtGui import *
-from PySide6.QtWidgets import *
-from PySide6 import QtCore
-from PySide6 import QtGui
-from PySide6 import QtWidgets
+from qtpy import *
+from PyQt5 import *
+from PyQt5.Qt import *
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
+from PyQt5 import QtCore
+from PyQt5 import QtGui
+from PyQt5 import QtWidgets
 from qfluentwidgets import *
 from qfluentwidgets.components.material import *
 from qfluentwidgets import FluentIcon as FIF
@@ -53,7 +55,6 @@ class Program:
     IS_UNINSTALLABLE = os.path.exists(UNINSTALL_FILE)  # 卸载文件
     REQUEST_HEADER = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36 Edg/123.0.0.0",
                       "zbprogram": VERSION}  # 程序默认网络请求头
-
     def __init__(self):
         # 创建数据目录
         if not os.path.exists(self.DATA_PATH):
@@ -1043,6 +1044,26 @@ class ProgramFunctions(FileFunctions):
             else:
                 self.downloadFile(self.urlJoin(data["url"], i), self.pathJoin(program.ADDON_PATH, data["id"], i).replace("init.py", "__init__.py"))
         logging.debug(f"插件{data["name"]}下载成功")
+
+    def importAddon(self, path: str):
+        """
+        导入本体插件
+        @param path: 目录
+        """
+        self.extractZip(path, program.cache(self.splitPath(path)))
+        if self.existPath(self.pathJoin(program.cache(self.splitPath(path)), "addon.json")):
+            with open(self.pathJoin(program.cache(self.splitPath(path)), "addon.json"), "r", encoding="utf-8") as file:
+                data = json.loads(file.read())
+            self.extractZip(path, self.pathJoin(program.ADDON_PATH, data[id]))
+        else:
+            for i in self.walkDir(program.cache(self.splitPath(path))):
+                if self.existPath(self.pathJoin(i, "addon.json")):
+                    with open(self.pathJoin(i, "addon.json"), "r", encoding="utf-8") as file:
+                        data = json.loads(file.read())
+                    break
+            self.extractZip(path, program.ADDON_PATH)
+        self.delete(program.cache(self.splitPath(path)))
+        return data
 
     def getInstalledAddonInfo(self) -> dict:
         """

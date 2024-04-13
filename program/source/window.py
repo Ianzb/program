@@ -44,9 +44,9 @@ class MainPage(BasicPage):
         self.card3 = GrayCard("游戏功能", self.view)
         self.card3.addWidget(self.button3_1)
 
-        self.vBoxLayout.addWidget(self.card1, 0, Qt.AlignmentFlag.AlignTop)
-        self.vBoxLayout.addWidget(self.card2, 0, Qt.AlignmentFlag.AlignTop)
-        self.vBoxLayout.addWidget(self.card3, 0, Qt.AlignmentFlag.AlignTop)
+        self.vBoxLayout.addWidget(self.card1, 0, Qt.AlignTop)
+        self.vBoxLayout.addWidget(self.card2, 0, Qt.AlignTop)
+        self.vBoxLayout.addWidget(self.card3, 0, Qt.AlignTop)
 
     def button1_1Clicked(self):
         if setting.read("sortPath") == "":
@@ -162,10 +162,10 @@ class SettingPage(BasicPage):
         self.cardGroup4.addWidget(self.sortFolderSettingCard)
         self.cardGroup4.addWidget(self.downloadSettingCard)
 
-        self.vBoxLayout.addWidget(self.cardGroup1, 0, Qt.AlignmentFlag.AlignTop)
-        self.vBoxLayout.addWidget(self.cardGroup2, 0, Qt.AlignmentFlag.AlignTop)
-        self.vBoxLayout.addWidget(self.cardGroup3, 0, Qt.AlignmentFlag.AlignTop)
-        self.vBoxLayout.addWidget(self.cardGroup4, 0, Qt.AlignmentFlag.AlignTop)
+        self.vBoxLayout.addWidget(self.cardGroup1, 0, Qt.AlignTop)
+        self.vBoxLayout.addWidget(self.cardGroup2, 0, Qt.AlignTop)
+        self.vBoxLayout.addWidget(self.cardGroup3, 0, Qt.AlignTop)
+        self.vBoxLayout.addWidget(self.cardGroup4, 0, Qt.AlignTop)
 
         if not (program.WINDOWS_VERSION[0] >= 10 and program.WINDOWS_VERSION[2] >= 22000):
             self.micaEffectSettingCard.hide()
@@ -209,8 +209,8 @@ class AboutPage(BasicPage):
         self.bigInfoCard.mainButton.clicked.connect(lambda: webbrowser.open(program.AUTHOR_URL))
         self.bigInfoCard.mainButton.setIcon(FIF.LINK)
 
-        self.vBoxLayout.addWidget(self.bigInfoCard, 0, Qt.AlignmentFlag.AlignTop)
-        self.vBoxLayout.addWidget(self.cardGroup1, 0, Qt.AlignmentFlag.AlignTop)
+        self.vBoxLayout.addWidget(self.bigInfoCard, 0, Qt.AlignTop)
+        self.vBoxLayout.addWidget(self.cardGroup1, 0, Qt.AlignTop)
 
 
 class Window(FluentWindow, SignalBase):
@@ -365,6 +365,9 @@ class Window(FluentWindow, SignalBase):
             self.page.setObjectName(data["name"])
             self.navigationInterface.removeWidget(self.page.objectName())
             self.addPage(self.page, "scroll")
+            logging.warning(f"插件{data["name"]}安装成功")
+            self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{data["name"]}安装成功！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.settingPage)
+            self.infoBar.show()
         except Exception as ex:
             logging.warning(f"插件{data["name"]}安装失败{ex}")
             self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", f"插件{data["name"]}安装失败{ex}！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.settingPage)

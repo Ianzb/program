@@ -137,9 +137,9 @@ class BigModInfoCard(BigInfoCard, SignalBase):
         self.comboBox2.currentIndexChanged.connect(self.getFileInfo)
 
         self.card1 = GrayCard("筛选")
-        self.card1.addWidget(self.label1, alignment=Qt.AlignmentFlag.AlignCenter)
+        self.card1.addWidget(self.label1, alignment=Qt.AlignCenter)
         self.card1.addWidget(self.comboBox1)
-        self.card1.addWidget(self.label2, alignment=Qt.AlignmentFlag.AlignCenter)
+        self.card1.addWidget(self.label2, alignment=Qt.AlignCenter)
         self.card1.addWidget(self.comboBox2)
 
         self.vBoxLayout.insertWidget(1, self.card1)
@@ -319,11 +319,11 @@ class SearchTab(BasicTab):
         self.card1.addWidget(self.lineEdit)
 
         self.card2 = GrayCard("筛选")
-        self.card2.addWidget(self.label1, alignment=Qt.AlignmentFlag.AlignCenter)
+        self.card2.addWidget(self.label1, alignment=Qt.AlignCenter)
         self.card2.addWidget(self.comboBox1)
-        self.card2.addWidget(self.label2, alignment=Qt.AlignmentFlag.AlignCenter)
+        self.card2.addWidget(self.label2, alignment=Qt.AlignCenter)
         self.card2.addWidget(self.comboBox2)
-        self.card2.addWidget(self.label3, alignment=Qt.AlignmentFlag.AlignCenter)
+        self.card2.addWidget(self.label3, alignment=Qt.AlignCenter)
         self.card2.addWidget(self.comboBox3)
 
         self.loadingCard = LoadingCard(self)
@@ -331,7 +331,7 @@ class SearchTab(BasicTab):
 
         self.vBoxLayout.addWidget(self.card1)
         self.vBoxLayout.addWidget(self.card2)
-        self.vBoxLayout.addWidget(self.loadingCard, 0, Qt.AlignmentFlag.AlignCenter)
+        self.vBoxLayout.addWidget(self.loadingCard, 0, Qt.AlignCenter)
 
         self.cardGroup1 = CardGroup(self.view)
         self.vBoxLayout.addWidget(self.cardGroup1)
@@ -396,7 +396,7 @@ class SearchTab(BasicTab):
         for i in msg:
             self.infoCard = SmallModInfoCard(i, self.comboBox1.currentText(), self)
             self.infoCard.signalDict.connect(self.showModPage)
-            self.vBoxLayout.addWidget(self.infoCard, 0, Qt.AlignmentFlag.AlignTop)
+            self.vBoxLayout.addWidget(self.infoCard, 0, Qt.AlignTop)
             self.cardGroup1.addWidget(self.infoCard)
         if msg:
             self.cardGroup1.setTitle(f"搜索结果（{len(msg)}个）")

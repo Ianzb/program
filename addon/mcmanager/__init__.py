@@ -1,10 +1,8 @@
 import os
 import sys
 
-sys.path = [os.path.dirname(sys.argv[0])] + sys.path
+sys.path.append(os.path.dirname(sys.argv[0]))
 from source.custom import *
-
-os.chdir(os.path.dirname(__file__))
 
 try:
     from program.source.custom import *
@@ -15,16 +13,10 @@ from .manager import *
 mod_page_list = []
 
 
-class SmallModInfoCard(SmallInfoCard):
+class SmallModInfoCard(SmallInfoCard, SignalBase):
     """
     资源信息小卡片
     """
-    signalStr = Signal(str)
-    signalInt = Signal(int)
-    signalBool = Signal(bool)
-    signalList = Signal(list)
-    signalDict = Signal(dict)
-    signalObject = Signal(object)
 
     def __init__(self, data: dict, source: str, parent: QWidget = None):
         """
@@ -68,16 +60,10 @@ class SmallModInfoCard(SmallInfoCard):
             self.signalDict.emit(self.data)
 
 
-class BigModInfoCard(BigInfoCard):
+class BigModInfoCard(BigInfoCard, SignalBase):
     """
     资源信息大卡片
     """
-    signalStr = Signal(str)
-    signalInt = Signal(int)
-    signalBool = Signal(bool)
-    signalList = Signal(list)
-    signalDict = Signal(dict)
-    signalObject = Signal(object)
 
     def __init__(self, data: dict, parent: QWidget = None, widgets=[], version=None, loader=None):
         """
@@ -160,9 +146,9 @@ class BigModInfoCard(BigInfoCard):
         self.comboBox2.currentIndexChanged.connect(self.getFileInfo)
 
         self.card1 = GrayCard("筛选")
-        self.card1.addWidget(self.label1, alignment=Qt.AlignmentFlag.AlignCenter)
+        self.card1.addWidget(self.label1, alignment=Qt.AlignCenter)
         self.card1.addWidget(self.comboBox1)
-        self.card1.addWidget(self.label2, alignment=Qt.AlignmentFlag.AlignCenter)
+        self.card1.addWidget(self.label2, alignment=Qt.AlignCenter)
         self.card1.addWidget(self.comboBox2)
 
         self.vBoxLayout.insertWidget(1, self.card1)
@@ -247,16 +233,10 @@ class BigModInfoCard(BigInfoCard):
             self.loadingCard.show()
 
 
-class SmallFileInfoCard(SmallInfoCard):
+class SmallFileInfoCard(SmallInfoCard, SignalBase):
     """
     文件信息小卡片
     """
-    signalStr = Signal(str)
-    signalInt = Signal(int)
-    signalBool = Signal(bool)
-    signalList = Signal(list)
-    signalDict = Signal(dict)
-    signalObject = Signal(object)
 
     def __init__(self, data: dict, parent: QWidget = None):
         """
@@ -348,11 +328,11 @@ class SearchTab(BasicTab):
         self.card1.addWidget(self.lineEdit)
 
         self.card2 = GrayCard("筛选")
-        self.card2.addWidget(self.label1, alignment=Qt.AlignmentFlag.AlignCenter)
+        self.card2.addWidget(self.label1, alignment=Qt.AlignCenter)
         self.card2.addWidget(self.comboBox1)
-        self.card2.addWidget(self.label2, alignment=Qt.AlignmentFlag.AlignCenter)
+        self.card2.addWidget(self.label2, alignment=Qt.AlignCenter)
         self.card2.addWidget(self.comboBox2)
-        self.card2.addWidget(self.label3, alignment=Qt.AlignmentFlag.AlignCenter)
+        self.card2.addWidget(self.label3, alignment=Qt.AlignCenter)
         self.card2.addWidget(self.comboBox3)
 
         self.loadingCard = LoadingCard(self)
@@ -360,7 +340,7 @@ class SearchTab(BasicTab):
 
         self.vBoxLayout.addWidget(self.card1)
         self.vBoxLayout.addWidget(self.card2)
-        self.vBoxLayout.addWidget(self.loadingCard, 0, Qt.AlignmentFlag.AlignCenter)
+        self.vBoxLayout.addWidget(self.loadingCard, 0, Qt.AlignCenter)
 
         self.cardGroup1 = CardGroup(self.view)
         self.vBoxLayout.addWidget(self.cardGroup1)
@@ -425,7 +405,7 @@ class SearchTab(BasicTab):
         for i in msg:
             self.infoCard = SmallModInfoCard(i, self.comboBox1.currentText(), self)
             self.infoCard.signalDict.connect(self.showModPage)
-            self.vBoxLayout.addWidget(self.infoCard, 0, Qt.AlignmentFlag.AlignTop)
+            self.vBoxLayout.addWidget(self.infoCard, 0, Qt.AlignTop)
             self.cardGroup1.addWidget(self.infoCard)
         if msg:
             self.cardGroup1.setTitle(f"搜索结果（{len(msg)}个）")
