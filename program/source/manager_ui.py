@@ -82,72 +82,7 @@ class SearchButton(ToolButton):
         widget.comboBox3.currentIndexChanged.connect(widget.searchButtonClicked)
 
 
-class UpdateModWidget(QWidget):
-    """
-    下载文件ui接口
-    """
 
-    def __init__(self, link: str, name: str, old: str = "", parent=None):
-        super().__init__(parent=parent)
-        self.parent = parent
-        self.name = name
-        self.link = link
-        self.old = old
-
-        self.thread1 = CustomThread("下载文件", (link, name))
-        self.thread1.signalInt.connect(self.thread1_1)
-        self.thread1.signalBool.connect(self.thread1_2)
-        self.thread1.start()
-
-        self.progressBar = ProgressBar(self.parent)
-        self.progressBar.setAlignment(Qt.AlignCenter)
-        self.progressBar.setRange(0, 100)
-        self.progressBar.setValue(0)
-        self.progressBar.setMinimumWidth(200)
-
-        self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "下载", f"正在下载文件 {f.splitPath(name)}", Qt.Orientation.Vertical, True, -1, InfoBarPosition.TOP_RIGHT, self.parent)
-        self.infoBar.addWidget(self.progressBar)
-        self.infoBar.show()
-        self.infoBar.closeButton.clicked.connect(self.thread1.cancel)
-
-    def thread1_1(self, msg):
-        try:
-            self.infoBar.contentLabel.setText(f"正在下载文件 {f.splitPath(self.name)}")
-            self.progressBar.setValue(msg)
-        except:
-            return
-        if msg == 100:
-            self.infoBar.contentLabel.setText(f"{self.name} 下载成功")
-            self.infoBar.closeButton.click()
-
-            self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "下载", f"资源 {f.splitPath(self.name)} 下载成功", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent)
-            self.infoBar.show()
-            self.button1 = PushButton("打开目录", self.parent, FIF.FOLDER)
-            self.button1.clicked.connect(self.button1Clicked)
-            self.infoBar.addWidget(self.button1)
-
-            if self.old:
-                f.moveFile(self.old, self.old + ".old")
-
-            self.progressBar.setValue(0)
-            self.progressBar.deleteLater()
-
-    def thread1_2(self, msg):
-        if not msg:
-            try:
-                self.infoBar.closeButton.click()
-            except:
-                self.thread1.cancel()
-            self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", "下载失败", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent)
-            self.infoBar.show()
-
-    def button1Clicked(self):
-        if f.existPath(self.name):
-            f.showFile(self.name)
-        else:
-            f.showFile(f.splitPath(self.name, 3))
-
-        self.infoBar.closeButton.click()
 
 
 class ModUpdateMessageBox(MessageBoxBase):
@@ -409,7 +344,7 @@ class FileTab(BasicTab):
 
         self.thread2.signalList.connect(self.thread2_1)
         self.thread2.signalBool.connect(self.thread2_1)
-        self.thread2.data = msg
+        self.thread2.dataList = msg
         self.thread2.start()
 
         loader = []

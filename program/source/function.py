@@ -11,7 +11,6 @@ import bs4
 import lxml
 from send2trash import *
 from traceback import format_exception
-from qtpy import *
 from PyQt5 import *
 from PyQt5.Qt import *
 from PyQt5.QtCore import *

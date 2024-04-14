@@ -59,7 +59,11 @@ class MinecraftFunctions:
         "Vanilla": "vanilla",
         "Rift": "rift",
         "Risugami's ModLoader": "modloader",
+        "BungeeCord": "bungeecord",
+        "Velocity": "velocity",
+        "Waterfall": "waterfall",
     }  # 通用模组加载器全称简称映射表-全称为键
+    MOD_LOADER_LIST = ["Forge", "Fabric", "Quilt", "NeoForge"]
     LOADER_TYPE_REVERSE = dict([val, key] for key, val in LOADER_TYPE.items())  # 通用模组加载器全称简称映射表-简称称为键
 
     CURSEFORGE_HEADER = {
