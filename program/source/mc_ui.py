@@ -685,7 +685,8 @@ class FileInfoMessageBox(MessageBoxBase):
             self.curseForgeButton = PrimaryPushButton("CurseForge", self, FIF.LINK)
             self.curseForgeButton.clicked.connect(self.CurseForgeButtonClicked)
             self.buttonLayout.insertWidget(0, self.curseForgeButton)
-            self.image.setImg(f"CurseForge/{f.removeIllegalPath(msg[0]["名称"])}.png", msg[0]["图标"])
+            if not self.image.imgPath:
+                self.image.setImg(f"CurseForge/{f.removeIllegalPath(msg[0]["名称"])}.png", msg[0]["图标"])
             self.titleLabel.setText(msg[0]["名称"])
             self.bodyLabel1.setText(msg[0]["介绍"])
             self.bodyLabel1.show()
