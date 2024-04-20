@@ -302,6 +302,19 @@ class VersionsManageTab(BasicTab):
 
         self.loadPage()
 
+        self.thread1 = AddonThread("获得游戏版本列表")
+        self.thread1.signalList.connect(self.threadEvent1_1)
+        self.thread1.start()
+
+        self.loadingCard = LoadingCard(self)
+        self.loadingCard.setText("正在初始化...")
+
+        self.vBoxLayout.addWidget(self.loadingCard, 0, Qt.AlignCenter)
+
+    def threadEvent1_1(self, msg):
+        mc.RELEASE_VERSIONS = msg
+        self.loadingCard.hide()
+
     def settingButtonClicked(self):
         self.parent().showPage("设置")
 
@@ -754,12 +767,12 @@ class SmallModInfoCard(SmallInfoCard, SignalBase):
             self.setTitle("信息加载失败！")
 
     def loadInfo(self):
-        self.setImg(f"{self.source}/{f.removeIllegalPath(self.data['名称'])}.png", self.data["图标"])
-        self.setTitle(f"{self.data['名称']}")
+        self.setImg(f"{self.source}/{f.removeIllegalPath(self.data["名称"])}.png", self.data["图标"])
+        self.setTitle(f"{self.data["名称"]}")
         self.setInfo(self.data["介绍"], 0)
-        self.setInfo(f"下载量：{f.numberAddUnit(self.data['下载量'])}", 1)
-        self.setInfo(f"游戏版本：{self.data['游戏版本'][0] + '-' + self.data['游戏版本'][-1] if len(self.data['游戏版本']) > 1 else self.data['游戏版本'][0] if len(self.data['游戏版本']) > 0 else '无'}", 2)
-        self.setInfo(f"更新日期：{self.data['更新日期']}", 3)
+        self.setInfo(f"下载量：{f.numberAddUnit(self.data["下载量"])}", 1)
+        self.setInfo(f"游戏版本：{self.data["游戏版本"][0] + "-" + self.data["游戏版本"][-1] if len(self.data["游戏版本"]) > 1 else self.data["游戏版本"][0] if len(self.data["游戏版本"]) > 0 else "无"}", 2)
+        self.setInfo(f"更新日期：{self.data["更新日期"]}", 3)
 
     def mousePressEvent(self, event):
         if isinstance(self.data, dict):
@@ -931,7 +944,7 @@ class SmallFileInfoCard(SmallInfoCard, SignalBase):
         self.image.deleteLater()
 
         self.setTitle(f"{data["名称"]}{" · " if data["版本类型"] else ""}{data["版本类型"]}")
-        self.setInfo("、".join(data["加载器"]) + (" | " if len(data["加载器"]) > 0 else "") + ("、".join(data["游戏版本"]) if len(data["游戏版本"]) <= 10 else f"支持{data['游戏版本'][0]}-{data['游戏版本'][-1]}共{len(data['游戏版本'])}个版本"), 0)
+        self.setInfo("、".join(data["加载器"]) + (" | " if len(data["加载器"]) > 0 else "") + ("、".join(data["游戏版本"]) if len(data["游戏版本"]) <= 10 else f"支持{data["游戏版本"][0]}-{data["游戏版本"][-1]}共{len(data["游戏版本"])}个版本"), 0)
         self.setInfo(f"文件大小：{f.fileSizeAddUnit(data["文件大小"])}", 1)
         self.setInfo(f"下载量：{f.numberAddUnit(data["下载量"])}", 2)
         self.setInfo(f"更新日期：{data["更新日期"]}", 3)
@@ -991,7 +1004,7 @@ class ResultTab(BasicTab):
         self.label2 = StrongBodyLabel("加载器", self)
 
         self.comboBox2 = AcrylicComboBox(self)
-        self.comboBox2.setPlaceholderText("加载器版本")
+        self.comboBox2.setPlaceholderText("加载器")
         self.comboBox2.setCurrentIndex(0)
         self.comboBox2.setToolTip("选择加载器版本")
         self.comboBox2.installEventFilter(ToolTipFilter(self.comboBox1, 1000))
@@ -1035,6 +1048,13 @@ class ResultTab(BasicTab):
     def loadPage(self, data):
         self.thread1.terminate()
         self.thread2.terminate()
+
+        self.comboBox1.currentIndexChanged.disconnect(self.getFileInfo)
+        self.comboBox2.currentIndexChanged.disconnect(self.getFileInfo)
+        self.comboBox1.setCurrentText("全部")
+        self.comboBox2.setCurrentText("全部")
+        self.comboBox1.currentIndexChanged.connect(self.getFileInfo)
+        self.comboBox2.currentIndexChanged.connect(self.getFileInfo)
 
         self.comboBox1.setEnabled(False)
         self.comboBox2.setEnabled(False)
@@ -1099,6 +1119,9 @@ class ResultTab(BasicTab):
             self.loadingCard.setText("加载失败")
 
     def getFileInfo(self):
+        self.comboBox1.setEnabled(False)
+        self.comboBox2.setEnabled(False)
+
         self.cardGroup.hide()
         self.loadingCard.setText("加载中")
         self.loadingCard.show()
@@ -1158,12 +1181,7 @@ class AddonPage(ChangeableTab):
         self.setObjectName("MC资源管理器")
         self.isInit = False
 
-        self.thread1 = AddonThread("获得游戏版本列表")
-        self.thread1.signalList.connect(self.threadEvent1_1)
-        self.thread1.start()
 
-    def threadEvent1_1(self, msg):
-        mc.RELEASE_VERSIONS = msg
 
     def showEvent(self, QShowEvent):
         if not self.isInit:

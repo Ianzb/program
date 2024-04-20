@@ -38,7 +38,49 @@ class MinecraftFunctions:
                         "1.3.2", "1.3.1",
                         "1.2.5", "1.2.4", "1.2.3", "1.2.2", "1.2.1",
                         "1.1", "1.0"]  # Minecraft正式版
-    LOADER_TYPE = {
+    MOD_LOADER_LIST = ["Forge", "Fabric", "Quilt", "NeoForge"]
+
+    CURSEFORGE_HEADER = {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "x-api-key": "$2a$10$P1NwR9RKf.xei0ApvtH.0u9JxczxbgvWzHsyTbRiaEXS2tMqC6Bgy"
+    }  # CurseForge网络请求API
+    CURSEFORGE_VERSION_TYPE = {
+        1: "release",
+        2: "beta",
+        3: "alpha",
+    }  # CurseForge文件版本类型映射表
+    CURSEFORGE_LOADER = {
+        "全部": 0,
+        "Forge": 1,
+        "Cauldron": 2,
+        "LiteLoader": 3,
+        "Fabric": 4,
+        "Quilt": 5,
+        "NeoForge": 6,
+    }  # CurseForge模组加载器映射表-全称为键
+    CURSEFORGE_LOADER_REVERSE = dict([val, key] for key, val in CURSEFORGE_LOADER.items())  # CurseForge模组加载器映射表-id为键
+    CURSEFORGE_TYPE = {
+        "模组": 6,
+        "整合包": 4471,
+        "资源包": 12,
+        "光影包": 6552,
+        "数据包": 6945,
+        "插件": 5,
+        "地图": 17,
+        "Addon": 4559,
+        "定制": 4546,
+    }  # CurseForge资源类型映射表
+
+    MODRINTH_TYPE = {
+        "模组": "mod",
+        "整合包": "modpack",
+        "资源包": "resourcepack",
+        "光影包": "shader",
+        "数据包": "datapack",
+        "插件": "plugin",
+    }  # Modrinth资源类型映射表
+    MODRINTH_LOADER = {
         "Forge": "forge",
         "Cauldron": "cauldron",
         "LiteLoader": "liteloader",
@@ -63,49 +105,7 @@ class MinecraftFunctions:
         "Velocity": "velocity",
         "Waterfall": "waterfall",
     }  # 通用模组加载器全称简称映射表-全称为键
-    MOD_LOADER_LIST = ["Forge", "Fabric", "Quilt", "NeoForge"]
-    LOADER_TYPE_REVERSE = dict([val, key] for key, val in LOADER_TYPE.items())  # 通用模组加载器全称简称映射表-简称称为键
-
-    CURSEFORGE_HEADER = {
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-        "x-api-key": "$2a$10$P1NwR9RKf.xei0ApvtH.0u9JxczxbgvWzHsyTbRiaEXS2tMqC6Bgy"
-    }  # CurseForge网络请求API
-    CURSEFORGE_VERSION_TYPE = {
-        1: "release",
-        2: "beta",
-        3: "alpha",
-    }  # CurseForge文件版本类型映射表
-    CURSEFORGE_LOADER_TYPE = {
-        0: "any",
-        1: "forge",
-        2: "cauldron",
-        3: "liteloader",
-        4: "fabric",
-        5: "quilt",
-        6: "neoforge",
-    }  # CurseForge模组加载器映射表-id为键
-    CURSEFORGE_LOADER_TYPE_REVERSE = dict([val, key] for key, val in CURSEFORGE_LOADER_TYPE.items())  # CurseForge模组加载器映射表-小写名称为键
-    CURSEFORGE_TYPE = {
-        "模组": 6,
-        "整合包": 4471,
-        "资源包": 12,
-        "光影包": 6552,
-        "数据包": 6945,
-        "插件": 5,
-        "地图": 17,
-        "Addon": 4559,
-        "定制": 4546,
-    }  # CurseForge资源类型映射表
-
-    MODRINTH_TYPE = {
-        "模组": "mod",
-        "整合包": "modpack",
-        "资源包": "resourcepack",
-        "光影包": "shader",
-        "数据包": "datapack",
-        "插件": "plugin",
-    }  # Modrinth资源类型映射表
+    MODRINTH_LOADER_REVERSE = dict([val, key] for key, val in MODRINTH_LOADER.items())  # 通用模组加载器全称简称映射表-id为键
 
     def __init__(self):
         setting.add("minecraftJavaPath", f.pathJoin(program.USER_PATH, r"AppData\Roaming\.minecraft"))
@@ -202,7 +202,7 @@ class MinecraftFunctions:
                 "更新日期": data["updated"].split("T")[0],
                 "来源": "Modrinth",
                 "源代码链接": data["source_url"],
-                "加载器": [(self.LOADER_TYPE_REVERSE[i] if i in self.LOADER_TYPE_REVERSE.keys() else i) for i in data["loaders"]],
+                "加载器": [(self.MODRINTH_LOADER_REVERSE[i] if i in self.MODRINTH_LOADER.values() else i) for i in data["loaders"]],
                 "发布日期": data["published"].split("T")[0],
                 "网站链接": f"https://modrinth.com/mod/{data["slug"]}",
             })
@@ -215,7 +215,7 @@ class MinecraftFunctions:
                 if "modLoader" in i.keys():
                     loader.append(i["modLoader"])
             loader = list(set(loader))
-            loader = [(self.LOADER_TYPE_REVERSE[self.CURSEFORGE_LOADER_TYPE[i]] if i in self.CURSEFORGE_LOADER_TYPE else str(i)) for i in loader]
+            loader = [(self.CURSEFORGE_LOADER_REVERSE[i] if i in self.CURSEFORGE_LOADER.values() else i) for i in loader]
 
             dict.update({
                 "id": data["id"],
@@ -259,7 +259,7 @@ class MinecraftFunctions:
                         "更新日期": i["updated"].split("T")[0],
                         "来源": "Modrinth",
                         "源代码链接": i["source_url"],
-                        "加载器": [(self.LOADER_TYPE_REVERSE[j] if j in self.LOADER_TYPE_REVERSE.keys() else j) for j in i["loaders"]],
+                        "加载器": [(self.MODRINTH_LOADER_REVERSE[j] if j in self.MODRINTH_LOADER.values() else j) for j in i["loaders"]],
                         "发布日期": i["published"].split("T")[0],
                         "网站链接": f"https://modrinth.com/mod/{i["slug"]}",
                     })
@@ -279,7 +279,7 @@ class MinecraftFunctions:
                     if "modLoader" in k.keys():
                         loader.append(k["modLoader"])
                 loader = list(set(loader))
-                loader = [(self.LOADER_TYPE_REVERSE[self.CURSEFORGE_LOADER_TYPE[i]] if i in self.CURSEFORGE_LOADER_TYPE else str(i)) for i in loader]
+                loader = [(self.CURSEFORGE_LOADER_REVERSE[i] if i in self.CURSEFORGE_LOADER.values() else i) for i in loader]
 
                 data.append({
                     "id": i["id"],
@@ -310,7 +310,7 @@ class MinecraftFunctions:
         list1 = []
         if source == "Modrinth":
             version = f'&game_versions=["{version}"]' if version not in ["全部", "", None] else ""
-            loader = f'&loaders=["{self.LOADER_TYPE[loader] if loader in self.LOADER_TYPE.keys() else loader.lower()}"]' if loader not in ["全部", "", None] else ""
+            loader = f'&loaders=["{self.MODRINTH_LOADER[loader] if loader in self.MODRINTH_LOADER.keys() else loader.lower()}"]' if loader not in ["全部", "", None] else ""
             data = f.requestGet(f"https://api.modrinth.com/v2/project/{id}/version?a=0{version}{loader}", program.REQUEST_HEADER)
             data = json.loads(data)
             for i in data:
@@ -322,7 +322,7 @@ class MinecraftFunctions:
                     "前置": [j["project_id"] for j in i["dependencies"] if j["dependency_type"] == "required"],
                     "游戏版本": f.sortVersion([j for j in i["game_versions"] if self.isRelease(j)]),
                     "版本类型": i["version_type"],
-                    "加载器": [(self.LOADER_TYPE_REVERSE[i] if i in self.LOADER_TYPE_REVERSE.keys() else i) for i in i["loaders"]],
+                    "加载器": [(self.MODRINTH_LOADER_REVERSE[i] if i in self.MODRINTH_LOADER.values() else i) for i in i["loaders"]],
                     "下载量": i["downloads"],
                     "更新日期": i["date_published"].split("T")[0],
                     "来源": "Modrinth",
@@ -333,10 +333,7 @@ class MinecraftFunctions:
                 })
         elif source == "CurseForge":
             version = f"&gameVersion={version}" if version not in ["全部", "", None] else ""
-            if (self.LOADER_TYPE[loader] if loader in self.LOADER_TYPE.keys() else loader) in list(self.CURSEFORGE_LOADER_TYPE_REVERSE.keys()) + ["全部", "", None]:
-                loader = f"&modLoaderType={self.CURSEFORGE_LOADER_TYPE_REVERSE[self.LOADER_TYPE[loader]]}" if loader not in ["全部", "", None] else ""
-            else:
-                loader = ""
+            loader = f"&modLoaderType={self.CURSEFORGE_LOADER[loader]}" if loader in self.CURSEFORGE_LOADER.keys() and loader not in ["全部", "", None] else ""
             data = f.requestGet(f"https://api.curseforge.com/v1/mods/{id}/files?a=0{version}{loader}", self.CURSEFORGE_HEADER)
             data = json.loads(data)["data"]
 
@@ -349,7 +346,7 @@ class MinecraftFunctions:
                     "前置": [j["modId"] for j in i["dependencies"] if j["relationType"] == 3],
                     "游戏版本": f.sortVersion([j for j in i["gameVersions"] if self.isRelease(j)]),
                     "版本类型": self.CURSEFORGE_VERSION_TYPE[i["releaseType"]],
-                    "加载器": [(self.LOADER_TYPE_REVERSE[j.lower()] if j.lower() in self.LOADER_TYPE_REVERSE.keys() else j.lower()) for j in i["gameVersions"] if j.lower() in self.CURSEFORGE_LOADER_TYPE.values()],
+                    "加载器": [(self.MODRINTH_LOADER_REVERSE[j.lower()] if j.lower() in self.MODRINTH_LOADER.values() else j.lower()) for j in i["gameVersions"] if j in self.CURSEFORGE_LOADER.keys()],
                     "下载量": i["downloadCount"],
                     "更新日期": i["fileDate"].split("T")[0],
                     "来源": "CurseForge",
@@ -424,7 +421,7 @@ class MinecraftFunctions:
                     "前置": [j["project_id"] for j in i["dependencies"] if j["dependency_type"] == "required"],
                     "游戏版本": f.sortVersion([j for j in i["game_versions"] if self.isRelease(j)]),
                     "版本类型": i["version_type"],
-                    "加载器": [(self.LOADER_TYPE_REVERSE[j] if j in self.LOADER_TYPE_REVERSE.keys() else j) for j in i["loaders"]],
+                    "加载器": [(self.MODRINTH_LOADER_REVERSE[j] if j in self.MODRINTH_LOADER.values() else j) for j in i["loaders"]],
                     "下载量": i["downloads"],
                     "更新日期": i["date_published"].split("T")[0],
                     "来源": "Modrinth",
@@ -464,7 +461,7 @@ class MinecraftFunctions:
                     "前置": [j["modId"] for j in i["dependencies"] if j["relationType"] == 3],
                     "游戏版本": f.sortVersion([j for j in i["gameVersions"] if self.isRelease(j)]),
                     "版本类型": self.CURSEFORGE_VERSION_TYPE[i["releaseType"]],
-                    "加载器": [(self.LOADER_TYPE_REVERSE[j.lower()] if j.lower() in self.LOADER_TYPE_REVERSE.keys() else j.lower()) for j in i["gameVersions"] if j.lower() in self.CURSEFORGE_LOADER_TYPE.values()],
+                    "加载器": [(self.MODRINTH_LOADER_REVERSE[j.lower()] if j.lower() in self.MODRINTH_LOADER.values() else j.lower()) for j in i["gameVersions"] if j in self.CURSEFORGE_LOADER.keys()],
                     "下载量": i["downloadCount"],
                     "更新日期": i["fileDate"].split("T")[0],
                     "来源": "CurseForge",
@@ -502,7 +499,7 @@ class MinecraftFunctions:
                 "hashes": list(hash.values()),
                 "algorithm": "sha1",
                 "loaders": [
-                    self.LOADER_TYPE[loader] if loader in self.LOADER_TYPE.keys() else loader.lower(),
+                    self.MODRINTH_LOADER[loader] if loader in self.MODRINTH_LOADER.keys() else loader.lower(),
                 ],
                 "game_versions": [
                     version,
@@ -524,7 +521,7 @@ class MinecraftFunctions:
                     "前置": [j["project_id"] for j in i["dependencies"] if j["dependency_type"] == "required"],
                     "游戏版本": f.sortVersion([j for j in i["game_versions"] if self.isRelease(j)]),
                     "版本类型": i["version_type"],
-                    "加载器": [(self.LOADER_TYPE_REVERSE[j] if j in self.LOADER_TYPE_REVERSE.keys() else j) for j in i["loaders"]],
+                    "加载器": [(self.MODRINTH_LOADER_REVERSE[j] if j in self.MODRINTH_LOADER.values() else j) for j in i["loaders"]],
                     "下载量": i["downloads"],
                     "更新日期": i["date_published"].split("T")[0],
                     "来源": "Modrinth",
@@ -593,8 +590,8 @@ class MinecraftFunctions:
                             fabric = True
 
                 for i in range(len(result["加载器"])):
-                    if result["加载器"][i][0] in self.LOADER_TYPE.values():
-                        result["加载器"][i][0] = self.LOADER_TYPE_REVERSE[result["加载器"][i][0]]
+                    if result["加载器"][i][0] in self.MODRINTH_LOADER.values():
+                        result["加载器"][i][0] = self.MODRINTH_LOADER_REVERSE[result["加载器"][i][0]]
                 return result
             except Exception as ex:
                 logging.warning(f"读取{path}下的游戏数据失败，报错信息为{ex}")
