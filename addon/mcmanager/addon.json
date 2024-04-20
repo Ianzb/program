@@ -1,11 +1,11 @@
 {
     "id": "mcmanager",
     "name": "MC资源管理器",
-    "version": "2.1.4",
+    "version": "3.0.0",
     "file": [
         "__init__.py",
-        "api.py",
-        "manager.py",
+        "mc_api.py",
+        "mc_ui.py",
         "murmurhash2.pyd",
         "python_nbt.py"
     ]
