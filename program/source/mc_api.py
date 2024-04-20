@@ -298,7 +298,7 @@ class MinecraftFunctions:
                 })
         return data
 
-    def getModFile(self, id, version: str = "", loader: str = "", source: str = "CurseForge") -> dict:
+    def getModFile(self, id, version: str = "", loader: str | list = "", source: str = "CurseForge") -> dict:
         """
         获得模组文件
         @param id: 模组id
@@ -333,7 +333,10 @@ class MinecraftFunctions:
                 })
         elif source == "CurseForge":
             version = f"&gameVersion={version}" if version not in ["全部", "", None] else ""
-            loader = f"&modLoaderType={self.CURSEFORGE_LOADER[loader]}" if loader in self.CURSEFORGE_LOADER.keys() and loader not in ["全部", "", None] else ""
+            if type(loader) == list:
+                loader = ""
+            else:
+                loader = f"&modLoaderType={self.CURSEFORGE_LOADER[loader]}" if loader in self.CURSEFORGE_LOADER.keys() and loader not in ["全部", "", None] else ""
             data = f.requestGet(f"https://api.curseforge.com/v1/mods/{id}/files?a=0{version}{loader}", self.CURSEFORGE_HEADER)
             data = json.loads(data)["data"]
 
@@ -474,7 +477,7 @@ class MinecraftFunctions:
 
         return data
 
-    def getNewestFromHash(self, path, version: str, loader: str, source: str = "CurseForge"):
+    def getNewestFromHash(self, path, version: str, loader: str | list, source: str = "CurseForge"):
         """
         从本地文件获得模组最新版本
         @param path: 文件
@@ -491,6 +494,8 @@ class MinecraftFunctions:
                 pass
             else:
                 return False
+            if type(loader) == str:
+                loader = [loader]
             path = [i for i in path if not i.endswith(".old")]
             hash = {}
             for i in path:
@@ -498,9 +503,7 @@ class MinecraftFunctions:
             post_info = {
                 "hashes": list(hash.values()),
                 "algorithm": "sha1",
-                "loaders": [
-                    self.MODRINTH_LOADER[loader] if loader in self.MODRINTH_LOADER.keys() else loader.lower(),
-                ],
+                "loaders": [self.MODRINTH_LOADER[i] for i in loader if i in self.MODRINTH_LOADER.keys()],
                 "game_versions": [
                     version,
                 ]
@@ -512,7 +515,7 @@ class MinecraftFunctions:
             except:
                 return None
             data = []
-            for i in list(response.values()):
+            for k, i in response.items():
                 data.append({
                     "id": i["id"],
                     "模组id": i["project_id"],
@@ -529,6 +532,7 @@ class MinecraftFunctions:
                     "下载链接": i["files"][0]["url"].replace("edge.forgecdn.net", "mediafilez.forgecdn.net") if i["files"][0]["url"] else i["files"][0]["url"],
                     "文件名称": i["files"][0]["filename"],
                     "文件大小": i["files"][0]["size"],
+                    "源文件名称": hash_reverse[k],
                 })
         elif source == "CurseForge":
             response = self.getInfoFromHash(path, source)

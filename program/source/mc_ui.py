@@ -75,6 +75,7 @@ class AddonThread(QThread, SignalBase):
                 self.signalBool.emit(False)
         elif self.mode == "获得模组最新版本":
             try:
+                dict1 = {}
                 if self.data[3] == "Modrinth":
                     self.signalInt.emit(0)
                     response = mc.getInfoFromHash(self.data[0], self.data[3])
@@ -88,13 +89,19 @@ class AddonThread(QThread, SignalBase):
                     for i in range(len(response)):
                         try:
                             data1 = mc.getModFile(response[i]["模组id"], self.data[1], self.data[2], self.data[3])
+                            data1[self.data[1]][0]["源文件名称"] = response[i]["源文件名称"]
                             data.append(data1[self.data[1]][0])
                         except:
                             pass
                         self.signalInt.emit(int(100 * (i + 2) / (len(response) + 1)))
                 self.signalInt.emit(100)
-                self.signalDict.emit({"old": response, "new": data})
-            except:
+                for i in response:
+                    dict1[i["源文件名称"]] = [i, None]
+                for i in data:
+                    if i["源文件名称"] in dict1.keys():
+                        dict1[i["源文件名称"]][1] = i
+                self.signalDict.emit(dict1)
+            except Exception as ex:
                 self.signalBool.emit(False)
         logging.info(f"MC资源管理器插件 {self.mode} 线程结束")
 
@@ -579,6 +586,61 @@ class SourceCard(SmallInfoCard):
         self.setInfo(f"文件大小：{f.fileSizeAddUnit(f.getSize(self.path))}", 0)
 
 
+class ModUpdateMessageBox(MessageBoxBase):
+    """
+    更新资源的弹出框
+    """
+
+    def __init__(self, title: str, data: list, path: str, parent=None):
+        super().__init__(parent.parent().parent().parent().parent())
+        self.data = data
+        self.path = path
+        self.parent = parent
+
+        self.titleLabel = SubtitleLabel(title, self)
+
+        self.tableView = TableWidget(self)
+
+        self.tableView.setBorderVisible(True)
+        self.tableView.setBorderRadius(8)
+        self.tableView.setWordWrap(False)
+        self.tableView.setColumnCount(3)
+        self.tableView.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+
+        self.tableView.verticalHeader().hide()
+        self.tableView.setHorizontalHeaderLabels(["文件名", "本地版本号", "在线版本号"])
+        self.tableView.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+
+        self.viewLayout.addWidget(self.titleLabel)
+        self.viewLayout.addWidget(self.tableView, 0, Qt.AlignTop)
+
+        self.yesButton.setText("更新")
+        self.yesButton.clicked.connect(self.yesButtonClicked)
+
+        self.cancelButton.setText("取消")
+
+        self.widget.setMinimumWidth(690)
+
+        self.setMinimumWidth(690)
+
+        import string
+
+        abc = string.ascii_lowercase + string.ascii_uppercase + "-_. \n"
+
+        self.tableView.setRowCount(len(data))
+        for i in range(len(data)):
+            self.tableView.setItem(i, 0, QTableWidgetItem(data[i][0]["源文件名称"]))
+            self.tableView.setItem(i, 1, QTableWidgetItem(data[i][0]["文件名称"].strip(abc)))
+            self.tableView.setItem(i, 2, QTableWidgetItem(data[i][1]["文件名称"].strip(abc)))
+            if not data[i][1]["下载链接"]:
+                self.tableView.hideRow(i)
+
+    def yesButtonClicked(self):
+        for i in self.data:
+            if i[1]["下载链接"]:
+                UpdateModWidget(i[1]["下载链接"], f.pathJoin(self.path, i[1]["文件名称"]), f.pathJoin(self.path, i[0]["源文件名称"]), self.parent.parent())
+
+
 class ModManageTab(ResourceManageTab):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -591,7 +653,7 @@ class ModManageTab(ResourceManageTab):
         self.grayCard1.insertWidget(0, self.openButton)
 
         self.updateButton = PushButton("立刻更新", self, FIF.UPDATE)
-        # self.updateButton.clicked.connect(self.updateButtonClicked)
+        self.updateButton.clicked.connect(self.updateButtonClicked)
         self.updateButton.setToolTip("更新资源")
         self.updateButton.installEventFilter(ToolTipFilter(self.updateButton, 1000))
 
@@ -673,6 +735,73 @@ class ModManageTab(ResourceManageTab):
         loader = [i[0] for i in self.data["加载器"] if i[0] in mc.MOD_LOADER_LIST]
         self.comboBox2_3.setCurrentText(loader[0] if loader else "Forge")
 
+    def updateButtonClicked(self):
+        self.updateButton.setEnabled(False)
+        self.comboBox2_1.setEnabled(False)
+        self.comboBox2_2.setEnabled(False)
+        self.comboBox2_3.setEnabled(False)
+
+        self.progressBar = ProgressBar(self)
+        self.progressBar.setAlignment(Qt.AlignCenter)
+        self.progressBar.setRange(0, 100)
+        self.progressBar.setValue(0)
+        self.progressBar.setMinimumWidth(200)
+
+        self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"正在通过{self.comboBox2_1.currentText()}检查资源在{self.comboBox2_2.currentText()}{self.comboBox2_3.currentText()}的更新", Qt.Orientation.Vertical, False, -1, InfoBarPosition.TOP_RIGHT, self)
+        self.infoBar.addWidget(self.progressBar)
+        self.infoBar.show()
+
+        self.thread3 = AddonThread("获得模组最新版本", [f.pathJoin(self.data["路径"], mc.FILE_PATH["模组"]), self.comboBox2_2.currentText(), self.comboBox2_3.currentText(), self.comboBox2_1.currentText()])
+        self.thread3.signalDict.connect(self.threadEvent3_1)
+        self.thread3.signalBool.connect(self.threadEvent3_2)
+        self.thread3.signalInt.connect(self.threadEvent3_3)
+        self.thread3.start()
+
+    def threadEvent3_1(self, msg):
+        list1 = []
+        name_list = []
+        for k, v in msg.items():
+            if v[1]:
+                if v[0]["id"] != v[1]["id"]:
+                    if not self.switchButton.checked:
+                        if v[0]["更新日期"] > v[1]["更新日期"]:
+                            continue
+                    if k in name_list:
+                        continue
+                    name_list.append(k)
+                    list1.append(v)
+        list1 = sorted(list1, key=lambda x: x[0]["名称"])
+        self.infoBar.isClosable = True
+        self.infoBar.closeButton.click()
+        self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"有{len(list1)}个资源在{self.comboBox2_2.currentText()}{self.comboBox2_3.currentText()}有新版本", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self)
+        self.infoBar.show()
+        if len(list1) > 0:
+            self.modUpdateMessageBox = ModUpdateMessageBox("资源更新", list1, f.pathJoin(self.data["路径"], mc.FILE_PATH["模组"]), self)
+            self.modUpdateMessageBox.exec()
+
+        self.updateButton.setEnabled(True)
+        self.comboBox2_1.setEnabled(True)
+        self.comboBox2_2.setEnabled(self.switchButton.isChecked())
+        self.comboBox2_3.setEnabled(self.switchButton.isChecked())
+
+    def threadEvent3_2(self, msg):
+        if not msg:
+            self.infoBar.isClosable = True
+            self.infoBar.closeButton.click()
+            self.infoBar = InfoBar(InfoBarIcon.WARNING, "错误", f"检查更新失败", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self)
+            self.infoBar.show()
+
+        self.updateButton.setEnabled(True)
+        self.comboBox2_1.setEnabled(True)
+        self.comboBox2_2.setEnabled(self.switchButton.isChecked())
+        self.comboBox2_3.setEnabled(self.switchButton.isChecked())
+
+    def threadEvent3_3(self, msg):
+        try:
+            self.progressBar.setValue(msg)
+        except:
+            pass
+
 
 class ResourcePackManageTab(ResourceManageTab):
     def __init__(self, parent=None):
@@ -688,6 +817,55 @@ class ResourcePackManageTab(ResourceManageTab):
         self.cardGroup = CardGroup("资源包", self)
         self.vBoxLayout.addWidget(self.cardGroup)
 
+        self.updateButton = PushButton("立刻更新", self, FIF.UPDATE)
+        self.updateButton.clicked.connect(self.updateButtonClicked)
+        self.updateButton.setToolTip("更新资源")
+        self.updateButton.installEventFilter(ToolTipFilter(self.updateButton, 1000))
+
+        self.label2_1 = StrongBodyLabel("来源", self)
+
+        self.comboBox2_1 = AcrylicComboBox(self)
+        self.comboBox2_1.setPlaceholderText("来源")
+        self.comboBox2_1.addItems(["CurseForge", "Modrinth"])
+        self.comboBox2_1.setCurrentIndex(0)
+        self.comboBox2_1.setToolTip("选择更新来源")
+        self.comboBox2_1.installEventFilter(ToolTipFilter(self.comboBox2_1, 1000))
+
+        self.label2_2 = StrongBodyLabel("版本", self)
+
+        self.comboBox2_2 = AcrylicComboBox(self)
+        self.comboBox2_2.setPlaceholderText("版本")
+        self.comboBox2_2.addItems(mc.RELEASE_VERSIONS)
+        self.comboBox2_2.setToolTip("选择目标版本")
+        self.comboBox2_2.installEventFilter(ToolTipFilter(self.comboBox2_2, 1000))
+        self.comboBox2_2.setMaxVisibleItems(15)
+
+        self.switchButton = SwitchButton("跨版本", self, IndicatorPosition.RIGHT)
+        self.switchButton.setChecked(False)
+        self.switchButton.setOnText("跨版本")
+        self.switchButton.setOffText("跨版本")
+        self.switchButton.setToolTip("如果要将模组更新到与现有版本不同的版本与加载器，请勾选！")
+        self.switchButton.installEventFilter(ToolTipFilter(self.switchButton, 1000))
+        self.switchButton.checkedChanged.connect(self.switchButtonChanged)
+        self.switchButtonChanged()
+
+        self.grayCard2 = GrayCard("更新")
+
+        self.grayCard2.addWidget(self.updateButton)
+        self.grayCard2.addWidget(self.label2_1, alignment=Qt.AlignCenter)
+        self.grayCard2.addWidget(self.comboBox2_1)
+        self.grayCard2.addWidget(self.label2_2, alignment=Qt.AlignCenter)
+        self.grayCard2.addWidget(self.comboBox2_2)
+        self.grayCard2.addWidget(self.switchButton, alignment=Qt.AlignCenter)
+
+        self.vBoxLayout.insertWidget(1, self.grayCard2)
+
+    def switchButtonChanged(self):
+        self.comboBox2_2.setEnabled(self.switchButton.isChecked())
+        if not self.switchButton.isChecked():
+            if self.data:
+                self.comboBox2_2.setCurrentText(self.data["游戏版本"])
+
     def loadPage(self, data=None):
         if data:
             self.data = data
@@ -700,6 +878,72 @@ class ResourcePackManageTab(ResourceManageTab):
             self.card = SourceCard(i, "资源包", self)
             self.cardGroup.addWidget(self.card)
         self.cardGroup.setTitle(f"资源包（{len(packlist)}个）")
+
+        self.comboBox2_2.setCurrentText(self.data["游戏版本"])
+
+    def updateButtonClicked(self):
+        self.updateButton.setEnabled(False)
+        self.comboBox2_1.setEnabled(False)
+        self.comboBox2_2.setEnabled(False)
+
+        self.progressBar = ProgressBar(self)
+        self.progressBar.setAlignment(Qt.AlignCenter)
+        self.progressBar.setRange(0, 100)
+        self.progressBar.setValue(0)
+        self.progressBar.setMinimumWidth(200)
+
+        self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"正在通过{self.comboBox2_1.currentText()}检查资源在{self.comboBox2_2.currentText()}的更新", Qt.Orientation.Vertical, False, -1, InfoBarPosition.TOP_RIGHT, self)
+        self.infoBar.addWidget(self.progressBar)
+        self.infoBar.show()
+
+        self.thread3 = AddonThread("获得模组最新版本", [f.pathJoin(self.data["路径"], mc.FILE_PATH["资源包"]), self.comboBox2_2.currentText(), ["Minecraft"], self.comboBox2_1.currentText()])
+        self.thread3.signalDict.connect(self.threadEvent3_1)
+        self.thread3.signalBool.connect(self.threadEvent3_2)
+        self.thread3.signalInt.connect(self.threadEvent3_3)
+        self.thread3.start()
+
+    def threadEvent3_1(self, msg):
+        list1 = []
+        name_list = []
+        for k, v in msg.items():
+            if v[1]:
+                if v[0]["id"] != v[1]["id"]:
+                    if not self.switchButton.checked:
+                        if v[0]["更新日期"] > v[1]["更新日期"]:
+                            continue
+                    if k in name_list:
+                        continue
+                    name_list.append(k)
+                    list1.append(v)
+        list1 = sorted(list1, key=lambda x: x[0]["名称"])
+        self.infoBar.isClosable = True
+        self.infoBar.closeButton.click()
+        self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"有{len(list1)}个资源在{self.comboBox2_2.currentText()}有新版本", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self)
+        self.infoBar.show()
+        if len(list1) > 0:
+            self.modUpdateMessageBox = ModUpdateMessageBox("资源更新", list1, f.pathJoin(self.data["路径"], mc.FILE_PATH["资源包"]), self)
+            self.modUpdateMessageBox.exec()
+
+        self.updateButton.setEnabled(True)
+        self.comboBox2_1.setEnabled(True)
+        self.comboBox2_2.setEnabled(self.switchButton.isChecked())
+
+    def threadEvent3_2(self, msg):
+        if not msg:
+            self.infoBar.isClosable = True
+            self.infoBar.closeButton.click()
+            self.infoBar = InfoBar(InfoBarIcon.WARNING, "错误", f"检查更新失败", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self)
+            self.infoBar.show()
+
+        self.updateButton.setEnabled(True)
+        self.comboBox2_1.setEnabled(True)
+        self.comboBox2_2.setEnabled(self.switchButton.isChecked())
+
+    def threadEvent3_3(self, msg):
+        try:
+            self.progressBar.setValue(msg)
+        except:
+            pass
 
 
 class ShaderPackManageTab(ResourceManageTab):
@@ -716,6 +960,55 @@ class ShaderPackManageTab(ResourceManageTab):
         self.cardGroup = CardGroup("光影包", self)
         self.vBoxLayout.addWidget(self.cardGroup)
 
+        self.updateButton = PushButton("立刻更新", self, FIF.UPDATE)
+        self.updateButton.clicked.connect(self.updateButtonClicked)
+        self.updateButton.setToolTip("更新资源")
+        self.updateButton.installEventFilter(ToolTipFilter(self.updateButton, 1000))
+
+        self.label2_1 = StrongBodyLabel("来源", self)
+
+        self.comboBox2_1 = AcrylicComboBox(self)
+        self.comboBox2_1.setPlaceholderText("来源")
+        self.comboBox2_1.addItems(["CurseForge", "Modrinth"])
+        self.comboBox2_1.setCurrentIndex(0)
+        self.comboBox2_1.setToolTip("选择更新来源")
+        self.comboBox2_1.installEventFilter(ToolTipFilter(self.comboBox2_1, 1000))
+
+        self.label2_2 = StrongBodyLabel("版本", self)
+
+        self.comboBox2_2 = AcrylicComboBox(self)
+        self.comboBox2_2.setPlaceholderText("版本")
+        self.comboBox2_2.addItems(mc.RELEASE_VERSIONS)
+        self.comboBox2_2.setToolTip("选择目标版本")
+        self.comboBox2_2.installEventFilter(ToolTipFilter(self.comboBox2_2, 1000))
+        self.comboBox2_2.setMaxVisibleItems(15)
+
+        self.switchButton = SwitchButton("跨版本", self, IndicatorPosition.RIGHT)
+        self.switchButton.setChecked(False)
+        self.switchButton.setOnText("跨版本")
+        self.switchButton.setOffText("跨版本")
+        self.switchButton.setToolTip("如果要将模组更新到与现有版本不同的版本与加载器，请勾选！")
+        self.switchButton.installEventFilter(ToolTipFilter(self.switchButton, 1000))
+        self.switchButton.checkedChanged.connect(self.switchButtonChanged)
+        self.switchButtonChanged()
+
+        self.grayCard2 = GrayCard("更新")
+
+        self.grayCard2.addWidget(self.updateButton)
+        self.grayCard2.addWidget(self.label2_1, alignment=Qt.AlignCenter)
+        self.grayCard2.addWidget(self.comboBox2_1)
+        self.grayCard2.addWidget(self.label2_2, alignment=Qt.AlignCenter)
+        self.grayCard2.addWidget(self.comboBox2_2)
+        self.grayCard2.addWidget(self.switchButton, alignment=Qt.AlignCenter)
+
+        self.vBoxLayout.insertWidget(1, self.grayCard2)
+
+    def switchButtonChanged(self):
+        self.comboBox2_2.setEnabled(self.switchButton.isChecked())
+        if not self.switchButton.isChecked():
+            if self.data:
+                self.comboBox2_2.setCurrentText(self.data["游戏版本"])
+
     def loadPage(self, data=None):
         if data:
             self.data = data
@@ -728,6 +1021,72 @@ class ShaderPackManageTab(ResourceManageTab):
             self.card = SourceCard(i, "光影包", self)
             self.cardGroup.addWidget(self.card)
         self.cardGroup.setTitle(f"光影包（{len(packlist)}个）")
+
+        self.comboBox2_2.setCurrentText(self.data["游戏版本"])
+
+    def updateButtonClicked(self):
+        self.updateButton.setEnabled(False)
+        self.comboBox2_1.setEnabled(False)
+        self.comboBox2_2.setEnabled(False)
+
+        self.progressBar = ProgressBar(self)
+        self.progressBar.setAlignment(Qt.AlignCenter)
+        self.progressBar.setRange(0, 100)
+        self.progressBar.setValue(0)
+        self.progressBar.setMinimumWidth(200)
+
+        self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"正在通过{self.comboBox2_1.currentText()}检查资源在{self.comboBox2_2.currentText()}的更新", Qt.Orientation.Vertical, False, -1, InfoBarPosition.TOP_RIGHT, self)
+        self.infoBar.addWidget(self.progressBar)
+        self.infoBar.show()
+
+        self.thread3 = AddonThread("获得模组最新版本", [f.pathJoin(self.data["路径"], mc.FILE_PATH["光影包"]), self.comboBox2_2.currentText(), ["Iris", "Optifine", "Canvas", "Vanilla"], self.comboBox2_1.currentText()])
+        self.thread3.signalDict.connect(self.threadEvent3_1)
+        self.thread3.signalBool.connect(self.threadEvent3_2)
+        self.thread3.signalInt.connect(self.threadEvent3_3)
+        self.thread3.start()
+
+    def threadEvent3_1(self, msg):
+        list1 = []
+        name_list = []
+        for k, v in msg.items():
+            if v[1]:
+                if v[0]["id"] != v[1]["id"]:
+                    if not self.switchButton.checked:
+                        if v[0]["更新日期"] > v[1]["更新日期"]:
+                            continue
+                    if k in name_list:
+                        continue
+                    name_list.append(k)
+                    list1.append(v)
+        list1 = sorted(list1, key=lambda x: x[0]["名称"])
+        self.infoBar.isClosable = True
+        self.infoBar.closeButton.click()
+        self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"有{len(list1)}个资源在{self.comboBox2_2.currentText()}有新版本", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self)
+        self.infoBar.show()
+        if len(list1) > 0:
+            self.modUpdateMessageBox = ModUpdateMessageBox("资源更新", list1, f.pathJoin(self.data["路径"], mc.FILE_PATH["光影包"]), self)
+            self.modUpdateMessageBox.exec()
+
+        self.updateButton.setEnabled(True)
+        self.comboBox2_1.setEnabled(True)
+        self.comboBox2_2.setEnabled(self.switchButton.isChecked())
+
+    def threadEvent3_2(self, msg):
+        if not msg:
+            self.infoBar.isClosable = True
+            self.infoBar.closeButton.click()
+            self.infoBar = InfoBar(InfoBarIcon.WARNING, "错误", f"检查更新失败", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self)
+            self.infoBar.show()
+
+        self.updateButton.setEnabled(True)
+        self.comboBox2_1.setEnabled(True)
+        self.comboBox2_2.setEnabled(self.switchButton.isChecked())
+
+    def threadEvent3_3(self, msg):
+        try:
+            self.progressBar.setValue(msg)
+        except:
+            pass
 
 
 class SmallModInfoCard(SmallInfoCard, SignalBase):
@@ -964,7 +1323,7 @@ class SmallFileInfoCard(SmallInfoCard, SignalBase):
         if not path:
             return
         path = f.pathJoin(path, self.data["文件名称"])
-        UpdateModWidget(self.data["下载链接"], path, parent=self.parent().parent().parent())
+        UpdateModWidget(self.data["下载链接"], path, parent=self.parent().parent().parent().parent())
 
 
 class ResultTab(BasicTab):
@@ -1180,8 +1539,6 @@ class AddonPage(ChangeableTab):
         self.setIcon(FIF.GAME)
         self.setObjectName("MC资源管理器")
         self.isInit = False
-
-
 
     def showEvent(self, QShowEvent):
         if not self.isInit:
