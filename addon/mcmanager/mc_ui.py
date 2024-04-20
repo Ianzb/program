@@ -685,7 +685,7 @@ class FileInfoMessageBox(MessageBoxBase):
             self.curseForgeButton = PrimaryPushButton("CurseForge", self, FIF.LINK)
             self.curseForgeButton.clicked.connect(self.CurseForgeButtonClicked)
             self.buttonLayout.insertWidget(0, self.curseForgeButton)
-            if not self.image.imgPath:
+            if not self.image.pixmap():
                 self.image.setImg(f"CurseForge/{f.removeIllegalPath(msg[0]["名称"])}.png", msg[0]["图标"])
             self.titleLabel.setText(msg[0]["名称"])
             self.bodyLabel1.setText(msg[0]["介绍"])
@@ -732,8 +732,9 @@ class SourceCard(SmallInfoCard):
         self.mainButton.setIcon(FIF.INFO)
 
     def mainButtonClicked(self):
-        self.fileInfoMessageBox = FileInfoMessageBox(self.type, self.path, self.parent().parent().parent().parent())
-        self.fileInfoMessageBox.exec()
+        if f.existPath(self.path):
+            self.fileInfoMessageBox = FileInfoMessageBox(self.type, self.path, self.parent().parent().parent().parent())
+            self.fileInfoMessageBox.exec()
 
 
 class ModUpdateMessageBox(MessageBoxBase):

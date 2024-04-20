@@ -615,9 +615,9 @@ class MinecraftFunctions:
         @param path: 存档文件夹路径
         @return: 数据
         """
-        from .python_nbt import nbt
+        from .python_nbt import read_from_nbt_file
         from datetime import datetime
-        data = nbt.read_from_nbt_file(f.pathJoin(path, "level.dat")).json_obj(True)["value"]["Data"]["value"]
+        data = read_from_nbt_file(f.pathJoin(path, "level.dat")).json_obj(True)["value"]["Data"]["value"]
         data = {"名称": data["LevelName"]["value"],
                 "种子": data["WorldGenSettings"]["value"]["seed"]["value"],
                 "游戏模式": {0: "生存模式", 1: "创造模式", 2: "冒险模式", 3: "旁观模式"}[data["GameType"]["value"]],

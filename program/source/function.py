@@ -70,6 +70,9 @@ class Program:
 
         ssl._create_default_https_context = ssl._create_unverified_context()
 
+        if not self.isEXE:
+            self.ADDON_PATH = os.path.join(self.INSTALL_PATH, "../addon")
+
     @property
     def WINDOWS_VERSION(self) -> list:
         """
