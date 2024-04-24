@@ -230,8 +230,8 @@ class Window(FluentWindow, SignalBase):
         窗口初始化
         """
         # 外观调整
-        setTheme(eval(setting.read("theme")))
-        setThemeColor("#0078D4")
+        setTheme(eval(setting.read("theme")), lazy=True)
+        setThemeColor("#0078D4", lazy=True)
         self.navigationInterface.setAcrylicEnabled(True)
         self.setMicaEffectEnabled(setting.read("micaEffect"))
         # 窗口属性

@@ -1,12 +1,16 @@
 {
     "id": "mcmanager",
     "name": "MC资源管理器",
-    "version": "3.0.0",
+    "version": "3.0.1",
     "file": [
         "__init__.py",
         "mc_api.py",
         "mc_ui.py",
         "murmurhash2.pyd",
         "python_nbt.py"
-    ]
+    ],
+    "history": {
+        "3.0.0": "重制版本正式发布",
+        "3.0.1": "支持选择取消更新指定模组"
+    }
 }

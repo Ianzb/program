@@ -416,13 +416,13 @@ class ThemeSettingCard(ExpandSettingCard):
             return
         if button is self.radioButton1:
             setting.save("theme", "Theme.LIGHT")
-            setTheme(Theme.LIGHT)
+            setTheme(Theme.LIGHT, lazy=True)
         elif button is self.radioButton2:
             setting.save("theme", "Theme.DARK")
-            setTheme(Theme.DARK)
+            setTheme(Theme.DARK, lazy=True)
         else:
             setting.save("theme", "Theme.AUTO")
-            setTheme(Theme.AUTO)
+            setTheme(Theme.AUTO, lazy=True)
 
         self.label.setText(button.text())
         self.label.adjustSize()
@@ -495,7 +495,7 @@ class ColorSettingCard(ExpandGroupSettingCard):
             self.button2.setChecked(True)
             self.button3.setEnabled(True)
         self.color = QColor(setting.read("themeColor"))
-        setThemeColor(self.color.name())
+        setThemeColor(self.color.name(), lazy=True)
         self.label1.setText(self.buttonGroup.checkedButton().text())
         self.label1.adjustSize()
 
@@ -512,11 +512,11 @@ class ColorSettingCard(ExpandGroupSettingCard):
         if button is self.button1:
             self.button3.setDisabled(True)
             setting.save("themeColor", "#0078D4")
-            setThemeColor("#0078D4")
+            setThemeColor("#0078D4", lazy=True)
         else:
             self.button3.setDisabled(False)
             setting.save("themeColor", self.color.name())
-            setThemeColor(self.color.name())
+            setThemeColor(self.color.name(), lazy=True)
 
     def showColorDialog(self):
         colorDialog = ColorDialog(setting.read("themeColor"), "选择颜色", self.window())
@@ -524,7 +524,7 @@ class ColorSettingCard(ExpandGroupSettingCard):
         colorDialog.exec()
 
     def __colorChanged(self, color):
-        setThemeColor(color)
+        setThemeColor(color, lazy=True)
         self.color = QColor(color)
         setting.save("themeColor", self.color.name())
         self.colorChanged.emit(color)

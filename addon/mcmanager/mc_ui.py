@@ -770,6 +770,15 @@ class ModUpdateMessageBox(MessageBoxBase):
 
         self.cancelButton.setText("取消")
 
+        self.removeButton = PushButton("不更新选中", self.buttonGroup)
+        self.removeButton.clicked.connect(self.removeButtonClicked)
+
+        self.resetButton = PushButton("重置", self.buttonGroup)
+        self.resetButton.clicked.connect(self.resetButtonClicked)
+
+        self.buttonLayout.insertWidget(1, self.removeButton, 1, Qt.AlignVCenter)
+        self.buttonLayout.insertWidget(2, self.resetButton, 1, Qt.AlignVCenter)
+
         self.widget.setMinimumWidth(690)
 
         self.setMinimumWidth(690)
@@ -778,18 +787,58 @@ class ModUpdateMessageBox(MessageBoxBase):
 
         abc = string.ascii_lowercase + string.ascii_uppercase + "-_. \n"
 
-        self.tableView.setRowCount(len(data))
-        for i in range(len(data)):
-            self.tableView.setItem(i, 0, QTableWidgetItem(data[i][0]["源文件名称"]))
-            self.tableView.setItem(i, 1, QTableWidgetItem(data[i][0]["文件名称"].strip(abc)))
-            self.tableView.setItem(i, 2, QTableWidgetItem(data[i][1]["文件名称"].strip(abc)))
-            if not data[i][1]["下载链接"]:
+        self.tableView.setRowCount(len(self.data))
+        for i in range(len(self.data)):
+            self.tableView.setItem(i, 0, QTableWidgetItem(self.data[i][0]["源文件名称"]))
+            self.tableView.setItem(i, 1, QTableWidgetItem(self.data[i][0]["文件名称"].strip(abc)))
+            self.tableView.setItem(i, 2, QTableWidgetItem(self.data[i][1]["文件名称"].strip(abc)))
+            if not self.data[i][1]["下载链接"]:
                 self.tableView.hideRow(i)
 
     def yesButtonClicked(self):
+        datalist = []
+        for i in range(self.tableView.rowCount()):
+            datalist.append(self.tableView.item(i, 0).text())
         for i in self.data:
             if i[1]["下载链接"]:
-                UpdateModWidget(i[1]["下载链接"], f.pathJoin(self.path, i[1]["文件名称"]), f.pathJoin(self.path, i[0]["源文件名称"]), self.parent.parent())
+                if i[0]["源文件名称"] in datalist:
+                    UpdateModWidget(i[1]["下载链接"], f.pathJoin(self.path, i[1]["文件名称"]), f.pathJoin(self.path, i[0]["源文件名称"]), self.parent.parent())
+
+    def removeButtonClicked(self):
+        selected = self.tableView.selectedIndexes()[::3]
+        for i in range(len(selected)):
+            selected[i] = selected[i].row()
+        selected.sort(reverse=True)
+        for i in selected:
+            self.tableView.removeRow(i)
+
+    def resetButtonClicked(self):
+        self.tableView.deleteLater()
+
+        self.tableView = TableWidget(self)
+
+        self.tableView.setBorderVisible(True)
+        self.tableView.setBorderRadius(8)
+        self.tableView.setWordWrap(False)
+        self.tableView.setColumnCount(3)
+        self.tableView.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+
+        self.tableView.verticalHeader().hide()
+        self.tableView.setHorizontalHeaderLabels(["文件名", "本地版本号", "在线版本号"])
+        self.tableView.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+
+        self.viewLayout.addWidget(self.tableView, 0, Qt.AlignTop)
+
+        import string
+        abc = string.ascii_lowercase + string.ascii_uppercase + "-_. \n"
+
+        self.tableView.setRowCount(len(self.data))
+        for i in range(len(self.data)):
+            self.tableView.setItem(i, 0, QTableWidgetItem(self.data[i][0]["源文件名称"]))
+            self.tableView.setItem(i, 1, QTableWidgetItem(self.data[i][0]["文件名称"].strip(abc)))
+            self.tableView.setItem(i, 2, QTableWidgetItem(self.data[i][1]["文件名称"].strip(abc)))
+            if not self.data[i][1]["下载链接"]:
+                self.tableView.hideRow(i)
 
 
 class ModManageTab(ResourceManageTab):
