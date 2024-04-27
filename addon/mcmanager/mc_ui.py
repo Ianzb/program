@@ -988,6 +988,7 @@ class ModManageTab(ResourceManageTab):
         self.comboBox2_1.setEnabled(False)
         self.comboBox2_2.setEnabled(False)
         self.comboBox2_3.setEnabled(False)
+        self.switchButton.setEnabled(False)
 
         self.progressBar = ProgressBar(self)
         self.progressBar.setAlignment(Qt.AlignCenter)
@@ -1031,6 +1032,8 @@ class ModManageTab(ResourceManageTab):
         self.comboBox2_1.setEnabled(True)
         self.comboBox2_2.setEnabled(self.switchButton.isChecked())
         self.comboBox2_3.setEnabled(self.switchButton.isChecked())
+        self.switchButton.setEnabled(True)
+
 
     def threadEvent3_2(self, msg):
         if not msg:
@@ -1043,6 +1046,8 @@ class ModManageTab(ResourceManageTab):
         self.comboBox2_1.setEnabled(True)
         self.comboBox2_2.setEnabled(self.switchButton.isChecked())
         self.comboBox2_3.setEnabled(self.switchButton.isChecked())
+        self.switchButton.setEnabled(True)
+
 
     def threadEvent3_3(self, msg):
         try:
@@ -1146,6 +1151,7 @@ class ResourcePackManageTab(ResourceManageTab):
         self.updateButton.setEnabled(False)
         self.comboBox2_1.setEnabled(False)
         self.comboBox2_2.setEnabled(False)
+        self.switchButton.setEnabled(False)
 
         self.progressBar = ProgressBar(self)
         self.progressBar.setAlignment(Qt.AlignCenter)
@@ -1188,6 +1194,7 @@ class ResourcePackManageTab(ResourceManageTab):
         self.updateButton.setEnabled(True)
         self.comboBox2_1.setEnabled(True)
         self.comboBox2_2.setEnabled(self.switchButton.isChecked())
+        self.switchButton.setEnabled(True)
 
     def threadEvent3_2(self, msg):
         if not msg:
@@ -1199,6 +1206,7 @@ class ResourcePackManageTab(ResourceManageTab):
         self.updateButton.setEnabled(True)
         self.comboBox2_1.setEnabled(True)
         self.comboBox2_2.setEnabled(self.switchButton.isChecked())
+        self.switchButton.setEnabled(True)
 
     def threadEvent3_3(self, msg):
         try:
@@ -1302,6 +1310,7 @@ class ShaderPackManageTab(ResourceManageTab):
         self.updateButton.setEnabled(False)
         self.comboBox2_1.setEnabled(False)
         self.comboBox2_2.setEnabled(False)
+        self.switchButton.setEnabled(False)
 
         self.progressBar = ProgressBar(self)
         self.progressBar.setAlignment(Qt.AlignCenter)
@@ -1344,6 +1353,7 @@ class ShaderPackManageTab(ResourceManageTab):
         self.updateButton.setEnabled(True)
         self.comboBox2_1.setEnabled(True)
         self.comboBox2_2.setEnabled(self.switchButton.isChecked())
+        self.switchButton.setEnabled(True)
 
     def threadEvent3_2(self, msg):
         if not msg:
@@ -1355,6 +1365,7 @@ class ShaderPackManageTab(ResourceManageTab):
         self.updateButton.setEnabled(True)
         self.comboBox2_1.setEnabled(True)
         self.comboBox2_2.setEnabled(self.switchButton.isChecked())
+        self.switchButton.setEnabled(True)
 
     def threadEvent3_3(self, msg):
         try:

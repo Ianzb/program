@@ -26,7 +26,6 @@ class Tray(QSystemTrayIcon):
         self.menu.addAction(self.action3)
         self.menu.addAction(self.action4)
 
-
     def showTrayMessage(self, title, msg):
         super().showMessage(title, msg, QIcon(program.ICON))
 
@@ -49,8 +48,6 @@ class Tray(QSystemTrayIcon):
     def contextMenuEvent(self):
         self.menu.exec(QCursor.pos(), aniType=MenuAnimationType.PULL_UP)
         self.menu.show()
-
-
 
 
 class BetterScrollArea(SmoothScrollArea, SignalBase):
@@ -344,19 +341,20 @@ class Image(QLabel):
     """
 
     @functools.singledispatchmethod
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, fixsize=True):
         super().__init__(parent=parent)
-        self.setFixedSize(48, 48)
+        if fixsize:
+            self.setFixedSize(48, 48)
         self.setScaledContents(True)
         self.loading = False
 
     @__init__.register
-    def _(self, path: str, url: str = None, parent=None):
+    def _(self, path: str, url: str = None, parent=None, fixsize=True):
         """
         @param path: 路径
         @param url: 链接
         """
-        self.__init__(parent)
+        self.__init__(parent, fixsize)
         if path:
             self.setImg(path, url)
 
@@ -417,14 +415,14 @@ class DisplayCard(ElevatedCardWidget):
 
         self.widget = Image(self)
 
-        self.label = CaptionLabel(self)
+        self.bodyLabel = CaptionLabel(self)
 
         self.vBoxLayout = QVBoxLayout(self)
         self.vBoxLayout.setAlignment(Qt.AlignCenter)
         self.vBoxLayout.addStretch(1)
         self.vBoxLayout.addWidget(self.widget, 0, Qt.AlignCenter)
         self.vBoxLayout.addStretch(1)
-        self.vBoxLayout.addWidget(self.label, 0, Qt.AlignHCenter | Qt.AlignBottom)
+        self.vBoxLayout.addWidget(self.bodyLabel, 0, Qt.AlignHCenter | Qt.AlignBottom)
 
         self.setTheme()
         qconfig.themeChanged.connect(self.setTheme)
@@ -440,7 +438,7 @@ class DisplayCard(ElevatedCardWidget):
         设置文本
         @param text: 文本
         """
-        self.label.setText(text)
+        self.bodyLabel.setText(text)
 
     def setDisplay(self, widget):
         """
@@ -449,6 +447,39 @@ class DisplayCard(ElevatedCardWidget):
         """
         self.widget = widget
         self.vBoxLayout.replaceWidget(self.vBoxLayout.itemAt(1).widget(), self.widget)
+
+
+class IntroductionCard(ElevatedCardWidget):
+    """
+    简介卡片
+    """
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setFixedSize(190, 200)
+
+        self.image = Image(self)
+        self.titleLabel = SubtitleLabel(self)
+        self.titleLabel.setWordWrap(True)
+        self.bodyLabel = BodyLabel(self)
+        self.bodyLabel.setWordWrap(True)
+
+        self.vBoxLayout = QVBoxLayout(self)
+        self.vBoxLayout.setContentsMargins(16, 16, 16, 16)
+        self.vBoxLayout.setAlignment(Qt.AlignTop | Qt.AlignLeft)
+
+        self.vBoxLayout.addWidget(self.image, 0, Qt.AlignLeft)
+        self.vBoxLayout.addWidget(self.titleLabel, 0, Qt.AlignLeft)
+        self.vBoxLayout.addWidget(self.bodyLabel, 0, Qt.AlignLeft)
+
+    def setImg(self, path: str, url: str = None):
+        self.image.setImg(path, url)
+
+    def setTitle(self, text: str):
+        self.titleLabel.setText(text)
+
+    def setText(self, text: str):
+        self.bodyLabel.setText(text)
 
 
 class LoadingCard(DisplayCard):

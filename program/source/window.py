@@ -1,9 +1,7 @@
-import os
-
 from .widget import *
 
 
-class MainPage(BasicPage):
+class MainPage(BasicTab):
     """
     主页
     """
@@ -14,24 +12,49 @@ class MainPage(BasicPage):
         super().__init__(parent=parent)
         self.setIcon(FIF.HOME)
 
+        # self.titleImage = Image("logo.png", "https://ianzb.github.io/project/img/program.png", self, False)
+        self.card1 = IntroductionCard(self)
+        self.card1.setTitle(f"欢迎使用")
+        self.card1.setText(f"一款基于Python的Windows多功能工具箱！")
+        self.card1.setImg(program.ICON)
+
+        self.card2 = IntroductionCard(self)
+        self.card2.setTitle("插件功能")
+        self.card2.setText(f"选择并安装你需要的插件，享受更多功能！")
+        self.card2.setImg("Ianzb.png", "https://vip.123pan.cn/1813801926/%E8%B5%84%E6%BA%90/%E4%B8%AA%E4%BA%BA/%E5%A4%B4%E5%83%8F/png/%E5%A4%B4%E5%83%8F%E9%AB%98%E6%B8%85%E9%80%8F%E6%98%8E.png")
+
+        self.card3 = IntroductionCard(self)
+        self.card3.setTitle("问题反馈")
+        self.card3.setText(f"在Github Issue中提交使用过程中遇到的问题！")
+        self.card3.setImg("Github.png", "https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png")
+
+        self.flowLayout = FlowLayout(needAni=True)
+        self.flowLayout.setAnimation(200)
+        self.flowLayout.addWidget(self.card1)
+        self.flowLayout.addWidget(self.card2)
+        self.flowLayout.addWidget(self.card3)
+
+        # self.vBoxLayout.addWidget(self.titleImage,  Qt.AlignTop)
+        self.vBoxLayout.addLayout(self.flowLayout, Qt.AlignTop)
+
+        self.addonSettingCard = AddonSettingCard(self)
+        self.vBoxLayout.addWidget(self.addonSettingCard, 0, Qt.AlignTop)
+
 
 class SettingPage(BasicPage):
     """
     设置页面
     """
     title = "设置"
-    subtitle = "设置程序"
+    subtitle = "个性化设置程序功能"
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.setIcon(FIF.SETTING)
 
-        self.cardGroup1 = CardGroup("插件", self)
         self.cardGroup2 = CardGroup("外观", self)
         self.cardGroup3 = CardGroup("行为", self)
         self.cardGroup4 = CardGroup("功能", self)
-
-        self.addonSettingCard = AddonSettingCard(self)
 
         self.themeSettingCard = ThemeSettingCard(self)
         self.colorSettingCard = ColorSettingCard(self)
@@ -43,8 +66,6 @@ class SettingPage(BasicPage):
 
         self.downloadSettingCard = DownloadSettingCard(self)
 
-        self.cardGroup1.addWidget(self.addonSettingCard)
-
         self.cardGroup2.addWidget(self.themeSettingCard)
         self.cardGroup2.addWidget(self.colorSettingCard)
         self.cardGroup2.addWidget(self.micaEffectSettingCard)
@@ -55,7 +76,6 @@ class SettingPage(BasicPage):
 
         self.cardGroup4.addWidget(self.downloadSettingCard)
 
-        self.vBoxLayout.addWidget(self.cardGroup1, 0, Qt.AlignTop)
         self.vBoxLayout.addWidget(self.cardGroup2, 0, Qt.AlignTop)
         self.vBoxLayout.addWidget(self.cardGroup3, 0, Qt.AlignTop)
         self.vBoxLayout.addWidget(self.cardGroup4, 0, Qt.AlignTop)
@@ -69,7 +89,7 @@ class AboutPage(BasicPage):
     关于页面
     """
     title = "关于"
-    subtitle = "关于程序"
+    subtitle = "程序运行状态及相关信息"
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
@@ -255,11 +275,11 @@ class Window(FluentWindow, SignalBase):
             self.navigationInterface.removeWidget(self.page.objectName())
             self.addPage(self.page, "scroll")
             logging.warning(f"插件{data["name"]}安装成功")
-            self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{data["name"]}安装成功！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.settingPage)
+            self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{data["name"]}安装成功！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.mainPage)
             self.infoBar.show()
         except Exception as ex:
             logging.warning(f"插件{data["name"]}安装失败{ex}")
-            self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", f"插件{data["name"]}安装失败{ex}！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.settingPage)
+            self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", f"插件{data["name"]}安装失败{ex}！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.mainPage)
             self.infoBar.show()
 
     def __removeAddon(self, data):

@@ -58,9 +58,9 @@ class AddonEditMessageBox(MessageBoxBase):
         self.thread1.start()
 
     def yesButtonClicked(self):
-        self.parent().settingPage.addonSettingCard.button1.setEnabled(False)
-        self.parent().settingPage.addonSettingCard.button2.setEnabled(False)
-        self.parent().settingPage.addonSettingCard.progressBarLoading.show()
+        self.parent().mainPage.addonSettingCard.button1.setEnabled(False)
+        self.parent().mainPage.addonSettingCard.button2.setEnabled(False)
+        self.parent().mainPage.addonSettingCard.progressBarLoading.show()
 
         list = [self.tableView.itemFromIndex(i).text() for i in self.tableView.selectedIndexes()[::4]]
         self.thread2 = CustomThread("下载插件", list)
@@ -69,9 +69,9 @@ class AddonEditMessageBox(MessageBoxBase):
         self.thread2.start()
 
     def removeButtonClicked(self):
-        self.parent().settingPage.addonSettingCard.button1.setEnabled(False)
-        self.parent().settingPage.addonSettingCard.button2.setEnabled(False)
-        self.parent().settingPage.addonSettingCard.progressBarLoading.show()
+        self.parent().mainPage.addonSettingCard.button1.setEnabled(False)
+        self.parent().mainPage.addonSettingCard.button2.setEnabled(False)
+        self.parent().mainPage.addonSettingCard.progressBarLoading.show()
 
         id_list = [self.tableView.itemFromIndex(i).text() for i in self.tableView.selectedIndexes()[::4]]
         name_list = [self.tableView.itemFromIndex(i).text() for i in self.tableView.selectedIndexes()[1::4]]
@@ -82,9 +82,9 @@ class AddonEditMessageBox(MessageBoxBase):
 
         self.accept()
         self.accepted.emit()
-        self.parent().settingPage.addonSettingCard.button1.setEnabled(True)
-        self.parent().settingPage.addonSettingCard.button2.setEnabled(True)
-        self.parent().settingPage.addonSettingCard.progressBarLoading.hide()
+        self.parent().mainPage.addonSettingCard.button1.setEnabled(True)
+        self.parent().mainPage.addonSettingCard.button2.setEnabled(True)
+        self.parent().mainPage.addonSettingCard.progressBarLoading.hide()
 
     def threadEvent1_1(self, msg):
         if msg["id"] in self.installed.keys():
@@ -106,7 +106,7 @@ class AddonEditMessageBox(MessageBoxBase):
                 if self.tableView.item(i, 3).text() == "加载中...":
                     self.tableView.setItem(i, 3, QTableWidgetItem("云端无数据"))
         else:
-            self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", f"无网络连接！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().settingPage)
+            self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", f"无网络连接！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().mainPage)
             self.infoBar.show()
             for i in range(self.tableView.rowCount()):
                 self.tableView.setItem(i, 3, QTableWidgetItem("无网络连接"))
@@ -125,9 +125,9 @@ class AddonEditMessageBox(MessageBoxBase):
 
     def threadEvent2_2(self, msg):
         if msg:
-            self.parent().settingPage.addonSettingCard.button1.setEnabled(True)
-            self.parent().settingPage.addonSettingCard.button2.setEnabled(True)
-            self.parent().settingPage.addonSettingCard.progressBarLoading.hide()
+            self.parent().mainPage.addonSettingCard.button1.setEnabled(True)
+            self.parent().mainPage.addonSettingCard.button2.setEnabled(True)
+            self.parent().mainPage.addonSettingCard.progressBarLoading.hide()
 
 
 class AddonSettingCard(SettingCard):
