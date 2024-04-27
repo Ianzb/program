@@ -14,71 +14,6 @@ class MainPage(BasicPage):
         super().__init__(parent=parent)
         self.setIcon(FIF.HOME)
 
-        self.button1_1 = PrimaryPushButton("开始整理+清理", self, FIF.ALIGNMENT)
-        self.button1_1.clicked.connect(self.button1_1Clicked)
-        self.button1_1.setToolTip("开始整理+清理文件，范围包括：\n  整理桌面文件\n  整理微信文件\n  清空回收站\n  清理系统缓存")
-        self.button1_1.installEventFilter(ToolTipFilter(self.button1_1, 1000))
-
-        self.button1_2 = ToolButton(FIF.FOLDER, self)
-        self.button1_2.clicked.connect(lambda: f.showFile(setting.read("sortPath")))
-        self.button1_2.setToolTip("打开整理文件所在目录")
-        self.button1_2.installEventFilter(ToolTipFilter(self.button1_2, 1000))
-
-        self.button2_1 = PushButton("重启文件资源管理器", self, FIF.SYNC)
-        self.button2_1.clicked.connect(self.button2_1Clicked)
-        self.button2_1.setToolTip("重启文件资源管理器")
-        self.button2_1.installEventFilter(ToolTipFilter(self.button2_1, 1000))
-
-        self.card1 = GrayCard("一键整理+清理", self.view)
-        self.card1.addWidget(self.button1_1)
-        self.card1.addWidget(self.button1_2)
-
-        self.card2 = GrayCard("快捷功能", self.view)
-        self.card2.addWidget(self.button2_1)
-
-        self.vBoxLayout.addWidget(self.card1, 0, Qt.AlignTop)
-        self.vBoxLayout.addWidget(self.card2, 0, Qt.AlignTop)
-
-    def button1_1Clicked(self):
-        if setting.read("sortPath") == "":
-            self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", "当前未设置整理文件目录，无法整理！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self)
-            self.infoBar.show()
-            return
-        if setting.read("wechatPath") == "":
-            self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", "当前未设置微信文件目录，无法整理微信文件！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self)
-            self.infoBar.show()
-
-        self.button1_1.setEnabled(False)
-
-        self.signalBool.emit(False)
-
-        self.stateTooltip = StateToolTip("正在整理文件", "请耐心等待", self)
-        self.stateTooltip.move(self.stateTooltip.getSuitablePos())
-        self.stateTooltip.show()
-
-        self.thread1_1 = CustomThread("一键整理+清理")
-        self.thread1_1.signalBool.connect(self.threadEvent1_1)
-        self.thread1_1.start()
-
-    def threadEvent1_1(self, msg):
-        self.stateTooltip.setState(True)
-        self.button1_1.setEnabled(True)
-        self.signalBool.emit(True)
-        if msg:
-            self.stateTooltip.setContent("整理成功")
-        else:
-            self.stateTooltip.setContent("整理失败")
-
-    def button2_1Clicked(self):
-        self.button2_1.setEnabled(False)
-
-        self.thread2_1 = CustomThread("重启文件资源管理器")
-        self.thread2_1.signalStr.connect(self.threadEvent2_1)
-        self.thread2_1.start()
-
-    def threadEvent2_1(self, msg):
-        self.button2_1.setEnabled(True)
-
 
 class SettingPage(BasicPage):
     """
@@ -106,8 +41,6 @@ class SettingPage(BasicPage):
         self.traySettingCard = TraySettingCard(self)
         self.hideSettingCard = HideSettingCard(self)
 
-        self.sortSettingCard = SortPathSettingCard(self)
-        self.sortFolderSettingCard = SortSettingCard(self)
         self.downloadSettingCard = DownloadSettingCard(self)
 
         self.cardGroup1.addWidget(self.addonSettingCard)
@@ -120,8 +53,6 @@ class SettingPage(BasicPage):
         self.cardGroup3.addWidget(self.traySettingCard)
         self.cardGroup3.addWidget(self.hideSettingCard)
 
-        self.cardGroup4.addWidget(self.sortSettingCard)
-        self.cardGroup4.addWidget(self.sortFolderSettingCard)
         self.cardGroup4.addWidget(self.downloadSettingCard)
 
         self.vBoxLayout.addWidget(self.cardGroup1, 0, Qt.AlignTop)

@@ -14,8 +14,6 @@ class Init():
         if f.getSize(program.LOGGING_FILE_PATH) / 1024 >= 32:
             logging.reset()
 
-        # 插件检测
-        f.clearFile(program.ADDON_PATH)
 
 
 Init()
@@ -77,30 +75,6 @@ class CustomThread(QThread, SignalBase):
                 self.signalBool.emit(True)
             else:
                 self.signalStr.emit(data)
-        elif self.mode == "一键整理+清理":
-            try:
-                EasyThread(f.clearRubbish)
-                EasyThread(f.clearSystemCache)
-                f.sortDir(program.DESKTOP_PATH, setting.read("sortPath"))
-                if setting.read("wechatPath"):
-                    f.sortWechatFiles()
-                for i in setting.read("sortFolder"):
-                    if f.isDir(i):
-                        if not (f.belongDir(i, setting.read("sortPath")) or f.belongDir(setting.read("sortPath"), i)):
-                            f.sortDir(i, setting.read("sortPath"))
-                for i in list(setting.read("sortFormat").keys()) + ["文件夹"]:
-                    f.clearFile(f.pathJoin(setting.read("sortPath"), i))
-                f.clearFile(setting.read("sortPath"))
-                self.signalBool.emit(True)
-                logging.debug("一键整理成功")
-            except Exception as ex:
-                self.signalBool.emit(False)
-                logging.warning("一键整理失败")
-        elif self.mode == "重启文件资源管理器":
-            f.cmd("taskkill /f /im explorer.exe", True)
-            self.signalStr.emit("完成")
-            f.cmd("start C:/windows/explorer.exe", True)
-            logging.debug("重启文件资源管理器")
         elif self.mode == "下载图片":
             if not f.existPath(self.data[1]):
                 f.downloadFile(self.data[0], self.data[1])

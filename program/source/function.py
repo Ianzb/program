@@ -252,25 +252,11 @@ class SettingFunctions:
                                 "autoStartup": False,
                                 "autoHide": True,
                                 "autoUpdate": False,
-                                "sortPath": "",
-                                "wechatPath": "",
                                 "downloadPath": program.DOWNLOAD_PATH,
                                 "showWindow": False,
-                                "sortBlacklist": [],
                                 "micaEffect": True,
                                 "showTray": True,
                                 "hideWhenClose": True,
-                                "sortFolder": [],
-                                "sortFormat": {"PPT": [".ppt", ".pptx"],
-                                               "文档": [".doc", ".docx", ".txt", ".pdf"],
-                                               "表格": [".xls", ".xlsx", ".xlsm", ".xlsb", ".xlt", ".csv"],
-                                               "图片": [".png", ".jpg", ".jpeg", ".webp", ".gif", ".tif", ".tga", ".bmp", ".dds", ".svg", ".eps", ".hdr", ".raw", ".exr", ".psd"],
-                                               "音频": [".mp3", ".wav", ".ogg", ".wma", ".ape", ".flac", ".aac"],
-                                               "视频": [".mp4", ".flv", ".mov", ".avi", ".mkv", ".wmv"],
-                                               "压缩包": [".zip", ".rar", ".7z", ".tar", ".gz", ".bz2"],
-                                               "镜像": [".iso", ".img", ".bin"],
-                                               "安装包": [".exe", ".msi"]
-                                               }
                                 }
         self.file = open(program.SETTING_FILE_PATH, "a+t", encoding="utf-8")
         self.__read()
@@ -334,6 +320,14 @@ class SettingFunctions:
         self.DEFAULT_SETTING[name] = data
         if name not in self.settings.keys():
             self.save(name, data)
+
+    def adds(self, data: dict):
+        """
+        批量添加设置项
+        @param data: 数据
+        """
+        for k, v in data.items():
+            self.add(k, v)
 
 
 class ProcessFunctions:
@@ -739,64 +733,9 @@ class FileFunctions(ProcessFunctions):
         if self.existPath(old):
             self.delete(old)
 
-    def clearEmptyFile(self, path: str):
-        """
-        删除空文件
-        @param path: 文件夹路径
-        """
-        if self.isDir(path):
-            paths = self.walkFile(path, 1)
-            if paths:
-                for i in paths:
-                    if self.getSize(i) == 0:
-                        self.delete(i)
 
-    def clearEmptyDir(self, path):
-        """
-        删除空文件夹
-        @param path: 文件夹路径
-        """
-        if self.isDir(path):
-            paths = self.walkDir(path, 1)
-            if paths:
-                for i in paths:
-                    try:
-                        os.rmdir(i)
-                    except:
-                        pass
 
-    def clearRepeatFile(self, path: str):
-        """
-        清理重复文件
-        @param path: 文件夹路径
-        """
-        if self.isDir(path):
-            sizes = []
-            names = self.walkFile(path)
-            if not names:
-                return
-            names.sort(key=lambda i: len(i))
-            for i in names:
-                if self.getSize(i) / 1024 / 1024 >= 128:
-                    continue
-                md5 = self.getMD5(i)
-                if md5 in sizes:
-                    self.delete(i)
-                else:
-                    sizes.append(md5)
 
-    def clearFile(self, path: str):
-        """
-        清理文件夹3合1
-        @param path: 文件夹路径
-        """
-        try:
-            self.clearEmptyFile(path)
-            self.clearEmptyDir(path)
-            self.clearRepeatFile(path)
-            logging.debug(f"成功清理{path}文件夹")
-        except Exception as ex:
-            logging.warning(f"无法清理{path}文件夹{ex}")
 
     def clearDir(self, path: str):
         """
@@ -809,78 +748,9 @@ class FileFunctions(ProcessFunctions):
             for i in self.walkFile(path, 1):
                 self.delete(i)
 
-    def belongDir(self, path: str, parent: str) -> bool:
-        """
-        文件夹是否包含
-        @param path: 子文件夹
-        @param parent: 母文件夹
-        @return: 是否
-        """
-        path = os.path.abspath(path)
-        parent = os.path.abspath(parent)
-        try:
-            data = os.path.commonpath([parent]) == os.path.commonpath([parent, path])
-        except:
-            data = False
-        return data
 
-    def sortDir(self, old: str, new: str, mode: int = 0):
-        """
-        整理文件
-        @param old: 旧文件夹路径
-        @param new: 新文件夹路径
-        @param mode: 模式：0 全部整理 1 仅文件 2 仅文件夹
-        """
 
-        try:
-            if mode in [0, 1]:
-                file_list = self.walkFile(old, 1)
-                if file_list:
-                    for i in file_list:
-                        for j in range(len(setting.read("sortFormat").values())):
-                            if self.splitPath(i, 2).lower() in list(setting.read("sortFormat").values())[j]:
-                                if self.splitPath(i, 0) not in self.getSortBlacklist():
-                                    self.moveFile(i, self.pathJoin(new, list(setting.read("sortFormat").keys())[j]))
-            if mode in [0, 2]:
-                file_list = self.walkDir(old, 1)
-                if file_list:
-                    for i in file_list:
-                        if self.splitPath(i, 0) not in self.getSortBlacklist():
-                            self.moveFile(i, self.pathJoin(new, "文件夹", self.splitPath(i, 0)))
-            logging.debug(f"成功整理{old}文件夹")
-        except Exception as ex:
-            logging.warning(f"无法整理{old}文件夹{ex}")
 
-    def sortWechatFiles(self):
-        """
-        整理微信文件
-        """
-        try:
-            list1 = []
-            list2 = []
-            for i in self.walkDir(setting.read("wechatPath"), 1):
-                if self.existPath(self.pathJoin(i, "FileStorage/File")):
-                    list1.append(self.pathJoin(i, "FileStorage/File"))
-            for i in list1:
-                if self.walkDir(i, 1) == None:
-                    return
-                list2 = list2 + self.walkDir(i, 1)
-            for i in list2:
-                self.sortDir(i, setting.read("sortPath"))
-            for i in list1:
-                self.sortDir(i, setting.read("sortPath"), 1)
-            logging.debug("成功整理微信文件")
-        except Exception as ex:
-            logging.warning(f"无法整理微信文件{ex}")
-
-    def clearSystemCache(self):
-        """
-        清理系统缓存
-        """
-        try:
-            self.clearDir(os.getenv("TEMP"))
-        except:
-            pass
 
     def clearProgramCache(self):
         """
@@ -892,33 +762,7 @@ class FileFunctions(ProcessFunctions):
         except:
             pass
 
-    def clearRubbish(self):
-        """
-        清空回收站
-        """
-        import winshell
-        try:
-            winshell.recycle_bin().empty(confirm=False, show_progress=False, sound=False)
-            logging.debug("成功清空回收站")
-        except Exception as ex:
-            logging.warning(f"无法清空回收站{ex}")
 
-    def getSortBlacklist(self):
-        """
-        获取整理文件黑名单
-        @return: 整理文件黑名单列表
-        """
-        self.makeDir(setting.read("sortPath"))
-        data = setting.read("sortBlacklist")
-
-        if self.isSameFile(setting.read("sortPath"), program.DESKTOP_PATH):
-            data += list(setting.read("sortFormat").keys()) + ["文件夹"]
-        elif f.belongDir(setting.read("sortPath"), program.DESKTOP_PATH):
-            dirs = self.walkDir(program.DESKTOP_PATH, 1)
-            for i in dirs:
-                if f.belongDir(setting.read("sortPath"), i):
-                    data.append(self.splitPath(i))
-        return data
 
     def showFile(self, path: str):
         """
@@ -1079,6 +923,7 @@ class ProgramFunctions(FileFunctions):
                 with open(f.pathJoin(i, "addon.json"), encoding="utf-8") as file:
                     data[f.splitPath(i)] = json.loads(file.read())
         return data
+
 
 class DownloadFile:
     def __init__(self, link: str, path: str, wait: bool = True, suffix: str = "", header=None):
