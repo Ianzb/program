@@ -659,5 +659,67 @@ class MinecraftFunctions:
         else:
             return "dirt_block.png", "https://patchwiki.biligame.com/images/mc/a/af/7js1n1i51sg8z5j6phsci4sr7pc83u8.png"
 
+    def getNewestVersion(self) -> str:
+        """
+        获取Minecraft最新版本
+        @return: 字符串
+        """
+
+        def changeList(data: list, index: dict):
+            """
+            批量替换元素
+            @param data: 数据列表
+            @param index: 替换字典{键值替换键名}
+            @return:
+            """
+            for i in range(len(data)):
+                for k, v in index.items():
+                    data[i] = data[i].replace(k, v)
+            return data
+
+        useful = ["{{v|java}}",
+                  "{{v|java-experimental}}",
+                  "{{v|java-snap}}",
+                  "{{v|bedrock}}",
+                  "{{v|bedrock-beta}}",
+                  "{{v|bedrock-preview}}",
+                  "{{v|dungeons}}",
+                  "{{v|legends-win}}",
+                  "{{v|launcher}}",
+                  "{{v|launcher-beta}}",
+                  "{{v|education}}",
+                  "{{v|education-beta}}",
+                  "{{v|china-win}}",
+                  "{{v|china-android}}",
+                  ]
+        try:
+            response = f.requestGet("https://zh.minecraft.wiki/w/Template:Version", timeout=(5, 10))
+        except Exception as ex:
+            logging.warning(f"无法连接至Minecraft Wiki服务器{ex}")
+            return "无法连接至服务器"
+        soup = bs4.BeautifulSoup(response, "lxml")
+        data = soup.find_all(name="td")
+        l1 = [n.text.replace("\n", "") for n in data]
+        v1 = l1[::3]
+        v2 = l1[1::3]
+        v3 = l1[2::3]
+        str1 = ""
+        v1 = changeList(v1, {"（": "", "）": ""})
+        for i in range(len(v1)):
+            if v1[i][-1] == "版":
+                v1[i] = v1[i] + "正式版"
+            if v3[i] == "{{v|china-win}}":
+                v1[i] = "中国版端游"
+            elif v3[i] == "{{v|china-android}}":
+                v1[i] = "中国版手游"
+            elif v3[i] == "{{v|legends-win}}":
+                v1[i] = "我的世界：传奇"
+            elif v3[i] == "{{v|dungeons}}":
+                v1[i] = "我的世界：地下城"
+            if v3[i] in useful and v2[i] != "":
+                str1 += v1[i] + "版本：" + v2[i] + "\n"
+        logging.debug("成功获取我的世界最新版本")
+        return str1
+
 
 mc = MinecraftFunctions()

@@ -103,6 +103,8 @@ class AddonThread(QThread, SignalBase):
                 self.signalDict.emit(dict1)
             except Exception as ex:
                 self.signalBool.emit(False)
+        elif self.mode == "Minecraft最新版本":
+            self.signalStr.emit(mc.getNewestVersion())
         logging.info(f"MC资源管理器插件 {self.mode} 线程结束")
 
 
@@ -294,14 +296,20 @@ class VersionsManageTab(BasicTab):
         self.grayCard1.addWidget(self.settingButton)
         self.grayCard1.addWidget(self.reloadButton)
 
-        self.grayCard2 = GrayCard("资源下载", self)
+        self.grayCard2 = GrayCard("在线信息", self)
 
         self.downloadButton = PrimaryPushButton("资源下载", self, FIF.DOWNLOAD)
         self.downloadButton.clicked.connect(self.downloadButtonClicked)
         self.downloadButton.setToolTip("下载资源")
         self.downloadButton.installEventFilter(ToolTipFilter(self.downloadButton, 1000))
 
+        self.versionButton = PushButton("查看Minecraft最新版本", self, FIF.CHECKBOX)
+        self.versionButton.clicked.connect(self.versionButtonClicked)
+        self.versionButton.setToolTip("查看Minecraft最新版本，数据来源：\n  我的世界中文维基百科（https://zh.minecraft.wiki/）")
+        self.versionButton.installEventFilter(ToolTipFilter(self.versionButton, 1000))
+
         self.grayCard2.addWidget(self.downloadButton)
+        self.grayCard2.addWidget(self.versionButton)
 
         self.vBoxLayout.addWidget(self.cardGroup1, 0, Qt.AlignTop)
         self.vBoxLayout.addWidget(self.grayCard1)
@@ -334,6 +342,33 @@ class VersionsManageTab(BasicTab):
         self.parent().page["搜索"].lastPage = "管理"
         self.parent().showPage("搜索")
 
+    def versionButtonClicked(self):
+        self.versionButton.setEnabled(False)
+
+        self.thread2 = AddonThread("Minecraft最新版本")
+        self.thread2.signalStr.connect(self.threadEvent2)
+        self.thread2.start()
+        self.flyout1 = AcrylicFlyout(FlyoutViewBase())
+        self.flyout1.create(
+            icon=InfoBarIcon.INFORMATION,
+            title="Minecraft最新版本",
+            content="正在连接至服务器！",
+            target=self.versionButton,
+            parent=self,
+            isClosable=False,
+        )
+
+    def threadEvent2(self, msg):
+        self.versionButton.setEnabled(True)
+        self.flyout1 = AcrylicFlyout(FlyoutViewBase())
+        self.flyout1.create(
+            icon=InfoBarIcon.INFORMATION,
+            title="Minecraft最新版本",
+            content=msg,
+            target=self.versionButton,
+            parent=self,
+            isClosable=True
+        )
     def loadPage(self):
         mc.FILE_DOWNLOAD_PATH = setting.read("minecraftJavaPath")
         self.cardGroup1.clearWidget()

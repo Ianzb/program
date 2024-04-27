@@ -1,0 +1,11 @@
+{
+    "id": "filemanager",
+    "name": "文件整理",
+    "version": "0.0.1",
+    "file": [
+        "__init__.py"
+    ],
+    "history": {
+        "0.0.1": "将文件整理功能独立"
+    }
+}

@@ -29,11 +29,6 @@ class MainPage(BasicPage):
         self.button2_1.setToolTip("重启文件资源管理器")
         self.button2_1.installEventFilter(ToolTipFilter(self.button2_1, 1000))
 
-        self.button3_1 = PushButton("查看Minecraft最新版本", self, FIF.CHECKBOX)
-        self.button3_1.clicked.connect(self.button3_1Clicked)
-        self.button3_1.setToolTip("查看Minecraft最新版本，数据来源：\n  我的世界中文维基百科（https://zh.minecraft.wiki/）")
-        self.button3_1.installEventFilter(ToolTipFilter(self.button3_1, 1000))
-
         self.card1 = GrayCard("一键整理+清理", self.view)
         self.card1.addWidget(self.button1_1)
         self.card1.addWidget(self.button1_2)
@@ -41,12 +36,8 @@ class MainPage(BasicPage):
         self.card2 = GrayCard("快捷功能", self.view)
         self.card2.addWidget(self.button2_1)
 
-        self.card3 = GrayCard("游戏功能", self.view)
-        self.card3.addWidget(self.button3_1)
-
         self.vBoxLayout.addWidget(self.card1, 0, Qt.AlignTop)
         self.vBoxLayout.addWidget(self.card2, 0, Qt.AlignTop)
-        self.vBoxLayout.addWidget(self.card3, 0, Qt.AlignTop)
 
     def button1_1Clicked(self):
         if setting.read("sortPath") == "":
@@ -87,35 +78,6 @@ class MainPage(BasicPage):
 
     def threadEvent2_1(self, msg):
         self.button2_1.setEnabled(True)
-
-    def button3_1Clicked(self):
-        self.button3_1.setEnabled(False)
-
-        self.thread3_1 = CustomThread("Minecraft最新版本")
-        self.thread3_1.signalStr.connect(self.threadEvent3_1)
-        self.thread3_1.start()
-        self.flyout1 = AcrylicFlyout(FlyoutViewBase())
-        self.flyout1.create(
-            icon=InfoBarIcon.INFORMATION,
-            title="Minecraft最新版本",
-            content="正在连接至服务器！",
-            target=self.button3_1,
-            parent=self,
-            isClosable=False,
-        )
-
-    def threadEvent3_1(self, msg):
-        self.button3_1.setEnabled(True)
-
-        self.flyout2 = AcrylicFlyout(FlyoutViewBase())
-        self.flyout2.create(
-            icon=InfoBarIcon.INFORMATION,
-            title="Minecraft最新版本",
-            content=msg,
-            target=self.button3_1,
-            parent=self,
-            isClosable=True
-        )
 
 
 class SettingPage(BasicPage):

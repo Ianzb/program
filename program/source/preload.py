@@ -101,8 +101,6 @@ class CustomThread(QThread, SignalBase):
             self.signalStr.emit("完成")
             f.cmd("start C:/windows/explorer.exe", True)
             logging.debug("重启文件资源管理器")
-        elif self.mode == "Minecraft最新版本":
-            self.signalStr.emit(f.getMC())
         elif self.mode == "下载图片":
             if not f.existPath(self.data[1]):
                 f.downloadFile(self.data[0], self.data[1])
