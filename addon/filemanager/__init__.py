@@ -537,6 +537,17 @@ class AddonPage(BasicTab):
         self.vBoxLayout.addWidget(self.card2, 0, Qt.AlignTop)
         self.vBoxLayout.addWidget(self.cardGroup1, 0, Qt.AlignTop)
 
+        self.trayAction = Action(FIF.ALIGNMENT, "整理", triggered=self.action2Clicked)
+        self.parent().tray.menu.insertAction(self.parent().tray.action2, self.trayAction)
+        self.signalBool.connect(self.trayEventt)
+
+    def action2Clicked(self):
+        self.trayAction.setEnabled(False)
+        self.button1_1.click()
+
+    def trayEventt(self, msg):
+        self.trayAction.setEnabled(msg)
+
     def button1_1Clicked(self):
         if setting.read("sortPath") == "":
             self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", "当前未设置整理文件目录，无法整理！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self)

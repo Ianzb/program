@@ -15,10 +15,9 @@ class Tray(QSystemTrayIcon):
         self.activated.connect(self.iconClicked)
 
         self.action1 = Action(FIF.HOME, "打开", triggered=self.window.show)
-        self.action2 = Action(FIF.ALIGNMENT, "整理", triggered=self.action2Clicked)
-        self.action3 = Action(FIF.LINK, "官网", triggered=lambda: webbrowser.open(program.URL))
-        self.action4 = Action(FIF.SYNC, "重启", triggered=program.restart)
-        self.action5 = Action(FIF.CLOSE, "退出", triggered=program.close)
+        self.action2 = Action(FIF.LINK, "官网", triggered=lambda: webbrowser.open(program.URL))
+        self.action3 = Action(FIF.SYNC, "重启", triggered=program.restart)
+        self.action4 = Action(FIF.CLOSE, "退出", triggered=program.close)
 
         self.menu = AcrylicMenu()
 
@@ -26,9 +25,7 @@ class Tray(QSystemTrayIcon):
         self.menu.addAction(self.action2)
         self.menu.addAction(self.action3)
         self.menu.addAction(self.action4)
-        self.menu.addAction(self.action5)
 
-        self.window.mainPage.signalBool.connect(self.threadEvent2)
 
     def showTrayMessage(self, title, msg):
         super().showMessage(title, msg, QIcon(program.ICON))
@@ -53,12 +50,7 @@ class Tray(QSystemTrayIcon):
         self.menu.exec(QCursor.pos(), aniType=MenuAnimationType.PULL_UP)
         self.menu.show()
 
-    def action2Clicked(self):
-        self.action2.setEnabled(False)
-        self.window.mainPage.button1_1Clicked()
 
-    def threadEvent2(self, msg):
-        self.action2.setEnabled(msg)
 
 
 class BetterScrollArea(SmoothScrollArea, SignalBase):

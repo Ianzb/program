@@ -249,6 +249,7 @@ class Window(FluentWindow, SignalBase):
         import importlib
         try:
             lib = importlib.import_module(data["id"])
+            lib = importlib.reload(lib)
             self.page = lib.AddonPage(self)
             self.page.setObjectName(data["name"])
             self.navigationInterface.removeWidget(self.page.objectName())
