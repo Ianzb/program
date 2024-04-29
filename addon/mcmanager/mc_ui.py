@@ -131,7 +131,7 @@ class UpdateModWidget(QWidget):
         self.progressBar.setValue(0)
         self.progressBar.setMinimumWidth(200)
 
-        self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "下载", f"正在下载文件 {f.splitPath(name)}", Qt.Orientation.Vertical, True, -1, InfoBarPosition.TOP_RIGHT, self.parent)
+        self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "下载", f"正在下载文件 {f.splitPath(name)}！", Qt.Orientation.Vertical, True, -1, InfoBarPosition.TOP_RIGHT, self.parent)
         self.infoBar.addWidget(self.progressBar)
         self.infoBar.show()
         self.infoBar.closeButton.clicked.connect(self.thread1.cancel)
@@ -146,7 +146,7 @@ class UpdateModWidget(QWidget):
             self.infoBar.contentLabel.setText(f"{self.name} 下载成功")
             self.infoBar.closeButton.click()
 
-            self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "下载", f"资源 {f.splitPath(self.name)} 下载成功", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent)
+            self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "下载", f"资源 {f.splitPath(self.name)} 下载成功！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent)
             self.infoBar.show()
             self.button1 = PushButton("打开目录", self.parent, FIF.FOLDER)
             self.button1.clicked.connect(self.button1Clicked)
@@ -164,7 +164,7 @@ class UpdateModWidget(QWidget):
                 self.infoBar.closeButton.click()
             except:
                 self.thread1.cancel()
-            self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", "下载失败", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent)
+            self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", "下载失败！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent)
             self.infoBar.show()
 
     def button1Clicked(self):
@@ -201,12 +201,12 @@ class MinecraftPathSettingCard(SettingCard):
     def saveSetting(self, path: str):
         if mc.isMinecraftPath(path):
             setting.save("minecraftJavaPath", path)
-            self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "成功", f"您选择的目录保存成功！\n{path}", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+            self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "成功", f"您选择的目录保存成功！\n{path}", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent().parent())
             self.infoBar.show()
             self.contentLabel.setText(f"当前路径：{path}")
             mc.FILE_DOWNLOAD_PATH = setting.read("minecraftJavaPath")
         else:
-            self.infoBar = InfoBar(InfoBarIcon.WARNING, "警告", "您选择的目录无效！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+            self.infoBar = InfoBar(InfoBarIcon.WARNING, "警告", "您选择的目录无效！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent().parent())
             self.infoBar.show()
             self.contentLabel.setText(f"当前路径：{setting.read("minecraftJavaPath")}")
 
@@ -996,7 +996,7 @@ class ModManageTab(ResourceManageTab):
         self.progressBar.setValue(0)
         self.progressBar.setMinimumWidth(200)
 
-        self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"正在通过{self.comboBox2_1.currentText()}检查资源在{self.comboBox2_2.currentText()}{self.comboBox2_3.currentText()}的更新", Qt.Orientation.Vertical, False, -1, InfoBarPosition.TOP_RIGHT, self)
+        self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"正在通过{self.comboBox2_1.currentText()}检查模组在{self.comboBox2_2.currentText()}{self.comboBox2_3.currentText()}的更新！", Qt.Orientation.Vertical, False, -1, InfoBarPosition.TOP_RIGHT, self.parent())
         self.infoBar.addWidget(self.progressBar)
         self.infoBar.show()
 
@@ -1022,7 +1022,7 @@ class ModManageTab(ResourceManageTab):
         list1 = sorted(list1, key=lambda x: x[0]["名称"])
         self.infoBar.isClosable = True
         self.infoBar.closeButton.click()
-        self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"有{len(list1)}个资源在{self.comboBox2_2.currentText()}{self.comboBox2_3.currentText()}有新版本", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self)
+        self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"有{len(list1)}个模组在{self.comboBox2_2.currentText()}{self.comboBox2_3.currentText()}有新版本！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent())
         self.infoBar.show()
         if len(list1) > 0:
             self.modUpdateMessageBox = ModUpdateMessageBox("资源更新", list1, f.pathJoin(self.data["路径"], mc.FILE_PATH["模组"]), self)
@@ -1039,7 +1039,7 @@ class ModManageTab(ResourceManageTab):
         if not msg:
             self.infoBar.isClosable = True
             self.infoBar.closeButton.click()
-            self.infoBar = InfoBar(InfoBarIcon.WARNING, "错误", f"检查更新失败", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self)
+            self.infoBar = InfoBar(InfoBarIcon.WARNING, "错误", "检查更新失败！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent())
             self.infoBar.show()
 
         self.updateButton.setEnabled(True)
@@ -1159,7 +1159,7 @@ class ResourcePackManageTab(ResourceManageTab):
         self.progressBar.setValue(0)
         self.progressBar.setMinimumWidth(200)
 
-        self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"正在通过{self.comboBox2_1.currentText()}检查资源在{self.comboBox2_2.currentText()}的更新", Qt.Orientation.Vertical, False, -1, InfoBarPosition.TOP_RIGHT, self)
+        self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"正在通过{self.comboBox2_1.currentText()}检查资源包在{self.comboBox2_2.currentText()}的更新！", Qt.Orientation.Vertical, False, -1, InfoBarPosition.TOP_RIGHT, self.parent())
         self.infoBar.addWidget(self.progressBar)
         self.infoBar.show()
 
@@ -1185,7 +1185,7 @@ class ResourcePackManageTab(ResourceManageTab):
         list1 = sorted(list1, key=lambda x: x[0]["名称"])
         self.infoBar.isClosable = True
         self.infoBar.closeButton.click()
-        self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"有{len(list1)}个资源在{self.comboBox2_2.currentText()}有新版本", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self)
+        self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"有{len(list1)}个资源包在{self.comboBox2_2.currentText()}有新版本！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent())
         self.infoBar.show()
         if len(list1) > 0:
             self.modUpdateMessageBox = ModUpdateMessageBox("资源更新", list1, f.pathJoin(self.data["路径"], mc.FILE_PATH["资源包"]), self)
@@ -1200,7 +1200,7 @@ class ResourcePackManageTab(ResourceManageTab):
         if not msg:
             self.infoBar.isClosable = True
             self.infoBar.closeButton.click()
-            self.infoBar = InfoBar(InfoBarIcon.WARNING, "错误", f"检查更新失败", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self)
+            self.infoBar = InfoBar(InfoBarIcon.WARNING, "错误", "检查更新失败！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent())
             self.infoBar.show()
 
         self.updateButton.setEnabled(True)
@@ -1318,7 +1318,7 @@ class ShaderPackManageTab(ResourceManageTab):
         self.progressBar.setValue(0)
         self.progressBar.setMinimumWidth(200)
 
-        self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"正在通过{self.comboBox2_1.currentText()}检查资源在{self.comboBox2_2.currentText()}的更新", Qt.Orientation.Vertical, False, -1, InfoBarPosition.TOP_RIGHT, self)
+        self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"正在通过{self.comboBox2_1.currentText()}检查光影包在{self.comboBox2_2.currentText()}的更新！", Qt.Orientation.Vertical, False, -1, InfoBarPosition.TOP_RIGHT, self.parent())
         self.infoBar.addWidget(self.progressBar)
         self.infoBar.show()
 
@@ -1344,7 +1344,7 @@ class ShaderPackManageTab(ResourceManageTab):
         list1 = sorted(list1, key=lambda x: x[0]["名称"])
         self.infoBar.isClosable = True
         self.infoBar.closeButton.click()
-        self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"有{len(list1)}个资源在{self.comboBox2_2.currentText()}有新版本", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self)
+        self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"有{len(list1)}个光影包在{self.comboBox2_2.currentText()}有新版本！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent())
         self.infoBar.show()
         if len(list1) > 0:
             self.modUpdateMessageBox = ModUpdateMessageBox("资源更新", list1, f.pathJoin(self.data["路径"], mc.FILE_PATH["光影包"]), self)
@@ -1359,7 +1359,7 @@ class ShaderPackManageTab(ResourceManageTab):
         if not msg:
             self.infoBar.isClosable = True
             self.infoBar.closeButton.click()
-            self.infoBar = InfoBar(InfoBarIcon.WARNING, "错误", f"检查更新失败", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self)
+            self.infoBar = InfoBar(InfoBarIcon.WARNING, "错误", "检查更新失败！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent())
             self.infoBar.show()
 
         self.updateButton.setEnabled(True)
@@ -1523,7 +1523,7 @@ class SearchTab(BasicTab):
     def searchButtonClicked(self):
         if self.comboBox1.currentText() == "Modrinth":
             if self.comboBox3.currentText() not in mc.MODRINTH_TYPE.keys():
-                self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"{self.comboBox1.currentText()}不支持搜索{self.comboBox3.currentText()}类资源", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+                self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"{self.comboBox1.currentText()}不支持搜索{self.comboBox3.currentText()}类资源！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent().parent())
                 self.infoBar.show()
                 return
         self.cardGroup1.deleteLater()
