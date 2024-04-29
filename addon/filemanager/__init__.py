@@ -163,7 +163,6 @@ class SortFunctions:
         """
         清空回收站
         """
-        import winshell
         try:
             winshell.recycle_bin().empty(confirm=False, show_progress=False, sound=False)
             logging.debug("成功清空回收站")

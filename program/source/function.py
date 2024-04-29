@@ -9,6 +9,7 @@ import time
 import requests
 import bs4
 import lxml
+import winshell
 from send2trash import *
 from traceback import format_exception
 from PyQt5 import *
@@ -734,10 +735,6 @@ class FileFunctions(ProcessFunctions):
         if self.existPath(old):
             self.delete(old)
 
-
-
-
-
     def clearDir(self, path: str):
         """
         清空文件夹（无法删除则跳过）
@@ -749,10 +746,6 @@ class FileFunctions(ProcessFunctions):
             for i in self.walkFile(path, 1):
                 self.delete(i)
 
-
-
-
-
     def clearProgramCache(self):
         """
         清理本软件缓存
@@ -762,8 +755,6 @@ class FileFunctions(ProcessFunctions):
             self.clearDir(f.pathJoin(program.DATA_PATH, "cache"))
         except:
             pass
-
-
 
     def showFile(self, path: str):
         """
