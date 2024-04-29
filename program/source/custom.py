@@ -187,6 +187,27 @@ class ChangeableTab(BasicTab):
             self.onShowPage.hide()
 
 
+class InfoBar(InfoBar):
+    """ 基于Pyside6-Fluent-Widget同名称组件修改，修复了主窗口关闭时异常退出的问题 """
+
+    def __init__(self, icon: InfoBarIcon | FluentIconBase | QIcon | str, title: str, content: str,
+                 orient=Qt.Horizontal, isClosable=True, duration=1000, position=InfoBarPosition.TOP_RIGHT,
+                 parent=None):
+        super().__init__(icon, title, content, orient, isClosable, duration, position, parent)
+
+    def __fadeOut(self):
+        """ fade out """
+        self.opacityAni.setDuration(200)
+        self.opacityAni.setStartValue(1)
+        self.opacityAni.setEndValue(0)
+        self.opacityAni.finished.connect(self.close)
+        self.opacityAni.start()
+
+    def close(self):
+        self.hide()
+        self.closedSignal.emit()
+        self.deleteLater()
+
 class FixedExpandLayout(QLayout):
     """ 基于Pyside6-Fluent-Widget同名称组件修改，修复了无法遍历组件的问题 """
 

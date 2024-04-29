@@ -12,7 +12,8 @@ class MainPage(BasicTab):
         super().__init__(parent=parent)
         self.setIcon(FIF.HOME)
 
-        # self.titleImage = Image("logo.png", "https://ianzb.github.io/project/img/program.png", self, False)
+        self.titleImage = Image("logo.png", "https://ianzb.github.io/project/img/program.png", self, False)
+        self.titleImage.setFixedSize(410, 135)
         self.card1 = IntroductionCard(self)
         self.card1.setTitle(f"欢迎使用")
         self.card1.setText(f"一款基于Python的Windows多功能工具箱！")
@@ -20,7 +21,7 @@ class MainPage(BasicTab):
 
         self.card2 = IntroductionCard(self)
         self.card2.setTitle("插件功能")
-        self.card2.setText(f"选择并安装你需要的插件，享受更多功能！")
+        self.card2.setText(f"选择并安装你需要的插件，享受程序功能！")
         self.card2.setImg("Ianzb.png", "https://vip.123pan.cn/1813801926/%E8%B5%84%E6%BA%90/%E4%B8%AA%E4%BA%BA/%E5%A4%B4%E5%83%8F/png/%E5%A4%B4%E5%83%8F%E9%AB%98%E6%B8%85%E9%80%8F%E6%98%8E.png")
 
         self.card3 = IntroductionCard(self)
@@ -34,11 +35,13 @@ class MainPage(BasicTab):
         self.flowLayout.addWidget(self.card2)
         self.flowLayout.addWidget(self.card3)
 
-        # self.vBoxLayout.addWidget(self.titleImage,  Qt.AlignTop)
-        self.vBoxLayout.addLayout(self.flowLayout, Qt.AlignTop)
+        self.vBoxLayout.addWidget(self.titleImage, 0, Qt.AlignCenter)
+        self.vBoxLayout.addLayout(self.flowLayout, Qt.AlignCenter)
 
+        self.cardGroup1 = CardGroup(self)
         self.addonSettingCard = AddonSettingCard(self)
-        self.vBoxLayout.addWidget(self.addonSettingCard, 0, Qt.AlignTop)
+        self.cardGroup1.addWidget(self.addonSettingCard)
+        self.vBoxLayout.addWidget(self.cardGroup1)
 
 
 class SettingPage(BasicPage):
@@ -52,9 +55,9 @@ class SettingPage(BasicPage):
         super().__init__(parent=parent)
         self.setIcon(FIF.SETTING)
 
-        self.cardGroup2 = CardGroup("外观", self)
-        self.cardGroup3 = CardGroup("行为", self)
-        self.cardGroup4 = CardGroup("功能", self)
+        self.cardGroup1 = CardGroup("外观", self)
+        self.cardGroup2 = CardGroup("行为", self)
+        self.cardGroup3 = CardGroup("功能", self)
 
         self.themeSettingCard = ThemeSettingCard(self)
         self.colorSettingCard = ColorSettingCard(self)
@@ -66,19 +69,19 @@ class SettingPage(BasicPage):
 
         self.downloadSettingCard = DownloadSettingCard(self)
 
-        self.cardGroup2.addWidget(self.themeSettingCard)
-        self.cardGroup2.addWidget(self.colorSettingCard)
-        self.cardGroup2.addWidget(self.micaEffectSettingCard)
+        self.cardGroup1.addWidget(self.themeSettingCard)
+        self.cardGroup1.addWidget(self.colorSettingCard)
+        self.cardGroup1.addWidget(self.micaEffectSettingCard)
 
-        self.cardGroup3.addWidget(self.startupSettingCard)
-        self.cardGroup3.addWidget(self.traySettingCard)
-        self.cardGroup3.addWidget(self.hideSettingCard)
+        self.cardGroup2.addWidget(self.startupSettingCard)
+        self.cardGroup2.addWidget(self.traySettingCard)
+        self.cardGroup2.addWidget(self.hideSettingCard)
 
-        self.cardGroup4.addWidget(self.downloadSettingCard)
+        self.cardGroup3.addWidget(self.downloadSettingCard)
 
+        self.vBoxLayout.addWidget(self.cardGroup1, 0, Qt.AlignTop)
         self.vBoxLayout.addWidget(self.cardGroup2, 0, Qt.AlignTop)
         self.vBoxLayout.addWidget(self.cardGroup3, 0, Qt.AlignTop)
-        self.vBoxLayout.addWidget(self.cardGroup4, 0, Qt.AlignTop)
 
         if not (program.WINDOWS_VERSION[0] >= 10 and program.WINDOWS_VERSION[2] >= 22000):
             self.micaEffectSettingCard.hide()
