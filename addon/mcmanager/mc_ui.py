@@ -329,6 +329,7 @@ class VersionsManageTab(BasicTab):
 
     def threadEvent1_1(self, msg):
         mc.RELEASE_VERSIONS = msg
+        mc.versionUpdateSignal.emit()
         self.loadingCard.hide()
 
     def threadEvent1_2(self, msg):
@@ -369,6 +370,7 @@ class VersionsManageTab(BasicTab):
             parent=self,
             isClosable=True
         )
+
     def loadPage(self):
         mc.FILE_DOWNLOAD_PATH = setting.read("minecraftJavaPath")
         self.cardGroup1.clearWidget()
@@ -951,6 +953,14 @@ class ModManageTab(ResourceManageTab):
         self.cardGroup = CardGroup("模组", self)
         self.vBoxLayout.addWidget(self.cardGroup)
 
+        mc.versionUpdateSignal.connect(self.versionUpdateEvent)
+
+    def versionUpdateEvent(self):
+        data = self.comboBox2_2.currentText()
+        self.comboBox2_2.items.clear()
+        self.comboBox2_2.addItems(mc.RELEASE_VERSIONS)
+        self.comboBox2_2.setCurrentText(data)
+
     def downloadButtonClicked(self):
         self.parent().page["搜索"].lastPage = "模组"
         self.parent().page["搜索"].comboBox2.setCurrentText(self.data["游戏版本"])
@@ -1034,7 +1044,6 @@ class ModManageTab(ResourceManageTab):
         self.comboBox2_3.setEnabled(self.switchButton.isChecked())
         self.switchButton.setEnabled(True)
 
-
     def threadEvent3_2(self, msg):
         if not msg:
             self.infoBar.isClosable = True
@@ -1047,7 +1056,6 @@ class ModManageTab(ResourceManageTab):
         self.comboBox2_2.setEnabled(self.switchButton.isChecked())
         self.comboBox2_3.setEnabled(self.switchButton.isChecked())
         self.switchButton.setEnabled(True)
-
 
     def threadEvent3_3(self, msg):
         try:
@@ -1119,6 +1127,14 @@ class ResourcePackManageTab(ResourceManageTab):
         self.grayCard2.addWidget(self.switchButton, alignment=Qt.AlignCenter)
 
         self.vBoxLayout.insertWidget(1, self.grayCard2)
+
+        mc.versionUpdateSignal.connect(self.versionUpdateEvent)
+
+    def versionUpdateEvent(self):
+        data = self.comboBox2_2.currentText()
+        self.comboBox2_2.items.clear()
+        self.comboBox2_2.addItems(mc.RELEASE_VERSIONS)
+        self.comboBox2_2.setCurrentText(data)
 
     def downloadButtonClicked(self):
         self.parent().page["搜索"].lastPage = "资源包"
@@ -1278,6 +1294,14 @@ class ShaderPackManageTab(ResourceManageTab):
         self.grayCard2.addWidget(self.switchButton, alignment=Qt.AlignCenter)
 
         self.vBoxLayout.insertWidget(1, self.grayCard2)
+
+        mc.versionUpdateSignal.connect(self.versionUpdateEvent)
+
+    def versionUpdateEvent(self):
+        data = self.comboBox2_2.currentText()
+        self.comboBox2_2.items.clear()
+        self.comboBox2_2.addItems(mc.RELEASE_VERSIONS)
+        self.comboBox2_2.setCurrentText(data)
 
     def downloadButtonClicked(self):
         self.parent().page["搜索"].lastPage = "光影包"
@@ -1504,6 +1528,8 @@ class SearchTab(BasicTab):
         self.cardGroup1 = CardGroup(self.view)
         self.vBoxLayout.addWidget(self.cardGroup1)
 
+        mc.versionUpdateSignal.connect(self.versionUpdateEvent)
+
     def backButtonClicked(self):
         self.parent().page[self.lastPage].loadPage()
         self.parent().showPage(self.lastPage)
@@ -1513,9 +1539,13 @@ class SearchTab(BasicTab):
             self.isInit = True
             self.lineEdit.searchButton.click()
             self.comboBox2.currentIndexChanged.disconnect(self.searchButtonClicked)
-            self.comboBox2.items.clear()
-            self.comboBox2.addItems(["全部"] + mc.RELEASE_VERSIONS)
-            self.comboBox2.currentIndexChanged.connect(self.searchButtonClicked)
+
+    def versionUpdateEvent(self):
+        data = self.comboBox2.currentText()
+        self.comboBox2.items.clear()
+        self.comboBox2.addItems(["全部"] + mc.RELEASE_VERSIONS)
+        self.comboBox2.setCurrentText(data)
+        self.comboBox2.currentIndexChanged.connect(self.searchButtonClicked)
 
     def lineEditReturnPressed(self):
         self.lineEdit.searchButton.click()

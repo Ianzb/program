@@ -9,10 +9,11 @@ except:
     pass
 
 
-class MinecraftFunctions:
+class MinecraftFunctions(QWidget):
     """
     Minecraft函数
     """
+    versionUpdateSignal = pyqtSignal()
     FILE_DOWNLOAD_PATH = setting.read("minecraftJavaPath")  # 游戏文件下载根路径
     FILE_PATH = {
         "模组": "mods",
@@ -116,6 +117,7 @@ class MinecraftFunctions:
     MODRINTH_LOADER_REVERSE = dict([val, key] for key, val in MODRINTH_LOADER.items())  # 通用模组加载器全称简称映射表-id为键
 
     def __init__(self):
+        super().__init__()
         setting.add("minecraftJavaPath", f.pathJoin(program.USER_PATH, r"AppData\Roaming\.minecraft"))
 
     def getVersionList(self, version_type: str = "release"):
