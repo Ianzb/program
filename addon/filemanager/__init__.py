@@ -536,12 +536,13 @@ class AddonPage(BasicTab):
         self.vBoxLayout.addWidget(self.card2, 0, Qt.AlignTop)
         self.vBoxLayout.addWidget(self.cardGroup1, 0, Qt.AlignTop)
 
+        self.trayMenu = self.parent().tray.menu
         self.trayAction = Action(FIF.ALIGNMENT, "整理", triggered=self.action2Clicked)
-        self.parent().tray.menu.insertAction(self.parent().tray.action2, self.trayAction)
+        self.trayMenu.insertAction(self.parent().tray.action2, self.trayAction)
         self.signalBool.connect(self.trayEvent)
 
     def deleteLater(self):
-        self.parent().tray.menu.removeAction(self.trayAction)
+        self.trayMenu.removeAction(self.trayAction)
         super().deleteLater()
 
     def action2Clicked(self):
