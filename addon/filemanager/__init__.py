@@ -538,13 +538,17 @@ class AddonPage(BasicTab):
 
         self.trayAction = Action(FIF.ALIGNMENT, "整理", triggered=self.action2Clicked)
         self.parent().tray.menu.insertAction(self.parent().tray.action2, self.trayAction)
-        self.signalBool.connect(self.trayEventt)
+        self.signalBool.connect(self.trayEvent)
+
+    def deleteLater(self):
+        self.parent().tray.menu.removeAction(self.trayAction)
+        super().deleteLater()
 
     def action2Clicked(self):
         self.trayAction.setEnabled(False)
         self.button1_1.click()
 
-    def trayEventt(self, msg):
+    def trayEvent(self, msg):
         self.trayAction.setEnabled(msg)
 
     def button1_1Clicked(self):
