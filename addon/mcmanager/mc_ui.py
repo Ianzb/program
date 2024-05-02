@@ -1528,6 +1528,8 @@ class SearchTab(BasicTab):
         self.cardGroup1 = CardGroup(self.view)
         self.vBoxLayout.addWidget(self.cardGroup1)
 
+        self.thread1 = AddonThread("搜索资源")
+
         mc.versionUpdateSignal.connect(self.versionUpdateEvent)
 
     def backButtonClicked(self):
@@ -1551,11 +1553,12 @@ class SearchTab(BasicTab):
         self.lineEdit.searchButton.click()
 
     def searchButtonClicked(self):
+        self.thread1.terminate()
         if self.comboBox1.currentText() == "Modrinth":
             if self.comboBox3.currentText() not in mc.MODRINTH_TYPE.keys():
-                self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"{self.comboBox1.currentText()}不支持搜索{self.comboBox3.currentText()}类资源！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent().parent())
+                self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"{self.comboBox1.currentText()}不支持搜索{self.comboBox3.currentText()}类资源！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent())
                 self.infoBar.show()
-                return
+                self.comboBox1.setCurrentIndex(0)
         self.cardGroup1.deleteLater()
         self.cardGroup1 = CardGroup(self.view)
         self.vBoxLayout.addWidget(self.cardGroup1)
@@ -1569,7 +1572,7 @@ class SearchTab(BasicTab):
         self.loadingCard.setText("搜索中...")
         self.loadingCard.show()
 
-        self.thread1 = AddonThread("搜索资源", [self.lineEdit.text(), self.comboBox1.currentText(), self.comboBox2.currentText(), self.comboBox3.currentText()])
+        self.thread1.data = [self.lineEdit.text(), self.comboBox1.currentText(), self.comboBox2.currentText(), self.comboBox3.currentText()]
         self.thread1.signalList.connect(self.threadEvent1_1)
         self.thread1.signalBool.connect(self.threadEvent1_2)
         self.thread1.start()
