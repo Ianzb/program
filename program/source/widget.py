@@ -146,13 +146,11 @@ class AddonSettingCard(SettingCard):
         self.button1.clicked.connect(self.button1Clicked)
         self.button1.setToolTip("手动导入程序插件")
         self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
-        self.button1.setEnabled(program.isEXE)
 
         self.button2 = PushButton("管理", self, FIF.EDIT)
         self.button2.clicked.connect(self.button2Clicked)
         self.button2.setToolTip("管理程序插件")
         self.button2.installEventFilter(ToolTipFilter(self.button1, 1000))
-        self.button2.setEnabled(program.isEXE)
 
         self.hBoxLayout.addWidget(self.progressBarLoading, Qt.AlignRight)
         self.hBoxLayout.addSpacing(8)

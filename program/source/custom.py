@@ -81,6 +81,7 @@ class BasicPage(BetterScrollArea):
     """
     title = ""
     subtitle = ""
+    pageIcon = None
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
@@ -90,10 +91,11 @@ class BasicPage(BetterScrollArea):
 
         self.setViewportMargins(0, self.toolBar.height(), 0, 0)
 
-        self.icon = None
-
     def setIcon(self, icon):
-        self.icon = icon
+        self.pageIcon = icon
+
+    def icon(self):
+        return self.pageIcon
 
 
 class BasicTabPage(BasicPage):
@@ -207,6 +209,7 @@ class InfoBar(InfoBar):
         self.hide()
         self.closedSignal.emit()
         self.deleteLater()
+
 
 class FixedExpandLayout(QLayout):
     """ 基于Pyside6-Fluent-Widget同名称组件修改，修复了无法遍历组件的问题 """

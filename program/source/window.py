@@ -29,8 +29,7 @@ class MainPage(BasicTab):
         self.card3.setText(f"在Github Issue中提交使用过程中遇到的问题！")
         self.card3.setImg("Github.png", "https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png")
 
-        self.flowLayout = FlowLayout(needAni=True)
-        self.flowLayout.setAnimation(200)
+        self.flowLayout = FlowLayout()
         self.flowLayout.addWidget(self.card1)
         self.flowLayout.addWidget(self.card2)
         self.flowLayout.addWidget(self.card3)
@@ -232,7 +231,7 @@ class Window(FluentWindow, SignalBase):
         @param page: 页面对象
         @param pos: 位置top/scroll/bottom
         """
-        self.addSubInterface(page, page.icon, page.objectName(), eval(f"NavigationItemPosition.{pos.upper()}"))
+        return self.addSubInterface(page, page.icon(), page.objectName(), eval(f"NavigationItemPosition.{pos.upper()}"))
 
     def addSeparator(self, pos: str):
         """
@@ -244,7 +243,7 @@ class Window(FluentWindow, SignalBase):
     def addAddon(self, msg):
         """
         添加插件
-        @param data: 数据
+        @param msg: 数据
         """
         if "id" in msg.keys():
             self.__addAddon(msg)
@@ -255,7 +254,7 @@ class Window(FluentWindow, SignalBase):
     def removeAddon(self, msg):
         """
         移除插件
-        @param data: 数据
+        @param msg: 数据
         """
         if "id" in msg.keys():
             self.__removeAddon(msg)
@@ -268,29 +267,49 @@ class Window(FluentWindow, SignalBase):
         添加插件
         @param data: 数据
         """
-        sys.path = [program.ADDON_PATH] + sys.path
-        import importlib
+        sys.path.append(program.ADDON_PATH)
         try:
-            lib = importlib.import_module(data["id"])
-            lib = importlib.reload(lib)
-            self.page = lib.AddonPage(self)
-            self.page.setObjectName(data["name"])
-            self.navigationInterface.removeWidget(self.page.objectName())
-            self.addPage(self.page, "scroll")
+            if data["id"] in program.ADDON_IMPORT.keys():
+                self.navigationInterface.removeWidget(data["name"])
+                self.stackedWidget.view.removeWidget(program.ADDON_MAINPAGE[data["id"]])
+                program.ADDON_MAINPAGE[data["id"]].deleteLater()
+                del program.ADDON_IMPORT[data["id"]]
+                del program.ADDON_MAINPAGE[data["id"]]
+
+                self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{data["name"]}更新成功，重启程序生效！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.mainPage)
+                self.button1 = PushButton("重启", self, FIF.SYNC)
+                self.button1.clicked.connect(program.restart)
+                self.button1.setToolTip("重启程序")
+                self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
+                self.infoBar.addWidget(self.button1)
+                self.infoBar.show()
+
+            else:
+                program.ADDON_IMPORT[data["id"]] = importlib.import_module(data["id"])
+                program.ADDON_MAINPAGE[data["id"]] = program.ADDON_IMPORT[data["id"]].AddonPage(self)
+                program.ADDON_MAINPAGE[data["id"]].setObjectName(data["name"])
+                self.addPage(program.ADDON_MAINPAGE[data["id"]], "scroll")
+
+                self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{data["name"]}安装成功！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.mainPage)
+                self.infoBar.show()
             logging.warning(f"插件{data["name"]}安装成功")
-            self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{data["name"]}安装成功！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.mainPage)
-            self.infoBar.show()
         except Exception as ex:
-            logging.warning(f"插件{data["name"]}安装失败{ex}")
             self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", f"插件{data["name"]}安装失败{ex}！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.mainPage)
             self.infoBar.show()
+
+            logging.warning(f"插件{data["name"]}安装失败{ex}")
 
     def __removeAddon(self, data):
         """
         移除插件
         @param data: 数据
         """
-        self.navigationInterface.removeWidget(data["name"])
+        if data["id"] in program.ADDON_IMPORT.keys():
+            self.navigationInterface.removeWidget(data["name"])
+            self.stackedWidget.view.removeWidget(program.ADDON_MAINPAGE[data["id"]])
+            program.ADDON_MAINPAGE[data["id"]].deleteLater()
+            del program.ADDON_IMPORT[data["id"]]
+            del program.ADDON_MAINPAGE[data["id"]]
         f.cmd(f"del /F /Q /S {f.pathJoin(program.ADDON_PATH, data["id"])}", True)
         f.delete(f.pathJoin(program.ADDON_PATH, data["id"]))
         logging.info(f"插件{data["name"]}删除成功")
