@@ -1747,6 +1747,7 @@ class ResultTab(BasicTab):
 
         self.bigInfoCard.deleteLater()
         self.bigInfoCard = BigInfoCard(self)
+        self.bigInfoCard.titleLabel.setMaximumWidth(350)
         self.bigInfoCard.backButton.deleteLater()
         self.bigInfoCard.mainButton.deleteLater()
         self.bigInfoCard.setTitle(data["名称"])
