@@ -315,17 +315,22 @@ class VersionsManageTab(BasicTab):
         self.vBoxLayout.addWidget(self.grayCard1)
         self.vBoxLayout.addWidget(self.grayCard2)
 
-        self.loadPage()
 
         self.thread1 = AddonThread("获得游戏版本列表")
         self.thread1.signalList.connect(self.threadEvent1_1)
         self.thread1.signalBool.connect(self.threadEvent1_2)
-        self.thread1.start()
 
         self.loadingCard = LoadingCard(self)
-        self.loadingCard.setText("正在初始化...")
-
+        self.loadingCard.clicked.connect(self.thread1Run)
         self.vBoxLayout.addWidget(self.loadingCard, 0, Qt.AlignCenter)
+
+        self.loadPage()
+        self.thread1Run()
+
+    def thread1Run(self):
+        self.loadingCard.clicked.disconnect(self.thread1Run)
+        self.thread1.start()
+        self.loadingCard.setText("正在初始化...")
 
     def threadEvent1_1(self, msg):
         mc.RELEASE_VERSIONS = msg
@@ -335,6 +340,7 @@ class VersionsManageTab(BasicTab):
     def threadEvent1_2(self, msg):
         if not msg:
             self.loadingCard.setText("初始化失败！")
+            self.loadingCard.clicked.connect(self.thread1Run)
 
     def settingButtonClicked(self):
         self.parent().showPage("设置")
