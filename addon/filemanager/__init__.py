@@ -483,15 +483,15 @@ class SortSettingCard(SettingCard):
         self.hBoxLayout.addSpacing(16)
 
     def button1Clicked(self):
-        self.blackListMessageBox = BlackListEditMessageBox(self.parent().parent().parent().parent().parent().parent().parent())
+        self.blackListMessageBox = BlackListEditMessageBox(self.window())
         self.blackListMessageBox.show()
 
     def button2Clicked(self):
-        self.blackListMessageBox = SortFolderEditMessageBox(self.parent().parent().parent().parent().parent().parent().parent())
+        self.blackListMessageBox = SortFolderEditMessageBox(self.window())
         self.blackListMessageBox.show()
 
     def button3Clicked(self):
-        self.sortFormatMessageBox = SortFormatEditMessageBox(self.parent().parent().parent().parent().parent().parent().parent())
+        self.sortFormatMessageBox = SortFormatEditMessageBox(self.window())
         self.sortFormatMessageBox.show()
 
 

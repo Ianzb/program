@@ -35,7 +35,7 @@ def searchSoftware(name: str, source: str) -> list:
             data[i]["xmlInfo"] = xmlToJson(data[i]["xmlInfo"])
         for i in data:
             list.append({"名称": i["SoftName"],
-                         "图标": f"https://pc3.gtimg.com/softmgr/logo/48/{i['xmlInfo']['soft']['logo48']}",
+                         "图标": f"https://pc3.gtimg.com/softmgr/logo/48/{i["xmlInfo"]["soft"]["logo48"]}",
                          "介绍": i["xmlInfo"]["soft"]["feature"],
                          "当前版本": i["xmlInfo"]["soft"]["versionname"],
                          "更新日期": i["xmlInfo"]["soft"]["publishdate"],
@@ -52,7 +52,7 @@ def searchSoftware(name: str, source: str) -> list:
         data = json.loads(data)["data"]["list"]
         for i in data:
             list.append({"名称": i["softname"],
-                         "图标": i["logo"] if "https:" in i["logo"] else f"https:{i['logo']}",
+                         "图标": i["logo"] if "https:" in i["logo"] else f"https:{i["logo"]}",
                          "介绍": f.clearString(i["desc"]),
                          "当前版本": i["version"],
                          "更新日期": i["date"],
@@ -101,13 +101,13 @@ class AppInfoCard(SmallInfoCard):
         self.mainButton.setToolTip("下载软件")
         self.mainButton.installEventFilter(ToolTipFilter(self.mainButton, 1000))
 
-        self.setImg(f"{self.source}/{f.removeIllegalPath(self.data['名称'])}.png", self.data['图标'])
-        self.setTitle(f"{self.data['名称']}")
+        self.setImg(f"{self.source}/{f.removeIllegalPath(self.data["名称"])}.png", self.data["图标"])
+        self.setTitle(f"{self.data["名称"]}")
 
         self.setInfo(self.data["介绍"], 0)
         self.setInfo(self.data["文件大小"], 1)
-        self.setInfo(f"当前版本：{self.data['当前版本']}", 2)
-        self.setInfo(f"更新日期：{self.data['更新日期']}", 3)
+        self.setInfo(f"当前版本：{self.data["当前版本"]}", 2)
+        self.setInfo(f"更新日期：{self.data["更新日期"]}", 3)
 
     def mainButtonClicked(self):
         DownloadWidget(self.data["下载链接"], self.data["文件名称"], self.parent().parent().parent())
