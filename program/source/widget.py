@@ -106,12 +106,14 @@ class AddonEditMessageBox(MessageBoxBase):
                 if self.tableView.item(i, 3).text() == "加载中...":
                     self.tableView.setItem(i, 3, QTableWidgetItem("云端无数据"))
         else:
-            self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", f"无网络连接！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().mainPage)
+            self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", "无网络连接！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.window().mainPage)
             self.infoBar.show()
             for i in range(self.tableView.rowCount()):
                 self.tableView.setItem(i, 3, QTableWidgetItem("无网络连接"))
             self.yesButton.setEnabled(False)
-            self.removeButton.setEnabled(False)
+            self.removeButton.setEnabled(True)
+            self.titleLabel.setText("管理插件（无网络连接）")
+            return
         self.titleLabel.setText("管理插件")
         self.yesButton.setEnabled(True)
         self.removeButton.setEnabled(True)
@@ -124,11 +126,12 @@ class AddonEditMessageBox(MessageBoxBase):
         self.parent().addAddon(msg)
 
     def threadEvent2_2(self, msg):
-        if msg:
-            self.parent().mainPage.addonSettingCard.button1.setEnabled(True)
-            self.parent().mainPage.addonSettingCard.button2.setEnabled(True)
-            self.parent().mainPage.addonSettingCard.progressBarLoading.hide()
-
+        if not msg:
+            self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", f"无网络连接，插件下载失败！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.window().mainPage)
+            self.infoBar.show()
+        self.parent().mainPage.addonSettingCard.button1.setEnabled(True)
+        self.parent().mainPage.addonSettingCard.button2.setEnabled(True)
+        self.parent().mainPage.addonSettingCard.progressBarLoading.hide()
 
 class AddonSettingCard(SettingCard):
     """
@@ -163,10 +166,11 @@ class AddonSettingCard(SettingCard):
     def button1Clicked(self):
         get = QFileDialog.getOpenFileUrl(self, "选择插件文件", QUrl(""), "zb小程序插件 (*.zbaddon);;压缩包 (*.zip)")[0]
         get = f.pathJoin(get.path()[1:])
-        self.importAddon(get)
+        if get and get not in ["."]:
+            self.importAddon(get)
 
     def button2Clicked(self):
-        self.addonEditMessageBox = AddonEditMessageBox("加载中...", self.parent().parent().parent().parent().parent().parent().parent())
+        self.addonEditMessageBox = AddonEditMessageBox("加载中...", self.window())
         self.addonEditMessageBox.show()
 
     def dragEnterEvent(self, event):
@@ -189,7 +193,7 @@ class AddonSettingCard(SettingCard):
         if not f.existPath(path):
             return
         id = f.importAddon(path)
-        self.parent().parent().parent().parent().parent().parent().parent().addAddon(id)
+        self.window().addAddon(id)
 
 
 class ThemeSettingCard(ExpandSettingCard):
@@ -379,7 +383,7 @@ class MicaEffectSettingCard(SettingCard):
 
     def button1Clicked(self):
         setting.save("micaEffect", self.button1.checked)
-        self.parent().parent().parent().parent().parent().parent().parent().setMicaEffectEnabled(self.button1.checked)
+        self.window().setMicaEffectEnabled(self.button1.checked)
 
 
 class StartupSettingCard(SettingCard):
@@ -444,7 +448,7 @@ class TraySettingCard(SettingCard):
 
     def button1Clicked(self):
         setting.save("showTray", self.button1.checked)
-        self.parent().parent().parent().parent().parent().parent().parent().tray.setVisible(self.button1.checked)
+        self.window().tray.setVisible(self.button1.checked)
 
 
 class HideSettingCard(SettingCard):
@@ -535,7 +539,7 @@ class UpdateSettingCard(SettingCard):
         self.thread1.start()
 
     def threadEvent1_1(self, msg):
-        self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", f"检测到新版本{msg}！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+        self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", f"检测到新版本{msg}！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.window().aboutPage)
 
         self.button2 = PushButton("立刻更新", self, FIF.DOWNLOAD)
         self.button2.clicked.connect(self.button2Clicked)
@@ -547,9 +551,9 @@ class UpdateSettingCard(SettingCard):
 
     def threadEvent1_2(self, msg):
         if msg:
-            self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"{program.VERSION}已为最新版本！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+            self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"{program.VERSION}已为最新版本！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.window().aboutPage)
         else:
-            self.infoBar = InfoBar(InfoBarIcon.WARNING, "警告", "网络连接失败，无法检查程序更新！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+            self.infoBar = InfoBar(InfoBarIcon.WARNING, "警告", "网络连接失败，无法检查程序更新！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.window().aboutPage)
         self.infoBar.show()
 
         self.button1.setEnabled(True)
@@ -557,7 +561,7 @@ class UpdateSettingCard(SettingCard):
     def button2Clicked(self):
         self.infoBar.close()
         f.delete(program.cache("zbProgramUpdate.exe"))
-        self.download = DownloadWidget(program.UPDATE_INSTALLER_URL, program.cache("zbProgramUpdate.exe"), self.parent().parent().parent().parent())
+        self.download = DownloadWidget(program.UPDATE_INSTALLER_URL, program.cache("zbProgramUpdate.exe"), self.window().aboutPage)
         self.download.signalBool.connect(self.updateProgram)
 
     def updateProgram(self, msg):
@@ -603,10 +607,10 @@ class HelpSettingCard(SettingCard):
         self.button3.setEnabled(True)
 
         if msg:
-            self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", "清理程序缓存成功！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+            self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", "清理程序缓存成功！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.window().aboutPage)
             self.infoBar.show()
         else:
-            self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", "清理程序缓存失败！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+            self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", "清理程序缓存失败！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.window().aboutPage)
             self.infoBar.show()
 
 
@@ -646,7 +650,7 @@ class ControlSettingCard(SettingCard):
     def button1Clicked(self):
         self.button4 = PushButton("确认", self, FIF.SEND)
         self.button4.clicked.connect(setting.reset)
-        self.infoBar = InfoBar(InfoBarIcon.WARNING, "警告", "是否确认重置设置？该操作不可撤销！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.parent().parent().parent().parent())
+        self.infoBar = InfoBar(InfoBarIcon.WARNING, "警告", "是否确认重置设置？该操作不可撤销！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.window().aboutPage)
         self.infoBar.addWidget(self.button4)
         self.infoBar.show()
 

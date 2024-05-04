@@ -90,6 +90,7 @@ class CustomThread(QThread, SignalBase):
                 self.signalBool.emit(True)
             except Exception as ex:
                 logging.warning(f"插件下载失败{ex}")
+                self.signalBool.emit(False)
         elif self.mode == "云端插件信息":
             try:
                 data = f.getAddonDict()

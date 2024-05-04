@@ -283,7 +283,6 @@ class Window(FluentWindow, SignalBase):
                 self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
                 self.infoBar.addWidget(self.button1)
                 self.infoBar.show()
-
             else:
                 program.ADDON_IMPORT[data["id"]] = importlib.import_module(data["id"])
                 program.ADDON_MAINPAGE[data["id"]] = program.ADDON_IMPORT[data["id"]].AddonPage(self)
