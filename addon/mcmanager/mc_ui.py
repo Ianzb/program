@@ -698,7 +698,7 @@ class FileInfoMessageBox(MessageBoxBase):
     def threadEvent1(self, msg):
         self.data = msg
 
-        self.thread2.data = msg
+        self.thread2 = AddonThread("从文件获得模组信息", msg)
         self.thread2.signalList.connect(self.threadEvent2)
         self.thread2.start()
         self.hBoxLayout2 = QHBoxLayout(self)
@@ -1578,7 +1578,7 @@ class SearchTab(BasicTab):
         self.loadingCard.setText("搜索中...")
         self.loadingCard.show()
 
-        self.thread1.data = [self.lineEdit.text(), self.comboBox1.currentText(), self.comboBox2.currentText(), self.comboBox3.currentText()]
+        self.thread1 = AddonThread("搜索资源", [self.lineEdit.text(), self.comboBox1.currentText(), self.comboBox2.currentText(), self.comboBox3.currentText()])
         self.thread1.signalList.connect(self.threadEvent1_1)
         self.thread1.signalBool.connect(self.threadEvent1_2)
         self.thread1.start()
