@@ -8,6 +8,8 @@ try:
 except:
     pass
 
+setting.add("minecraftJavaPath", f.pathJoin(program.USER_PATH, r"AppData\Roaming\.minecraft"))
+
 
 class MinecraftFunctions(QWidget):
     """
@@ -118,7 +120,6 @@ class MinecraftFunctions(QWidget):
 
     def __init__(self):
         super().__init__()
-        setting.add("minecraftJavaPath", f.pathJoin(program.USER_PATH, r"AppData\Roaming\.minecraft"))
 
     def getVersionList(self, version_type: str = "release"):
         """
@@ -139,7 +140,8 @@ class MinecraftFunctions(QWidget):
         except:
             return RELEASE_VERSIONS
 
-    def searchMod(self, name: str, source: str = "CurseForge", version: str = "", page: int = 1, type: str = "模组") -> list:
+    def searchMod(self, name: str, source: str = "CurseForge", version: str = "", page: int = 1,
+                  type: str = "模组") -> list:
         """
         搜索模组
         @param name: 名称
@@ -153,7 +155,9 @@ class MinecraftFunctions(QWidget):
 
         if source == "Modrinth":
             version = f',["versions:{version}"]' if version not in ["全部", "", None] else ""
-            data = f.requestGet(f'https://api.modrinth.com/v2/search?query={name}&facets=[["project_type:{self.MODRINTH_TYPE[type]}"]{version}]&limit=50&offset={50 * (page - 1)}', program.REQUEST_HEADER)
+            data = f.requestGet(
+                f'https://api.modrinth.com/v2/search?query={name}&facets=[["project_type:{self.MODRINTH_TYPE[type]}"]{version}]&limit=50&offset={50 * (page - 1)}',
+                program.REQUEST_HEADER)
             if "hits" in json.loads(data):
                 data = json.loads(data)["hits"]
                 for i in data:
@@ -172,7 +176,9 @@ class MinecraftFunctions(QWidget):
         elif source == "CurseForge":
             version = f"&gameVersion={version}" if version != "全部" else ""
             name = f"&searchFilter={name}" if name else ""
-            data = f.requestGet(f"https://api.curseforge.com/v1/mods/search?gameId=432&classId={self.CURSEFORGE_TYPE[type]}{version}{name}&pageSize=50&sortOrder=desc&index={50 * (page - 1)}", self.CURSEFORGE_HEADER)
+            data = f.requestGet(
+                f"https://api.curseforge.com/v1/mods/search?gameId=432&classId={self.CURSEFORGE_TYPE[type]}{version}{name}&pageSize=50&sortOrder=desc&index={50 * (page - 1)}",
+                self.CURSEFORGE_HEADER)
             if "data" in json.loads(data):
                 data = json.loads(data)["data"]
                 for i in data:
@@ -181,7 +187,9 @@ class MinecraftFunctions(QWidget):
                                  "图标": i["logo"]["url"] if i["logo"] else "",
                                  "介绍": i["summary"],
                                  "下载量": i["downloadCount"],
-                                 "游戏版本": f.sortVersion([j for j in [k["gameVersion"] for k in i["latestFilesIndexes"]] if self.isRelease(j)]),
+                                 "游戏版本": f.sortVersion(
+                                     [j for j in [k["gameVersion"] for k in i["latestFilesIndexes"]] if
+                                      self.isRelease(j)]),
                                  "更新日期": i["dateReleased"].split("T")[0],
                                  "作者": i["authors"][0]["name"],
                                  "来源": "CurseForge",
@@ -212,7 +220,8 @@ class MinecraftFunctions(QWidget):
                 "更新日期": data["updated"].split("T")[0],
                 "来源": "Modrinth",
                 "源代码链接": data["source_url"],
-                "加载器": [(self.MODRINTH_LOADER_REVERSE[i] if i in self.MODRINTH_LOADER.values() else i) for i in data["loaders"]],
+                "加载器": [(self.MODRINTH_LOADER_REVERSE[i] if i in self.MODRINTH_LOADER.values() else i) for i in
+                           data["loaders"]],
                 "发布日期": data["published"].split("T")[0],
                 "网站链接": f"https://modrinth.com/mod/{data["slug"]}",
             })
@@ -225,7 +234,8 @@ class MinecraftFunctions(QWidget):
                 if "modLoader" in i.keys():
                     loader.append(i["modLoader"])
             loader = list(set(loader))
-            loader = [(self.CURSEFORGE_LOADER_REVERSE[i] if i in self.CURSEFORGE_LOADER.values() else i) for i in loader]
+            loader = [(self.CURSEFORGE_LOADER_REVERSE[i] if i in self.CURSEFORGE_LOADER.values() else i) for i in
+                      loader]
 
             dict.update({
                 "id": data["id"],
@@ -233,7 +243,8 @@ class MinecraftFunctions(QWidget):
                 "图标": data["logo"]["url"] if data["logo"] else "",
                 "介绍": data["summary"],
                 "下载量": data["downloadCount"],
-                "游戏版本": f.sortVersion([j for j in [k["gameVersion"] for k in data["latestFilesIndexes"]] if self.isRelease(j)]),
+                "游戏版本": f.sortVersion(
+                    [j for j in [k["gameVersion"] for k in data["latestFilesIndexes"]] if self.isRelease(j)]),
                 "更新日期": data["dateReleased"].split("T")[0],
                 "作者": data["authors"][0]["name"],
                 "来源": "CurseForge",
@@ -269,7 +280,8 @@ class MinecraftFunctions(QWidget):
                         "更新日期": i["updated"].split("T")[0],
                         "来源": "Modrinth",
                         "源代码链接": i["source_url"],
-                        "加载器": [(self.MODRINTH_LOADER_REVERSE[j] if j in self.MODRINTH_LOADER.values() else j) for j in i["loaders"]],
+                        "加载器": [(self.MODRINTH_LOADER_REVERSE[j] if j in self.MODRINTH_LOADER.values() else j) for j
+                                   in i["loaders"]],
                         "发布日期": i["published"].split("T")[0],
                         "网站链接": f"https://modrinth.com/mod/{i["slug"]}",
                     })
@@ -289,7 +301,8 @@ class MinecraftFunctions(QWidget):
                     if "modLoader" in k.keys():
                         loader.append(k["modLoader"])
                 loader = list(set(loader))
-                loader = [(self.CURSEFORGE_LOADER_REVERSE[i] if i in self.CURSEFORGE_LOADER.values() else i) for i in loader]
+                loader = [(self.CURSEFORGE_LOADER_REVERSE[i] if i in self.CURSEFORGE_LOADER.values() else i) for i in
+                          loader]
 
                 data.append({
                     "id": i["id"],
@@ -297,7 +310,8 @@ class MinecraftFunctions(QWidget):
                     "图标": i["logo"]["url"] if i["logo"] else "",
                     "介绍": i["summary"],
                     "下载量": i["downloadCount"],
-                    "游戏版本": f.sortVersion([j for j in [k["gameVersion"] for k in i["latestFilesIndexes"]] if self.isRelease(j)]),
+                    "游戏版本": f.sortVersion(
+                        [j for j in [k["gameVersion"] for k in i["latestFilesIndexes"]] if self.isRelease(j)]),
                     "更新日期": i["dateReleased"].split("T")[0],
                     "作者": i["authors"][0]["name"],
                     "来源": "CurseForge",
@@ -320,8 +334,10 @@ class MinecraftFunctions(QWidget):
         list1 = []
         if source == "Modrinth":
             version = f'&game_versions=["{version}"]' if version not in ["全部", "", None] else ""
-            loader = f'&loaders=["{self.MODRINTH_LOADER[loader] if loader in self.MODRINTH_LOADER.keys() else loader.lower()}"]' if loader not in ["全部", "", None] else ""
-            data = f.requestGet(f"https://api.modrinth.com/v2/project/{id}/version?a=0{version}{loader}", program.REQUEST_HEADER)
+            loader = f'&loaders=["{self.MODRINTH_LOADER[loader] if loader in self.MODRINTH_LOADER.keys() else loader.lower()}"]' if loader not in [
+                "全部", "", None] else ""
+            data = f.requestGet(f"https://api.modrinth.com/v2/project/{id}/version?a=0{version}{loader}",
+                                program.REQUEST_HEADER)
             data = json.loads(data)
             for i in data:
                 list1.append({
@@ -332,12 +348,14 @@ class MinecraftFunctions(QWidget):
                     "前置": [j["project_id"] for j in i["dependencies"] if j["dependency_type"] == "required"],
                     "游戏版本": f.sortVersion([j for j in i["game_versions"] if self.isRelease(j)]),
                     "版本类型": i["version_type"],
-                    "加载器": [(self.MODRINTH_LOADER_REVERSE[i] if i in self.MODRINTH_LOADER.values() else i) for i in i["loaders"]],
+                    "加载器": [(self.MODRINTH_LOADER_REVERSE[i] if i in self.MODRINTH_LOADER.values() else i) for i in
+                               i["loaders"]],
                     "下载量": i["downloads"],
                     "更新日期": i["date_published"].split("T")[0],
                     "来源": "Modrinth",
                     "哈希值": i["files"][0]["hashes"]["sha1"],
-                    "下载链接": i["files"][0]["url"].replace("edge.forgecdn.net", "mediafilez.forgecdn.net") if i["files"][0]["url"] else i["files"][0]["url"],
+                    "下载链接": i["files"][0]["url"].replace("edge.forgecdn.net", "mediafilez.forgecdn.net") if
+                    i["files"][0]["url"] else i["files"][0]["url"],
                     "文件名称": i["files"][0]["filename"],
                     "文件大小": i["files"][0]["size"],
                 })
@@ -346,8 +364,10 @@ class MinecraftFunctions(QWidget):
             if type(loader) == list:
                 loader = ""
             else:
-                loader = f"&modLoaderType={self.CURSEFORGE_LOADER[loader]}" if loader in self.CURSEFORGE_LOADER.keys() and loader not in ["全部", "", None] else ""
-            data = f.requestGet(f"https://api.curseforge.com/v1/mods/{id}/files?a=0{version}{loader}", self.CURSEFORGE_HEADER)
+                loader = f"&modLoaderType={self.CURSEFORGE_LOADER[loader]}" if loader in self.CURSEFORGE_LOADER.keys() and loader not in [
+                    "全部", "", None] else ""
+            data = f.requestGet(f"https://api.curseforge.com/v1/mods/{id}/files?a=0{version}{loader}",
+                                self.CURSEFORGE_HEADER)
             data = json.loads(data)["data"]
 
             for i in data:
@@ -359,12 +379,15 @@ class MinecraftFunctions(QWidget):
                     "前置": [j["modId"] for j in i["dependencies"] if j["relationType"] == 3],
                     "游戏版本": f.sortVersion([j for j in i["gameVersions"] if self.isRelease(j)]),
                     "版本类型": self.CURSEFORGE_VERSION_TYPE[i["releaseType"]],
-                    "加载器": [(self.MODRINTH_LOADER_REVERSE[j.lower()] if j.lower() in self.MODRINTH_LOADER.values() else j.lower()) for j in i["gameVersions"] if j in self.CURSEFORGE_LOADER.keys()],
+                    "加载器": [(self.MODRINTH_LOADER_REVERSE[
+                                    j.lower()] if j.lower() in self.MODRINTH_LOADER.values() else j.lower()) for j in
+                               i["gameVersions"] if j in self.CURSEFORGE_LOADER.keys()],
                     "下载量": i["downloadCount"],
                     "更新日期": i["fileDate"].split("T")[0],
                     "来源": "CurseForge",
                     "哈希值": i["fileFingerprint"],
-                    "下载链接": i["downloadUrl"].replace("edge.forgecdn.net", "mediafilez.forgecdn.net") if i["downloadUrl"] else i["downloadUrl"],
+                    "下载链接": i["downloadUrl"].replace("edge.forgecdn.net", "mediafilez.forgecdn.net") if i[
+                        "downloadUrl"] else i["downloadUrl"],
                     "文件名称": i["fileName"],
                     "文件大小": i["fileLength"],
                 })
@@ -434,12 +457,14 @@ class MinecraftFunctions(QWidget):
                     "前置": [j["project_id"] for j in i["dependencies"] if j["dependency_type"] == "required"],
                     "游戏版本": f.sortVersion([j for j in i["game_versions"] if self.isRelease(j)]),
                     "版本类型": i["version_type"],
-                    "加载器": [(self.MODRINTH_LOADER_REVERSE[j] if j in self.MODRINTH_LOADER.values() else j) for j in i["loaders"]],
+                    "加载器": [(self.MODRINTH_LOADER_REVERSE[j] if j in self.MODRINTH_LOADER.values() else j) for j in
+                               i["loaders"]],
                     "下载量": i["downloads"],
                     "更新日期": i["date_published"].split("T")[0],
                     "来源": "Modrinth",
                     "哈希值": i["files"][0]["hashes"]["sha1"],
-                    "下载链接": i["files"][0]["url"].replace("edge.forgecdn.net", "mediafilez.forgecdn.net") if i["files"][0]["url"] else i["files"][0]["url"],
+                    "下载链接": i["files"][0]["url"].replace("edge.forgecdn.net", "mediafilez.forgecdn.net") if
+                    i["files"][0]["url"] else i["files"][0]["url"],
                     "文件名称": i["files"][0]["filename"],
                     "文件大小": i["files"][0]["size"],
                     "源文件名称": hash_reverse[i["files"][0]["hashes"]["sha1"]],
@@ -461,7 +486,8 @@ class MinecraftFunctions(QWidget):
                 "fingerprints": list(hash.values())
             }
             hash_reverse = dict([val, key] for key, val in hash.items())
-            response = f.requestPost("https://api.curseforge.com/v1/fingerprints/432", post_info, self.CURSEFORGE_HEADER)
+            response = f.requestPost("https://api.curseforge.com/v1/fingerprints/432", post_info,
+                                     self.CURSEFORGE_HEADER)
             response = response.json()["data"]["exactMatches"]  # [0]["file"]
             data = []
             for i in response:
@@ -474,12 +500,15 @@ class MinecraftFunctions(QWidget):
                     "前置": [j["modId"] for j in i["dependencies"] if j["relationType"] == 3],
                     "游戏版本": f.sortVersion([j for j in i["gameVersions"] if self.isRelease(j)]),
                     "版本类型": self.CURSEFORGE_VERSION_TYPE[i["releaseType"]],
-                    "加载器": [(self.MODRINTH_LOADER_REVERSE[j.lower()] if j.lower() in self.MODRINTH_LOADER.values() else j.lower()) for j in i["gameVersions"] if j in self.CURSEFORGE_LOADER.keys()],
+                    "加载器": [(self.MODRINTH_LOADER_REVERSE[
+                                    j.lower()] if j.lower() in self.MODRINTH_LOADER.values() else j.lower()) for j in
+                               i["gameVersions"] if j in self.CURSEFORGE_LOADER.keys()],
                     "下载量": i["downloadCount"],
                     "更新日期": i["fileDate"].split("T")[0],
                     "来源": "CurseForge",
                     "哈希值": i["fileFingerprint"],
-                    "下载链接": i["downloadUrl"].replace("edge.forgecdn.net", "mediafilez.forgecdn.net") if i["downloadUrl"] else i["downloadUrl"],
+                    "下载链接": i["downloadUrl"].replace("edge.forgecdn.net", "mediafilez.forgecdn.net") if i[
+                        "downloadUrl"] else i["downloadUrl"],
                     "文件名称": i["fileName"],
                     "文件大小": i["fileLength"],
                     "源文件名称": hash_reverse[i["fileFingerprint"]],
@@ -519,7 +548,8 @@ class MinecraftFunctions(QWidget):
                 ]
             }
             hash_reverse = dict([val, key] for key, val in hash.items())
-            response = f.requestPost(f"https://api.modrinth.com/v2/version_files/update", post_info, self.CURSEFORGE_HEADER)
+            response = f.requestPost(f"https://api.modrinth.com/v2/version_files/update", post_info,
+                                     self.CURSEFORGE_HEADER)
             try:
                 response = response.json()
             except:
@@ -534,12 +564,14 @@ class MinecraftFunctions(QWidget):
                     "前置": [j["project_id"] for j in i["dependencies"] if j["dependency_type"] == "required"],
                     "游戏版本": f.sortVersion([j for j in i["game_versions"] if self.isRelease(j)]),
                     "版本类型": i["version_type"],
-                    "加载器": [(self.MODRINTH_LOADER_REVERSE[j] if j in self.MODRINTH_LOADER.values() else j) for j in i["loaders"]],
+                    "加载器": [(self.MODRINTH_LOADER_REVERSE[j] if j in self.MODRINTH_LOADER.values() else j) for j in
+                               i["loaders"]],
                     "下载量": i["downloads"],
                     "更新日期": i["date_published"].split("T")[0],
                     "来源": "Modrinth",
                     "哈希值": i["files"][0]["hashes"]["sha1"],
-                    "下载链接": i["files"][0]["url"].replace("edge.forgecdn.net", "mediafilez.forgecdn.net") if i["files"][0]["url"] else i["files"][0]["url"],
+                    "下载链接": i["files"][0]["url"].replace("edge.forgecdn.net", "mediafilez.forgecdn.net") if
+                    i["files"][0]["url"] else i["files"][0]["url"],
                     "文件名称": i["files"][0]["filename"],
                     "文件大小": i["files"][0]["size"],
                     "源文件名称": hash_reverse[k],
@@ -574,7 +606,8 @@ class MinecraftFunctions(QWidget):
                 if "patches" in data.keys():
                     for i in data["patches"]:
                         if i["id"] != "game" and "version" in i.keys():
-                            result["加载器"].append([i["id"], i["version"].replace(result["游戏版本"], "").strip("-_ ")])
+                            result["加载器"].append(
+                                [i["id"], i["version"].replace(result["游戏版本"], "").strip("-_ ")])
                         if i["id"] == "game":
                             result["游戏版本"] = i["version"]
                 if "libraries" in data.keys() and not result["加载器"]:
@@ -639,7 +672,8 @@ class MinecraftFunctions(QWidget):
         if f.isDir(path):
             if f.existPath(f.pathJoin(path, f.splitPath(path) + ".json")):
                 return "version"
-            elif f.existPath(f.pathJoin(path, "versions")) and f.existPath(f.pathJoin(path, "assets")) and f.existPath(f.pathJoin(path, "libraries")):
+            elif f.existPath(f.pathJoin(path, "versions")) and f.existPath(f.pathJoin(path, "assets")) and f.existPath(
+                    f.pathJoin(path, "libraries")):
                 return "minecraft"
 
     def isRelease(self, version: str):
