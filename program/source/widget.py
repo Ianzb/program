@@ -630,7 +630,7 @@ class ControlSettingCard(SettingCard):
         self.button3.installEventFilter(ToolTipFilter(self.button3, 1000))
 
         self.button4 = PrimaryPushButton("卸载", self, FIF.DELETE)
-        self.button4.clicked.connect(lambda: os.popen(f'start "{f.pathJoin(program.INSTALL_PATH, program.UNINSTALL_FILE)}"'))
+        self.button4.clicked.connect(lambda: os.popen(f"start {program.UNINSTALL_FILE}"))
         self.button4.setToolTip("卸载程序")
         self.button4.installEventFilter(ToolTipFilter(self.button4, 1000))
 
