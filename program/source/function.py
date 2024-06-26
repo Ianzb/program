@@ -33,7 +33,7 @@ class Program:
     程序信息
     """
     NAME = "zb小程序"  # 程序名称
-    VERSION = "4.0.0"  # 程序版本
+    VERSION = "4.1.0"  # 程序版本
     TITLE = f"{NAME} {VERSION}"  # 程序窗口标题
     URL = "https://ianzb.github.io/project/"  # 程序网址
     AUTHOR_NAME = "Ianzb"  # 作者名称
@@ -53,8 +53,7 @@ class Program:
     ADDON_PATH = os.path.join(DATA_PATH, "addon")  # 程序插件路径
     ADDON_URL = "https://vip.123pan.cn/1813801926/code/addon/addon.json"  # 插件信息网址
     STARTUP_ARGUMENT = sys.argv[1:]  # 程序启动参数
-    UNINSTALL_FILE = "unins000.exe"  # 卸载程序
-    IS_UNINSTALLABLE = os.path.exists(UNINSTALL_FILE)  # 卸载文件
+    UNINSTALL_FILE = "uninstall.exe"  # 卸载程序
     REQUEST_HEADER = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.0.0",
                       "zbprogram": VERSION}  # 程序默认网络请求头
     ADDON_IMPORT = {}  # 导入的插件的对象
@@ -254,9 +253,7 @@ class SettingFunctions:
     def __init__(self):
         self.DEFAULT_SETTING = {"theme": "Theme.AUTO",
                                 "themeColor": "#0078D4",
-                                "autoStartup": False,
                                 "autoHide": True,
-                                "autoUpdate": False,
                                 "downloadPath": program.DOWNLOAD_PATH,
                                 "showWindow": False,
                                 "micaEffect": True,
@@ -814,27 +811,37 @@ class ProgramFunctions(FileFunctions):
         except Exception as ex:
             logging.warning(f"文件{link}下载失败{ex}")
 
-    def addToStartup(self, name: str, path: str, mode: bool = True):
+    def addToStartup(self,mode: bool = True):
         """
         添加开机自启动
-        @param name: 启动项名字
-        @param path: 文件路径
         @param mode: True添加/False删除
         """
         import win32api, win32con
         key = win32api.RegOpenKey(win32con.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Run", 0, win32con.KEY_ALL_ACCESS)
         try:
             if mode:
-                win32api.RegSetValueEx(key, name, 0, win32con.REG_SZ, f"{path} startup")
+                win32api.RegSetValueEx(key, program.NAME, 0, win32con.REG_SZ, f"{program.MAIN_FILE_PATH} startup")
                 win32api.RegCloseKey(key)
                 logging.debug("启动项添加成功")
             else:
-                win32api.RegDeleteValue(key, name)
+                win32api.RegDeleteValue(key, program.NAME)
                 win32api.RegCloseKey(key)
                 logging.debug("启动项删除成功")
         except Exception as ex:
             logging.warning(f"启动项编辑失败{ex}")
-
+    def checkStartup(self):
+        """
+        检查开机自启动
+        @return: 是否
+        """
+        import win32api, win32con
+        try:
+            key = win32api.RegOpenKeyEx(win32con.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Run", 0, win32con.KEY_READ)
+            win32api.RegQueryValueEx(key, program.NAME)
+            win32api.RegCloseKey(key)
+            return True
+        except win32api.error:
+            return False
     def getNewestVersion(self) -> str:
         """
         获取程序最新版本

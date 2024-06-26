@@ -1,7 +1,6 @@
 from .custom import *
 
 
-
 class AddonEditMessageBox(MessageBoxBase):
     """
     可编辑插件的弹出框
@@ -132,6 +131,7 @@ class AddonEditMessageBox(MessageBoxBase):
         self.parent().mainPage.addonSettingCard.button1.setEnabled(True)
         self.parent().mainPage.addonSettingCard.button2.setEnabled(True)
         self.parent().mainPage.addonSettingCard.progressBarLoading.hide()
+
 
 class AddonSettingCard(SettingCard):
     """
@@ -395,7 +395,7 @@ class StartupSettingCard(SettingCard):
 
         super().__init__(FIF.POWER_BUTTON, "开机自启动", "设置程序的开机自启动功能", parent)
         self.checkBox1 = CheckBox("开机自启动", self)
-        self.checkBox1.setChecked(setting.read("autoStartup"))
+        self.checkBox1.setChecked(f.checkStartup())
         self.checkBox1.clicked.connect(self.button1Clicked)
         self.checkBox1.setToolTip("设置程序开机自启动")
         self.checkBox1.installEventFilter(ToolTipFilter(self.checkBox1, 1000))
@@ -405,11 +405,7 @@ class StartupSettingCard(SettingCard):
         self.checkBox2.clicked.connect(self.button2Clicked)
         self.checkBox2.setToolTip("设置程序在开机自启动时自动最小化窗口")
         self.checkBox2.installEventFilter(ToolTipFilter(self.checkBox2, 1000))
-
-        if setting.read("autoStartup"):
-            self.checkBox2.setEnabled(True)
-        else:
-            self.checkBox2.setEnabled(False)
+        self.checkBox2.setEnabled(f.checkStartup())
 
         self.hBoxLayout.addWidget(self.checkBox1, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(8)
@@ -418,13 +414,11 @@ class StartupSettingCard(SettingCard):
 
     def button1Clicked(self):
         if self.checkBox1.isChecked():
-            setting.save("autoStartup", True)
             self.checkBox2.setEnabled(True)
-            f.addToStartup(program.NAME, program.MAIN_FILE_PATH, True)
+            f.addToStartup(True)
         else:
-            setting.save("autoStartup", False)
             self.checkBox2.setEnabled(False)
-            f.addToStartup(program.NAME, program.MAIN_FILE_PATH, False)
+            f.addToStartup(False)
 
     def button2Clicked(self):
         setting.save("autoHide", self.checkBox2.isChecked())
@@ -469,7 +463,6 @@ class HideSettingCard(SettingCard):
 
     def button1Clicked(self):
         setting.save("hideWhenClose", self.button1.checked)
-
 
 
 class DownloadSettingCard(SettingCard):
@@ -637,7 +630,7 @@ class ControlSettingCard(SettingCard):
         self.button3.installEventFilter(ToolTipFilter(self.button3, 1000))
 
         self.button4 = PrimaryPushButton("卸载", self, FIF.DELETE)
-        self.button4.clicked.connect(lambda: os.popen("unins000.exe"))
+        self.button4.clicked.connect(lambda: os.popen(f"start {program.UNINSTALL_FILE}"))
         self.button4.setToolTip("卸载程序")
         self.button4.installEventFilter(ToolTipFilter(self.button4, 1000))
 

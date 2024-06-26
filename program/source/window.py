@@ -333,13 +333,6 @@ class Window(FluentWindow, SignalBase):
         if f.existPath(f.pathJoin(program.DATA_PATH, "zb.unlock")):
             f.delete(f.pathJoin(program.DATA_PATH, "zb.unlock"))
             self.show()
-        if program.isEXE:
-            if program.IS_UNINSTALLABLE:
-                if len(f.walkFile(program.INSTALL_PATH, 1)) < 3:
-                    with open("remove.bat", "w", encoding="utf-8") as file:
-                        file.write(f'\nchoice /t 2 /d y /n \nrmdir /S /Q "{program.INSTALL_PATH}"')
-                    os.system("powershell -Command Start-Process -FilePath remove.bat -WindowStyle Hidden")
-                    program.close()
 
 
 logging.debug("window.py初始化成功")
