@@ -21,7 +21,6 @@ AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
-UninstallDisplayName="uninstall.exe"
 DefaultDirName=C:\Program Files\zbProgram
 ChangesAssociations=yes
 DefaultGroupName={#MyAppName}
@@ -41,8 +40,8 @@ WizardStyle=modern
 Name: "chinesesimplified"; MessagesFile: "compiler:Languages\ChineseSimplified.isl"
 
 [Tasks]
-Name: "desktopicon"; Description: "创建桌面快捷方式"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
-Name: "startupicon"; Description: "开机自启动"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
+Name: "desktopicon"; Description: "创建桌面快捷方式";  Flags: unchecked
+Name: "startupicon"; Description: "开机自启动"; Flags: unchecked
 
 [Files]
 Source: "D:\Code\打包\zbProgram\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
@@ -88,7 +87,7 @@ begin
   strTmpFile := Format('%sfindSoftRes.txt', [strTmpPath]);
   strCmdFind := Format('/c tasklist /nh|find /c /i "%s" > "%s"', [strExeName, strTmpFile]);
   strCmdKill := Format('/c taskkill /f /t /im %s', [strExeName]);
-  strTip := Format('%s程序检测到将%s的软件正在运行！%n%n点击"确定"终止软件后继续操作，否则点击"取消"。', [mode,mode]);
+  strTip := Format('%s程序检测到将%s的软件正在运行！'#13''#13'点击"确定"终止软件后继续操作，否则点击"取消"。', [mode,mode]);
   //ShellExec('open', ExpandConstant('{cmd}'), '/c taskkill /f /t /im {#MyAppExeName}', '', SW_HIDE, ewNoWait, ErrorCode);
   //bRes := ShellExec('open', ExpandConstant('{cmd}'), '/c tasklist /nh|find /c /i "{#MyAppExeName}" > 0.txt', '', SW_HIDE, ewWaitUntilTerminated, ErrorCode);
   bRes := ShellExec('open', ExpandConstant('{cmd}'), strCmdFind, '', SW_HIDE, ewWaitUntilTerminated, ErrorCode);
@@ -115,13 +114,13 @@ begin
 end;
 
 // 开始页下一步时判断软件是否运行
-function InitializeInstall(): Boolean;
+function NextButtonClick(CurPageID: Integer): Boolean;
 begin
-  Result := KDetectSoft('{#MyAppExeName}.exe','安装');
+  Result := KDetectSoft('{#MyAppExeName}','安装');
 end;
 
 // 卸载时关闭软件
 function InitializeUninstall(): Boolean;
 begin
-  Result := KDetectSoft('{#MyAppExeName}.exe','卸载');
+  Result := KDetectSoft('{#MyAppExeName}','卸载');
 end;
