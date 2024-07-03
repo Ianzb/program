@@ -725,6 +725,7 @@ class MinecraftFunctions(QWidget):
                   "{{v|launcher-beta}}",
                   "{{v|education}}",
                   "{{v|education-beta}}",
+                  "{{v|education-preview}}",
                   "{{v|china-win}}",
                   "{{v|china-android}}",
                   ]
