@@ -412,15 +412,21 @@ class CopyTextButton(ToolButton):
 
     def __init__(self, text, data: str | None = None, parent=None):
         super().__init__(parent)
+        self.setIcon(FIF.COPY)
+        self.clicked.connect(self.copyButtonClicked)
+        self.load(text, data)
+
+    def load(self, text, data):
         if not text:
             self.setEnabled(False)
             return
         self.text = str(text)
 
-        self.setIcon(FIF.COPY)
         self.setToolTip(f"点击复制{data if data else ""}信息{"\n" + self.text if self.text else ""}")
         self.installEventFilter(ToolTipFilter(self, 50))
-        self.clicked.connect(self.copyButtonClicked)
+
+    def setData(self, text, data):
+        self.load(text, data)
 
     def copyButtonClicked(self):
         clipboard = QApplication.clipboard()

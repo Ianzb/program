@@ -636,12 +636,14 @@ class FileFunctions(ProcessFunctions):
 
     def getSize(self, path: str) -> int:
         """
-        获取文件大小
+        获取文件/夹大小
         @param path: 文件路径
         @return: 文件大小
         """
         if self.isFile(path):
             return os.path.getsize(path)
+        elif self.isDir(path):
+            return sum([self.getSize(self.pathJoin(path, file)) for file in self.walkFile(path)])
 
     def walkDir(self, path: str, mode=0) -> list:
         """
@@ -811,7 +813,7 @@ class ProgramFunctions(FileFunctions):
         except Exception as ex:
             logging.warning(f"文件{link}下载失败{ex}")
 
-    def addToStartup(self,mode: bool = True):
+    def addToStartup(self, mode: bool = True):
         """
         添加开机自启动
         @param mode: True添加/False删除
@@ -829,6 +831,7 @@ class ProgramFunctions(FileFunctions):
                 logging.debug("启动项删除成功")
         except Exception as ex:
             logging.warning(f"启动项编辑失败{ex}")
+
     def checkStartup(self):
         """
         检查开机自启动
@@ -842,6 +845,7 @@ class ProgramFunctions(FileFunctions):
             return True
         except win32api.error:
             return False
+
     def getNewestVersion(self) -> str:
         """
         获取程序最新版本
@@ -942,7 +946,8 @@ class DownloadFile:
             path = f.pathJoin(path, link.split("/")[-1])
         if f.existPath(path):
             i = 1
-            while f.existPath(f.pathJoin(f.splitPath(path, 3), f.splitPath(path, 1) + " (" + str(i) + ")" + f.splitPath(path, 2))) or f.existPath(f.pathJoin(f.splitPath(path, 3), f.splitPath(path, 1) + " (" + str(i) + ")" + f.splitPath(path, 2) + ("." if suffix else "") + suffix)):
+            while f.existPath(f.pathJoin(f.splitPath(path, 3), f.splitPath(path, 1) + " (" + str(i) + ")" + f.splitPath(path, 2))) or f.existPath(
+                    f.pathJoin(f.splitPath(path, 3), f.splitPath(path, 1) + " (" + str(i) + ")" + f.splitPath(path, 2) + ("." if suffix else "") + suffix)):
                 i = i + 1
             path = f.pathJoin(f.splitPath(path, 3), f.splitPath(path, 1) + " (" + str(i) + ")" + f.splitPath(path, 2))
         self.path = path + ("." if suffix else "") + suffix
