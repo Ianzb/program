@@ -100,6 +100,7 @@ class AddonThread(QThread, SignalBase):
                 for i in data:
                     if i["源文件名称"] in dict1.keys():
                         dict1[i["源文件名称"]][1] = i
+                dict1["path"] = self.data[4]
                 self.signalDict.emit(dict1)
             except Exception as ex:
                 self.signalBool.emit(False)
@@ -1025,6 +1026,7 @@ class ModManageTab(ResourceManageTab):
     def threadEvent3_1(self, msg):
         list1 = []
         name_list = []
+        mcPath = msg.pop("path")
         for k, v in msg.items():
             if v[1]:
                 if v[0]["id"] != v[1]["id"]:
@@ -1041,7 +1043,7 @@ class ModManageTab(ResourceManageTab):
         self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"有{len(list1)}个模组在{self.comboBox2_2.currentText()}{self.comboBox2_3.currentText()}有新版本！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent())
         self.infoBar.show()
         if len(list1) > 0:
-            self.modUpdateMessageBox = ModUpdateMessageBox("资源更新", list1, f.pathJoin(self.data["路径"], mc.FILE_PATH["模组"]), self)
+            self.modUpdateMessageBox = ModUpdateMessageBox("资源更新", list1, f.pathJoin(mcPath, mc.FILE_PATH["模组"]), self)
             self.modUpdateMessageBox.exec()
 
         self.updateButton.setEnabled(True)
@@ -1194,6 +1196,7 @@ class ResourcePackManageTab(ResourceManageTab):
     def threadEvent3_1(self, msg):
         list1 = []
         name_list = []
+        mcPath = msg.pop("path")
         for k, v in msg.items():
             if v[1]:
                 if v[0]["id"] != v[1]["id"]:
@@ -1210,7 +1213,7 @@ class ResourcePackManageTab(ResourceManageTab):
         self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"有{len(list1)}个资源包在{self.comboBox2_2.currentText()}有新版本！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent())
         self.infoBar.show()
         if len(list1) > 0:
-            self.modUpdateMessageBox = ModUpdateMessageBox("资源更新", list1, f.pathJoin(self.data["路径"], mc.FILE_PATH["资源包"]), self)
+            self.modUpdateMessageBox = ModUpdateMessageBox("资源更新", list1, f.pathJoin(mcPath, mc.FILE_PATH["资源包"]), self)
             self.modUpdateMessageBox.exec()
 
         self.updateButton.setEnabled(True)
@@ -1361,6 +1364,7 @@ class ShaderPackManageTab(ResourceManageTab):
     def threadEvent3_1(self, msg):
         list1 = []
         name_list = []
+        mcPath = msg.pop("path")
         for k, v in msg.items():
             if v[1]:
                 if v[0]["id"] != v[1]["id"]:
@@ -1377,7 +1381,7 @@ class ShaderPackManageTab(ResourceManageTab):
         self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"有{len(list1)}个光影包在{self.comboBox2_2.currentText()}有新版本！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent())
         self.infoBar.show()
         if len(list1) > 0:
-            self.modUpdateMessageBox = ModUpdateMessageBox("资源更新", list1, f.pathJoin(self.data["路径"], mc.FILE_PATH["光影包"]), self)
+            self.modUpdateMessageBox = ModUpdateMessageBox("资源更新", list1, f.pathJoin(mcPath, mc.FILE_PATH["光影包"]), self)
             self.modUpdateMessageBox.exec()
 
         self.updateButton.setEnabled(True)
