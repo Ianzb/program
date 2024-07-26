@@ -103,6 +103,7 @@ class AddonThread(QThread, SignalBase):
                 dict1["path"] = self.data[4]
                 self.signalDict.emit(dict1)
             except Exception as ex:
+                logging.error(f"MC资源管理器插件 {self.mode} 线程错误 {ex}")
                 self.signalBool.emit(False)
         elif self.mode == "Minecraft最新版本":
             self.signalStr.emit(mc.getNewestVersion())
@@ -315,7 +316,6 @@ class VersionsManageTab(BasicTab):
         self.vBoxLayout.addWidget(self.cardGroup1, 0, Qt.AlignTop)
         self.vBoxLayout.addWidget(self.grayCard1)
         self.vBoxLayout.addWidget(self.grayCard2)
-
 
         self.thread1 = AddonThread("获得游戏版本列表")
         self.thread1.signalList.connect(self.threadEvent1_1)
@@ -1017,7 +1017,7 @@ class ModManageTab(ResourceManageTab):
         self.infoBar.addWidget(self.progressBar)
         self.infoBar.show()
 
-        self.thread3 = AddonThread("获得模组最新版本", [f.pathJoin(self.data["路径"], mc.FILE_PATH["模组"]), self.comboBox2_2.currentText(), self.comboBox2_3.currentText(), self.comboBox2_1.currentText()])
+        self.thread3 = AddonThread("获得模组最新版本", [f.pathJoin(self.data["路径"], mc.FILE_PATH["模组"]), self.comboBox2_2.currentText(), self.comboBox2_3.currentText(), self.comboBox2_1.currentText(), self.data["路径"]])
         self.thread3.signalDict.connect(self.threadEvent3_1)
         self.thread3.signalBool.connect(self.threadEvent3_2)
         self.thread3.signalInt.connect(self.threadEvent3_3)
@@ -1187,7 +1187,7 @@ class ResourcePackManageTab(ResourceManageTab):
         self.infoBar.addWidget(self.progressBar)
         self.infoBar.show()
 
-        self.thread3 = AddonThread("获得模组最新版本", [f.pathJoin(self.data["路径"], mc.FILE_PATH["资源包"]), self.comboBox2_2.currentText(), ["Minecraft"], self.comboBox2_1.currentText()])
+        self.thread3 = AddonThread("获得模组最新版本", [f.pathJoin(self.data["路径"], mc.FILE_PATH["资源包"]), self.comboBox2_2.currentText(), ["Minecraft"], self.comboBox2_1.currentText(), self.data["路径"]])
         self.thread3.signalDict.connect(self.threadEvent3_1)
         self.thread3.signalBool.connect(self.threadEvent3_2)
         self.thread3.signalInt.connect(self.threadEvent3_3)
@@ -1355,7 +1355,7 @@ class ShaderPackManageTab(ResourceManageTab):
         self.infoBar.addWidget(self.progressBar)
         self.infoBar.show()
 
-        self.thread3 = AddonThread("获得模组最新版本", [f.pathJoin(self.data["路径"], mc.FILE_PATH["光影包"]), self.comboBox2_2.currentText(), ["Iris", "Optifine", "Canvas", "Vanilla"], self.comboBox2_1.currentText()])
+        self.thread3 = AddonThread("获得模组最新版本", [f.pathJoin(self.data["路径"], mc.FILE_PATH["光影包"]), self.comboBox2_2.currentText(), ["Iris", "Optifine", "Canvas", "Vanilla"], self.comboBox2_1.currentText(), self.data["路径"]])
         self.thread3.signalDict.connect(self.threadEvent3_1)
         self.thread3.signalBool.connect(self.threadEvent3_2)
         self.thread3.signalInt.connect(self.threadEvent3_3)
