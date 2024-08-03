@@ -197,7 +197,7 @@ class SortFunctions:
             for i in f.walkDir(program.DESKTOP_PATH, 1):
                 if self.belongDir(setting.read("sortGoalPath"), i):
                     data.append(i)
-        return data
+        return list(set(data))
 
 
 sf = SortFunctions()
