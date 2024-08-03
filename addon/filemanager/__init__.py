@@ -122,14 +122,16 @@ class SortFunctions:
                     for i in file_list:
                         for j in range(len(setting.read("sortFormat").values())):
                             if f.splitPath(i, 2).lower() in list(setting.read("sortFormat").values())[j]:
-                                if f.splitPath(i, 0) not in blacklist[0] and i not in blacklist[1]:
-                                    f.moveFile(i, f.pathJoin(new, list(setting.read("sortFormat").keys())[j]))
+                                if f.splitPath(i, 0) in blacklist[0] or i in blacklist[1]:
+                                    continue
+                                f.moveFile(i, f.pathJoin(new, list(setting.read("sortFormat").keys())[j]))
             if mode in [0, 2]:
                 file_list = f.walkDir(old, 1)
                 if file_list:
                     for i in file_list:
-                        if f.splitPath(i, 0) not in blacklist[0] and i not in blacklist[1]:
-                            f.moveFile(i, f.pathJoin(new, "文件夹", f.splitPath(i, 0)))
+                        if f.splitPath(i, 0) in blacklist[0] or i in blacklist[1]:
+                            continue
+                        f.moveFile(i, f.pathJoin(new, "文件夹", f.splitPath(i, 0)))
             logging.debug(f"成功整理{old}文件夹")
         except Exception as ex:
             logging.warning(f"无法整理{old}文件夹{ex}")
@@ -188,7 +190,7 @@ class SortFunctions:
         获取整理文件路径黑名单
         @return: 整理文件路径黑名单列表
         """
-        data = setting.read("sortPathBlacklist")
+        data = list(setting.read("sortPathBlacklist"))
         if f.isSameFile(setting.read("sortGoalPath"), program.DESKTOP_PATH):
             data += [f.pathJoin(program.DESKTOP_PATH, i) for i in list(setting.read("sortFormat").keys()) + ["文件夹"]]
         elif self.belongDir(setting.read("sortGoalPath"), program.DESKTOP_PATH):
