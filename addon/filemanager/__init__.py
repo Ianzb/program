@@ -8,10 +8,11 @@ try:
 except:
     pass
 
-setting.adds({"sortPath": "",
+setting.adds({"sortGoalPath": "",
               "wechatPath": "",
-              "sortBlacklist": [],
-              "sortFolder": [],
+              "sortNameBlacklist": [],
+              "sortPathBlacklist": [],
+              "sortFolder": [program.DESKTOP_PATH],
               "sortFormat": {"PPT": [".ppt", ".pptx"],
                              "文档": [".doc", ".docx", ".txt", ".pdf"],
                              "表格": [".xls", ".xlsx", ".xlsm", ".xlsb", ".xlt", ".csv"],
@@ -21,8 +22,12 @@ setting.adds({"sortPath": "",
                              "压缩包": [".zip", ".rar", ".7z", ".tar", ".gz", ".bz2"],
                              "镜像": [".iso", ".img", ".bin"],
                              "安装包": [".exe", ".msi"]
-                             }
-
+                             },
+              "sortWechat": True,
+              "clearCache": True,
+              "clearFile": True,
+              "clearTrash": False,
+              "deleteToTrash": False,
               })
 
 
@@ -37,7 +42,7 @@ class SortFunctions:
             if paths:
                 for i in paths:
                     if f.getSize(i) == 0:
-                        f.delete(i)
+                        f.delete(i, setting.read("deleteToTrash"))
 
     def clearEmptyDir(self, path):
         """
@@ -69,7 +74,7 @@ class SortFunctions:
                     continue
                 md5 = f.getMD5(i)
                 if md5 in sizes:
-                    f.delete(i)
+                    f.delete(i, setting.read("deleteToTrash"))
                 else:
                     sizes.append(md5)
 
@@ -110,19 +115,20 @@ class SortFunctions:
         """
 
         try:
+            blacklist = [self.getSortNameBlacklist(), self.getSortPathBlacklist()]
             if mode in [0, 1]:
                 file_list = f.walkFile(old, 1)
                 if file_list:
                     for i in file_list:
                         for j in range(len(setting.read("sortFormat").values())):
                             if f.splitPath(i, 2).lower() in list(setting.read("sortFormat").values())[j]:
-                                if f.splitPath(i, 0) not in self.getSortBlacklist():
+                                if f.splitPath(i, 0) not in blacklist[0] and i not in blacklist[1]:
                                     f.moveFile(i, f.pathJoin(new, list(setting.read("sortFormat").keys())[j]))
             if mode in [0, 2]:
                 file_list = f.walkDir(old, 1)
                 if file_list:
                     for i in file_list:
-                        if f.splitPath(i, 0) not in self.getSortBlacklist():
+                        if f.splitPath(i, 0) not in blacklist[0] and i not in blacklist[1]:
                             f.moveFile(i, f.pathJoin(new, "文件夹", f.splitPath(i, 0)))
             logging.debug(f"成功整理{old}文件夹")
         except Exception as ex:
@@ -143,9 +149,9 @@ class SortFunctions:
                     return
                 list2 = list2 + f.walkDir(i, 1)
             for i in list2:
-                self.sortDir(i, setting.read("sortPath"))
+                self.sortDir(i, setting.read("sortGoalPath"))
             for i in list1:
-                self.sortDir(i, setting.read("sortPath"), 1)
+                self.sortDir(i, setting.read("sortGoalPath"), 1)
             logging.debug("成功整理微信文件")
         except Exception as ex:
             logging.warning(f"无法整理微信文件{ex}")
@@ -159,7 +165,7 @@ class SortFunctions:
         except:
             pass
 
-    def clearRubbish(self):
+    def clearTrash(self):
         """
         清空回收站
         """
@@ -169,21 +175,26 @@ class SortFunctions:
         except Exception as ex:
             logging.warning(f"无法清空回收站{ex}")
 
-    def getSortBlacklist(self):
+    def getSortNameBlacklist(self):
         """
-        获取整理文件黑名单
-        @return: 整理文件黑名单列表
+        获取整理文件名称黑名单
+        @return: 整理文件名称黑名单列表
         """
-        f.makeDir(setting.read("sortPath"))
-        data = setting.read("sortBlacklist")
+        data = setting.read("sortNameBlacklist")
+        return data
 
-        if f.isSameFile(setting.read("sortPath"), program.DESKTOP_PATH):
-            data += list(setting.read("sortFormat").keys()) + ["文件夹"]
-        elif sf.belongDir(setting.read("sortPath"), program.DESKTOP_PATH):
-            dirs = f.walkDir(program.DESKTOP_PATH, 1)
-            for i in dirs:
-                if sf.belongDir(setting.read("sortPath"), i):
-                    data.append(f.splitPath(i))
+    def getSortPathBlacklist(self):
+        """
+        获取整理文件路径黑名单
+        @return: 整理文件路径黑名单列表
+        """
+        data = setting.read("sortPathBlacklist")
+        if f.isSameFile(setting.read("sortGoalPath"), program.DESKTOP_PATH):
+            data += [f.pathJoin(program.DESKTOP_PATH, i) for i in list(setting.read("sortFormat").keys()) + ["文件夹"]]
+        elif self.belongDir(setting.read("sortGoalPath"), program.DESKTOP_PATH):
+            for i in f.walkDir(program.DESKTOP_PATH, 1):
+                if self.belongDir(setting.read("sortGoalPath"), i):
+                    data.append(i)
         return data
 
 
@@ -204,18 +215,21 @@ class AddonThread(QThread, SignalBase):
         logging.info(f"文件整理插件 {self.mode} 线程开始")
         if self.mode == "一键整理+清理":
             try:
-                EasyThread(sf.clearRubbish)
-                EasyThread(sf.clearSystemCache)
-                sf.sortDir(program.DESKTOP_PATH, setting.read("sortPath"))
-                if setting.read("wechatPath"):
+                f.makeDir(setting.read("sortGoalPath"))
+                if setting.read("clearTrash"):
+                    EasyThread(sf.clearTrash)
+                if setting.read("clearCache"):
+                    EasyThread(sf.clearSystemCache)
+                if setting.read("wechatPath") and setting.read("sortWechat"):
                     sf.sortWechatFiles()
                 for i in setting.read("sortFolder"):
                     if f.isDir(i):
-                        if not (sf.belongDir(i, setting.read("sortPath")) or sf.belongDir(setting.read("sortPath"), i)):
-                            sf.sortDir(i, setting.read("sortPath"))
-                for i in list(setting.read("sortFormat").keys()) + ["文件夹"]:
-                    sf.clearFile(f.pathJoin(setting.read("sortPath"), i))
-                sf.clearFile(setting.read("sortPath"))
+                        if not (sf.belongDir(i, setting.read("sortGoalPath")) or sf.belongDir(setting.read("sortGoalPath"), i)):
+                            sf.sortDir(i, setting.read("sortGoalPath"))
+                if setting.read("clearFile"):
+                    for i in list(setting.read("sortFormat").keys()) + ["文件夹"]:
+                        sf.clearFile(f.pathJoin(setting.read("sortGoalPath"), i))
+                    sf.clearFile(setting.read("sortGoalPath"))
                 self.signalBool.emit(True)
                 logging.debug("一键整理成功")
             except Exception as ex:
@@ -229,18 +243,18 @@ class AddonThread(QThread, SignalBase):
         logging.info(f"文件整理插件 {self.mode} 线程结束")
 
 
-class BlackListEditMessageBox(MessageBoxBase):
+class NameBlacklistEditMessageBox(MessageBoxBase):
     """
-    可编辑黑名单的弹出框
+    可编辑名称黑名单的弹出框
     """
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.titleLabel = SubtitleLabel("整理文件黑名单", self)
+        self.titleLabel = SubtitleLabel("整理文件名称黑名单", self)
 
         self.textEdit = TextEdit(self)
         self.textEdit.setPlaceholderText("输入文件名称\n一行一个")
-        self.textEdit.setText("\n".join(setting.read("sortBlacklist")))
+        self.textEdit.setText("\n".join(setting.read("sortNameBlacklist")))
         self.textEdit.setToolTip("输入文件名称\n一行一个")
         self.textEdit.installEventFilter(ToolTipFilter(self.textEdit, 1000))
 
@@ -255,10 +269,65 @@ class BlackListEditMessageBox(MessageBoxBase):
         self.widget.setMinimumWidth(350)
 
     def yesButtonClicked(self):
-        setting.save("sortBlacklist", sorted(list(set([i.strip() for i in f.removeIllegalPath(self.textEdit.toPlainText()).split("\n") if i]))))
+        setting.save("sortNameBlacklist", sorted(list(set([i.strip() for i in f.removeIllegalPath(self.textEdit.toPlainText()).split("\n") if i]))))
 
         self.accept()
         self.accepted.emit()
+
+
+class PathBlacklistEditMessageBox(MessageBoxBase):
+    """
+    可编辑路径黑名单的弹出框
+    """
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.titleLabel = SubtitleLabel("整理文件路径黑名单", self)
+
+        self.textEdit = TextEdit(self)
+        self.textEdit.setPlaceholderText("输入文件完整路径\n一行一个")
+        self.textEdit.setText("\n".join(setting.read("sortPathBlacklist")))
+        self.textEdit.setToolTip("输入文件完整路径\n一行一个")
+        self.textEdit.installEventFilter(ToolTipFilter(self.textEdit, 1000))
+
+        self.viewLayout.addWidget(self.titleLabel)
+        self.viewLayout.addWidget(self.textEdit)
+
+        self.addFolderButton = PushButton("选择文件夹", self.buttonGroup)
+        self.addFolderButton.clicked.connect(self.addFolderButtonClicked)
+
+        self.addFileButton = PushButton("选择文件", self.buttonGroup)
+        self.addFileButton.clicked.connect(self.addFileButtonClicked)
+
+        self.buttonLayout.insertWidget(1, self.addFolderButton, 1, Qt.AlignVCenter)
+        self.buttonLayout.insertWidget(2, self.addFileButton, 1, Qt.AlignVCenter)
+
+        self.yesButton.setText("确定")
+        self.yesButton.clicked.connect(self.yesButtonClicked)
+
+        self.cancelButton.setText("取消")
+
+        self.widget.setMinimumWidth(350)
+
+    def yesButtonClicked(self):
+        setting.save("sortPathBlacklist", sorted(list(set([f.formatPath(i.strip()) for i in f.removeIllegalPath(self.textEdit.toPlainText(), 1).split("\n") if i]))))
+
+        self.accept()
+        self.accepted.emit()
+
+    def addFolderButtonClicked(self):
+        get = QFileDialog.getExistingDirectory(self, "选择黑名单文件夹", "C:/")
+        if f.existPath(get):
+            get = f.formatPath(get)
+            if get not in sorted(list(set([f.formatPath(i.strip()) for i in f.removeIllegalPath(self.textEdit.toPlainText(), 1).split("\n") if i]))):
+                self.textEdit.setText((self.textEdit.toPlainText().strip() + "\n" + get).strip())
+
+    def addFileButtonClicked(self):
+        get = QFileDialog.getOpenFileName(self, "选择黑名单文件", "C:/")[0]
+        if f.existPath(get):
+            get = f.formatPath(get)
+            if get not in sorted(list(set([f.formatPath(i.strip()) for i in f.removeIllegalPath(self.textEdit.toPlainText(), 1).split("\n") if i]))):
+                self.textEdit.setText((self.textEdit.toPlainText().strip() + "\n" + get).strip())
 
 
 class SortFolderEditMessageBox(MessageBoxBase):
@@ -268,7 +337,7 @@ class SortFolderEditMessageBox(MessageBoxBase):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.titleLabel = SubtitleLabel("自定义整理目录", self)
+        self.titleLabel = SubtitleLabel("整理目录", self)
 
         self.textEdit = TextEdit(self)
         self.textEdit.setPlaceholderText("输入文件夹完整路径\n一行一个")
@@ -282,25 +351,35 @@ class SortFolderEditMessageBox(MessageBoxBase):
         self.yesButton.setText("确定")
         self.yesButton.clicked.connect(self.yesButtonClicked)
 
-        self.addButton = PushButton("选择目录", self.buttonGroup)
+        self.addButton = PushButton("选择文件夹", self.buttonGroup)
         self.addButton.clicked.connect(self.addButtonClicked)
+
+        self.resetButton = PushButton("重置", self.buttonGroup)
+        self.resetButton.clicked.connect(self.resetButtonClicked)
+
         self.buttonLayout.insertWidget(1, self.addButton, 1, Qt.AlignVCenter)
+        self.buttonLayout.insertWidget(2, self.resetButton, 1, Qt.AlignVCenter)
 
         self.cancelButton.setText("取消")
 
         self.widget.setMinimumWidth(350)
 
     def yesButtonClicked(self):
-        setting.save("sortFolder", sorted(list(set([i.strip() for i in f.removeIllegalPath(self.textEdit.toPlainText(), 1).split("\n") if i]))))
-
+        setting.save("sortFolder", sorted(list(set([f.formatPath(i.strip()) for i in f.removeIllegalPath(self.textEdit.toPlainText(), 1).split("\n") if i]))))
         self.accept()
         self.accepted.emit()
 
     def addButtonClicked(self):
-        get = QFileDialog.getExistingDirectory(self, "添加整理目录", "C:/")
+        get = QFileDialog.getExistingDirectory(self, "选择整理文件夹", "C:/")
         if f.existPath(get):
-            if get not in sorted(list(set([i.strip() for i in f.removeIllegalPath(self.textEdit.toPlainText(), 1).split("\n") if i]))):
+            get = f.formatPath(get)
+            if get not in sorted(list(set([f.formatPath(i.strip()) for i in f.removeIllegalPath(self.textEdit.toPlainText(), 1).split("\n") if i]))):
                 self.textEdit.setText((self.textEdit.toPlainText().strip() + "\n" + get).strip())
+
+    def resetButtonClicked(self):
+        setting.reset("sortFolder")
+        self.accept()
+        self.accepted.emit()
 
 
 class SortFormatEditMessageBox(MessageBoxBase):
@@ -310,7 +389,7 @@ class SortFormatEditMessageBox(MessageBoxBase):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.titleLabel = SubtitleLabel("自定义整理文件类型", self)
+        self.titleLabel = SubtitleLabel("整理文件类型", self)
 
         self.tableView = TableWidget(self)
 
@@ -324,7 +403,7 @@ class SortFormatEditMessageBox(MessageBoxBase):
         self.tableView.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         self.tableView.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
 
-        self.tableView.setToolTip("后缀名逗号（中英文均可）分割，加不加.均可")
+        self.tableView.setToolTip("后缀名逗号（中英文均可）分割，加不加分割点均可")
         self.tableView.installEventFilter(ToolTipFilter(self.tableView, 1000))
 
         self.tableView.setRowCount(len(setting.read("sortFormat").keys()))
@@ -403,7 +482,7 @@ class SortPathSettingCard(SettingCard):
     """
 
     def __init__(self, parent=None):
-        super().__init__(FIF.ALIGNMENT, "整理文件", f"整理目标路径：{setting.read("sortPath")}\n微信路径：{setting.read("wechatPath")}", parent)
+        super().__init__(FIF.ALIGNMENT, "路径", f"整理目标路径：{setting.read("sortGoalPath")}\n微信路径：{setting.read("wechatPath")}", parent)
         self.button1 = PushButton("整理目标目录", self, FIF.FOLDER_ADD)
         self.button1.clicked.connect(self.button1Clicked)
         self.button1.setToolTip("设置整理目标目录")
@@ -421,7 +500,7 @@ class SortPathSettingCard(SettingCard):
         self.setAcceptDrops(True)
 
     def button1Clicked(self):
-        get = QFileDialog.getExistingDirectory(self, "选择整理目标目录", setting.read("sortPath"))
+        get = QFileDialog.getExistingDirectory(self, "选择整理目标目录", setting.read("sortGoalPath"))
         self.saveSetting(get)
 
     def button2Clicked(self):
@@ -436,8 +515,8 @@ class SortPathSettingCard(SettingCard):
             if "WeChat Files" == f.splitPath(path):
                 setting.save("wechatPath", path)
             else:
-                setting.save("sortPath", path)
-        self.contentLabel.setText(f"整理目标路径：{setting.read("sortPath")}\n微信路径：{setting.read("wechatPath")}")
+                setting.save("sortGoalPath", path)
+        self.contentLabel.setText(f"整理目标路径：{setting.read("sortGoalPath")}\n微信路径：{setting.read("wechatPath")}")
 
     def dragEnterEvent(self, event):
         if event.mimeData().hasUrls():
@@ -447,7 +526,7 @@ class SortPathSettingCard(SettingCard):
                     self.contentLabel.setText("拖拽到此卡片即可快速导入目录！")
 
     def dragLeaveEvent(self, event):
-        self.contentLabel.setText(f"整理目标路径：{setting.read("sortPath")}\n微信路径：{setting.read("wechatPath")}")
+        self.contentLabel.setText(f"整理目标路径：{setting.read("sortGoalPath")}\n微信路径：{setting.read("wechatPath")}")
 
     def dropEvent(self, event):
         if event.mimeData().hasUrls():
@@ -457,42 +536,115 @@ class SortPathSettingCard(SettingCard):
 
 class SortSettingCard(SettingCard):
     """
-    自定义整理文件设置卡片
+    整理文件设置卡片
     """
 
     def __init__(self, parent=None):
-        super().__init__(FIF.EDIT, "自定义整理文件", "", parent)
-        self.button1 = PushButton("整理文件黑名单", self)
+        super().__init__(FIF.EDIT, "目录", "", parent)
+        self.button1 = PushButton("整理文件名称黑名单", self)
         self.button1.clicked.connect(self.button1Clicked)
-        self.button1.setToolTip("编辑整理文件黑名单（填写文件名）")
+        self.button1.setToolTip("编辑整理文件名称黑名单（填写文件名）")
         self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
 
-        self.button2 = PushButton("自定义整理目录", self)
+        self.button2 = PushButton("整理文件路径黑名单", self)
         self.button2.clicked.connect(self.button2Clicked)
-        self.button2.setToolTip("自定义整理文件夹（填写文件夹完整路径）")
+        self.button2.setToolTip("编辑整理文件路径黑名单（填写文件完整路径）")
         self.button2.installEventFilter(ToolTipFilter(self.button2, 1000))
 
-        self.button3 = PushButton("自定义整理文件类型", self)
+        self.button3 = PushButton("整理目录", self)
         self.button3.clicked.connect(self.button3Clicked)
-        self.button3.setToolTip("自定义整理文件类型")
+        self.button3.setToolTip("自定义需要整理的文件夹（填写文件夹完整路径）")
         self.button3.installEventFilter(ToolTipFilter(self.button3, 1000))
+
+        self.button4 = PushButton("整理文件类型", self)
+        self.button4.clicked.connect(self.button4Clicked)
+        self.button4.setToolTip("自定义整理文件类型")
+        self.button4.installEventFilter(ToolTipFilter(self.button4, 1000))
 
         self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
         self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignRight)
         self.hBoxLayout.addWidget(self.button3, 0, Qt.AlignRight)
+        self.hBoxLayout.addWidget(self.button4, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
     def button1Clicked(self):
-        self.blackListMessageBox = BlackListEditMessageBox(self.window())
-        self.blackListMessageBox.show()
+        self.nameBlacklistMessageBox = NameBlacklistEditMessageBox(self.window())
+        self.nameBlacklistMessageBox.show()
 
     def button2Clicked(self):
-        self.blackListMessageBox = SortFolderEditMessageBox(self.window())
-        self.blackListMessageBox.show()
+        self.pathBlacklistMessageBox = PathBlacklistEditMessageBox(self.window())
+        self.pathBlacklistMessageBox.show()
 
     def button3Clicked(self):
-        self.sortFormatMessageBox = SortFormatEditMessageBox(self.window())
-        self.sortFormatMessageBox.show()
+        self.sortFolderEditMessageBox = SortFolderEditMessageBox(self.window())
+        self.sortFolderEditMessageBox.show()
+
+    def button4Clicked(self):
+        self.sortFormatEditMessageBox = SortFormatEditMessageBox(self.window())
+        self.sortFormatEditMessageBox.show()
+
+
+class FeaturesSettingCard(SettingCard):
+    """
+    功能设置卡片
+    """
+
+    def __init__(self, parent=None):
+
+        super().__init__(FIF.DEVELOPER_TOOLS, "功能", "", parent)
+        self.checkBox1 = CheckBox("整理微信", self)
+        self.checkBox1.setChecked(setting.read("sortWechat"))
+        self.checkBox1.clicked.connect(lambda: setting.save("sortWechat", self.checkBox1.isChecked()))
+        self.checkBox1.setToolTip("是否整理微信下载文件")
+        self.checkBox1.installEventFilter(ToolTipFilter(self.checkBox1, 1000))
+
+        self.checkBox2 = CheckBox("清理缓存", self)
+        self.checkBox2.setChecked(setting.read("clearCache"))
+        self.checkBox2.clicked.connect(lambda: setting.save("clearCache", self.checkBox2.isChecked()))
+        self.checkBox2.setToolTip("是否清理电脑缓存（可能会影响部分运行中软件）")
+        self.checkBox2.installEventFilter(ToolTipFilter(self.checkBox2, 1000))
+        self.checkBox2.setEnabled(f.checkStartup())
+
+        self.checkBox3 = CheckBox("清理文件", self)
+        self.checkBox3.setChecked(setting.read("clearFile"))
+        self.checkBox3.clicked.connect(lambda: setting.save("clearFile", self.checkBox3.isChecked()))
+        self.checkBox3.setToolTip("是否删除整理过程中发现的重复文件和空文件，该功能较耗费时间")
+        self.checkBox3.installEventFilter(ToolTipFilter(self.checkBox3, 1000))
+        self.checkBox3.setEnabled(f.checkStartup())
+
+        self.checkBox4 = CheckBox("清理回收站", self)
+        self.checkBox4.setChecked(setting.read("clearTrash"))
+        self.checkBox4.clicked.connect(lambda: setting.save("clearTrash", self.checkBox4.isChecked()))
+        self.checkBox4.setToolTip("是否清空回收站文件，删除后文件将不可恢复")
+        self.checkBox4.installEventFilter(ToolTipFilter(self.checkBox4, 1000))
+        self.checkBox4.setEnabled(f.checkStartup())
+
+        self.checkBox5 = CheckBox("删除至回收站", self)
+        self.checkBox5.setChecked(setting.read("deleteToTrash"))
+        self.checkBox5.clicked.connect(lambda: setting.save("deleteToTrash", self.checkBox5.isChecked()))
+        self.checkBox5.setToolTip("是否将整理过程中的无用文件删除至回收站而非直接删除")
+        self.checkBox5.installEventFilter(ToolTipFilter(self.checkBox5, 1000))
+        self.checkBox5.setEnabled(f.checkStartup())
+
+        self.hBoxLayout.addWidget(self.checkBox1, 0, Qt.AlignRight)
+        self.hBoxLayout.addSpacing(8)
+        self.hBoxLayout.addWidget(self.checkBox2, 0, Qt.AlignRight)
+        self.hBoxLayout.addSpacing(8)
+        self.hBoxLayout.addWidget(self.checkBox3, 0, Qt.AlignRight)
+        self.hBoxLayout.addSpacing(8)
+        self.hBoxLayout.addWidget(self.checkBox4, 0, Qt.AlignRight)
+        self.hBoxLayout.addSpacing(8)
+        self.hBoxLayout.addWidget(self.checkBox5, 0, Qt.AlignRight)
+        self.hBoxLayout.addSpacing(16)
+
+    def button1Clicked(self):
+        if self.checkBox1.isChecked():
+            self.checkBox5.setEnabled(True)
+        else:
+            self.checkBox5.setEnabled(False)
+
+    def button2Clicked(self):
+        setting.save("autoHide", self.checkBox5.isChecked())
 
 
 class AddonPage(BasicTab):
@@ -505,11 +657,11 @@ class AddonPage(BasicTab):
         self.setIcon(FIF.ZIP_FOLDER)
         self.button1_1 = PrimaryPushButton("开始整理+清理", self, FIF.ALIGNMENT)
         self.button1_1.clicked.connect(self.button1_1Clicked)
-        self.button1_1.setToolTip("开始整理+清理文件，范围包括：\n  整理桌面文件\n  整理微信文件\n  清空回收站\n  清理系统缓存")
+        self.button1_1.setToolTip("开始整理+清理文件，范围包括：\n  整理指定目录文件\n  整理微信文件\n  清空回收站\n  清理系统缓存")
         self.button1_1.installEventFilter(ToolTipFilter(self.button1_1, 1000))
 
         self.button1_2 = ToolButton(FIF.FOLDER, self)
-        self.button1_2.clicked.connect(lambda: f.showFile(setting.read("sortPath")))
+        self.button1_2.clicked.connect(lambda: f.showFile(setting.read("sortGoalPath")))
         self.button1_2.setToolTip("打开整理文件所在目录")
         self.button1_2.installEventFilter(ToolTipFilter(self.button1_2, 1000))
 
@@ -525,12 +677,14 @@ class AddonPage(BasicTab):
         self.card2 = GrayCard("快捷功能", self.view)
         self.card2.addWidget(self.button2_1)
 
-        self.sortSettingCard = SortPathSettingCard(self)
-        self.sortFolderSettingCard = SortSettingCard(self)
+        self.sortPathSettingCard = SortPathSettingCard(self)
+        self.sortSettingCard = SortSettingCard(self)
+        self.featuresSettingCard = FeaturesSettingCard(self)
 
         self.cardGroup1 = CardGroup("设置", self)
+        self.cardGroup1.addWidget(self.sortPathSettingCard)
         self.cardGroup1.addWidget(self.sortSettingCard)
-        self.cardGroup1.addWidget(self.sortFolderSettingCard)
+        self.cardGroup1.addWidget(self.featuresSettingCard)
 
         self.vBoxLayout.addWidget(self.card1, 0, Qt.AlignTop)
         self.vBoxLayout.addWidget(self.card2, 0, Qt.AlignTop)
@@ -553,34 +707,34 @@ class AddonPage(BasicTab):
         self.trayAction.setEnabled(msg)
 
     def button1_1Clicked(self):
-        if setting.read("sortPath") == "":
-            self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", "当前未设置整理文件目录，无法整理！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self)
+        if not setting.read("sortGoalPath"):
+            self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", "当前未设置整理文件目标目录，无法整理！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self)
             self.infoBar.show()
             return
-        if setting.read("wechatPath") == "":
+        if setting.read("sortWechat") and not setting.read("wechatPath"):
             self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", "当前未设置微信文件目录，无法整理微信文件！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self)
             self.infoBar.show()
 
         self.button1_1.setEnabled(False)
-
         self.signalBool.emit(False)
 
-        self.stateTooltip = StateToolTip("正在整理文件", "请耐心等待", self)
-        self.stateTooltip.move(self.stateTooltip.getSuitablePos())
-        self.stateTooltip.show()
+        self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "整理", "正在整理中，请耐心等待！", Qt.Orientation.Vertical, False, -1, InfoBarPosition.TOP_RIGHT, self)
+        self.infoBar.show()
 
         self.thread1 = AddonThread("一键整理+清理")
         self.thread1.signalBool.connect(self.threadEvent1)
         self.thread1.start()
 
     def threadEvent1(self, msg):
-        self.stateTooltip.setState(True)
         self.button1_1.setEnabled(True)
         self.signalBool.emit(True)
+        self.infoBar.closeButton.click()
         if msg:
-            self.stateTooltip.setContent("整理成功")
+            self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "整理", "整理成功！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self)
+            self.infoBar.show()
         else:
-            self.stateTooltip.setContent("整理失败")
+            self.infoBar = InfoBar(InfoBarIcon.ERROR, "整理", "整理失败！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self)
+            self.infoBar.show()
 
     def button2_1Clicked(self):
         self.button2_1.setEnabled(False)
