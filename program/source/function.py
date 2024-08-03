@@ -33,13 +33,13 @@ class Program:
     程序信息
     """
     NAME = "zb小程序"  # 程序名称
-    VERSION = "4.1.0"  # 程序版本
+    VERSION = "4.1.1"  # 程序版本
     TITLE = f"{NAME} {VERSION}"  # 程序窗口标题
     URL = "https://ianzb.github.io/project/"  # 程序网址
     AUTHOR_NAME = "Ianzb"  # 作者名称
     AUTHOR_URL = "https://ianzb.github.io/"  # 作者网址
-    UPDATE_URL = "https://vip.123pan.cn/1813801926/code/program/index.json"  # 更新网址
-    UPDATE_INSTALLER_URL = "https://vip.123pan.cn/1813801926/code/program/zbProgram_setup.exe"  # 更新安装包链接
+    UPDATE_URL = "https://vip.123pan.cn/1813801926/Code/program/index.json"  # 更新网址
+    UPDATE_INSTALLER_URL = "https://vip.123pan.cn/1813801926/Code/program/zbProgram_setup.exe"  # 更新安装包链接
     GITHUB_URL = "https://github.com/Ianzb/program/"  # Github网址
     MAIN_FILE_PATH = sys.argv[0]  # 程序主文件路径
     MAIN_FILE_NAME = os.path.basename(MAIN_FILE_PATH)  # 当前程序文件名称
@@ -51,7 +51,7 @@ class Program:
     SETTING_FILE_PATH = os.path.join(DATA_PATH, "settings.json")  # 程序设置文件路径
     LOGGING_FILE_PATH = os.path.join(DATA_PATH, "logging.log")  # 程序日志文件路径
     ADDON_PATH = os.path.join(DATA_PATH, "addon")  # 程序插件路径
-    ADDON_URL = "https://vip.123pan.cn/1813801926/code/addon/addon.json"  # 插件信息网址
+    ADDON_URL = "https://vip.123pan.cn/1813801926/Code/addon/addon.json"  # 插件信息网址
     STARTUP_ARGUMENT = sys.argv[1:]  # 程序启动参数
     UNINSTALL_FILE = "unins000.exe"  # 卸载程序
     REQUEST_HEADER = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.0.0",
