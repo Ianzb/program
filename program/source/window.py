@@ -316,16 +316,6 @@ class Window(FluentWindow, SignalBase):
         self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{data["name"]}删除成功！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.settingPage)
         self.infoBar.show()
 
-    def autoUpdateFinish(self, msg):
-        """
-        开机自动更新完成解锁组件
-        """
-        if isinstance(msg, bool):
-            self.aboutPage.updateSettingCard.setEnabled(True)
-        if isinstance(msg, dict):
-            if msg["完成"]:
-                self.aboutPage.updateSettingCard.setEnabled(True)
-
     def timerEvent(self):
         """
         重复运行展示窗口

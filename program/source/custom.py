@@ -923,24 +923,23 @@ class DownloadWidget(QWidget, SignalBase):
         self.progressBar.setValue(0)
         self.progressBar.setMinimumWidth(200)
 
-        self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "下载", f"正在下载文件 {name}", Qt.Orientation.Vertical, True, -1, InfoBarPosition.TOP_RIGHT, self.parent)
+        self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "下载", f"正在下载文件{name}...", Qt.Orientation.Vertical, True, -1, InfoBarPosition.TOP_RIGHT, self.parent)
         self.infoBar.addWidget(self.progressBar)
         self.infoBar.show()
         self.infoBar.closeButton.clicked.connect(self.thread1.cancel)
 
     def thread1_1(self, msg):
         try:
-            self.infoBar.contentLabel.setText(f"正在下载文件 {self.name}")
+            self.infoBar.contentLabel.setText(f"正在下载文件{self.name}...")
             self.progressBar.setValue(msg)
         except:
             return
         if msg == 100:
             self.signalBool.emit(True)
 
-            self.infoBar.contentLabel.setText(f"{self.name} 下载成功")
             self.infoBar.closeButton.click()
 
-            self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "下载", f"资源 {self.name} 下载成功", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent)
+            self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "下载", f"资源 {self.name} 下载成功！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent)
             self.infoBar.show()
             self.button1 = PushButton("打开目录", self.parent, FIF.FOLDER)
             self.button1.clicked.connect(self.button1Clicked)
@@ -956,7 +955,7 @@ class DownloadWidget(QWidget, SignalBase):
                 self.infoBar.closeButton.click()
             except:
                 self.thread1.cancel()
-            self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", f"下载失败", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent)
+            self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", "下载失败！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent)
             self.infoBar.show()
 
     def button1Clicked(self):

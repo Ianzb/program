@@ -33,7 +33,7 @@ class Program:
     程序信息
     """
     NAME = "zb小程序"  # 程序名称
-    VERSION = "4.1.1"  # 程序版本
+    VERSION = "4.2.0"  # 程序版本
     TITLE = f"{NAME} {VERSION}"  # 程序窗口标题
     URL = "https://ianzb.github.io/project/"  # 程序网址
     AUTHOR_NAME = "Ianzb"  # 作者名称
@@ -63,6 +63,7 @@ class Program:
         # 创建数据目录
         if not os.path.exists(self.DATA_PATH):
             os.mkdir(self.DATA_PATH)
+
         # 切换运行路径
         os.chdir(self.INSTALL_PATH)
 
@@ -70,11 +71,13 @@ class Program:
         import ctypes
 
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(self.NAME)
+
         # 关闭SSL证书验证
         import ssl
 
         ssl._create_default_https_context = ssl._create_unverified_context()
 
+        # 开发者插件目录切换
         if not self.isEXE:
             self.ADDON_PATH = os.path.join(self.INSTALL_PATH, "../addon")
 
