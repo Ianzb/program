@@ -56,8 +56,7 @@ class Program:
     UNINSTALL_FILE = "unins000.exe"  # 卸载程序
     REQUEST_HEADER = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.0.0",
                       "zbprogram": VERSION}  # 程序默认网络请求头
-    ADDON_IMPORT = {}  # 导入的插件的对象
-    ADDON_MAINPAGE = {}  # 导入的插件的主页
+
 
     def __init__(self):
         # 创建数据目录
@@ -78,8 +77,11 @@ class Program:
         ssl._create_default_https_context = ssl._create_unverified_context()
 
         # 开发者插件目录切换
-        if not self.isEXE:
+        if not self.isExe:
             self.ADDON_PATH = os.path.join(self.INSTALL_PATH, "../addon")
+
+        #添加插件路径
+        sys.path.append(self.ADDON_PATH)
 
     @property
     def WINDOWS_VERSION(self) -> list:
@@ -121,7 +123,7 @@ class Program:
         return "startup" in self.STARTUP_ARGUMENT
 
     @property
-    def isEXE(self) -> bool:
+    def isExe(self) -> bool:
         """
         判断程序是否为
         @return:
