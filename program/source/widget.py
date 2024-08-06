@@ -614,7 +614,7 @@ class ControlSettingCard(SettingCard):
 
     def __init__(self, parent=None):
         super().__init__(FIF.ALBUM, "控制", "", parent)
-        self.button1 = PushButton("重置设置", self, FIF.SYNC)
+        self.button1 = HyperlinkButton("", "重置设置", self, FIF.SYNC)
         self.button1.clicked.connect(self.button1Clicked)
         self.button1.setToolTip("重启程序设置")
         self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
