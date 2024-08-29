@@ -719,6 +719,7 @@ class MinecraftFunctions(QWidget):
                   "{{v|bedrock}}",
                   "{{v|bedrock-beta}}",
                   "{{v|bedrock-preview}}",
+                  "{{v|bedrock-editor|nolink=1}}",
                   "{{v|dungeons}}",
                   "{{v|legends-win}}",
                   "{{v|launcher}}",
@@ -728,6 +729,8 @@ class MinecraftFunctions(QWidget):
                   "{{v|education-preview}}",
                   "{{v|china-win}}",
                   "{{v|china-android}}",
+                  "{{v|china-android-pre}}",
+                  "{{v|china-android-dev}}",
                   ]
         try:
             response = f.requestGet("https://zh.minecraft.wiki/w/Template:Version", timeout=(5, 10))
@@ -749,10 +752,10 @@ class MinecraftFunctions(QWidget):
                 v1[i] = "中国版端游"
             elif v3[i] == "{{v|china-android}}":
                 v1[i] = "中国版手游"
-            elif v3[i] == "{{v|legends-win}}":
-                v1[i] = "我的世界：传奇"
-            elif v3[i] == "{{v|dungeons}}":
-                v1[i] = "我的世界：地下城"
+            elif v3[i] == "{{v|china-android-pre}}":
+                v1[i] = "中国版手游体验版"
+            elif v3[i] == "{{v|china-android-dev}}":
+                v1[i] = "中国版手游开发版"
             if v3[i] in useful and v2[i] != "":
                 str1 += v1[i] + "版本：" + v2[i] + "\n"
         logging.debug("成功获取我的世界最新版本")
