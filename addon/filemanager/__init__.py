@@ -120,6 +120,7 @@ class SortFunctions:
                 file_list = f.walkFile(old, 1)
                 if file_list:
                     for i in file_list:
+                        if i.startwith("~$"): continue  # 跳过office临时文件
                         for j in range(len(setting.read("sortFormat").values())):
                             if f.splitPath(i, 2).lower() in list(setting.read("sortFormat").values())[j]:
                                 if f.splitPath(i, 0) in blacklist[0] or i in blacklist[1]:
