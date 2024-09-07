@@ -49,7 +49,7 @@
                         __init__.py文件开头需要添加以下代码来调用主程序API：<br>
                         import sys, os<br>
                         sys.path.append(os.path.dirname(sys.argv[0]))<br>
-                        from source.custom import *<br>
+                        from source.widget.custom import *<br>
                         插件主页必须设置为class AddonTab():，同时还需要设置self.title和self.subtitle作为页面标题和子标题<br>
                         self.setIcon()可设置页面图标，可为FIF.图标或本地图片文件<br>
                     </p>

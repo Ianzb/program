@@ -15,7 +15,6 @@ class Init():
             logging.reset()
 
 
-
 Init()
 
 
@@ -145,4 +144,4 @@ class CustomThread(QThread, SignalBase):
         self.isCancel = True
 
 
-logging.debug("preload.py初始化成功")
+logging.info("内置功能函数初始化成功")

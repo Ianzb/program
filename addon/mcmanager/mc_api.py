@@ -1,10 +1,10 @@
 import sys, os
 
 sys.path.append(os.path.dirname(sys.argv[0]))
-from source.custom import *
+from source.widget.custom import *
 
 try:
-    from program.source.custom import *
+    from program.source.widget.custom import *
 except:
     pass
 

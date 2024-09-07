@@ -1,10 +1,10 @@
 import sys, os
 
 sys.path.append(os.path.dirname(sys.argv[0]))
-from source.custom import *
+from source.widget.custom import *
 
 try:
-    from program.source.custom import *
+    from program.source.widget.custom import *
 except:
     pass
 
@@ -67,7 +67,6 @@ class MyThread(QThread, SignalBase):
     """
     多线程模块
     """
-
 
     def __init__(self, mode: str, data=None, parent: QWidget = None):
         super().__init__(parent=parent)
