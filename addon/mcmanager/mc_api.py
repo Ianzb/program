@@ -30,7 +30,8 @@ class MinecraftFunctions(QWidget):
         "资源包": [".zip"],
     }  # 文件类型-文件格式映射表
 
-    RELEASE_VERSIONS = ["1.20.5", "1.20.4", "1.20.3", "1.20.2", "1.20.1", "1.20",
+    RELEASE_VERSIONS = ["1.21.1", "1.21",
+                        "1.20.6", "1.20.5", "1.20.4", "1.20.3", "1.20.2", "1.20.1", "1.20",
                         "1.19.4", "1.19.3", "1.19.2", "1.19.1", "1.19",
                         "1.18.2", "1.18.1", "1.18",
                         "1.17.1", "1.17",
@@ -756,6 +757,8 @@ class MinecraftFunctions(QWidget):
                 v1[i] = "中国版手游体验版"
             elif v3[i] == "{{v|china-android-dev}}":
                 v1[i] = "中国版手游开发版"
+            elif v3[i] == "{{v|legends-win}}":
+                v1[i] = "Minecraft Legends"
             if v3[i] in useful and v2[i] != "":
                 str1 += v1[i] + "版本：" + v2[i] + "\n"
         logging.debug("成功获取我的世界最新版本")
