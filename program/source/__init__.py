@@ -93,7 +93,7 @@ class Window(FluentWindow, SignalBase):
         """
         info = "".join(format_exception(type, value, traceback))
         logging.fatal(f"程序发生异常\n{info}")
-        self.messageBox = MessageBox("程序发生异常", info, self)
+        self.messageBox = MessageBox("程序发生异常", info, self.window())
         self.messageBox.contentLabel.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
         self.messageBox.yesButton.setText("重启")
         self.messageBox.yesButton.setIcon(FIF.SYNC)
