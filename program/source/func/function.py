@@ -7,13 +7,6 @@ class ProcessFunctions:
     """
 
 
-
-
-
-
-
-
-
 class FileFunctions(ProcessFunctions):
     """
     文件处理函数
@@ -21,64 +14,6 @@ class FileFunctions(ProcessFunctions):
 
     def __init__(self):
         super().__init__()
-
-    def formatPath(self, path: str) -> str:
-        """
-        格式化路径
-        @param path: 路径
-        @return: 格式化结果
-        """
-        path = os.path.normpath(path).replace("//", r"\ "[:-1]).replace("\\ "[:-1], r"\ "[:-1])
-        return path
-
-    def pathJoin(self, *data) -> str:
-        """
-        拼接路径
-        @param data: 多个字符串参数
-        @return: 拼接后的字符串
-        """
-        path = ""
-        for i in data:
-            path = os.path.join(path, str(i))
-        return self.formatPath(path)
-
-    def isSameFile(self, path1: str, path2: str) -> bool:
-        """
-        判断路径是否相同
-        @param path1: 路径1
-        @param path2: 路径2
-        @return: 是否相同
-        """
-
-        return self.formatPath(path1) == self.formatPath(path2)
-
-    def existPath(self, path: str) -> bool:
-        """
-        文件是否存在
-        @param path: 文件路径
-        @return: bool
-        """
-        return os.path.exists(path)
-
-    def isFile(self, path: str) -> bool:
-        """
-        文件是否为文件
-        @param path: 文件路径
-        @return: bool
-        """
-        if not self.existPath(path):
-            return False
-        return os.path.isfile(path)
-
-    def isDir(self, path: str) -> bool:
-        """
-        文件是否为目录
-        @param path: 文件路径
-        @return: bool
-        """
-        if not self.existPath(path):
-            return False
-        return os.path.isdir(path)
 
     def setOnlyRead(self, path: str, enable: bool):
         """
@@ -93,75 +28,9 @@ class FileFunctions(ProcessFunctions):
             else:
                 os.chmod(path, S_IWRITE)
 
-    def delete(self, path: str, trash: bool = False, force: bool = False):
-        """
-        删除文件/目录
-        @param path: 文件路径
-        @param trash: 是否发送到回收站
-        @param force: 是否使用命令行强制删除
-        """
-        try:
-            if trash:
-                if self.existPath(path):
-                    send2trash(path)
-            else:
-                if self.isFile(path):
-                    self.setOnlyRead(path, False)
-                    os.remove(path)
-                elif self.isDir(path):
-                    shutil.rmtree(path)
-        except Exception as ex:
-            if self.isFile(path):
-                self.cmd(f'del /F /Q "{path}"', True)
-            elif self.isDir(path):
-                self.cmd(f'rmdir /S /Q "{path}"', True)
-            logging.warning(f"文件{path}无法删除{ex}")
 
-    def getMD5(self, path: str) -> str:
-        """
-        获取文件MD5值
-        @param path: 文件路径
-        @return: MD5值
-        """
-        from hashlib import md5
-        if self.isFile(path):
-            data = open(path, "rb").read()
-            return md5(data).hexdigest()
 
-    def getSha1(self, path: str) -> str:
-        """
-        获取文件sha1值
-        @param path: 文件路径
-        @return: sha1值
-        """
-        from hashlib import sha1
-        if self.isFile(path):
-            data = open(path, "rb").read()
-            return sha1(data).hexdigest()
 
-    def splitPath(self, path: str, mode: int = 0) -> str:
-        """
-        分割路径信息
-        @param path: 文件路径
-        @param mode: 模式：0 文件完整名称 1 文件名称 2 文件扩展名 3 文件所在目录
-        @return: 文件名信息
-        """
-        if mode == 0:
-            return os.path.basename(path)
-        if mode == 1:
-            return os.path.splitext(os.path.basename(path))[0]
-        if mode == 2:
-            return os.path.splitext(os.path.basename(path))[1]
-        if mode == 3:
-            return os.path.dirname(path)
-
-    def makeDir(self, path: str):
-        """
-        创建文件夹
-        @param path: 文件路径
-        """
-        if not self.existPath(path):
-            os.makedirs(path)
 
     def getSize(self, path: str) -> int:
         """

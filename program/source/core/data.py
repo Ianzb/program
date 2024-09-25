@@ -1,5 +1,6 @@
+from log import*
 from typing import *
-import re
+import re, os
 
 
 def clearCharacters(text: str, mode: str | list | tuple = "escape+space"):
@@ -72,16 +73,7 @@ def numberAddUnit(value: int):
         value = value / size
     return f"{value:.3f}兆"
 
-def fileSizeAddUnit(value: int):
-    """
-    文件比特大小加单位（1024进制）。
-    @param value: 值
-    @return: 字符串
-    """
-    units = ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB", "BB"]
-    size = 1024.0
-    for i in range(len(units)):
-        if (value / size) < 1:
-            return f"{value:.2f}{units[i]}"
-        value = value / size
-    return f"{value:.2f}BB"
+
+
+
+

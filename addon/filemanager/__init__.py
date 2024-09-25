@@ -63,20 +63,16 @@ class SortFunctions:
         清理重复文件
         @param path: 文件夹路径
         """
+        from filecmp import cmp
         if f.isDir(path):
-            sizes = []
             names = f.walkFile(path)
             if not names:
                 return
             names.sort(key=lambda i: len(i))
-            for i in names:
-                if f.getSize(i) / 1024 / 1024 >= 128:
-                    continue
-                md5 = f.getMD5(i)
-                if md5 in sizes:
-                    f.delete(i, setting.read("deleteToTrash"))
-                else:
-                    sizes.append(md5)
+            for i in range(len(names)):
+                for j in range(len(names[:i])):
+                    if cmp(names[i], names[j], False):
+                        f.delete(names[j], setting.read("deleteToTrash"))
 
     def clearFile(self, path: str):
         """

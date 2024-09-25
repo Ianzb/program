@@ -1,3 +1,4 @@
+from log import *
 import os
 
 
@@ -10,4 +11,6 @@ def easyCmd(command: str, pause: bool = False):
     """
     value = os.popen(command)
     if pause:
-        return value.read()
+        value = value.read()
+        logging.info(f"执行Cmd命令{command}的返回值为{value}。")
+        return value
