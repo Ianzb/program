@@ -1,5 +1,6 @@
 from log import *
-from file import existPath, joinPath, isFile, isDir, splitPath, addRepeatSuffix, renamePath
+from file import existPath, joinPath, isFile, isDir, splitPath, addRepeatSuffix, movePath
+from program.source.core import movePath
 
 
 def joinUrl(*urls):
@@ -94,7 +95,9 @@ def singleDownload(url: str, path: str, replace: bool = False):
     except Exception as ex:
         logging.error(f"但下载文件{url}到{path}失败，报错信息：{ex}！")
 
+
 from DownloadKit import DownloadKit
+
 downloadKit = DownloadKit(roads=32, file_exists="overwrite")
 
 
@@ -180,5 +183,4 @@ class MultiDownload:
         完成下载时调用
         """
         if self.result == "success":
-            renamePath(self.suffixPath, self.path)
-            del self
+            return movePath(self.suffixPath, self.path)

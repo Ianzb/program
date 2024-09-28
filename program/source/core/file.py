@@ -339,7 +339,7 @@ def copyPath(old: str, new: str, replace: bool = False):
         except Exception as ex:
             logging.error(f"复制文件夹失败，错误信息：{ex}。")
             return False
-    return existPath(new)
+    return new if existPath(new) else False
 
 
 def movePath(old: str, new: str, replace: bool = False):
@@ -352,10 +352,10 @@ def movePath(old: str, new: str, replace: bool = False):
     if not existPath(old):
         logging.error(f"文件{old}不存在，无法移动！")
         return False
-    new = addRepeatSuffix(new)
-    if copyPath(old, new, replace):
+    new = copyPath(old, new, replace)
+    if new:
         deletePath(old)
-    return existPath(new) and not existPath(old)
+    return new if existPath(new) and not existPath(old) else False
 
 
 def clearDir(path: str):
