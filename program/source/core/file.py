@@ -1,5 +1,7 @@
 import logging
 
+from setuptools.errors import FileError
+
 from log import *
 import os, sys, shutil, send2trash
 from system import easyCmd
@@ -38,9 +40,9 @@ def joinPath(*paths):
     return formatPathString(os.path.join("", *paths))
 
 
-def isSameFile(path1: str, path2: str):
+def isSamePath(path1: str, path2: str):
     """
-    判断路径是否相同。
+    判断路径是否相同
     @param path1: 路径1
     @param path2: 路径2
     @return: 是否相同
@@ -59,7 +61,7 @@ def existPath(path: str):
 
 def isFile(path: str):
     """
-    判断路径是否为文件。
+    判断路径是否为文件
     @param path: 路径
     @return: 是否为文件
     """
@@ -68,16 +70,27 @@ def isFile(path: str):
 
 def isDir(path: str):
     """
-    判断路径是否为目录。
+    判断路径是否为目录
     @param path: 路径
     @return: 是否为目录
     """
     return os.path.isdir(path) if existPath(path) else False
 
 
+def renamePath(old: str, new: str):
+    """
+    重命名路径
+    @param old: 旧路径
+    @param new: 新路径
+    @return:
+    """
+    os.rename(old, new)
+    return existPath(new)
+
+
 def deleteFile(path: str, trash: bool = False, force: bool = False):
     """
-    删除文件。
+    删除文件
     @param path: 文件路径
     @param trash: 是否删除到回收站
     @param force: 是否强制删除，优先级低于回收站
@@ -99,15 +112,15 @@ def deleteFile(path: str, trash: bool = False, force: bool = False):
 
 def deleteDir(path: str, trash: bool = False, force: bool = False):
     """
-    删除目录。
+    删除目录
     @param path: 目录路径
     @param trash: 是否删除到回收站
     @param force: 是否强制删除，优先级低于回收站
-    @return:
+    @return: 是否删除成功
     """
     if not existPath(path):
         logging.warning(f"文件夹{path}不存在，无法删除！")
-        return
+        return False
     try:
         if trash:
             send2trash.send2trash(path)
@@ -117,11 +130,12 @@ def deleteDir(path: str, trash: bool = False, force: bool = False):
             shutil.rmtree(path)
     except Exception as ex:
         logging.error(f"删除文件夹{path}失败，错误信息为{ex}，回收站删除模式为{trash}，强制删除模式为{force}。")
+    return existPath(path)
 
 
-def delete(path: str, trash: bool = False, force: bool = False):
+def deletePath(path: str, trash: bool = False, force: bool = False):
     """
-    删除文件或目录。
+    删除文件或目录
     @param path: 文件或目录路径
     @param trash: 是否删除到回收站
     @param force: 是否强制删除，优先级低于回收站
@@ -133,9 +147,49 @@ def delete(path: str, trash: bool = False, force: bool = False):
         deleteDir(path, trash, force)
 
 
-def getFileHash(path: str, mode: str = "md5"):
+def splitPath(path: str, mode: int | str = 0):
     """
-    获取文件哈希值。
+    分割路径信息
+    @param path: 文件路径
+    @param mode: 模式：0 文件完整名称 1 文件名称（无扩展名） 2 文件扩展名（无.） 3 文件所在目录
+    @return: 文件名信息
+    """
+    if isinstance(mode, str):
+        mode = int(mode)
+    if mode == 0:
+        return os.path.basename(path)
+    elif mode == 1:
+        return os.path.splitext(os.path.basename(path))[0]
+    elif mode == 2:
+        return os.path.splitext(os.path.basename(path))[1]
+    elif mode == 3:
+        return os.path.dirname(path)
+
+
+def createDir(path: str):
+    """
+    创建目录
+    @param path: 目录路径
+    """
+    if not existPath(path):
+        os.makedirs(path)
+
+
+def fileSize(path: str):
+    """
+    获取文件大小
+    @param path: 文件路径
+    @return: 文件大小
+    """
+    if isFile(path):
+        return os.path.getsize(path)
+    elif isDir(path):
+        return sum([fileSize(joinPath(path, file)) for file in walkFile(path)])
+
+
+def fileHash(path: str, mode: str = "md5"):
+    """
+    获取文件哈希值
     @param path: 文件路径
     @param mode: 哈希算法，支持md5、sha1、sha256
     @return: 哈希值
@@ -154,40 +208,192 @@ def getFileHash(path: str, mode: str = "md5"):
         return sha256(open(path, 'rb').read()).hexdigest()
 
 
-def splitPath(path: str, mode: int | str = 0):
+def walkFile(path: str, mode: int = 0):
     """
-    分割路径信息。
-    @param path: 文件路径
-    @param mode: 模式：0 文件完整名称 1 文件名称 2 文件扩展名 3 文件所在目录
-    @return: 文件名信息
-    """
-    if isinstance(mode, str):
-        mode = int(mode)
-    if mode == 0:
-        return os.path.basename(path)
-    elif mode == 1:
-        return os.path.splitext(os.path.basename(path))[0]
-    elif mode == 2:
-        return os.path.splitext(os.path.basename(path))[1]
-    elif mode == 3:
-        return os.path.dirname(path)
-
-
-def createDir(path: str):
-    """
-    创建目录。
+    遍历目录
     @param path: 目录路径
+    @param mode: 模式：0 包含所有层级文件 1 仅包含次级文件
+    @return: 文件名列表
     """
-    if not os.path.exists(path):
-        os.makedirs(path)
-    else:
-        logging.warning(f"目录{path}已存在，无需创建。")
+    l1 = []
+    if existPath(path):
+        if mode == 0:
+            if isDir(path):
+                paths = os.walk(path)
+                for path, dir_lst, file_lst in paths:
+                    for file_name in file_lst:
+                        l1.append(joinPath(path, file_name))
+        if mode == 1:
+            for i in os.listdir(path):
+                if isFile(joinPath(path, i)):
+                    l1.append(joinPath(path, i))
+    return sorted(l1)
 
 
-def getFileSize(path: str):
+def walkDir(path: str, mode: int = 0):
     """
-    获取文件大小。
+    遍历子文件夹
+    @param path: 目录路径
+    @param mode: 模式：0 包含所有层级文件夹 1 仅包含次级文件夹
+    @return: 目录名列表
+    """
+    l1 = []
+    if existPath(path):
+        if mode == 0:
+            if isDir(path):
+                paths = os.walk(path)
+                for path, dir_lst, file_lst in paths:
+                    for dir_name in dir_lst:
+                        l1.append(joinPath(path, dir_name))
+        if mode == 1:
+            for i in os.listdir(path):
+                if isDir(joinPath(path, i)):
+                    l1.append(joinPath(path, i))
+    return sorted(l1)
+
+
+def walkPath(path: str, mode: int = 0):
+    """
+    遍历子文件和子文件夹
+    @param path: 目录路径
+    @param mode: 模式：0 包含所有层级文件夹 1 仅包含次级文件夹
+    @return: 目录名列表
+    """
+    l1 = []
+    if existPath(path):
+        if mode == 0:
+            if isDir(path):
+                paths = os.walk(path)
+                for path, dir_lst, file_lst in paths:
+                    for name in dir_lst + file_lst:
+                        l1.append(joinPath(path, name))
+        if mode == 1:
+            for i in os.listdir(path):
+                l1.append(joinPath(path, i))
+    return sorted(l1)
+
+
+def setOnlyRead(path: str, enable: bool):
+    """
+    只读权限
     @param path: 文件路径
-    @return: 文件大小
+    @param enable: 启用/禁用
     """
-    return os.path.getsize(path)
+    from stat import S_IREAD, S_IWRITE
+    if isFile(path):
+        if enable:
+            os.chmod(path, S_IREAD)
+        else:
+            os.chmod(path, S_IWRITE)
+
+
+def addRepeatSuffix(new: str):
+    """
+    添加重复后缀（用于复制文件的时候解决名称重复问题）
+    @param new: 新文件本身路径
+    @return: 新文件本身路径
+    """
+    if isFile(new):
+        i = 1
+        while existPath(joinPath(splitPath(new, 3), splitPath(new, 1) + " (" + str(i) + ")" + splitPath(new, 2))):
+            i += 1
+        new = joinPath(splitPath(new, 3), splitPath(new, 1) + " (" + str(i) + ")" + splitPath(new, 2))
+    elif isDir(new):
+        i = 1
+        while existPath(new + " (" + str(i) + ")"):
+            i += 1
+        new = new + " (" + str(i) + ")"
+    return new
+
+
+def copyPath(old: str, new: str, replace: bool = False):
+    """
+    复制文件
+    @param old: 旧文件（夹）自身路径
+    @param new: 新文件（夹）所在或本身路径
+    @param replace: 文件重复时是否替换，关闭时将在复制后位置添加序号
+    @return: 是否成功
+    """
+    if not existPath(old):
+        logging.error(f"文件{old}不存在，无法复制！")
+        return False
+    # 新文件所在路径转文件本身路径
+    if isFile(new) or "." in splitPath(new, 0):
+        pass
+    else:
+        new = joinPath(new, splitPath(old, 0))
+    if existPath(new) and replace:
+        logging.warning(f"文件{new}已存在，将尝试以{old}替换！")
+    if not replace:
+        new = addRepeatSuffix(new)
+    if isFile(old):
+        try:
+            createDir(splitPath(new, 3))
+            shutil.copy2(old, new)
+        except Exception as ex:
+            logging.error(f"复制文件失败，错误信息：{ex}。")
+            return False
+    elif isDir(old):
+        try:
+            shutil.copytree(old, new)
+        except Exception as ex:
+            logging.error(f"复制文件夹失败，错误信息：{ex}。")
+            return False
+    return existPath(new)
+
+
+def movePath(old: str, new: str, replace: bool = False):
+    """
+    移动文件（夹）
+    @param old: 旧文件（夹）自身路径
+    @param new: 新文件（夹）所在或本身路径
+    @param replace: 文件重复时是否替换，关闭时将在复制后位置添加序号
+    """
+    if not existPath(old):
+        logging.error(f"文件{old}不存在，无法移动！")
+        return False
+    new = addRepeatSuffix(new)
+    if copyPath(old, new, replace):
+        deletePath(old)
+    return existPath(new) and not existPath(old)
+
+
+def clearDir(path: str):
+    """
+    清空文件夹（无法删除则跳过）
+    @param path: 路径
+    """
+    if isDir(path):
+        for i in walkPath(path, 1):
+            deletePath(i)
+
+
+def showFile(path: str):
+    """
+    在文件资源管理器中打开目录
+    @param path: 路径
+    """
+    if isFile(path):
+        easyCmd(f'explorer /select,"{path}"')
+    else:
+        easyCmd(f'explorer "{path}"')
+
+
+def extractZip(path: str, goal: str, delete: bool = False):
+    """
+    解压zip文件
+    @param path: zip文件路径
+    @param goal: 解压到的目录路径
+    @param delete: 解压后删除
+    """
+    import zipfile
+    if existPath(path):
+        try:
+            file = zipfile.ZipFile(path)
+            file.extractall(goal)
+            file.close()
+            if delete:
+                deleteFile(path)
+            logging.debug(f"{path}解压成功！")
+        except Exception as ex:
+            logging.warning(f"{path}解压失败{ex}！")

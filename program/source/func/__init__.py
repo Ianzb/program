@@ -116,15 +116,15 @@ class CustomThread(QThread, SignalBase):
                         self.isCancel = False
                         d.stop()
                         d.delete()
-                        f.delete(d.path.replace(".downloading", ""))
+                        f.deletePath(d.path.replace(".downloading", ""))
                         self.signalBool.emit(True)
                         return
                 if d.result() == False:
                     self.signalBool.emit(False)
                     logging.debug(f"文件{self.data[1]}下载失败")
-                    f.delete(d.path.replace(".downloading", ""))
+                    f.deletePath(d.path.replace(".downloading", ""))
                 if not f.existPath(d.path.replace(".downloading", "")):
-                    f.moveFile(d.path, d.path.replace(".downloading", ""))
+                    f.movePath(d.path, d.path.replace(".downloading", ""))
                 else:
                     path = d.path.replace(".downloading", "")
                     if f.existPath(path):
@@ -132,7 +132,7 @@ class CustomThread(QThread, SignalBase):
                         while f.existPath(f.pathJoin(f.splitPath(path, 3), f.splitPath(path, 1) + " (" + str(i) + ")" + f.splitPath(path, 2))) or f.existPath(f.pathJoin(f.splitPath(path, 3), f.splitPath(path, 1) + " (" + str(i) + ")" + f.splitPath(path, 2) + ("." if suffix else "") + suffix)):
                             i = i + 1
                         path = f.pathJoin(f.splitPath(path, 3), f.splitPath(path, 1) + " (" + str(i) + ")" + f.splitPath(path, 2))
-                    f.moveFile(d.path, path)
+                    f.movePath(d.path, path)
                 d.stop()
                 self.signalInt.emit(d.rate())
             except:

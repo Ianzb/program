@@ -1,11 +1,10 @@
 from log import*
-from typing import *
 import re, os
 
 
 def clearCharacters(text: str, mode: str | list | tuple = "escape+space"):
     """
-    移除字符串中的指定类型字符。
+    移除字符串中的指定类型字符
     @param text: 字符串
     @param mode: 处理模式，可传入字符串或列表或元组，“escape”表示常见转义字符，“space”表示空格，“slash”表示斜杠，“illegalPath”表示文件系统中禁止存在的字符，字符串使用“+”拼接多种选项，列表中依次填写选项。
     @return: 字符串
@@ -25,7 +24,7 @@ def clearCharacters(text: str, mode: str | list | tuple = "escape+space"):
 
 def compareVersionCode(version1: str, version2: str):
     """
-    比较版本号大小，仅支持如1.0.0的不含字符的版本号。
+    比较版本号大小，仅支持如1.0.0的不含字符的版本号
     @param version1: 版本号1
     @param version2: 版本号2
     @return: 返回大的版本号
@@ -47,7 +46,7 @@ def compareVersionCode(version1: str, version2: str):
 
 def sortVersionCode(version: list, reverse: bool = False, repeat: bool = False):
     """
-    版本号列表排序。
+    版本号列表排序
     @param version: 版本号列表
     @param reverse: 是否降序
     @param repeat: 是否允许重复版本
@@ -61,7 +60,7 @@ def sortVersionCode(version: list, reverse: bool = False, repeat: bool = False):
 
 def numberAddUnit(value: int):
     """
-    数字加单位。
+    数字加单位
     @param value: 值
     @return: 字符串
     """

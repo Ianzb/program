@@ -12,11 +12,11 @@ class LoggingFunctions:
         self.log.setLevel(logging.DEBUG)
         handler1 = logging.StreamHandler(sys.stderr)
         handler1.setLevel(logging.INFO)
-        handler1.setFormatter(logging.Formatter("[%(levelname)s %(asctime)s %(filename)s %(process)d]:%(message)s"))
+        handler1.setFormatter(logging.Formatter("[%(levelname)s %(asctime)s %(filename)s %(process)downloadKit]:%(message)s"))
 
         handler2 = logging.FileHandler(program.LOGGING_FILE_PATH)
         handler2.setLevel(logging.DEBUG)
-        handler2.setFormatter(logging.Formatter("[%(levelname)s %(asctime)s %(filename)s %(process)d]:%(message)s"))
+        handler2.setFormatter(logging.Formatter("[%(levelname)s %(asctime)s %(filename)s %(process)downloadKit]:%(message)s"))
 
         self.log.addHandler(handler1)
         self.log.addHandler(handler2)
