@@ -1,5 +1,4 @@
-from log import*
-import re, os
+from log import *
 
 
 def clearCharacters(text: str, mode: str | list | tuple = "escape+space"):
@@ -9,16 +8,17 @@ def clearCharacters(text: str, mode: str | list | tuple = "escape+space"):
     @param mode: 处理模式，可传入字符串或列表或元组，“escape”表示常见转义字符，“space”表示空格，“slash”表示斜杠，“illegalPath”表示文件系统中禁止存在的字符，字符串使用“+”拼接多种选项，列表中依次填写选项。
     @return: 字符串
     """
+    from re import sub
     if isinstance(mode, str):
         mode: list = mode.split("+")
     if "escape" in mode:
-        text = re.sub(r"[\n\v\r\t]", "", text)
+        text = sub(r"[\n\v\r\t]", "", text)
     if "space" in mode:
         text = text.replace(" ", "")
     if "slash" in mode:
         text = text.replace("/", "").replace("\\", "")
     if "illegalPath" in mode:
-        text = re.sub(r'[*?"<>|]', "", text)
+        text = sub(r'[*?"<>|]', "", text)
     return text
 
 
@@ -71,8 +71,3 @@ def numberAddUnit(value: int):
             return f"{value:.{i}f}{units[i]}"
         value = value / size
     return f"{value:.3f}兆"
-
-
-
-
-

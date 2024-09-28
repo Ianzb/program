@@ -1,7 +1,4 @@
 from log import *
-import urllib.parse
-import requests, lxml, bs4, os
-from DownloadKit import DownloadKit
 from file import existPath, joinPath, isFile, isDir, splitPath, addRepeatSuffix, renamePath
 
 
@@ -11,9 +8,10 @@ def joinUrl(*urls):
     @param urls: 网址
     @return: 拼接结果
     """
+    from urllib.parse import urljoin
     data: str = ""
     for i in urls:
-        data = urllib.parse.urljoin(data, i)
+        data = urljoin(data, i)
     return data
 
 
@@ -26,6 +24,7 @@ def getUrl(url: str, header=None, timeout: int | tuple = (5, 10), times: int = 5
     @param times: 重试次数
     @return:
     """
+    import requests
     for i in range(times):
         try:
             response = requests.get(url, headers=header, stream=True, timeout=timeout)
@@ -46,6 +45,7 @@ def postUrl(url: str, json: dict, header=None, timeout: int | tuple = (5, 10), t
     @param times: 重试次数
     @return:
     """
+    import requests
     for i in range(times):
         try:
             response = requests.post(url, headers=header, json=json, timeout=timeout)
@@ -62,7 +62,9 @@ def getFileNameFromUrl(url: str):
     @param url: 链接
     @return:
     """
-    return os.path.basename(urllib.parse.urlparse(url).path)
+    from urllib.parse import urlparse
+    import os
+    return os.path.basename(urlparse(url).path)
 
 
 def singleDownload(url: str, path: str, replace: bool = False):
@@ -73,6 +75,7 @@ def singleDownload(url: str, path: str, replace: bool = False):
     @param replace: 是否替换
     @return:
     """
+    import requests
     try:
         if existPath(path):
             if isFile(path) and not replace:
@@ -91,7 +94,7 @@ def singleDownload(url: str, path: str, replace: bool = False):
     except Exception as ex:
         logging.error(f"但下载文件{url}到{path}失败，报错信息：{ex}！")
 
-
+from DownloadKit import DownloadKit
 downloadKit = DownloadKit(roads=32, file_exists="overwrite")
 
 
@@ -177,5 +180,5 @@ class MultiDownload:
         完成下载时调用
         """
         if self.result == "success":
-            renamePath(self.suffixPath,self.path)
+            renamePath(self.suffixPath, self.path)
             del self
