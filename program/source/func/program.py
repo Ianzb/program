@@ -54,8 +54,6 @@ class Program:
     ADDON_URL = "https://vip.123pan.cn/1813801926/Code/addon/addon.json"  # 插件信息网址
     STARTUP_ARGUMENT = sys.argv[1:]  # 程序启动参数
     UNINSTALL_FILE = "unins000.exe"  # 卸载程序
-    REQUEST_HEADER = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.0.0",
-                      "zbprogram": VERSION}  # 程序默认网络请求头
 
     def __init__(self):
         # 创建数据目录

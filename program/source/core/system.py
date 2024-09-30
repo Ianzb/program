@@ -1,5 +1,6 @@
 from log import *
 import os
+import threading
 
 
 def easyCmd(command: str, pause: bool = False):
@@ -14,3 +15,21 @@ def easyCmd(command: str, pause: bool = False):
         value = value.read()
         logging.info(f"执行Cmd命令{command}的返回值为{value}。")
         return value
+
+
+class EasyThread(threading.Thread):
+    """
+    threading多线程优化
+    """
+
+    def __init__(self, func, *args):
+        super().__init__()
+
+        self.func = func
+        self.args = args
+
+        self.daemon = True
+        self.start()
+
+    def run(self):
+        self.func(*self.args)

@@ -18,22 +18,7 @@ class Init():
 Init()
 
 
-class EasyThread(threading.Thread):
-    """
-    threading多线程优化
-    """
 
-    def __init__(self, func, *args):
-        super().__init__()
-
-        self.func = func
-        self.args = args
-
-        self.daemon = True
-        self.start()
-
-    def run(self):
-        self.func(*self.args)
 
 
 class SignalBase:

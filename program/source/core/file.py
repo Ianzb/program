@@ -151,7 +151,7 @@ def splitPath(path: str, mode: int | str = 0):
     """
     分割路径信息
     @param path: 文件路径
-    @param mode: 模式：0 文件完整名称 1 文件名称（无扩展名） 2 文件扩展名（无.） 3 文件所在目录
+    @param mode: 模式：0 文件完整名称 1 文件名称（无扩展名） 2 文件扩展名（有.） 3 文件所在目录
     @return: 文件名信息
     """
     if isinstance(mode, str):
@@ -287,22 +287,36 @@ def setOnlyRead(path: str, enable: bool):
             os.chmod(path, S_IWRITE)
 
 
-def addRepeatSuffix(new: str):
+def addRepeatSuffix(path: str):
     """
     添加重复后缀（用于复制文件的时候解决名称重复问题）
-    @param new: 新文件本身路径
+    @param path: 新文件本身路径
     @return: 新文件本身路径
     """
-    if isFile(new):
+    if isFile(path):
         i = 1
-        while existPath(joinPath(splitPath(new, 3), splitPath(new, 1) + " (" + str(i) + ")" + splitPath(new, 2))):
+        while existPath(joinPath(splitPath(path, 3), splitPath(path, 1) + " (" + str(i) + ")" + splitPath(path, 2))):
             i += 1
-        new = joinPath(splitPath(new, 3), splitPath(new, 1) + " (" + str(i) + ")" + splitPath(new, 2))
-    elif isDir(new):
+        path = joinPath(splitPath(path, 3), splitPath(path, 1) + " (" + str(i) + ")" + splitPath(path, 2))
+    elif isDir(path):
         i = 1
-        while existPath(new + " (" + str(i) + ")"):
+        while existPath(path + " (" + str(i) + ")"):
             i += 1
-        new = new + " (" + str(i) + ")"
+        path = path + " (" + str(i) + ")"
+    return path
+
+
+def _dirPathToSelfPath(old: str, new: str):
+    """
+    新文件夹所在路径转文件本身路径，用于复制文件等操作时，将传入的作为复制后文件所在位置的路径替换为复制后文件自身的路径
+    @param old: 旧文件（夹）自身路径
+    @param new: 新文件（夹）所在路径
+    @return: 新文件本身路径
+    """
+    if isFile(new) or "." in splitPath(new, 0):
+        pass
+    else:
+        new = joinPath(new, splitPath(old, 0))
     return new
 
 
@@ -317,11 +331,7 @@ def copyPath(old: str, new: str, replace: bool = False):
     if not existPath(old):
         logging.error(f"文件{old}不存在，无法复制！")
         return False
-    # 新文件所在路径转文件本身路径
-    if isFile(new) or "." in splitPath(new, 0):
-        pass
-    else:
-        new = joinPath(new, splitPath(old, 0))
+    new = _dirPathToSelfPath(old, new)
     if existPath(new) and replace:
         logging.warning(f"文件{new}已存在，将尝试以{old}替换！")
     if not replace:
