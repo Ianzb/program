@@ -21,19 +21,7 @@ Init()
 
 
 
-class SignalBase:
-    """
-    信号基类
-    """
-    signalStr = pyqtSignal(str)
-    signalInt = pyqtSignal(int)
-    signalBool = pyqtSignal(bool)
-    signalList = pyqtSignal(list)
-    signalDict = pyqtSignal(dict)
-    signalObject = pyqtSignal(object)
 
-    def __init__(self, **args):
-        pass
 
 
 class CustomThread(QThread, SignalBase):

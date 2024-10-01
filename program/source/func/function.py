@@ -83,7 +83,7 @@ class ProgramFunctions():
         response = self.requestGet(self.urlJoin(url, "addon.json"), program.REQUEST_HEADER, (15, 30))
         data = json.loads(response)
         data["url"] = url
-        logging.debug(f"插件{data["name"]}信息获取成功")
+        logging.debug(f"插件{data["path"]}信息获取成功")
         return data
 
     def downloadAddon(self, data: dict):
@@ -102,7 +102,7 @@ class ProgramFunctions():
                 f.extractZip(self.pathJoin(program.ADDON_PATH, i), program.ADDON_PATH, True)
             else:
                 self.downloadFile(self.urlJoin(data["url"], i), self.pathJoin(program.ADDON_PATH, data["id"], i).replace("init.py", "__init__.py"))
-        logging.debug(f"插件{data["name"]}下载成功")
+        logging.debug(f"插件{data["path"]}下载成功")
 
     def importAddon(self, path: str):
         """

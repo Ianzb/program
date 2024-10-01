@@ -1,290 +1,7 @@
-from ..core import *
-
-
-class BetterScrollArea(SmoothScrollArea, SignalBase):
-    """
-    优化样式的滚动区域
-    """
-
-    def __init__(self, parent=None):
-        super().__init__(parent=parent)
-        self.setWidgetResizable(True)
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        self.setStyleSheet("QScrollArea {background-color: rgba(0,0,0,0); border: none}")
-
-        self.setScrollAnimation(Qt.Vertical, 500, QEasingCurve.OutQuint)
-        self.setScrollAnimation(Qt.Horizontal, 500, QEasingCurve.OutQuint)
-
-        self.view = QWidget(self)
-        self.view.setStyleSheet("QWidget {background-color: rgba(0,0,0,0); border: none}")
-
-        self.setWidget(self.view)
-
-        self.vBoxLayout = QVBoxLayout(self.view)
-        self.vBoxLayout.setSpacing(30)
-        self.vBoxLayout.setAlignment(Qt.AlignTop)
-        self.vBoxLayout.setContentsMargins(36, 20, 36, 36)
-
-
-class BasicPage(BetterScrollArea):
-    """
-    页面模板
-    """
-    title = ""
-    subtitle = ""
-    pageIcon = None
-
-    def __init__(self, parent=None):
-        super().__init__(parent=parent)
-        self.setObjectName(self.title)
-
-        self.toolBar = ToolBar(self.title, self.subtitle, self)
-
-        self.setViewportMargins(0, self.toolBar.height(), 0, 0)
-
-    def setIcon(self, icon):
-        self.pageIcon = icon
-
-    def icon(self):
-        return self.pageIcon
-
-
-class BasicTabPage(BasicPage):
-    """
-    有多标签页的页面模板
-    """
-
-    def __init__(self, parent=None):
-        super().__init__(parent=parent)
-
-        self.toolBar.deleteLater()
-
-        self.vBoxLayout = QVBoxLayout(self)
-        self.vBoxLayout.setContentsMargins(0, 0, 0, 0)
-
-        self.pivot = Pivot(self)
-        self.vBoxLayout.addWidget(self.pivot, 0, Qt.AlignHCenter)
-
-        self.stackedWidget = QStackedWidget(self)
-        self.stackedWidget.currentChanged.connect(self.onCurrentIndexChanged)
-        self.vBoxLayout.addWidget(self.stackedWidget)
-
-    def addPage(self, widget):
-        name = widget.objectName()
-        widget.setAlignment(Qt.AlignCenter)
-        self.stackedWidget.addWidget(widget)
-        self.pivot.addItem(name, name, lambda: self.stackedWidget.setCurrentWidget(widget), widget.icon)
-        if self.stackedWidget.count() == 1:
-            self.stackedWidget.setCurrentWidget(widget)
-            self.pivot.setCurrentItem(widget.objectName())
-
-    def onCurrentIndexChanged(self, index):
-        widget = self.stackedWidget.widget(index)
-        self.pivot.setCurrentItem(widget.objectName())
-
-
-class BasicTab(BasicPage):
-    """
-    有多标签页模板
-    """
-
-    def __init__(self, parent=None):
-        super().__init__(parent=parent)
-        self.toolBar.deleteLater()
-        self.setViewportMargins(0, 0, 0, 0)
-
-
-class ChangeableTab(BasicTab):
-    """
-    多页面标签页
-    """
-
-    def __init__(self, parent=None):
-        super().__init__(parent=parent)
-        self.page = {}
-        self.onShowPage = None
-        self.onShowName = None
-
-        self.vBoxLayout = QVBoxLayout(self)
-        self.vBoxLayout.setContentsMargins(0, 0, 0, 0)
-        self.vBoxLayout.setSpacing(0)
-
-    def addPage(self, widget, name=None):
-        """
-        添加页面
-        @param widget: 组件
-        @param name: 组件名称（默认为objectName）
-        """
-        widget.setParent(self)
-        widget.hide()
-        if not name:
-            name = widget.objectName()
-        self.page[name] = widget
-        self.vBoxLayout.addWidget(widget)
-
-    def showPage(self, name):
-        """
-        展示页面
-        @param name: 组件名称
-        """
-        self.hidePage()
-        self.page[name].show()
-        self.onShowPage = self.page[name]
-        self.onShowName = name
-
-    def hidePage(self):
-        """
-        隐藏页面
-        """
-        if self.onShowPage:
-            self.onShowPage.hide()
-
-
-class InfoBar(InfoBar):
-    """ 基于Pyside6-Fluent-Widget同名称组件修改，修复了主窗口关闭时异常退出的问题 """
-
-    def __init__(self, icon: InfoBarIcon | FluentIconBase | QIcon | str, title: str, content: str,
-                 orient=Qt.Horizontal, isClosable=True, duration=1000, position=InfoBarPosition.TOP_RIGHT,
-                 parent=None):
-        super().__init__(icon, title, content, orient, isClosable, duration, position, parent)
-
-    def __fadeOut(self):
-        """ fade out """
-        self.opacityAni.setDuration(200)
-        self.opacityAni.setStartValue(1)
-        self.opacityAni.setEndValue(0)
-        self.opacityAni.finished.connect(self.close)
-        self.opacityAni.start()
-
-    def close(self):
-        self.hide()
-        self.closedSignal.emit()
-        self.deleteLater()
-
-
-class FixedExpandLayout(QLayout):
-    """ 基于Pyside6-Fluent-Widget同名称组件修改，修复了无法遍历组件的问题 """
-
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.__items = []
-        self.__widgets = []
-
-    def addWidget(self, widget: QWidget):
-        if widget in self.__widgets:
-            return
-
-        self.__widgets.append(widget)
-        widget.installEventFilter(self)
-
-    def addItem(self, item):
-        self.__items.append(item)
-
-    def count(self):
-        return len(self.__widgets)
-
-    def itemAt(self, index):
-        if 0 <= index < len(self.__items):
-            return self.__items[index]
-
-        return None
-
-    def takeAt(self, index):
-        if 0 <= index < len(self.__widgets):
-            return self.__widgets.pop(index)
-
-        return None
-
-    def expandingDirections(self):
-        return Qt.Orientation.Vertical
-
-    def hasHeightForWidth(self):
-        return True
-
-    def heightForWidth(self, width):
-        """ get the minimal height according to width """
-        return self.__doLayout(QRect(0, 0, width, 0), False)
-
-    def setGeometry(self, rect):
-        super().setGeometry(rect)
-        self.__doLayout(rect, True)
-
-    def sizeHint(self):
-        return self.minimumSize()
-
-    def minimumSize(self):
-        size = QSize()
-
-        for w in self.__widgets:
-            size = size.expandedTo(w.minimumSize())
-
-        m = self.contentsMargins()
-        size += QSize(m.left() + m.right(), m.top() + m.bottom())
-
-        return size
-
-    def __doLayout(self, rect, move):
-        """ adjust widgets position according to the window size """
-        margin = self.contentsMargins()
-        x = rect.x() + margin.left()
-        y = rect.y() + margin.top() + margin.bottom()
-        width = rect.width() - margin.left() - margin.right()
-
-        for i, w in enumerate(self.__widgets):
-            if w.isHidden():
-                continue
-
-            y += (i > 0) * self.spacing()
-            if move:
-                w.setGeometry(QRect(QPoint(x, y), QSize(width, w.height())))
-
-            y += w.height()
-
-        return y - rect.y()
-
-    def eventFilter(self, obj, e):
-        if obj in self.__widgets:
-            if e.type() == QEvent.Type.Resize:
-                ds = e.size() - e.oldSize()  # type:QSize
-                if ds.height() != 0 and ds.width() == 0:
-                    w = self.parentWidget()
-                    w.resize(w.width(), w.height() + ds.height())
-
-        return super().eventFilter(obj, e)
-
-    def clearWidget(self):
-        """
-        自定义清空组件函数
-        """
-        while self.count():
-            widget = self.takeAt(0)
-            if widget is not None:
-                widget.deleteLater()
-
-
-class ToolBar(QWidget):
-    """
-    页面顶端工具栏
-    """
-
-    def __init__(self, title: str, subtitle: str, parent=None):
-        """
-        @param title: 主标题
-        @param subtitle: 副标题
-        """
-        super().__init__(parent=parent)
-        self.setFixedHeight(90)
-
-        self.titleLabel = TitleLabel(title, self)
-        self.subtitleLabel = CaptionLabel(subtitle, self)
-
-        self.vBoxLayout = QVBoxLayout(self)
-        self.vBoxLayout.setSpacing(0)
-        self.vBoxLayout.setContentsMargins(36, 22, 36, 12)
-        self.vBoxLayout.addWidget(self.titleLabel)
-        self.vBoxLayout.addSpacing(4)
-        self.vBoxLayout.addWidget(self.subtitleLabel)
-        self.vBoxLayout.setAlignment(Qt.AlignTop)
+from base import *
+from hook import *
+from thread import *
+from download import *
 
 
 class StatisticsWidget(QWidget):
@@ -316,9 +33,9 @@ class Image(QLabel):
     """
 
     @functools.singledispatchmethod
-    def __init__(self, parent=None, fixsize=True):
+    def __init__(self, parent=None, fixed_size=True):
         super().__init__(parent=parent)
-        if fixsize:
+        if fixed_size:
             self.setFixedSize(48, 48)
         self.setScaledContents(True)
         self.loading = False
@@ -346,11 +63,11 @@ class Image(QLabel):
         """
         if url:
             self.loading = True
-            self.path = program.cache(path)
+            self.path = path
             self.url = url
-            self.thread1 = CustomThread("下载图片", [self.url, self.path])
-            self.thread1.signalBool.connect(self.threadEvent1)
-            self.thread1.start()
+            self.downloadImageThread = SingleDownloadThread(self.url, self.path)
+            self.downloadImageThread.signal.connect(self.threadEvent1)
+            threadPool.start(self.downloadImageThread)
         else:
             self.loading = False
             self.setPixmap(QPixmap(path))
@@ -361,10 +78,18 @@ class CopyTextButton(ToolButton):
     复制文本按钮
     """
 
-    def __init__(self, text, data: str | None = None, parent=None):
+    def __init__(self, text, data: str | None = "", parent=None):
+        """
+        复制文本按钮
+        @param text: 复制的文本
+        @param data: 复制文本的提示信息，可以提示复制文本的内容类型
+        @param parent: 父组件
+        """
         super().__init__(parent)
         self.setIcon(FIF.COPY)
         self.clicked.connect(self.copyButtonClicked)
+        if data is None:
+            data = ""
         self.load(text, data)
 
     def load(self, text, data):
@@ -373,7 +98,7 @@ class CopyTextButton(ToolButton):
             return
         self.text = str(text)
 
-        self.setToolTip(f"点击复制{data if data else ""}信息{"\n" + self.text if self.text else ""}")
+        self.setToolTip(f"点击复制{data}信息！")
         self.installEventFilter(ToolTipFilter(self, 50))
 
     def setData(self, text, data):
@@ -798,7 +523,7 @@ class CardGroup(QWidget):
 
         self.titleLabel = StrongBodyLabel(self)
         self.vBoxLayout = QVBoxLayout(self)
-        self.cardLayout = FixedExpandLayout()
+        self.cardLayout = ExpandLayout()
 
         self.vBoxLayout.setContentsMargins(0, 0, 0, 0)
         self.vBoxLayout.setAlignment(Qt.AlignTop)
@@ -819,11 +544,14 @@ class CardGroup(QWidget):
         if title:
             self.titleLabel.setText(title)
 
-    def addWidget(self, card):
-        self.card = card
-        self.card.setParent(self)
-        self.card.show()
-        self.cardLayout.addWidget(self.card)
+    def addWidget(self, card: QWidget):
+        """
+        添加卡片
+        @param card: 卡片对象
+        """
+        card.setParent(self)
+        card.show()
+        self.cardLayout.addWidget(card)
 
     def setTitle(self, text: str):
         """
@@ -831,12 +559,6 @@ class CardGroup(QWidget):
         @param text: 文本
         """
         self.titleLabel.setText(text)
-
-    def deleteTitle(self):
-        """
-        删除标题
-        """
-        self.titleLabel.deleteLater()
 
     def setTitleEnabled(self, enabled: bool):
         """
@@ -850,67 +572,4 @@ class CardGroup(QWidget):
         自定义清空组件函数
         """
         self.cardLayout.clearWidget()
-
-
-class DownloadWidget(QWidget, SignalBase):
-    """
-    下载文件ui接口
-    """
-
-    def __init__(self, link: str, name: str, parent=None):
-        super().__init__(parent=parent)
-        self.parent = parent
-        self.name = name
-        self.link = link
-
-        self.thread1 = CustomThread("下载文件", (link, name))
-        self.thread1.signalInt.connect(self.thread1_1)
-        self.thread1.signalBool.connect(self.thread1_2)
-        self.thread1.start()
-
-        self.progressBar = ProgressBar(self.parent)
-        self.progressBar.setAlignment(Qt.AlignCenter)
-        self.progressBar.setRange(0, 100)
-        self.progressBar.setValue(0)
-        self.progressBar.setMinimumWidth(200)
-
-        self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "下载", f"正在下载文件{name}...", Qt.Orientation.Vertical, True, -1, InfoBarPosition.TOP_RIGHT, self.parent)
-        self.infoBar.addWidget(self.progressBar)
-        self.infoBar.show()
-        self.infoBar.closeButton.clicked.connect(self.thread1.cancel)
-
-    def thread1_1(self, msg):
-        try:
-            self.infoBar.contentLabel.setText(f"正在下载文件{self.name}...")
-            self.progressBar.setValue(msg)
-        except:
-            return
-        if msg == 100:
-            self.signalBool.emit(True)
-
-            self.infoBar.closeButton.click()
-
-            self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "下载", f"资源 {self.name} 下载成功！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent)
-            self.infoBar.show()
-            self.button1 = PushButton("打开目录", self.parent, FIF.FOLDER)
-            self.button1.clicked.connect(self.button1Clicked)
-            self.infoBar.addWidget(self.button1)
-
-            self.progressBar.setValue(0)
-            self.progressBar.deleteLater()
-
-    def thread1_2(self, msg):
-        if not msg:
-            self.signalBool.emit(False)
-            try:
-                self.infoBar.closeButton.click()
-            except:
-                self.thread1.cancel()
-            self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", "下载失败！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent)
-            self.infoBar.show()
-
-    def button1Clicked(self):
-        f.showFile(setting.read("downloadPath"))
-        self.infoBar.closeButton.click()
-
-
+d=MultiDownloadThread()

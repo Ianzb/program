@@ -95,7 +95,7 @@ class AddonEditMessageBox(MessageBoxBase):
             names = sorted(self.installed.keys())
 
             self.tableView.setItem(i, 0, QTableWidgetItem(self.installed[names[i]]["id"]))
-            self.tableView.setItem(i, 1, QTableWidgetItem(self.installed[names[i]]["name"]))
+            self.tableView.setItem(i, 1, QTableWidgetItem(self.installed[names[i]]["path"]))
             self.tableView.setItem(i, 2, QTableWidgetItem(self.installed[names[i]]["version"]))
             self.tableView.setItem(i, 3, QTableWidgetItem("加载中..."))
 
@@ -126,7 +126,7 @@ class AddonEditMessageBox(MessageBoxBase):
         installed_version_list = [self.tableView.itemFromIndex(i).text() for i in self.tableView.selectedIndexes()[2::4]]
         for i in range(len(id_list)):
             if installed_version_list[i] != "未安装":
-                self.parent().removeAddon({"id": id_list[i], "name": name_list[i]})
+                self.parent().removeAddon({"id": id_list[i], "path": name_list[i]})
 
         self.accept()
         self.accepted.emit()
@@ -143,7 +143,7 @@ class AddonEditMessageBox(MessageBoxBase):
             self.tableView.setRowCount(self.tableView.rowCount() + 1)
             i = self.tableView.rowCount() - 1
             self.tableView.setItem(i, 0, QTableWidgetItem(msg["id"]))
-            self.tableView.setItem(i, 1, QTableWidgetItem(msg["name"]))
+            self.tableView.setItem(i, 1, QTableWidgetItem(msg["path"]))
             self.tableView.setItem(i, 2, QTableWidgetItem("未安装"))
             self.tableView.setItem(i, 3, QTableWidgetItem(msg["version"]))
             self.tableView.show()
@@ -379,7 +379,7 @@ class ColorSettingCard(ExpandGroupSettingCard):
             self.button2.setChecked(True)
             self.button3.setEnabled(True)
         self.color = QColor(setting.read("themeColor"))
-        setThemeColor(self.color.name(), lazy=True)
+        setThemeColor(self.color.path(), lazy=True)
         self.label1.setText(self.buttonGroup.checkedButton().text())
         self.label1.adjustSize()
 
@@ -399,8 +399,8 @@ class ColorSettingCard(ExpandGroupSettingCard):
             setThemeColor("#0078D4", lazy=True)
         else:
             self.button3.setDisabled(False)
-            setting.save("themeColor", self.color.name())
-            setThemeColor(self.color.name(), lazy=True)
+            setting.save("themeColor", self.color.path())
+            setThemeColor(self.color.path(), lazy=True)
 
     def showColorDialog(self):
         colorDialog = ColorDialog(setting.read("themeColor"), "选择颜色", self.window())
@@ -410,7 +410,7 @@ class ColorSettingCard(ExpandGroupSettingCard):
     def __colorChanged(self, color):
         setThemeColor(color, lazy=True)
         self.color = QColor(color)
-        setting.save("themeColor", self.color.name())
+        setting.save("themeColor", self.color.path())
         self.colorChanged.emit(color)
 
 
