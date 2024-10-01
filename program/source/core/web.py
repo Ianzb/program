@@ -99,6 +99,44 @@ def singleDownload(url: str, path: str, exist: bool = True, force: bool = False,
         logging.error(f"但下载文件{url}到{path}失败，报错信息：{ex}！")
 
 
+# 对DownloadKit进行魔改
+from DownloadKit.mission import Mission
+
+
+def _set_auto_finish(self, func):
+    """设置一个任务为自动完成状态
+    :param func: 完成时调用的函数
+    :return: None
+    """
+    self._auto_finish = func
+
+
+def _set_done(self, result, info):
+    """设置一个任务为done状态
+    :param result: 结果：'success'、'skipped'、'canceled'、False、None
+    :param info: 任务信息
+    :return: None
+    """
+    if result == 'skipped':
+        self.set_states(result=result, info=info, state=self._DONE)
+
+    elif result == 'canceled' or result is False:
+        self.recorder.clear()
+        self.set_states(result=result, info=info, state=self._DONE)
+
+    elif result == 'success':
+        self.recorder.record()
+        if self.size and self.path.stat().st_size < self.size:
+            self.del_file()
+            self.set_states(False, '下载失败', self._DONE)
+        else:
+            self._auto_finish()
+            self.set_states('success', info, self._DONE)
+
+
+Mission._set_auto_finish = _set_auto_finish
+Mission._set_done = _set_done
+
 from DownloadKit import DownloadKit
 from system import EasyThread
 
@@ -122,28 +160,22 @@ class MultiDownload:
         self.url = url
         self.path = path
         self.replace = replace
-        self.__quit = False
         self.__finished = False
-        if isFile(self.path) and not replace:
-            logging.warning(f"由于文件{self.path}已存在，自动跳过下载！")
-            self.__quit = True
-            return
-        elif isDir(self.path):
-            self.path = joinPath(self.path, getFileNameFromUrl(url))
+
+        if isDir(self.path):
+            self.path = joinPath(self.path, getFileNameFromUrl(self.url))
         self.suffixPath = self.path + "." + suffix
         if isFile(self.suffixPath):
-            if not replace:
-                self.__quit = True
-                logging.warning(f"由于文件{self.path}已在下载中，自动跳过下载！")
-                return
-        logging.info(f"开始使用DownloadKit下载{url}到{self.path}")
+            self.suffixPath=addRepeatSuffix(self.suffixPath)
+
+        logging.info(f"开始使用DownloadKit下载{self.url}到{self.path}！")
         self.downloadKit = downloadKit
-        print(splitPath(self.suffixPath, 2))
-        self.file = self.downloadKit.add(url,
+        self.file = self.downloadKit.add(self.url,
                                          splitPath(self.path, 3),
                                          splitPath(self.suffixPath, 1),
                                          splitPath(self.suffixPath, 2)[1:],
                                          headers=header, split=True, allow_redirects=True, stream=True, timeout=15)
+        self.file._set_auto_finish(self._finish)
         if wait:
             self.file.wait()
 
@@ -156,23 +188,13 @@ class MultiDownload:
         return int(self.file.rate) if self.file.rate else 0
 
     @property
-    def finish(self):
+    def result(self):
         """
         获得下载结果
-        @return: success成功（只返回一次），downloading下载中，skipped已跳过，failed失败，finished已结束
+        @return: downloading下载中，skipped已跳过，failed失败，finished已结束
         """
         if self.__finished:
-            return "finished"
-        if self.__quit:
-            return "skipped"
-        elif self.file.result == "success":
-            if existPath(self.suffixPath):
-                self.resultPath = movePath(self.suffixPath, self.path, self.replace)
-                logging.info(f"成功使用DownloadKit下载{self.url}到{self.resultPath}！")
-                self.__finished = True
-                return "success"
-            else:
-                return "failed"
+            return self.__finished
         elif self.file.result is None:
             return "downloading"
         elif self.file.result == "skipped":
@@ -186,6 +208,21 @@ class MultiDownload:
         """
         停止下载
         """
-        self.file.cancel()
-        self.file.session.close()
-        self.downloadKit.cancel()
+        if self.result == "downloading":
+            self.file.cancel()
+            self.file.session.close()
+            self.downloadKit.cancel()
+        else:
+            logging.warning(f"使用DownloadKit下载{self.url}的状态为{self.result}，无法停止！")
+
+    def _finish(self):
+        """
+        下载完成后的回调函数，无需手动调用。
+        """
+        self.resultPath = movePath(self.suffixPath, self.path, self.replace)
+        if not self.resultPath:
+            logging.warning(f"使用DownloadKit下载{self.url}到{self.path}失败：无法移动下载临时文件至正式目录！")
+            self.__finished = "failed"
+            return
+        logging.info(f"成功使用DownloadKit下载{self.url}到{self.resultPath}！")
+        self.__finished = "finished"
