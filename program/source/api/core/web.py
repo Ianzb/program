@@ -1,6 +1,6 @@
-from log import *
-from file import existPath, joinPath, isFile, isDir, splitPath, addRepeatSuffix, movePath, _dirPathToSelfPath
-from info import REQUEST_HEADER
+from .log import *
+from .file import existPath, joinPath, isFile, isDir, splitPath, addRepeatSuffix, movePath, _dirPathToSelfPath
+from .info import REQUEST_HEADER
 
 
 def joinUrl(*urls):
@@ -138,7 +138,7 @@ Mission._set_auto_finish = _set_auto_finish
 Mission._set_done = _set_done
 
 from DownloadKit import DownloadKit
-from system import EasyThread
+from .system import EasyThread
 
 downloadKit = DownloadKit(roads=32, file_exists="overwrite")
 

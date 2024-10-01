@@ -1,4 +1,4 @@
-from log import *
+from .log import *
 
 
 def clearCharacters(text: str, mode: str | list | tuple = "escape+space"):

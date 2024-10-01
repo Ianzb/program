@@ -1,4 +1,4 @@
-from program.source.api.core import *
+from core import *
 import functools
 from PyQt5 import *
 from PyQt5.Qt import *

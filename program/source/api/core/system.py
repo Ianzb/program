@@ -1,4 +1,4 @@
-from log import *
+from .log import *
 import os
 import threading
 

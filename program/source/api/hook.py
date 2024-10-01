@@ -1,4 +1,4 @@
-from base import*
+from .base import*
 """ 基于Pyside6-Fluent-Widget同名称组件修改，修复了主窗口关闭时异常退出的问题 """
 
 

@@ -1,10 +1,6 @@
-import logging
-
-from setuptools.errors import FileError
-
-from log import *
+from .log import *
+from .system import easyCmd
 import os, sys, shutil, send2trash
-from system import easyCmd
 
 
 def fileSizeAddUnit(value: int):
