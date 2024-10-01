@@ -1,6 +1,4 @@
-import time
-
-from base import *
+from .base import *
 threadPool = QThreadPool()
 
 

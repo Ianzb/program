@@ -1,5 +1,5 @@
-from .custom import *
-
+from ..widget import *
+from ..program import *
 
 class Tray(QSystemTrayIcon):
     """
@@ -89,7 +89,7 @@ class AddonEditMessageBox(MessageBoxBase):
 
         self.widget.setMinimumWidth(600)
 
-        self.installed = f.getInstalledAddonInfo()
+        self.installed = getInstalledAddonInfo()
         self.tableView.setRowCount(len(self.installed.values()))
         for i in range(len(self.installed.values())):
             names = sorted(self.installed.keys())
@@ -214,7 +214,7 @@ class AddonSettingCard(SettingCard):
 
     def button1Clicked(self):
         get = QFileDialog.getOpenFileUrl(self, "选择插件文件", QUrl(""), "zb小程序插件 (*.zbaddon);;压缩包 (*.zip)")[0]
-        get = f.pathJoin(get.path()[1:])
+        get = pathJoin(get.path()[1:])
         if get and get not in ["."]:
             self.importAddon(get)
 
@@ -225,8 +225,8 @@ class AddonSettingCard(SettingCard):
     def dragEnterEvent(self, event):
         if event.mimeData().hasUrls():
             if len(event.mimeData().urls()) == 1:
-                if f.isFile(event.mimeData().urls()[0].toLocalFile()):
-                    if f.splitPath(event.mimeData().urls()[0].toLocalFile(), 2) in [".zbaddon", ".zip"]:
+                if isFile(event.mimeData().urls()[0].toLocalFile()):
+                    if splitPath(event.mimeData().urls()[0].toLocalFile(), 2) in [".zbaddon", ".zip"]:
                         event.acceptProposedAction()
                         self.contentLabel.setText("拖拽到此卡片即可快速导入插件！")
 
@@ -239,9 +239,9 @@ class AddonSettingCard(SettingCard):
             self.importAddon(file)
 
     def importAddon(self, path: str):
-        if not f.existPath(path):
+        if not existPath(path):
             return
-        id = f.importAddon(path)
+        id = importAddon(path)
         self.window().addAddon(id)
 
 
@@ -464,10 +464,10 @@ class StartupSettingCard(SettingCard):
     def button1Clicked(self):
         if self.checkBox1.isChecked():
             self.checkBox2.setEnabled(True)
-            f.addToStartup(True)
+            addToStartup(True)
         else:
             self.checkBox2.setEnabled(False)
-            f.addToStartup(False)
+            addToStartup(False)
 
     def button2Clicked(self):
         setting.save("autoHide", self.checkBox2.isChecked())
@@ -532,7 +532,7 @@ class DownloadSettingCard(SettingCard):
         self.setAcceptDrops(True)
 
     def saveSetting(self, path: str):
-        if f.existPath(path):
+        if existPath(path):
             setting.save("downloadPath", path)
         self.contentLabel.setText(f"当前路径：{setting.read("downloadPath")}")
 
@@ -543,7 +543,7 @@ class DownloadSettingCard(SettingCard):
     def dragEnterEvent(self, event):
         if event.mimeData().hasUrls():
             if len(event.mimeData().urls()) == 1:
-                if f.isDir(event.mimeData().urls()[0].toLocalFile()):
+                if isDir(event.mimeData().urls()[0].toLocalFile()):
                     event.acceptProposedAction()
                     self.contentLabel.setText("拖拽到此卡片即可快速导入目录！")
 
@@ -602,7 +602,7 @@ class UpdateSettingCard(SettingCard):
 
     def button2Clicked(self):
         self.infoBar.close()
-        f.delete(program.cache("zbProgramUpdate.exe"))
+        delete(program.cache("zbProgramUpdate.exe"))
         self.download = DownloadWidget(program.UPDATE_INSTALLER_URL, program.cache("zbProgramUpdate.exe"), self.window().aboutPage)
         self.download.signalBool.connect(self.updateProgram)
 
@@ -619,12 +619,12 @@ class HelpSettingCard(SettingCard):
     def __init__(self, parent=None):
         super().__init__(FIF.HELP, "帮助", "查看程序相关信息", parent)
         self.button1 = HyperlinkButton(program.INSTALL_PATH, "程序安装路径", self, FIF.FOLDER)
-        self.button1.clicked.connect(lambda: f.showFile(program.INSTALL_PATH))
+        self.button1.clicked.connect(lambda: showFile(program.INSTALL_PATH))
         self.button1.setToolTip("打开程序安装路径")
         self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
 
         self.button2 = HyperlinkButton(program.INSTALL_PATH, "程序数据路径", self, FIF.FOLDER)
-        self.button2.clicked.connect(lambda: f.showFile(program.DATA_PATH))
+        self.button2.clicked.connect(lambda: showFile(program.DATA_PATH))
         self.button2.setToolTip("打开程序数据路径")
         self.button2.installEventFilter(ToolTipFilter(self.button2, 1000))
 

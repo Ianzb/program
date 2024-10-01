@@ -1,5 +1,5 @@
-from base import *
-from thread import *
+from .base import *
+from .thread import *
 
 
 class DownloadWidget(QWidget):

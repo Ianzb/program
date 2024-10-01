@@ -1,4 +1,4 @@
-from core import *
+from ..function import *
 import functools
 from PyQt5 import *
 from PyQt5.Qt import *

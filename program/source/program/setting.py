@@ -1,5 +1,5 @@
-from .logging import *
-
+from .program import *
+import json
 
 class SettingFunctions:
     """

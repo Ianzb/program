@@ -1,4 +1,4 @@
-from .setting import *
+from program.source.program.setting import *
 
 
 class ProgramFunctions():
