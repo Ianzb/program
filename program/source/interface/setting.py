@@ -1,4 +1,5 @@
 from ..widget import *
+from .widget import *
 
 class SettingPage(BasicPage):
     """
@@ -39,5 +40,5 @@ class SettingPage(BasicPage):
         self.vBoxLayout.addWidget(self.cardGroup2, 0, Qt.AlignTop)
         self.vBoxLayout.addWidget(self.cardGroup3, 0, Qt.AlignTop)
 
-        if not (program.WINDOWS_VERSION[0] >= 10 and program.WINDOWS_VERSION[2] >= 22000):
+        if not (WINDOWS_VERSION[0] >= 10 and WINDOWS_VERSION[2] >= 22000):
             self.micaEffectSettingCard.hide()

@@ -573,4 +573,3 @@ class CardGroup(QWidget):
         自定义清空组件函数
         """
         self.cardLayout.clearWidget()
-d=DownloadWidget("https://vip.123pan.cn/1813801926/code/program/zbProgram_setup.exe",r"C:\Users\93322\Downloads")

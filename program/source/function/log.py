@@ -1,9 +1,9 @@
-import logging as __log
+import logging as log_import
 from sys import stderr
-logging = __log.getLogger(__name__)
-logging.setLevel(__log.DEBUG)
+logging = log_import.getLogger(__name__)
+logging.setLevel(log_import.DEBUG)
 
-handler1 = __log.StreamHandler(stderr)
-handler1.setFormatter(__log.Formatter("[%(levelname)s %(asctime)s %(filename)s %(process)s]:%(message)s"))
+handler1 = log_import.StreamHandler(stderr)
+handler1.setFormatter(log_import.Formatter("[%(levelname)s %(asctime)s %(filename)s %(process)s]:%(message)s"))
 
 logging.addHandler(handler1)

@@ -2,16 +2,7 @@ import os, sys
 
 USER_PATH = os.path.expanduser("~")  # 系统用户路径
 REQUEST_HEADER = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36 Edg/128.0.0.0"}  # 程序默认网络请求头
-
-
-@property
-def WINDOWS_VERSION():
-    """
-    获得Windows版本
-    @return: 返回列表，例：[10,0,22631]
-    """
-    version = sys.getwindowsversion()
-    return [version.major, version.minor, version.build]
+WINDOWS_VERSION = [sys.getwindowsversion().major, sys.getwindowsversion().minor, sys.getwindowsversion().build]
 
 
 @property

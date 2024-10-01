@@ -10,7 +10,7 @@ class SettingFunctions:
         self.DEFAULT_SETTING = {"theme": "Theme.AUTO",
                                 "themeColor": "#0078D4",
                                 "autoHide": True,
-                                "downloadPath": program.DOWNLOAD_PATH,
+                                "downloadPath": DOWNLOAD_PATH,
                                 "showWindow": False,
                                 "micaEffect": True,
                                 "showTray": True,

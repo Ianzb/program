@@ -2,7 +2,8 @@ from .base import *
 threadPool = QThreadPool()
 
 
-class SingleDownloadThread(QRunnable):
+class SingleDownloadThread(QRunnable,QObject):
+    signal = pyqtSignal(object)
     def __init__(self, url: str, path: str):
         """
         单线程下载线程
@@ -12,14 +13,16 @@ class SingleDownloadThread(QRunnable):
         super().__init__()
         self.url = url
         self.path = path
-        self.signal = SignalBase().signal
 
     def run(self):
         path = singleDownload(self.url, self.path, True, True, REQUEST_HEADER)
         self.signal.emit(path)
 
 
-class MultiDownloadThread(QRunnable):
+class MultiDownloadThread(QRunnable,QObject):
+    signalFinished = pyqtSignal(object)
+    signalRate = pyqtSignal(object)
+    signalPath = pyqtSignal(object)
     def __init__(self, url: str, path: str):
         """
         多线程下载线程
@@ -29,9 +32,7 @@ class MultiDownloadThread(QRunnable):
         super().__init__()
         self.url = url
         self.path = path
-        self.signalFinished = SignalBase().signal
-        self.signalRate = SignalBase().signal
-        self.signalPath= SignalBase().signal
+
 
     def run(self):
         from time import sleep

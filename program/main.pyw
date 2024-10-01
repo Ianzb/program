@@ -1,11 +1,7 @@
+
 from source import *
 
-QApplication.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
-QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
-QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
-app = QApplication(sys.argv)
-translator = FluentTranslator()
-app.installTranslator(translator)
+
 window = Window()
 window.show()
 if program.isStartup and setting.read("autoHide"):

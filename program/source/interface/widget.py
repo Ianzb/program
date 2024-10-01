@@ -1,5 +1,6 @@
 from ..widget import *
 from ..program import *
+import webbrowser
 
 class Tray(QSystemTrayIcon):
     """
@@ -214,7 +215,7 @@ class AddonSettingCard(SettingCard):
 
     def button1Clicked(self):
         get = QFileDialog.getOpenFileUrl(self, "选择插件文件", QUrl(""), "zb小程序插件 (*.zbaddon);;压缩包 (*.zip)")[0]
-        get = pathJoin(get.path()[1:])
+        get = joinPath(get.path()[1:])
         if get and get not in ["."]:
             self.importAddon(get)
 
@@ -379,7 +380,7 @@ class ColorSettingCard(ExpandGroupSettingCard):
             self.button2.setChecked(True)
             self.button3.setEnabled(True)
         self.color = QColor(setting.read("themeColor"))
-        setThemeColor(self.color.path(), lazy=True)
+        setThemeColor(self.color, lazy=True)
         self.label1.setText(self.buttonGroup.checkedButton().text())
         self.label1.adjustSize()
 
@@ -444,7 +445,7 @@ class StartupSettingCard(SettingCard):
 
         super().__init__(FIF.POWER_BUTTON, "开机自启动", "设置程序的开机自启动功能", parent)
         self.checkBox1 = CheckBox("开机自启动", self)
-        self.checkBox1.setChecked(f.checkStartup())
+        self.checkBox1.setChecked(checkStartup())
         self.checkBox1.clicked.connect(self.button1Clicked)
         self.checkBox1.setToolTip("设置程序开机自启动")
         self.checkBox1.installEventFilter(ToolTipFilter(self.checkBox1, 1000))
@@ -454,7 +455,7 @@ class StartupSettingCard(SettingCard):
         self.checkBox2.clicked.connect(self.button2Clicked)
         self.checkBox2.setToolTip("设置程序在开机自启动时自动最小化窗口")
         self.checkBox2.installEventFilter(ToolTipFilter(self.checkBox2, 1000))
-        self.checkBox2.setEnabled(f.checkStartup())
+        self.checkBox2.setEnabled(checkStartup())
 
         self.hBoxLayout.addWidget(self.checkBox1, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(8)
@@ -602,7 +603,7 @@ class UpdateSettingCard(SettingCard):
 
     def button2Clicked(self):
         self.infoBar.close()
-        delete(program.cache("zbProgramUpdate.exe"))
+        deletePath(program.cache("zbProgramUpdate.exe"))
         self.download = DownloadWidget(program.UPDATE_INSTALLER_URL, program.cache("zbProgramUpdate.exe"), self.window().aboutPage)
         self.download.signalBool.connect(self.updateProgram)
 

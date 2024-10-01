@@ -7,7 +7,7 @@ class BetterScrollArea(SmoothScrollArea, SignalBase):
     """
 
     def __init__(self, parent=None):
-        super(SmoothScrollArea).__init__(parent=parent)
+        super().__init__(parent=parent)
         self.setWidgetResizable(True)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.setStyleSheet("QScrollArea {background-color: rgba(0,0,0,0); border: none}")
