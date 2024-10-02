@@ -19,13 +19,3 @@ QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
 app = QApplication(sys.argv)
 translator = FluentTranslator()
 app.installTranslator(translator)
-class SignalBase:
-    """
-    信号基类
-    """
-    signal = pyqtSignal(object)
-    signalStr = pyqtSignal(str)
-    signalInt = pyqtSignal(int)
-    signalBool = pyqtSignal(bool)
-    signalList = pyqtSignal(list)
-    signalDict = pyqtSignal(dict)

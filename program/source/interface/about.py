@@ -26,12 +26,13 @@ class UpdateSettingCard(SettingCard):
     def button1Clicked(self):
         self.button1.setEnabled(False)
 
-        self.thread1 = program.THREAD_POOL.submit(self.checkUpdate)
+        program.THREAD_POOL.submit(self.checkUpdate)
 
     def checkUpdate(self):
         try:
             data = getNewestVersion()
-        except:
+        except Exception as ex:
+            logging.error(f"检测更新失败，报错信息：{ex}！")
             self.signalBool.emit(False)
             return
         if compareVersionCode(data, program.VERSION) == program.VERSION:
@@ -61,6 +62,7 @@ class UpdateSettingCard(SettingCard):
 
     def button2Clicked(self):
         self.button1.setEnabled(False)
+
         self.infoBar.close()
         deletePath(program.cache("zbProgramUpdate.exe"))
         self.download = DownloadWidget(program.UPDATE_INSTALLER_URL, program.cache("zbProgramUpdate.exe"), program.THREAD_POOL, self.window().aboutPage)
@@ -68,6 +70,7 @@ class UpdateSettingCard(SettingCard):
 
     def updateProgram(self, msg):
         self.button1.setEnabled(True)
+
         if msg == "finished":
             os.popen(program.cache("zbProgramUpdate.exe"))
 
@@ -76,6 +79,7 @@ class HelpSettingCard(SettingCard):
     """
     帮助设置卡片
     """
+    signalBool = pyqtSignal(bool)
 
     def __init__(self, parent=None):
         super().__init__(FIF.HELP, "帮助", "查看程序相关信息", parent)
@@ -99,21 +103,21 @@ class HelpSettingCard(SettingCard):
         self.hBoxLayout.addWidget(self.button3, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
+        self.signalBool.connect(self.threadEvent3)
+
     def button3Clicked(self):
         self.button3.setEnabled(False)
 
-        self.thread3 = CustomThread("清理程序缓存")
-        self.thread3.signalBool.connect(self.threadEvent3)
-        self.thread3.start()
+        program.THREAD_POOL.submit(self.clearCache)
+
+    def clearCache(self):
+        clearProgramCache()
+        self.signalBool.emit(True)
 
     def threadEvent3(self, msg):
         self.button3.setEnabled(True)
-
         if msg:
             self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", "清理程序缓存成功！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.window().aboutPage)
-            self.infoBar.show()
-        else:
-            self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", "清理程序缓存失败！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.window().aboutPage)
             self.infoBar.show()
 
 
@@ -183,10 +187,11 @@ class AboutPage(BasicPage):
     关于页面
     """
     title = "关于"
-    subtitle = "程序运行状态及相关信息"
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
+
+        self.setViewportMargins(0, 70, 0, 0)
         self.setIcon(FIF.INFO)
 
         self.cardGroup1 = CardGroup("关于", self)

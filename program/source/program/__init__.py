@@ -10,15 +10,13 @@ handler2.setFormatter(log_import.Formatter("[%(levelname)s %(asctime)s %(filenam
 logging.addHandler(handler2)
 
 
-def clearProgramCache(self):
+def clearProgramCache():
     """
     清理本软件缓存
     """
-    try:
-        logging.reset()
-        clearDir(joinPath(program.DATA_PATH, "cache"))
-    except:
-        pass
+    logging.reset()
+    clearDir(joinPath(program.DATA_PATH, "cache"))
+
 
 
 def addToStartup(mode: bool = True):
@@ -61,9 +59,9 @@ def getNewestVersion() -> str:
     获取程序最新版本
     @return: 程序最新版本
     """
-    response = getUrl(program.UPDATE_URL, program.REQUEST_HEADER, (15, 30))
-    data = json.loads(response)["version"]
-    logging.info(f"程序最新版本：{data}")
+    response = getUrl(program.UPDATE_URL, REQUEST_HEADER, (15, 30))
+    data = json.loads(response.text)["version"]
+    logging.info(f"服务器最新版本：{data}")
     return data
 
 
@@ -72,8 +70,8 @@ def getAddonDict() -> dict:
     获取插件字典
     @return: 字典
     """
-    response = getUrl(program.ADDON_URL, program.REQUEST_HEADER, (15, 30))
-    data = json.loads(response)
+    response = getUrl(program.ADDON_URL, REQUEST_HEADER, (15, 30))
+    data = json.loads(response.text)
     logging.debug("插件信息获取成功")
     return data
 
@@ -86,8 +84,8 @@ def getAddonInfo(url: str) -> dict:
     """
     if not url.endswith("/"):
         url += "/"
-    response = getUrl(joinUrl(url, "addon.json"), program.REQUEST_HEADER, (15, 30))
-    data = json.loads(response)
+    response = getUrl(joinUrl(url, "addon.json"), REQUEST_HEADER, (15, 30))
+    data = json.loads(response.text)
     data["url"] = url
     logging.debug(f"插件{data["path"]}信息获取成功")
     return data
@@ -98,7 +96,7 @@ def downloadAddon(data: dict):
     下载插件
     @param data: 插件信息
     """
-    create(joinPath(program.ADDON_PATH, data["id"]))
+    createDir(joinPath(program.ADDON_PATH, data["id"]))
     if "__init__.py" not in data["file"]:
         open(joinPath(program.ADDON_PATH, data["id"], "__init__.py"), "w", encoding="utf-8").close()
     if "addon.json" not in data["file"]:

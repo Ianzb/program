@@ -1,4 +1,3 @@
-from ..function import *
 from ..widget import *
 import os, sys
 from concurrent.futures import ThreadPoolExecutor

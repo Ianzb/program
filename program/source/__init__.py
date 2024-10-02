@@ -6,7 +6,7 @@ from .interface import *
 from traceback import format_exception
 import importlib
 
-class Window(FluentWindow, SignalBase):
+class Window(FluentWindow):
     """
     主窗口
     """

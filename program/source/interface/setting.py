@@ -318,10 +318,10 @@ class SettingPage(BasicPage):
     设置页面
     """
     title = "设置"
-    subtitle = "个性化设置程序功能"
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
+        self.setViewportMargins(0, 70, 0, 0)
         self.setIcon(FIF.SETTING)
 
         self.cardGroup1 = CardGroup("外观", self)

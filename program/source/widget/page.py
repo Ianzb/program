@@ -1,7 +1,7 @@
 from .base import *
 
 
-class BetterScrollArea(SmoothScrollArea, SignalBase):
+class BetterScrollArea(SmoothScrollArea):
     """
     优化样式的滚动区域
     """
