@@ -1,6 +1,5 @@
 from .base import *
 from .hook import *
-from .thread import *
 from .download import *
 from .page import *
 
@@ -34,27 +33,23 @@ class Image(QLabel):
     """
 
     @functools.singledispatchmethod
-    def __init__(self, parent=None, fixed_size=True):
+    def __init__(self, parent=None, fixed_size=True, thread_pool: QThreadPool = None):
         super().__init__(parent=parent)
         if fixed_size:
             self.setFixedSize(48, 48)
         self.setScaledContents(True)
         self.loading = False
+        self.threadPool = thread_pool
 
     @__init__.register
-    def _(self, path: str, url: str = None, parent=None, fixsize=True):
+    def _(self, path: str, url: str = None, parent=None, fixed_size=True, thread_pool: QThreadPool = None):
         """
         @param path: 路径
         @param url: 链接
         """
-        self.__init__(parent, fixsize)
+        self.__init__(parent, fixed_size, thread_pool)
         if path:
             self.setImg(path, url)
-
-    def threadEvent1(self, msg):
-        if msg:
-            self.loading = False
-            self.setPixmap(QPixmap(self.path))
 
     def setImg(self, path: str, url: str = None):
         """
@@ -66,12 +61,16 @@ class Image(QLabel):
             self.loading = True
             self.path = path
             self.url = url
-            self.downloadImageThread = SingleDownloadThread(self.url, self.path)
-            self.downloadImageThread.signal.connect(self.threadEvent1)
-            threadPool.start(self.downloadImageThread)
+            self.downloadImageThread = self.threadPool.submit(self.downloadImage)
         else:
             self.loading = False
             self.setPixmap(QPixmap(path))
+
+    def downloadImage(self):
+        msg = singleDownload(self.url, self.path, True, True, REQUEST_HEADER)
+        if msg:
+            self.loading = False
+            self.setPixmap(QPixmap(self.path))
 
 
 class CopyTextButton(ToolButton):
@@ -368,12 +367,14 @@ class BigInfoCard(CardWidget):
         """
         self.titleLabel.setText(text)
 
-    def setImg(self, path: str, url: str = None):
+    def setImg(self, path: str, url: str = None, thread_pool: QThreadPool = None):
         """
         设置图片
         @param path: 路径
         @param url: 链接
+        @param thread_pool: 线程池
         """
+        self.image.threadPool = thread_pool
         self.image.setImg(path, url)
 
     def setInfo(self, data: str):
@@ -490,12 +491,13 @@ class SmallInfoCard(CardWidget):
         """
         self.titleLabel.setText(text)
 
-    def setImg(self, path: str, url: str = None):
+    def setImg(self, path: str, url: str = None, thread_pool: QThreadPool = None):
         """
         设置图片
         @param path: 路径
         @param url: 链接
         """
+        self.image.threadPool = thread_pool
         self.image.setImg(path, url)
 
     def setInfo(self, data: str, pos: int):

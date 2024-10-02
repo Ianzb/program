@@ -38,15 +38,7 @@ class CustomThread(QThread, SignalBase):
     def run(self):
         logging.debug(f"{self.mode} 线程开始")
         if self.mode == "检查更新":
-            try:
-                data = f.getNewestVersion()
-            except:
-                self.signalBool.emit(False)
-                return
-            if f.compareVersion(data, program.VERSION) == program.VERSION:
-                self.signalBool.emit(True)
-            else:
-                self.signalStr.emit(data)
+
         elif self.mode == "下载图片":
             if not f.existPath(self.data[1]):
                 f.downloadFile(self.data[0], self.data[1])

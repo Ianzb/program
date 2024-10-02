@@ -1,5 +1,7 @@
 from ..function import *
+from ..widget import *
 import os, sys
+from concurrent.futures import ThreadPoolExecutor
 
 
 class Program:
@@ -31,6 +33,7 @@ class Program:
     ADDON_PATH = os.path.join(DATA_PATH, "addon")  # 程序插件路径
 
     STARTUP_ARGUMENT = sys.argv[1:]  # 程序启动参数
+    THREAD_POOL = ThreadPoolExecutor(max_workers=8)  # 程序公用线程池
 
     def __init__(self):
         # 创建数据目录
@@ -126,4 +129,6 @@ class Program:
                 os.remove(os.path.join(self.DATA_PATH, "zb.unlock"))
             with open(os.path.join(self.DATA_PATH, "zb.lock"), "w+", encoding="utf-8") as file:
                 file.write(str(self.PROGRAM_PID))
-program=Program()
+
+
+program = Program()

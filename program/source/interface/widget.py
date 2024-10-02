@@ -561,7 +561,8 @@ class UpdateSettingCard(SettingCard):
     """
     更新设置卡片
     """
-
+    signalBool=pyqtSignal(bool)
+    signalStr=pyqtSignal(str)
     def __init__(self, parent=None):
         super().__init__(FIF.UPDATE, "更新", "更新程序至新版本", parent)
 
@@ -573,13 +574,24 @@ class UpdateSettingCard(SettingCard):
         self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
+        self.signalStr.connect(self.threadEvent1_1)
+        self.signalBool.connect(self.threadEvent1_2)
+
     def button1Clicked(self):
         self.button1.setEnabled(False)
 
-        self.thread1 = CustomThread("检查更新")
-        self.thread1.signalStr.connect(self.threadEvent1_1)
-        self.thread1.signalBool.connect(self.threadEvent1_2)
-        self.thread1.start()
+        self.thread1 = program.THREAD_POOL.submit(self.checkUpdate)
+    def checkUpdate(self):
+        try:
+            data = getNewestVersion()
+        except:
+            self.signalBool.emit(False)
+            return
+        if compareVersionCode(data, program.VERSION) == program.VERSION:
+            self.signalBool.emit(True)
+        else:
+            self.signalStr.emit(data)
+
 
     def threadEvent1_1(self, msg):
         self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", f"检测到新版本{msg}！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.window().aboutPage)
@@ -596,19 +608,21 @@ class UpdateSettingCard(SettingCard):
         if msg:
             self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"{program.VERSION}已为最新版本！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.window().aboutPage)
         else:
-            self.infoBar = InfoBar(InfoBarIcon.WARNING, "警告", "网络连接失败，无法检查程序更新！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.window().aboutPage)
+            self.infoBar = InfoBar(InfoBarIcon.WARNING, "警告", "服务器连接失败，无法检查更新！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.window().aboutPage)
         self.infoBar.show()
 
         self.button1.setEnabled(True)
 
     def button2Clicked(self):
+        self.button1.setEnabled(False)
         self.infoBar.close()
         deletePath(program.cache("zbProgramUpdate.exe"))
-        self.download = DownloadWidget(program.UPDATE_INSTALLER_URL, program.cache("zbProgramUpdate.exe"), self.window().aboutPage)
-        self.download.signalBool.connect(self.updateProgram)
+        self.download = DownloadWidget(program.UPDATE_INSTALLER_URL, program.cache("zbProgramUpdate.exe"),program.THREAD_POOL, self.window().aboutPage)
+        self.download.signalFinished.connect(self.updateProgram)
 
     def updateProgram(self, msg):
-        if msg:
+        self.button1.setEnabled(True)
+        if msg=="finished":
             os.popen(program.cache("zbProgramUpdate.exe"))
 
 

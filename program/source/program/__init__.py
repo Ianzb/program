@@ -1,11 +1,8 @@
-from ..function import*
+from ..function import *
 from .program import *
 from .setting import *
 
-
-
-
-#日志设置
+# 日志设置
 handler2 = log_import.FileHandler(program.LOGGING_FILE_PATH)
 handler2.setLevel(log_import.DEBUG)
 handler2.setFormatter(log_import.Formatter("[%(levelname)s %(asctime)s %(filename)s %(process)s]:%(message)s"))
@@ -24,7 +21,7 @@ def clearProgramCache(self):
         pass
 
 
-def addToStartup( mode: bool = True):
+def addToStartup(mode: bool = True):
     """
     添加开机自启动
     @param mode: True添加/False删除
@@ -81,7 +78,7 @@ def getAddonDict() -> dict:
     return data
 
 
-def getAddonInfo( url: str) -> dict:
+def getAddonInfo(url: str) -> dict:
     """
     获取指定插件信息
     @param url: 链接
@@ -96,39 +93,39 @@ def getAddonInfo( url: str) -> dict:
     return data
 
 
-def downloadAddon( data: dict):
+def downloadAddon(data: dict):
     """
     下载插件
     @param data: 插件信息
     """
     create(joinPath(program.ADDON_PATH, data["id"]))
     if "__init__.py" not in data["file"]:
-        open( joinPath(program.ADDON_PATH, data["id"], "__init__.py"), "w", encoding="utf-8").close()
+        open(joinPath(program.ADDON_PATH, data["id"], "__init__.py"), "w", encoding="utf-8").close()
     if "addon.json" not in data["file"]:
         data["file"].append("addon.json")
     for i in data["file"]:
-        if splitPath( joinPath(program.ADDON_PATH, data["id"], i), 2) == ".zip":
-            singleDownload(joinUrl(data["url"], i),  joinPath(program.ADDON_PATH, i).replace("init.py", "__init__.py"))
-            extractZip( joinPath(program.ADDON_PATH, i), program.ADDON_PATH, True)
+        if splitPath(joinPath(program.ADDON_PATH, data["id"], i), 2) == ".zip":
+            singleDownload(joinUrl(data["url"], i), joinPath(program.ADDON_PATH, i).replace("init.py", "__init__.py"))
+            extractZip(joinPath(program.ADDON_PATH, i), program.ADDON_PATH, True)
         else:
-            singleDownload(joinUrl(data["url"], i),  joinPath(program.ADDON_PATH, data["id"], i).replace("init.py", "__init__.py"))
+            singleDownload(joinUrl(data["url"], i), joinPath(program.ADDON_PATH, data["id"], i).replace("init.py", "__init__.py"))
     logging.debug(f"插件{data["path"]}下载成功")
 
 
-def importAddon( path: str):
+def importAddon(path: str):
     """
     导入本体插件
     @param path: 目录
     """
     extractZip(path, program.cache(splitPath(path)))
-    if existPath( joinPath(program.cache(splitPath(path)), "addon.json")):
-        with open( joinPath(program.cache(splitPath(path)), "addon.json"), "r", encoding="utf-8") as file:
+    if existPath(joinPath(program.cache(splitPath(path)), "addon.json")):
+        with open(joinPath(program.cache(splitPath(path)), "addon.json"), "r", encoding="utf-8") as file:
             data = json.loads(file.read())
-        extractZip(path,  joinPath(program.ADDON_PATH, data[id]))
+        extractZip(path, joinPath(program.ADDON_PATH, data[id]))
     else:
         for i in walkDir(program.cache(splitPath(path))):
-            if existPath( joinPath(i, "addon.json")):
-                with open( joinPath(i, "addon.json"), "r", encoding="utf-8") as file:
+            if existPath(joinPath(i, "addon.json")):
+                with open(joinPath(i, "addon.json"), "r", encoding="utf-8") as file:
                     data = json.loads(file.read())
                 break
         extractZip(path, program.ADDON_PATH)

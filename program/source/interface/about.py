@@ -1,6 +1,7 @@
 from ..widget import *
 from .widget import *
 
+
 class AboutPage(BasicPage):
     """
     关于页面
@@ -25,7 +26,7 @@ class AboutPage(BasicPage):
         self.cardGroup1.addWidget(self.aboutSettingCard)
 
         self.bigInfoCard = BigInfoCard(self, data=False)
-        # self.bigInfoCard.setImg("Ianzb.png", "https://vip.123pan.cn/1813801926/%E8%B5%84%E6%BA%90/%E4%B8%AA%E4%BA%BA/%E5%A4%B4%E5%83%8F/png/%E5%A4%B4%E5%83%8F%E9%AB%98%E6%B8%85%E9%80%8F%E6%98%8E.png")
+        self.bigInfoCard.setImg(program.cache("Ianzb.png"), "https://vip.123pan.cn/1813801926/%E8%B5%84%E6%BA%90/%E4%B8%AA%E4%BA%BA/%E5%A4%B4%E5%83%8F/png/%E5%A4%B4%E5%83%8F%E9%AB%98%E6%B8%85%E9%80%8F%E6%98%8E.png", program.THREAD_POOL)
         self.bigInfoCard.image.setMinimumSize(150, 150)
         self.bigInfoCard.setTitle(program.AUTHOR_NAME)
         self.bigInfoCard.setInfo("Minecraft玩家，科幻迷，编程爱好者！")

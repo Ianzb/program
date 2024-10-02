@@ -1,17 +1,20 @@
 from .base import *
-from .thread import *
 
 
 class DownloadWidget(QWidget):
     """
     下载文件ui接口
     """
+    signalFinished = pyqtSignal(object)
+    signalRate = pyqtSignal(object)
+    signalPath = pyqtSignal(object)
 
-    def __init__(self, url: str, path: str, parent=None):
+    def __init__(self, url: str, path: str, threadPool: QThreadPool, parent=None):
         """
         下载文件ui接口
         @param url: 链接
         @param path: 文件完整路径或所在路径
+        @param threadPool: 线程池
         @param parent: 父组件
         """
         super().__init__(parent=parent)
@@ -23,13 +26,12 @@ class DownloadWidget(QWidget):
         if isDir(self.path):
             self.path = joinPath(self.path, getFileNameFromUrl(self.url))
 
-        self.multiDownloadThread = MultiDownloadThread(self.url, self.path)
-        self.multiDownloadThread.signalFinished.connect(self.downloadFinished)
-        self.multiDownloadThread.signalRate.connect(self.downloading)
-        self.multiDownloadThread.signalPath.connect(self.setResultPath)
-        threadPool.start(self.multiDownloadThread)
+        self.multiDownloadThread = threadPool.submit(self.download)
+        self.signalFinished.connect(self.downloadFinished)
+        self.signalRate.connect(self.downloading)
+        self.signalPath.connect(self.setResultPath)
 
-        self.progressBar = ProgressBar(self.parent)
+        self.progressBar = ProgressBar()
         self.progressBar.setAlignment(Qt.AlignCenter)
         self.progressBar.setRange(0, 100)
         self.progressBar.setValue(0)
@@ -38,7 +40,21 @@ class DownloadWidget(QWidget):
         self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "下载", f"正在下载文件{splitPath(self.path, 0)}...", Qt.Orientation.Vertical, True, -1, InfoBarPosition.TOP_RIGHT, self.parent)
         self.infoBar.addWidget(self.progressBar)
         self.infoBar.show()
-        self.infoBar.closeButton.clicked.connect(self.thread1.cancel)
+
+
+    def download(self):
+        from time import sleep
+        self.d = MultiDownload(self.url, self.path, False, True, ".downloading", REQUEST_HEADER)
+        self.infoBar.closeButton.clicked.connect(self.d.stop)
+
+        while True:
+            sleep(0.1)
+            if self.d.result != "downloading":
+                self.signalFinished.emit(self.d.result)
+                if self.d.result == "finished":
+                    self.signalPath.emit(self.d.resultPath)
+                break
+            self.signalRate.emit(self.d.rate)
 
     def downloading(self, msg):
         try:
@@ -47,6 +63,10 @@ class DownloadWidget(QWidget):
             return
 
     def downloadFinished(self, msg):
+        try:
+            self.infoBar.close()
+        except:
+            pass
         if msg == "skipped":
             self.infoBar = InfoBar(InfoBarIcon.ERROR, "下载错误", f"文件{splitPath(self.path, 0)}已取消下载！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent)
             self.infoBar.show()
@@ -56,7 +76,7 @@ class DownloadWidget(QWidget):
         elif msg == "finished":
             self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "下载成功", f"文件{splitPath(self.path, 0)}下载成功！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent)
             self.infoBar.show()
-        self.progressBar.deleteLater()
+        self.progressBar.hide()
 
     def setResultPath(self, msg):
         self.resultPath = msg
