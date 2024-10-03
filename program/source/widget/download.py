@@ -41,7 +41,6 @@ class DownloadWidget(QWidget):
         self.infoBar.addWidget(self.progressBar)
         self.infoBar.show()
 
-
     def download(self):
         from time import sleep
         self.d = MultiDownload(self.url, self.path, False, True, ".downloading", REQUEST_HEADER)

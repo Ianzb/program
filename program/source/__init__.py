@@ -205,4 +205,4 @@ class Window(FluentWindow):
             self.show()
 
 
-logging.debug("主窗口类初始化成功")
+logging.debug("程序主窗口类初始化成功！")

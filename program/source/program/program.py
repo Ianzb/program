@@ -97,16 +97,18 @@ class Program:
 
     def close(self):
         """
-        关闭程序
+        退出程序
         """
-        sys.exit()
+        logging.info("程序已退出！")
+        os._exit(0)
 
     def restart(self):
         """
         重启程序
         """
         os.popen(self.MAIN_FILE_PATH)
-        sys.exit()
+        logging.info("程序正在重启中！")
+        os._exit(0)
 
     def detectRepeatRun(self):
         """

@@ -575,3 +575,4 @@ class CardGroup(QWidget):
         自定义清空组件函数
         """
         self.cardLayout.clearWidget()
+logging.info("组件库api初始化成功！")

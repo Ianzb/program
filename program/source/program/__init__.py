@@ -1,4 +1,3 @@
-from ..function import *
 from .program import *
 from .setting import *
 
@@ -136,3 +135,4 @@ def getInstalledAddonInfo() -> dict:
             with open(joinPath(i, "addon.json"), encoding="utf-8") as file:
                 data[splitPath(i)] = json.loads(file.read())
     return data
+logging.info("程序动态数据api初始化成功！")

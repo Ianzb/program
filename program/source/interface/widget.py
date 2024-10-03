@@ -1,4 +1,3 @@
-from ..widget import *
 from ..program import *
 import webbrowser
 
