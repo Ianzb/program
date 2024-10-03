@@ -111,8 +111,8 @@ class HelpSettingCard(SettingCard):
         program.THREAD_POOL.submit(self.clearCache)
 
     def clearCache(self):
-        clearProgramCache()
-        self.signalBool.emit(True)
+        clearDir(joinPath(program.DATA_PATH, "cache"))
+        program.THREAD_POOL.submit(lambda: self.signalBool.emit(True))
 
     def threadEvent3(self, msg):
         self.button3.setEnabled(True)
@@ -155,11 +155,15 @@ class ControlSettingCard(SettingCard):
         self.hBoxLayout.addSpacing(16)
 
     def button1Clicked(self):
-        self.button4 = PushButton("确认", self, FIF.SEND)
-        self.button4.clicked.connect(setting.reset)
+        self.button5 = PushButton("确认", self, FIF.SEND)
+        self.button5.clicked.connect(self.button5Clicked)
         self.infoBar = InfoBar(InfoBarIcon.WARNING, "警告", "是否确认重置设置？该操作不可撤销！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.window().aboutPage)
-        self.infoBar.addWidget(self.button4)
+        self.infoBar.addWidget(self.button5)
         self.infoBar.show()
+
+    def button5Clicked(self):
+        setting.reset()
+        self.infoBar.close()
 
 
 class AboutSettingCard(SettingCard):

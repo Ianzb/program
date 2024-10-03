@@ -40,17 +40,30 @@ class ThemeSettingCard(ExpandSettingCard):
         self.viewLayout.addWidget(self.radioButton2)
         self.viewLayout.addWidget(self.radioButton3)
 
+        self.set()
+        setting.signalConnect(self.setEvent)
+
+        self._adjustViewSize()
+
+    def set(self):
+        self.buttonGroup.buttonClicked.disconnect(self.buttonGroupClicked)
         if setting.read("theme") == "Theme.LIGHT":
             self.radioButton1.setChecked(True)
+            setTheme(Theme.LIGHT, lazy=True)
             self.label.setText("浅色")
         elif setting.read("theme") == "Theme.DARK":
             self.radioButton2.setChecked(True)
+            setTheme(Theme.DARK, lazy=True)
             self.label.setText("深色")
         else:
             self.radioButton3.setChecked(True)
+            setTheme(Theme.AUTO, lazy=True)
             self.label.setText("跟随系统设置")
+        self.buttonGroup.buttonClicked.connect(self.buttonGroupClicked)
 
-        self._adjustViewSize()
+    def setEvent(self, msg):
+        if msg == "theme":
+            self.set()
 
     def buttonGroupClicked(self, button: RadioButton):
         if button.text() == self.label.text():
@@ -106,6 +119,7 @@ class ColorSettingCard(ExpandGroupSettingCard):
         self.button3 = QPushButton("选择颜色", self.customColorWidget)
         self.button3.setToolTip("选择自定义颜色")
         self.button3.installEventFilter(ToolTipFilter(self.button3, 1000))
+        self.button3.clicked.connect(self.showColorDialog)
 
         self.radioLayout.addWidget(self.button1)
         self.radioLayout.addWidget(self.button2)
@@ -129,19 +143,31 @@ class ColorSettingCard(ExpandGroupSettingCard):
 
         self._adjustViewSize()
 
+        self.buttonGroup.buttonClicked.connect(self.buttonGroupClicked)
+
+        self.set()
+        setting.signalConnect(self.setEvent)
+
+        self.label1.setText(self.buttonGroup.checkedButton().text())
+        self.label1.adjustSize()
+
+    def set(self):
+        self.buttonGroup.buttonClicked.disconnect(self.buttonGroupClicked)
         if setting.read("themeColor") == "#0078D4":
             self.button1.setChecked(True)
             self.button3.setEnabled(False)
         else:
             self.button2.setChecked(True)
             self.button3.setEnabled(True)
-        self.color = QColor(setting.read("themeColor"))
-        setThemeColor(self.color, lazy=True)
         self.label1.setText(self.buttonGroup.checkedButton().text())
         self.label1.adjustSize()
-
+        self.color = QColor(setting.read("themeColor"))
+        setThemeColor(self.color, lazy=True)
         self.buttonGroup.buttonClicked.connect(self.buttonGroupClicked)
-        self.button3.clicked.connect(self.showColorDialog)
+
+    def setEvent(self, msg):
+        if msg == "themeColor":
+            self.set()
 
     def buttonGroupClicked(self, button: RadioButton):
         if button.text() == self.label1.text():
@@ -156,8 +182,8 @@ class ColorSettingCard(ExpandGroupSettingCard):
             setThemeColor("#0078D4", lazy=True)
         else:
             self.button3.setDisabled(False)
-            setting.save("themeColor", self.color.path())
-            setThemeColor(self.color.path(), lazy=True)
+            setting.save("themeColor", self.color.name())
+            setThemeColor(self.color, lazy=True)
 
     def showColorDialog(self):
         colorDialog = ColorDialog(setting.read("themeColor"), "选择颜色", self.window())
@@ -186,6 +212,19 @@ class MicaEffectSettingCard(SettingCard):
 
         self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
+
+        self.set()
+        setting.signalConnect(self.setEvent)
+
+    def set(self):
+        self.button1.checkedChanged.disconnect(self.button1Clicked)
+        self.button1.setChecked(setting.read("micaEffect"))
+        self.window().setMicaEffectEnabled(setting.read("micaEffect"))
+        self.button1.checkedChanged.connect(self.button1Clicked)
+
+    def setEvent(self, msg):
+        if msg == "micaEffect":
+            self.set()
 
     def button1Clicked(self):
         setting.save("micaEffect", self.button1.checked)
@@ -218,6 +257,18 @@ class StartupSettingCard(SettingCard):
         self.hBoxLayout.addWidget(self.checkBox2, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
+        self.set()
+        setting.signalConnect(self.setEvent)
+
+    def set(self):
+        self.checkBox2.clicked.disconnect(self.button2Clicked)
+        self.checkBox2.setChecked(setting.read("autoHide"))
+        self.checkBox2.clicked.connect(self.button2Clicked)
+
+    def setEvent(self, msg):
+        if msg == "autoHide":
+            self.set()
+
     def button1Clicked(self):
         if self.checkBox1.isChecked():
             self.checkBox2.setEnabled(True)
@@ -246,6 +297,19 @@ class TraySettingCard(SettingCard):
         self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
+        self.set()
+        setting.signalConnect(self.setEvent)
+
+    def set(self):
+        self.button1.checkedChanged.disconnect(self.button1Clicked)
+        self.button1.setChecked(setting.read("showTray"))
+        self.window().tray.setVisible(setting.read("showTray"))
+        self.button1.checkedChanged.connect(self.button1Clicked)
+
+    def setEvent(self, msg):
+        if msg == "showTray":
+            self.set()
+
     def button1Clicked(self):
         setting.save("showTray", self.button1.checked)
         self.window().tray.setVisible(self.button1.checked)
@@ -267,6 +331,18 @@ class HideSettingCard(SettingCard):
         self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
+        self.set()
+        setting.signalConnect(self.setEvent)
+
+    def set(self):
+        self.button1.checkedChanged.disconnect(self.button1Clicked)
+        self.button1.setChecked(setting.read("hideWhenClose"))
+        self.button1.checkedChanged.connect(self.button1Clicked)
+
+    def setEvent(self, msg):
+        if msg == "hideWhenClose":
+            self.set()
+
     def button1Clicked(self):
         setting.save("hideWhenClose", self.button1.checked)
 
@@ -287,6 +363,10 @@ class DownloadSettingCard(SettingCard):
         self.hBoxLayout.addSpacing(16)
 
         self.setAcceptDrops(True)
+
+    def setEvent(self, msg):
+        if msg == "downloadPath":
+            self.contentLabel.setText(f"当前路径：{setting.read("downloadPath")}")
 
     def saveSetting(self, path: str):
         if existPath(path):

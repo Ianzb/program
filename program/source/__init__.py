@@ -1,10 +1,10 @@
-
 from .function import *
 from .widget import *
 from .program import *
 from .interface import *
 from traceback import format_exception
 import importlib
+
 
 class Window(FluentWindow):
     """
@@ -39,6 +39,9 @@ class Window(FluentWindow):
         desktop = QApplication.screens()[0].size()
         w, h = desktop.width(), desktop.height()
         self.move(w // 2 - self.width() // 2, h // 2 - self.height() // 2)
+        # 托盘组件
+        self.tray = Tray(self)
+        self.tray.setVisible(setting.read("showTray"))
 
     def __initWidget(self):
         """
@@ -62,10 +65,6 @@ class Window(FluentWindow):
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.timerEvent)
         self.timer.start(250)
-
-        # 托盘组件
-        self.tray = Tray(self)
-        self.tray.setVisible(setting.read("showTray"))
 
         # 插件安装
         # self.addAddon(getInstalledAddonInfo())

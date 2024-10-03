@@ -32,7 +32,7 @@ class Program:
     ADDON_PATH = os.path.join(DATA_PATH, "addon")  # 程序插件路径
 
     STARTUP_ARGUMENT = sys.argv[1:]  # 程序启动参数
-    THREAD_POOL = ThreadPoolExecutor(max_workers=8)  # 程序公用线程池
+    THREAD_POOL = ThreadPoolExecutor()  # 程序公用线程池
 
     def __init__(self):
         # 创建数据目录

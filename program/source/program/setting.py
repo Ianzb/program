@@ -1,22 +1,27 @@
+import logging
+
 from .program import *
 import json
 
-class SettingFunctions:
+
+class SettingFunctions(QObject):
     """
     设置相关函数
     """
+    DEFAULT_SETTING = {"theme": "Theme.AUTO",
+                       "themeColor": "#0078D4",
+                       "autoHide": True,
+                       "downloadPath": str(DOWNLOAD_PATH),
+                       "showWindow": False,
+                       "micaEffect": True,
+                       "showTray": True,
+                       "hideWhenClose": True,
+                       }
+    changeSignal = pyqtSignal(str)
 
     def __init__(self):
-        self.DEFAULT_SETTING = {"theme": "Theme.AUTO",
-                                "themeColor": "#0078D4",
-                                "autoHide": True,
-                                "downloadPath": DOWNLOAD_PATH,
-                                "showWindow": False,
-                                "micaEffect": True,
-                                "showTray": True,
-                                "hideWhenClose": True,
-                                }
-        self.file = open(program.SETTING_FILE_PATH, "a+t", encoding="utf-8")
+        super().__init__()
+        program.THREAD_POOL.submit(self.checkFileChange)
         self.__read()
 
     def read(self, name: str):
@@ -25,21 +30,17 @@ class SettingFunctions:
         @param name: 选项名称
         @return: 选项内容
         """
-        logging.debug(f"读取设置{name}")
-        try:
-            return self.settings[name]
-        except:
-            self.settings[name] = self.DEFAULT_SETTING[name]
-            self.__save()
-            return self.DEFAULT_SETTING[name]
+        return self.last_setting.get(name, self.DEFAULT_SETTING[name])
 
     def __read(self):
-        self.file.seek(0)
+        if not existPath(program.SETTING_FILE_PATH):
+            with open(program.SETTING_FILE_PATH, "w", encoding="utf-8") as file:
+                file.write(json.dumps(self.DEFAULT_SETTING))
         try:
-            self.settings = json.loads(self.file.read())
-        except:
-            self.settings = self.DEFAULT_SETTING
-            self.__save()
+            with open(program.SETTING_FILE_PATH, "r", encoding="utf-8") as file:
+                self.last_setting = json.load(file)
+        except Exception as ex:
+            logging.error(f"设置文件数据数据错误，错误信息：{ex}！")
 
     def save(self, name: str, data):
         """
@@ -48,14 +49,13 @@ class SettingFunctions:
         @param data: 选项数据
         """
         logging.debug(f"保存设置{name}：{data}")
-        self.settings[name] = data
+        self.last_setting[name] = data
         self.__save()
 
     def __save(self):
-        self.file.seek(0)
-        self.file.truncate()
-        self.file.write(json.dumps(self.settings))
-        self.file.flush()
+        with open(program.SETTING_FILE_PATH, "w", encoding="utf-8") as file:
+            file.write(json.dumps(self.last_setting))
+        self.last_timestamp = os.path.getmtime(program.SETTING_FILE_PATH)
 
     def reset(self, name=None):
         """
@@ -64,10 +64,12 @@ class SettingFunctions:
         """
         if name:
             self.save(name, self.DEFAULT_SETTING[name])
+            self.changeEvent(name)
         else:
-            self.settings = self.DEFAULT_SETTING
+            self.last_setting = self.DEFAULT_SETTING
             self.__save()
-            program.restart()
+            for k in self.last_setting.keys():
+                self.changeEvent(k)
 
     def add(self, name: str, data):
         """
@@ -76,7 +78,7 @@ class SettingFunctions:
         @param data: 默认数据
         """
         self.DEFAULT_SETTING[name] = data
-        if name not in self.settings.keys():
+        if name not in self.last_setting.keys():
             self.save(name, data)
 
     def adds(self, data: dict):
@@ -86,6 +88,54 @@ class SettingFunctions:
         """
         for k, v in data.items():
             self.add(k, v)
+
+    def changeEvent(self, name: str):
+        """
+        修改设置项事件
+        @param name: 名称
+        """
+        logging.info(f"设置项{name}发生更改，已同步！")
+        self.changeSignal.emit(name)
+
+    def signalConnect(self, func):
+        """
+        连接信号，用于动态重载设置
+        @param func: 函数名
+        """
+        self.changeSignal.connect(func)
+
+    def checkFileChange(self):
+        """
+        检查设置文件是否被修改
+        """
+        from time import sleep
+        self.last_timestamp = os.path.getmtime(program.SETTING_FILE_PATH)
+        while True:
+            sleep(0.5)
+            try:
+                current_timestamp = os.path.getmtime(program.SETTING_FILE_PATH)
+                if current_timestamp != self.last_timestamp:
+                    self.last_timestamp = current_timestamp
+                    with open(program.SETTING_FILE_PATH, "r", encoding="utf-8") as file:
+                        self.current_setting = json.load(file)
+                    l = self.__compare(self.current_setting, self.last_setting)
+                    self.last_setting = self.current_setting
+                    for i in l:
+                        self.changeEvent(i)
+            except Exception as ex:
+                logging.error(f"设置文件数据数据错误，错误信息：{ex}！")
+
+    def __compare(self, old: dict, new: dict):
+        keys = []
+        for k in old.keys():
+            if k in new.keys() and old[k] != new[k]:
+                keys.append(k)
+            elif k not in new.keys():
+                keys.append(k)
+        for k in new.keys():
+            if k not in old.keys():
+                keys.append(k)
+        return sorted(list(set(keys)))
 
 
 setting = SettingFunctions()

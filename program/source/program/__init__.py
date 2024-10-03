@@ -10,12 +10,6 @@ handler2.setFormatter(log_import.Formatter("[%(levelname)s %(asctime)s %(filenam
 logging.addHandler(handler2)
 
 
-def clearProgramCache():
-    """
-    清理本软件缓存
-    """
-    logging.reset()
-    clearDir(joinPath(program.DATA_PATH, "cache"))
 
 
 
