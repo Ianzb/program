@@ -25,10 +25,7 @@ class Window(FluentWindow):
         窗口初始化
         """
         # 外观调整
-        setTheme(eval(setting.read("theme")), lazy=True)
-        setThemeColor("#0078D4", lazy=True)
         self.navigationInterface.setAcrylicEnabled(True)
-        self.setMicaEffectEnabled(setting.read("micaEffect"))
         # 窗口属性
         self.resize(900, 700)
         self.setMinimumSize(700, 500)
@@ -41,7 +38,6 @@ class Window(FluentWindow):
         self.move(w // 2 - self.width() // 2, h // 2 - self.height() // 2)
         # 托盘组件
         self.tray = Tray(self)
-        self.tray.setVisible(setting.read("showTray"))
 
     def __initWidget(self):
         """

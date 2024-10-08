@@ -44,6 +44,10 @@ class ThemeSettingCard(ExpandSettingCard):
 
         self._adjustViewSize()
 
+    def setEvent(self, msg):
+        if msg == "theme":
+            self.set()
+
     def set(self):
         self.buttonGroup.buttonClicked.disconnect(self.buttonGroupClicked)
         if setting.read("theme") == "Theme.LIGHT":
@@ -54,15 +58,12 @@ class ThemeSettingCard(ExpandSettingCard):
             self.radioButton2.setChecked(True)
             setTheme(Theme.DARK, lazy=True)
             self.label.setText("深色")
-        else:
+        elif setting.read("theme") == "Theme.AUTO":
             self.radioButton3.setChecked(True)
             setTheme(Theme.AUTO, lazy=True)
             self.label.setText("跟随系统设置")
+        self.label.adjustSize()
         self.buttonGroup.buttonClicked.connect(self.buttonGroupClicked)
-
-    def setEvent(self, msg):
-        if msg == "theme":
-            self.set()
 
     def buttonGroupClicked(self, button: RadioButton):
         if button.text() == self.label.text():
@@ -124,9 +125,9 @@ class ColorSettingCard(ExpandGroupSettingCard):
         self.radioLayout.addWidget(self.button2)
 
         self.buttonGroup = QButtonGroup(self)
-
         self.buttonGroup.addButton(self.button1)
         self.buttonGroup.addButton(self.button2)
+        self.buttonGroup.buttonClicked.connect(self.buttonGroupClicked)
 
         self.customColorLayout.setContentsMargins(48, 18, 44, 18)
         self.customColorLayout.setSizeConstraint(QHBoxLayout.SizeConstraint.SetMinimumSize)
@@ -142,13 +143,8 @@ class ColorSettingCard(ExpandGroupSettingCard):
 
         self._adjustViewSize()
 
-        self.buttonGroup.buttonClicked.connect(self.buttonGroupClicked)
-
         self.set()
         setting.signalConnect(self.setEvent)
-
-        self.label1.setText(self.buttonGroup.checkedButton().text())
-        self.label1.adjustSize()
 
     def set(self):
         self.buttonGroup.buttonClicked.disconnect(self.buttonGroupClicked)
@@ -192,7 +188,7 @@ class ColorSettingCard(ExpandGroupSettingCard):
     def __colorChanged(self, color):
         setThemeColor(color, lazy=True)
         self.color = QColor(color)
-        setting.save("themeColor", self.color.path())
+        setting.save("themeColor", self.color.name())
         self.colorChanged.emit(color)
 
 
