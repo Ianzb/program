@@ -1,6 +1,3 @@
-from .function import *
-from .widget import *
-from .program import *
 from .interface import *
 from traceback import format_exception
 import importlib
@@ -15,7 +12,6 @@ class Window(FluentWindow):
 
     def __init__(self):
         super().__init__()
-
         self.__initWindow()
         self.__initWidget()
         self.__initActivity()
@@ -61,6 +57,11 @@ class Window(FluentWindow):
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.timerEvent)
         self.timer.start(250)
+
+        # 设置数据异常提醒
+        if setting.errorState:
+            self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", "设置文件数据错误，已自动恢复至默认选项，具体错误原因请查看程序日志！", Qt.Orientation.Vertical, True, -1, InfoBarPosition.TOP_RIGHT, self.mainPage)
+            self.infoBar.show()
 
         # 插件安装
         # self.addAddon(getInstalledAddonInfo())

@@ -9,7 +9,22 @@ handler2.setFormatter(log_import.Formatter("[%(levelname)s %(asctime)s %(filenam
 logging.addHandler(handler2)
 
 
+# 检查重复运行
+def detectRepeatRun():
+    if existPath(joinPath(program.DATA_PATH, "zb.lock")):
+        with open(joinPath(program.DATA_PATH, "zb.lock"), "r+", encoding="utf-8") as file:
+            pid = file.read().strip()
+        if pid and "zbProgram.exe" in easyCmd(f"tasklist |findstr {pid}", True):
+            open(joinPath(program.DATA_PATH, "zb.unlock"), "w").close()
+            program.close()
+        else:
+            if existPath(joinPath(program.DATA_PATH, "zb.unlock")):
+                os.remove(joinPath(program.DATA_PATH, "zb.unlock"))
+            with open(joinPath(program.DATA_PATH, "zb.lock"), "w+", encoding="utf-8") as file:
+                file.write(str(program.PROGRAM_PID))
 
+
+detectRepeatRun()
 
 
 def addToStartup(mode: bool = True):
@@ -135,4 +150,6 @@ def getInstalledAddonInfo() -> dict:
             with open(joinPath(i, "addon.json"), encoding="utf-8") as file:
                 data[splitPath(i)] = json.loads(file.read())
     return data
+
+
 logging.info("程序动态数据api初始化成功！")

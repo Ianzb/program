@@ -1,5 +1,6 @@
 from .program import *
 import json
+from copy import *
 
 
 class SettingFunctions(QObject):
@@ -9,14 +10,14 @@ class SettingFunctions(QObject):
     DEFAULT_SETTING = {"theme": "Theme.AUTO",
                        "themeColor": "#0078D4",
                        "autoHide": True,
-                       "downloadPath": str(DOWNLOAD_PATH),
+                       "downloadPath": str(DESKTOP_PATH),
                        "showWindow": False,
                        "micaEffect": True,
                        "showTray": True,
                        "hideWhenClose": True,
                        }
     changeSignal = pyqtSignal(str)
-
+    errorState = False  # 错误信息
     def __init__(self):
         super().__init__()
         program.THREAD_POOL.submit(self.checkFileChange)
@@ -38,7 +39,9 @@ class SettingFunctions(QObject):
             with open(program.SETTING_FILE_PATH, "r", encoding="utf-8") as file:
                 self.last_setting = json.load(file)
         except Exception as ex:
-            logging.error(f"设置文件数据数据错误，错误信息：{ex}！")
+            self.last_setting = deepcopy(self.DEFAULT_SETTING)
+            self.errorState = True
+            logging.error(f"设置文件数据错误，已自动恢复至默认选项，错误信息：{ex}！")
 
     def save(self, name: str, data):
         """
@@ -64,10 +67,13 @@ class SettingFunctions(QObject):
             self.save(name, self.DEFAULT_SETTING[name])
             self.changeEvent(name)
         else:
-            self.last_setting = self.DEFAULT_SETTING
+            logging.info("开始重置程序设置！")
+            l = self.__compare(self.DEFAULT_SETTING, self.last_setting)
+            self.last_setting = deepcopy(self.DEFAULT_SETTING)
             self.__save()
-            for k in self.last_setting.keys():
-                self.changeEvent(k)
+            for i in l:
+                self.changeEvent(i)
+            logging.info("程序设置重置完成！")
 
     def add(self, name: str, data):
         """
