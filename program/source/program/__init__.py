@@ -1,6 +1,11 @@
 from .program import *
 from .setting import *
 
+# 关闭SSL证书验证
+import ssl
+
+ssl._create_default_https_context = ssl._create_unverified_context()
+
 # 日志设置
 handler2 = log_import.FileHandler(program.LOGGING_FILE_PATH)
 handler2.setLevel(log_import.DEBUG)
@@ -8,6 +13,7 @@ handler2.setFormatter(log_import.Formatter("[%(levelname)s %(asctime)s %(filenam
 
 logging.addHandler(handler2)
 
+logging.info(f"程序启动参数{program.STARTUP_ARGUMENT}!")
 
 # 检查重复运行
 def detectRepeatRun():
@@ -73,49 +79,51 @@ def getNewestVersion() -> str:
     return data
 
 
-def getAddonDict() -> dict:
+def getAddonDict():
     """
     获取插件字典
     @return: 字典
     """
     response = getUrl(program.ADDON_URL, REQUEST_HEADER, (15, 30))
     data = json.loads(response.text)
-    logging.debug("插件信息获取成功")
+    logging.info("插件信息获取成功")
     return data
 
 
-def getAddonInfo(url: str) -> dict:
+def getAddonInfoFromUrl(url: str):
     """
-    获取指定插件信息
-    @param url: 链接
+    通过自述文件链接获取指定插件信息
+    @param url: 自述文件链接
     @return: 信息
     """
-    if not url.endswith("/"):
-        url += "/"
-    response = getUrl(joinUrl(url, "addon.json"), REQUEST_HEADER, (15, 30))
+    response = getUrl(url, REQUEST_HEADER, (15, 30))
     data = json.loads(response.text)
     data["url"] = url
     logging.debug(f"插件{data["path"]}信息获取成功")
     return data
 
 
-def downloadAddon(data: dict):
+def downloadAddonFromInfo(data: dict):
     """
-    下载插件
-    @param data: 插件信息
+    通过插件自述文件数据链接获取指定插件信息
+    @param data: 插件链接
     """
-    createDir(joinPath(program.ADDON_PATH, data["id"]))
-    if "__init__.py" not in data["file"]:
-        open(joinPath(program.ADDON_PATH, data["id"], "__init__.py"), "w", encoding="utf-8").close()
-    if "addon.json" not in data["file"]:
-        data["file"].append("addon.json")
-    for i in data["file"]:
-        if splitPath(joinPath(program.ADDON_PATH, data["id"], i), 2) == ".zip":
-            singleDownload(joinUrl(data["url"], i), joinPath(program.ADDON_PATH, i).replace("init.py", "__init__.py"))
-            extractZip(joinPath(program.ADDON_PATH, i), program.ADDON_PATH, True)
+    try:
+        dir_path = joinPath(program.ADDON_PATH, data["id"])
+        createDir(dir_path)
+        with open(joinPath(dir_path, "addon.json"), "w+") as f:
+            f.write(json.dumps(data, indent=4))
+        result = singleDownload(data["file"], dir_path)
+        if result:
+            extractZip(result, dir_path, True)
+            logging.debug(f"插件{data["name"]}下载成功！")
+            return True
         else:
-            singleDownload(joinUrl(data["url"], i), joinPath(program.ADDON_PATH, data["id"], i).replace("init.py", "__init__.py"))
-    logging.debug(f"插件{data["path"]}下载成功")
+            logging.error(f"插件{data["name"]}下载失败！")
+            return False
+    except Exception as ex:
+        logging.error(f"插件{data["name"]}在下载与解压过程中发生错误，报错信息：{ex}！")
+        return False
 
 
 def importAddon(path: str):
@@ -139,16 +147,17 @@ def importAddon(path: str):
     return data
 
 
-def getInstalledAddonInfo() -> dict:
+def getInstalledAddonInfo():
     """
-    获取本地插件信息
+    获取本地插件信息，格式为 {“插件id”:{自述文件字典数据}...}
     @return: 信息
     """
     data = {}
     for i in walkDir(program.ADDON_PATH, 1):
-        if existPath(joinPath(i, "addon.json")):
+        if isFile(joinPath(i, "addon.json")):
             with open(joinPath(i, "addon.json"), encoding="utf-8") as file:
-                data[splitPath(i)] = json.loads(file.read())
+                addon_data=json.load(file)
+                data[addon_data["id"]] = addon_data
     return data
 
 

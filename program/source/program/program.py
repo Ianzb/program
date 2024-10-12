@@ -24,7 +24,7 @@ class Program:
     MAIN_FILE_PATH = sys.argv[0]  # 程序主文件路径
     MAIN_FILE_NAME = os.path.basename(MAIN_FILE_PATH)  # 当前程序文件名称
     INSTALL_PATH = os.path.dirname(MAIN_FILE_PATH)  # 程序安装路径
-    SOURCE_PATH = "source/img"  # 程序资源文件路径
+    SOURCE_PATH = r"source\img"  # 程序资源文件路径
     PROGRAM_PID = os.getpid()  # 程序pid
     DATA_PATH = os.path.join(USER_PATH, "zb")  # 程序数据路径
     SETTING_FILE_PATH = os.path.join(DATA_PATH, "settings.json")  # 程序设置文件路径
@@ -46,11 +46,6 @@ class Program:
         import ctypes
 
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(self.NAME)
-
-        # 关闭SSL证书验证
-        import ssl
-
-        ssl._create_default_https_context = ssl._create_unverified_context()
 
         # 开发者插件目录切换
         if not self.isExe:

@@ -34,7 +34,7 @@ class SettingFunctions(QObject):
     def __read(self):
         if not existPath(program.SETTING_FILE_PATH):
             with open(program.SETTING_FILE_PATH, "w", encoding="utf-8") as file:
-                file.write(json.dumps(self.DEFAULT_SETTING))
+                file.write(json.dumps(self.DEFAULT_SETTING, indent=4))
         try:
             with open(program.SETTING_FILE_PATH, "r", encoding="utf-8") as file:
                 self.last_setting = json.load(file)
@@ -55,7 +55,7 @@ class SettingFunctions(QObject):
 
     def __save(self):
         with open(program.SETTING_FILE_PATH, "w", encoding="utf-8") as file:
-            file.write(json.dumps(self.last_setting))
+            file.write(json.dumps(self.last_setting, indent=4))
         self.last_timestamp = os.path.getmtime(program.SETTING_FILE_PATH)
 
     def reset(self, name=None):
