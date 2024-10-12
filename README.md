@@ -19,6 +19,10 @@
 
 ## [官网](https://ianzb.github.io/program/)
 
+## 介绍
+zb小程序是一款个人开发的Windows平台工具，程序采取模块化的设计理念。主程序仅提供基本功能，且提供了函数API和组件API，包括便携的设置、日志管理功能，便携的文件下载、网络请求、文件处理功能。欢迎各位爱好者创作更多功能丰富的插件。
+程序作者为高中就读生，技术实力和时间有限，程序稳定性有所欠缺，欢迎帮助。
+
 ## 下载
 
 <a href="https://vip.123pan.cn/1813801926/code/program/zbProgram_setup.exe" class="btn btn-light">安装包</a>
@@ -26,3 +30,12 @@
 
 ## 运行环境
 - Windows 8/8.1/10/11
+
+## 开发环境
+- Python 3.12.X
+- PyQt5, PyQt-Fluent-Widgets[full] 等模块。
+
+## 目录介绍
+- `program`：主程序
+- `addon`：插件
+- `script`：打包相关脚本（需自行修改）
