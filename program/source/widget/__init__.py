@@ -4,6 +4,36 @@ from .download import *
 from .page import *
 
 
+class AnimationBase:
+    def __init__(self, widget: QWidget):
+        self.widget = widget
+        self.duration = 500
+
+        self.pos_animation = QPropertyAnimation(self.widget, b"pos")
+        self.pos_animation.setDuration(self.duration)
+
+        self.widget.show()
+        self._originalPos = self.widget.pos()
+        self.widget.showEvent = self.show
+        self.widget.moveEvent = self.move
+
+    def move(self, msg):
+        if not self.pos_animation.state() == QParallelAnimationGroup.Running:
+            self._originalPos = self.widget.pos()
+
+    def show(self, msg):
+
+        self.pos_animation.setStartValue(QPoint(self._originalPos.x(), self._originalPos.y() + 25))
+        self.pos_animation.setEndValue(self._originalPos)
+        self.pos_animation.setEasingCurve(QEasingCurve.OutCubic)
+
+        if self.pos_animation.state() == QParallelAnimationGroup.Running:
+            self.pos_animation.stop()
+            self.widget.setWindowOpacity(1.0)
+            self.widget.move(self._originalPos)
+        self.pos_animation.start()
+
+
 class StatisticsWidget(QWidget):
     """
     两行信息组件
@@ -205,7 +235,7 @@ class GrayCard(QWidget):
     灰色背景组件卡片
     """
 
-    def __init__(self, title: str = None, parent=None, alignment=Qt.AlignLeft):
+    def __init__(self, title: str = None, parent=None, alignment=Qt.AlignLeft, animation: bool = True):
         """
         @param title: 标题
         """
@@ -236,6 +266,9 @@ class GrayCard(QWidget):
 
         self.setTheme()
         qconfig.themeChanged.connect(self.setTheme)
+
+        if animation:
+            self.animation = AnimationBase(self)
 
     def setTheme(self):
         if isDarkTheme():
@@ -270,14 +303,14 @@ class BigInfoCard(CardWidget):
     详细信息卡片（资源主页展示）
     """
 
-    def __init__(self, parent=None, url: bool = True, tag: bool = True, data: bool = True):
+    def __init__(self, parent=None, url: bool = True, tag: bool = True, data: bool = True, animation: bool = True):
         """
         @param url: 是否展示链接
         @param tag: 是否展示标签
         @param data: 是否展示数据
         """
         super().__init__(parent)
-        self.setMinimumWidth(0)
+        self.setMinimumWidth(100)
 
         self.backButton = TransparentToolButton(FIF.RETURN, self)
         self.backButton.move(8, 8)
@@ -288,8 +321,7 @@ class BigInfoCard(CardWidget):
 
         self.titleLabel = TitleLabel(self)
 
-        self.mainButton = PrimaryPushButton("下载", self)
-        self.mainButton.clicked.connect(self.mainButtonClicked)
+        self.mainButton = PrimaryPushButton("", self)
         self.mainButton.setFixedWidth(160)
 
         self.infoLabel = BodyLabel(self)
@@ -348,6 +380,9 @@ class BigInfoCard(CardWidget):
         self.setTheme()
         qconfig.themeChanged.connect(self.setTheme)
 
+        if animation:
+            self.animation = AnimationBase(self)
+
     def setTheme(self):
         if isDarkTheme():
             self.setStyleSheet("QLabel {background-color: transparent; color: white}")
@@ -356,9 +391,6 @@ class BigInfoCard(CardWidget):
 
     def backButtonClicked(self):
         self.hide()
-
-    def mainButtonClicked(self):
-        pass
 
     def setTitle(self, text: str):
         """
@@ -426,9 +458,9 @@ class SmallInfoCard(CardWidget):
     普通信息卡片（搜索列表展示）
     """
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, animation: bool = True):
         super().__init__(parent)
-        self.setMinimumWidth(0)
+        self.setMinimumWidth(100)
         self.setFixedHeight(73)
 
         self.image = Image(self)
@@ -444,8 +476,7 @@ class SmallInfoCard(CardWidget):
         self.contentLabel2.setTextColor("#606060", "#d2d2d2")
         self.contentLabel2.setAlignment(Qt.AlignRight)
 
-        self.mainButton = PushButton("进入", self, FIF.CHEVRON_RIGHT)
-        self.mainButton.clicked.connect(self.mainButtonClicked)
+        self.mainButton = PushButton("", self)
 
         self.vBoxLayout1 = QVBoxLayout()
 
@@ -475,14 +506,14 @@ class SmallInfoCard(CardWidget):
         self.setTheme()
         qconfig.themeChanged.connect(self.setTheme)
 
+        if animation:
+            self.animation = AnimationBase(self)
+
     def setTheme(self):
         if isDarkTheme():
             self.setStyleSheet("QLabel {background-color: transparent; color: white}")
         else:
             self.setStyleSheet("QLabel {background-color: transparent; color: black}")
-
-    def mainButtonClicked(self):
-        pass
 
     def setTitle(self, text: str):
         """
@@ -506,8 +537,7 @@ class SmallInfoCard(CardWidget):
         @param data: 文本
         @param pos: 位置：0 左上 1 左下 2 右上 3 右下
         """
-        data = f.clearString(data)
-        self.info[pos] = data
+        self.info[pos] = clearCharacters(data)
         self.contentLabel1.setText(f"{self.info[0]}\n{self.info[1]}".strip())
         self.contentLabel2.setText(f"{self.info[2]}\n{self.info[3]}".strip())
 
@@ -520,7 +550,7 @@ class CardGroup(QWidget):
     """
 
     @functools.singledispatchmethod
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, animation: bool = True):
         super().__init__(parent=parent)
         self.setMinimumSize(0, 0)
 
@@ -541,9 +571,12 @@ class CardGroup(QWidget):
         FluentStyleSheet.SETTING_CARD_GROUP.apply(self)
         self.titleLabel.adjustSize()
 
+        if animation:
+            self.animation = AnimationBase(self)
+
     @__init__.register
-    def _(self, title: str = None, parent=None):
-        self.__init__(parent)
+    def _(self, title: str = None, parent=None, animation: bool = True):
+        self.__init__(parent, animation)
         if title:
             self.titleLabel.setText(title)
 
@@ -575,4 +608,6 @@ class CardGroup(QWidget):
         自定义清空组件函数
         """
         self.cardLayout.clearWidget()
+
+
 logging.info("组件库api初始化成功！")
