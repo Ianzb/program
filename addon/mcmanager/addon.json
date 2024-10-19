@@ -1,6 +1,8 @@
 {
   "id": "mcmanager",
   "name": "MC资源管理器",
+  "author": "Ianzb",
+  "description": "管理Minecraft资源文件。",
   "version": "3.0.12",
   "file": [
     "__init__.py",

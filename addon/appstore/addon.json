@@ -1,6 +1,8 @@
 {
     "id": "appstore",
     "name": "应用商店",
+    "author": "Ianzb",
+    "description": "一款简易的应用商店插件，支持360和腾讯应用中心的应用。",
     "version": "1.4.3",
     "file": [
         "__init__.py",
