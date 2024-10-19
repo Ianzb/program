@@ -79,15 +79,18 @@ def getNewestVersion() -> str:
     return data
 
 
-def getAddonDict():
+def getOnlineAddonDict():
     """
     获取插件字典
     @return: 字典
     """
-    response = getUrl(program.ADDON_URL, REQUEST_HEADER, (15, 30))
-    data = json.loads(response.text)
-    logging.info("插件信息获取成功")
-    return data
+    try:
+        response = getUrl(program.ADDON_URL, REQUEST_HEADER, (15, 30))
+        data = json.loads(response.text)
+        logging.info("插件信息获取成功！")
+        return data
+    except Exception as ex:
+        logging.warning(f"插件信息获取失败，报错信息：{ex}！")
 
 
 def getAddonInfoFromUrl(url: str):
@@ -96,11 +99,15 @@ def getAddonInfoFromUrl(url: str):
     @param url: 自述文件链接
     @return: 信息
     """
-    response = getUrl(url, REQUEST_HEADER, (15, 30))
-    data = json.loads(response.text)
-    data["url"] = url
-    logging.debug(f"插件{data["path"]}信息获取成功")
-    return data
+    try:
+        response = getUrl(url, REQUEST_HEADER, (15, 30))
+        data = json.loads(response.text)
+        data["url"] = url
+        logging.debug(f"插件{data["name"]}信息获取成功")
+        return data
+    except Exception as ex:
+        logging.error(f"插件{url}信息获取失败，报错信息：{ex}！")
+        return False
 
 
 def downloadAddonFromInfo(data: dict):

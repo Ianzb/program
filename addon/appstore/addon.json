@@ -5,5 +5,11 @@
     "file": [
         "__init__.py",
         "xmltodict.py"
-    ]
+    ],
+    "history": {
+        "1.4.3": {
+            "time": "暂无",
+            "log": "暂无"
+        }
+    }
 }

@@ -1,3 +1,5 @@
+import logging
+
 from .log import *
 from .file import existPath, joinPath, isFile, isDir, splitPath, addRepeatSuffix, movePath, _dirPathToSelfPath
 from .info import REQUEST_HEADER
@@ -26,6 +28,7 @@ def getUrl(url: str, header=None, timeout: int | tuple = (5, 10), times: int = 5
     @return:
     """
     import requests
+    logging.info(f"正在Get请求{url}的信息！")
     for i in range(times):
         try:
             response = requests.get(url, headers=header, stream=True, timeout=timeout)
@@ -47,6 +50,8 @@ def postUrl(url: str, json: dict, header=None, timeout: int | tuple = (5, 10), t
     @return:
     """
     import requests
+    logging.info(f"正在Post请求{url}的信息！")
+
     for i in range(times):
         try:
             response = requests.post(url, headers=header, json=json, timeout=timeout)

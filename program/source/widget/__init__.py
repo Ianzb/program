@@ -556,7 +556,7 @@ class CardGroup(QWidget):
 
         self.titleLabel = StrongBodyLabel(self)
         self.vBoxLayout = QVBoxLayout(self)
-        self.cardLayout = ExpandLayout()
+        self.cardLayout = FixedExpandLayout()
 
         self.vBoxLayout.setContentsMargins(0, 0, 0, 0)
         self.vBoxLayout.setAlignment(Qt.AlignTop)
