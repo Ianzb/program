@@ -4,6 +4,11 @@ from .download import *
 from .page import *
 
 
+def setToolTip(widget: QWidget, text: str):
+    widget.setToolTip(text)
+    widget.installEventFilter(ToolTipFilter(widget, 1000))
+
+
 class AnimationBase:
     def __init__(self, widget: QWidget):
         self.widget = widget
@@ -128,8 +133,7 @@ class CopyTextButton(ToolButton):
             return
         self.text = str(text)
 
-        self.setToolTip(f"点击复制{data}信息！")
-        self.installEventFilter(ToolTipFilter(self, 50))
+        setToolTip(self, f"点击复制{data}信息！")
 
     def setData(self, text, data):
         self.load(text, data)

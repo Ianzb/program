@@ -44,11 +44,11 @@ def addToStartup(mode: bool = True):
         if mode:
             win32api.RegSetValueEx(key, program.NAME, 0, win32con.REG_SZ, f"{program.MAIN_FILE_PATH} startup")
             win32api.RegCloseKey(key)
-            logging.debug("启动项添加成功")
+            logging.info("启动项添加成功")
         else:
             win32api.RegDeleteValue(key, program.NAME)
             win32api.RegCloseKey(key)
-            logging.debug("启动项删除成功")
+            logging.info("启动项删除成功")
     except Exception as ex:
         logging.warning(f"启动项编辑失败{ex}")
 
@@ -103,7 +103,7 @@ def getAddonInfoFromUrl(url: str):
         response = getUrl(url, REQUEST_HEADER, (15, 30))
         data = json.loads(response.text)
         data["url"] = url
-        logging.debug(f"插件{data["name"]}信息获取成功")
+        logging.info(f"插件{data["name"]}信息获取成功")
         return data
     except Exception as ex:
         logging.error(f"插件{url}信息获取失败，报错信息：{ex}！")
@@ -123,7 +123,7 @@ def downloadAddonFromInfo(data: dict):
         result = singleDownload(data["file"], dir_path)
         if result:
             extractZip(result, dir_path, True)
-            logging.debug(f"插件{data["name"]}下载成功！")
+            logging.info(f"插件{data["name"]}下载成功！")
             return True
         else:
             logging.error(f"插件{data["name"]}下载失败！")

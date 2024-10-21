@@ -1,4 +1,4 @@
-from ..widget import *
+from ..zbWidgetLib import *
 import os, sys
 from concurrent.futures import ThreadPoolExecutor
 

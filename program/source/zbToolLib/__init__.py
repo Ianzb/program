@@ -4,4 +4,9 @@ from .file import *
 from .web import *
 from .system import *
 
+
+class ZbToolLib(Data, File, Info, System, Web):
+    pass
+
+
 logging.info("程序api初始化成功！")

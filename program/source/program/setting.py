@@ -10,7 +10,7 @@ class SettingFunctions(QObject):
     DEFAULT_SETTING = {"theme": "Theme.AUTO",
                        "themeColor": "#0078D4",
                        "autoHide": True,
-                       "downloadPath": str(DESKTOP_PATH),
+                       "downloadPath": getDownloadPath(),
                        "showWindow": False,
                        "micaEffect": True,
                        "showTray": True,

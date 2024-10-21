@@ -225,12 +225,12 @@ def parse(xml_input, encoding=None, expat=expat, process_namespaces=False,
         >>> doc['a']['b']
         [u'1', u'2']
 
-    If `item_depth` is `0`, the function returns a dictionary for the root
+    If `item_depth` is `0`, the zbToolLib returns a dictionary for the root
     element (default behavior). Otherwise, it calls `item_callback` every time
     an item at the specified depth is found and returns `None` in the end
     (streaming mode).
 
-    The callback function receives two parameters: the `path` from the document
+    The callback zbToolLib receives two parameters: the `path` from the document
     root to the item (name-attribs pairs), and the `item` (dict). If the
     callback's return value is false-ish, parsing will be stopped with the
     :class:`ParsingInterrupted` exception.
@@ -249,7 +249,7 @@ def parse(xml_input, encoding=None, expat=expat, process_namespaces=False,
         path:[(u'a', {u'prop': u'x'}), (u'b', None)] item:1
         path:[(u'a', {u'prop': u'x'}), (u'b', None)] item:2
 
-    The optional argument `postprocessor` is a function that takes `path`,
+    The optional argument `postprocessor` is a zbToolLib that takes `path`,
     `key` and `value` as positional arguments and returns a new `(key, value)`
     pair where both `key` and `value` may have changed. Usage example::
 

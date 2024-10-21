@@ -1,3 +1,5 @@
+import time
+
 from .widget import *
 
 
@@ -6,8 +8,8 @@ class AddonInfoMessageBox(MessageBox):
     插件信息消息框
     """
 
-    def __init__(self, title:str, content:str, parent=None):
-        super().__init__(title=title,content=content, parent=parent)
+    def __init__(self, title: str, content: str, parent=None):
+        super().__init__(title=title, content=content, parent=parent)
         self.yesButton.deleteLater()
         self.cancelButton.setText("关闭")
 
@@ -33,12 +35,11 @@ class AddonInfoCard(SmallInfoCard):
 
     def showInfo(self):
         if self.infoState:
-            data=self.onlineData if self.onlineData else self.offlineData
+            data = self.onlineData if self.onlineData else self.offlineData
             title = f"{data["name"]}插件信息"
             info = (f"ID：{data["id"]}\n版本：{data["version"]}\n作者：{data["author"]}\n介绍：{data["description"]}\n更新日期：{data["history"][data["version"]]["time"]}\n更新内容：{data["history"][data["version"]]["log"]}\n")
             messageBox = AddonInfoMessageBox(title, info, self.window())
             messageBox.show()
-
 
     def setInstalledData(self, data):
         self.offlineData = data
@@ -54,7 +55,6 @@ class AddonInfoCard(SmallInfoCard):
 
         self.infoButton.show()
         self.infoState = "Offline"
-
 
     def setOnlineData(self, data):
         self.onlineData = data
@@ -73,6 +73,8 @@ class AddonInfoCard(SmallInfoCard):
             elif self.onlineData["version"] == self.offlineData["version"]:
                 self.mainButton.setText("重新安装")
                 self.mainButton.setIcon(FIF.DOWNLOAD)
+        elif not self.infoState:
+            self.mainButton.setText("下载并安装")
         self.infoButton.show()
         self.infoState = "Online"
 
@@ -85,12 +87,14 @@ class MainPage(BasicTab):
     subtitle = "常用功能"
     signalAddCardOffline = pyqtSignal(dict)
     signalAddCardOnline = pyqtSignal(dict)
+    signalGetInfoOnline= pyqtSignal(str)
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.setIcon(FIF.HOME)
 
         self.cardIdDict = {}
+        self.onlineCount = 0
 
         self.image = ImageLabel(program.source("title.png"))
         self.image.setFixedSize(410, 135)
@@ -110,6 +114,7 @@ class MainPage(BasicTab):
 
         self.signalAddCardOffline.connect(self.addCardOffline)
         self.signalAddCardOnline.connect(self.addCardOnline)
+        self.signalGetInfoOnline.connect(self.getOnlineAddonInfo)
 
         self.thread1 = program.THREAD_POOL.submit(self.getInstalledAddonList)
 
@@ -120,22 +125,36 @@ class MainPage(BasicTab):
         self.thread2 = program.THREAD_POOL.submit(self.getOnlineAddonListGeneral)
 
     def getOnlineAddonListGeneral(self):
-        info = getOnlineAddonDict()
+        info: dict = getOnlineAddonDict()
+        self.onlineCount = 0
         for k, v in info.items():
-            self.getOnlineAddonInfo(v)
+            self.signalGetInfoOnline.emit(v)
+        while self.onlineCount < len(info.keys()):
+            time.sleep(0.5)
+        for i in self.cardIdDict.keys():
+            if i not in info.keys():
+                self.cardIdDict[i].mainButton.setText("无数据")
+                self.cardIdDict[i].setInfo("无在线数据", 2)
         self.reloadButton.setEnabled(True)
 
-    def getOnlineAddonInfo(self, info):
-        info = getAddonInfoFromUrl(info)
-        self.signalAddCardOnline.emit(info)
+    def getOnlineAddonInfo(self, info: str):
+        try:
+            info = getAddonInfoFromUrl(info)
+            self.signalAddCardOnline.emit(info)
+        except Exception as ex:
+            logging.error(f"程序发生异常，无法获取插件{info["name"]}的在线信息，报错信息：{ex}！")
+        self.onlineCount += 1
 
     def addCardOffline(self, info):
         if info["id"] not in self.cardIdDict.keys():
-            card = AddonInfoCard(self)
-            card.setInstalledData(info)
-            self.cardIdDict[info["id"]] = card
-            self.cardGroup1.addWidget(card)
-            card.show()
+            try:
+                card = AddonInfoCard(self)
+                card.setInstalledData(info)
+                self.cardIdDict[info["id"]] = card
+                self.cardGroup1.addWidget(card)
+                card.show()
+            except Exception as ex:
+                logging.error(f"程序发生异常，插件{info["name"]}的卡片组件无法加载，报错信息：{ex}！")
         else:
             try:
                 self.cardIdDict[info["id"]].setInstalledData(info)
@@ -144,16 +163,20 @@ class MainPage(BasicTab):
 
     def addCardOnline(self, info):
         if info["id"] not in self.cardIdDict.keys():
-            card = AddonInfoCard(self)
-            card.setOnlineData(info)
-            self.cardIdDict[info["id"]] = card
-            self.cardGroup1.addWidget(card)
-            card.show()
+            try:
+                card = AddonInfoCard(self)
+                card.setOnlineData(info)
+                self.cardIdDict[info["id"]] = card
+                self.cardGroup1.addWidget(card)
+                card.show()
+            except Exception as ex:
+                logging.error(f"程序发生异常，插件{info["name"]}的卡片组件无法加载，报错信息：{ex}！")
         else:
             try:
                 self.cardIdDict[info["id"]].setOnlineData(info)
             except RuntimeError:
                 logging.warning(f"组件{info["id"]}已被删除，无法设置数据了！")
+        self.onlineCount += 1
 
     def reload(self):
         self.reloadButton.setEnabled(False)

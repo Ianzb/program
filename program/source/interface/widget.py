@@ -87,7 +87,7 @@ class Tray(QSystemTrayIcon):
 #         self.yesButton.setEnabled(False)
 #         self.removeButton.setEnabled(False)
 #
-#         self.widget.setMinimumWidth(600)
+#         self.zbWidgetLib.setMinimumWidth(600)
 #
 #         self.installed = getInstalledAddonInfo()
 #         self.tableView.setRowCount(len(self.installed.values()))
