@@ -1,5 +1,34 @@
-from .base import *
+from .widget import *
 
+
+class DownloadInfoCard(SettingCard):
+    def __init__(self, parent=None):
+        super().__init__(FIF.DOWNLOAD, "文件名称", "信息", parent)
+
+        self.progressBar = ProgressBar(self)
+        self.progressBar.setRange(0, 100)
+        self.progressBar.setValue(0)
+        self.progressBar.setFixedHeight(200)
+        self.progressLabel = BodyLabel("加载中...", self)
+
+        self.vBoxLayout = QVBoxLayout()
+        self.vBoxLayout.addWidget(self.progressLabel, 0, Qt.AlignCenter)
+        self.vBoxLayout.addWidget(self.progressBar, 0, Qt.AlignCenter)
+
+        self.hBoxLayout.addLayout(self.vBoxLayout, 0, Qt.AlignRight | Qt.AlignCenter)
+
+    def setProgress(self, percent: int):
+        self.progressBar.setValue(percent)
+        self.progressLabel.setText(f"{percent}%")
+
+
+class DownloadPage(BasicTab):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.cardGroup = CardGroup("下载列表",self)
+        self.vBoxLayout.addWidget(self.cardGroup)
+    def createDownload(self):
+        self.cardGroup.addWidget(DownloadInfoCard(self))
 
 class DownloadWidget(QWidget):
     """
@@ -9,12 +38,11 @@ class DownloadWidget(QWidget):
     signalRate = pyqtSignal(object)
     signalPath = pyqtSignal(object)
 
-    def __init__(self, url: str, path: str, threadPool: QThreadPool, parent=None):
+    def __init__(self, url: str, path: str, parent=None):
         """
         下载文件ui接口
         @param url: 链接
         @param path: 文件完整路径或所在路径
-        @param threadPool: 线程池
         @param parent: 父组件
         """
         super().__init__(parent=parent)
@@ -26,7 +54,7 @@ class DownloadWidget(QWidget):
         if f.isDir(self.path):
             self.path = f.joinPath(self.path, f.getFileNameFromUrl(self.url))
 
-        self.multiDownloadThread = threadPool.submit(self.download)
+        self.multiDownloadThread = program.THREAD_POOL.submit(self.download)
         self.signalFinished.connect(self.downloadFinished)
         self.signalRate.connect(self.downloading)
         self.signalPath.connect(self.setResultPath)

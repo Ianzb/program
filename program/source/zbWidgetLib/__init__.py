@@ -1,6 +1,5 @@
 from .base import *
 from .hook import *
-from .download import *
 from .page import *
 
 
