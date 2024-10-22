@@ -23,8 +23,8 @@ class DownloadWidget(QWidget):
         self.url = url
         self.resultPath = ""
 
-        if isDir(self.path):
-            self.path = joinPath(self.path, getFileNameFromUrl(self.url))
+        if f.isDir(self.path):
+            self.path = f.joinPath(self.path, f.getFileNameFromUrl(self.url))
 
         self.multiDownloadThread = threadPool.submit(self.download)
         self.signalFinished.connect(self.downloadFinished)
@@ -37,13 +37,13 @@ class DownloadWidget(QWidget):
         self.progressBar.setValue(0)
         self.progressBar.setMinimumWidth(200)
 
-        self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "下载", f"正在下载文件{splitPath(self.path, 0)}...", Qt.Orientation.Vertical, True, -1, InfoBarPosition.TOP_RIGHT, self.parent)
+        self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "下载", f"正在下载文件{f.splitPath(self.path, 0)}...", Qt.Orientation.Vertical, True, -1, InfoBarPosition.TOP_RIGHT, self.parent)
         self.infoBar.addWidget(self.progressBar)
         self.infoBar.show()
 
     def download(self):
         from time import sleep
-        self.d = MultiDownload(self.url, self.path, False, True, ".downloading", REQUEST_HEADER)
+        self.d = MultiDownload(self.url, self.path, False, True, ".downloading", f.REQUEST_HEADER)
         self.infoBar.closeButton.clicked.connect(self.d.stop)
 
         while True:
@@ -67,13 +67,13 @@ class DownloadWidget(QWidget):
         except:
             pass
         if msg == "skipped":
-            self.infoBar = InfoBar(InfoBarIcon.ERROR, "下载错误", f"文件{splitPath(self.path, 0)}已取消下载！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent)
+            self.infoBar = InfoBar(InfoBarIcon.ERROR, "下载错误", f"文件{f.splitPath(self.path, 0)}已取消下载！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent)
             self.infoBar.show()
         elif msg == "failed":
-            self.infoBar = InfoBar(InfoBarIcon.ERROR, "下载错误", f"文件{splitPath(self.path, 0)}下载失败！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent)
+            self.infoBar = InfoBar(InfoBarIcon.ERROR, "下载错误", f"文件{f.splitPath(self.path, 0)}下载失败！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent)
             self.infoBar.show()
         elif msg == "finished":
-            self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "下载成功", f"文件{splitPath(self.path, 0)}下载成功！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent)
+            self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "下载成功", f"文件{f.splitPath(self.path, 0)}下载成功！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.parent)
             self.infoBar.show()
         self.progressBar.hide()
 

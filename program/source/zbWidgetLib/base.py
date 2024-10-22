@@ -19,3 +19,5 @@ QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
 app = QApplication(sys.argv)
 translator = FluentTranslator()
 app.installTranslator(translator)
+
+f=ZbToolLib()

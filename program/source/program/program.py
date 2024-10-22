@@ -26,9 +26,9 @@ class Program:
     INSTALL_PATH = os.path.dirname(MAIN_FILE_PATH)  # 程序安装路径
     SOURCE_PATH = r"source\img"  # 程序资源文件路径
     PROGRAM_PID = os.getpid()  # 程序pid
-    DATA_PATH = os.path.join(USER_PATH, "zb")  # 程序数据路径
+    DATA_PATH = os.path.join(f.USER_PATH, "zb")  # 程序数据路径
     SETTING_FILE_PATH = os.path.join(DATA_PATH, "settings.json")  # 程序设置文件路径
-    LOGGING_FILE_PATH = os.path.join(DATA_PATH, "logging.log")  # 程序日志文件路径
+    LOGGING_FILE_PATH = os.path.join(DATA_PATH, "Log.log")  # 程序日志文件路径
     ADDON_PATH = os.path.join(DATA_PATH, "addon")  # 程序插件路径
 
     STARTUP_ARGUMENT = sys.argv[1:]  # 程序启动参数
@@ -94,7 +94,7 @@ class Program:
         """
         退出程序
         """
-        logging.info("程序已退出！")
+        Log.info("程序已退出！")
         os._exit(0)
 
     def restart(self):
@@ -102,7 +102,7 @@ class Program:
         重启程序
         """
         os.popen(self.MAIN_FILE_PATH)
-        logging.info("程序正在重启中！")
+        Log.info("程序正在重启中！")
         os._exit(0)
 
     def detectRepeatRun(self):

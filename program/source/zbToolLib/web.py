@@ -26,15 +26,15 @@ class Web:
         @return:
         """
         import requests
-        logging.info(f"正在Get请求{url}的信息！")
+        Log.info(f"正在Get请求{url}的信息！")
         for i in range(times):
             try:
                 response = requests.get(url, headers=header, stream=True, timeout=timeout)
                 return response
             except Exception as ex:
-                logging.warning(f"第{i + 1}次Get请求{url}失败，错误信息为{ex}，正在重试中！")
+                Log.warning(f"第{i + 1}次Get请求{url}失败，错误信息为{ex}，正在重试中！")
                 continue
-        logging.error(f"Get请求{url}失败！")
+        Log.error(f"Get请求{url}失败！")
 
     def postUrl(self, url: str, json: dict, header=None, timeout: int | tuple = (5, 10), times: int = 5):
         """
@@ -47,16 +47,16 @@ class Web:
         @return:
         """
         import requests
-        logging.info(f"正在Post请求{url}的信息！")
+        Log.info(f"正在Post请求{url}的信息！")
 
         for i in range(times):
             try:
                 response = requests.post(url, headers=header, json=json, timeout=timeout)
                 return response
             except Exception as ex:
-                logging.warning(f"第{i + 1}次Post请求{url}失败，错误信息为{ex}，正在重试中！")
+                Log.warning(f"第{i + 1}次Post请求{url}失败，错误信息为{ex}，正在重试中！")
                 continue
-        logging.error(f"Post请求{url}失败！")
+        Log.error(f"Post请求{url}失败！")
 
     def getFileNameFromUrl(self, url: str):
         """
@@ -83,20 +83,20 @@ class Web:
             if File.isDir(path):
                 path = File.joinPath(path, self.getFileNameFromUrl(url))
             if File.isFile(path) and not exist:
-                logging.warning(f"由于文件{path}已存在，自动跳过单线程下载！")
+                Log.warning(f"由于文件{path}已存在，自动跳过单线程下载！")
                 return False
             if exist and not force:
                 path = File.addRepeatSuffix(path)
-            logging.info(f"正在单线程下载文件{url}到{path}！")
+            Log.info(f"正在单线程下载文件{url}到{path}！")
             response = requests.get(url, headers=header, stream=True)
             with open(path, "wb") as f:
                 for chunk in response.iter_content(chunk_size=1024):
                     if chunk:
                         f.write(chunk)
-            logging.info(f"已将文件{url}单线程下载到到{path}！")
+            Log.info(f"已将文件{url}单线程下载到到{path}！")
             return path
         except Exception as ex:
-            logging.error(f"单线程下载文件{url}到{path}失败，报错信息：{ex}！")
+            Log.error(f"单线程下载文件{url}到{path}失败，报错信息：{ex}！")
             return False
 
 
@@ -168,7 +168,7 @@ class MultiDownload:
         if File.isFile(self.suffixPath):
             self.suffixPath = File.addRepeatSuffix(self.suffixPath)
 
-        logging.info(f"开始使用DownloadKit下载{self.url}到{self.path}！")
+        Log.info(f"开始使用DownloadKit下载{self.url}到{self.path}！")
         self.downloadKit = downloadKit
         self.file = self.downloadKit.add(self.url,
                                          File.splitPath(self.path, 3),
@@ -213,7 +213,7 @@ class MultiDownload:
             self.file.session.close()
             self.downloadKit.cancel()
         else:
-            logging.warning(f"使用DownloadKit下载{self.url}的状态为{self.result}，无法停止！")
+            Log.warning(f"使用DownloadKit下载{self.url}的状态为{self.result}，无法停止！")
 
     def _finish(self):
         """
@@ -221,8 +221,8 @@ class MultiDownload:
         """
         self.resultPath = File.movePath(self.suffixPath, self.path, self.replace)
         if not self.resultPath:
-            logging.warning(f"使用DownloadKit下载{self.url}到{self.path}失败：无法移动下载临时文件至正式目录！")
+            Log.warning(f"使用DownloadKit下载{self.url}到{self.path}失败：无法移动下载临时文件至正式目录！")
             self.__finished = "failed"
             return
-        logging.info(f"成功使用DownloadKit下载{self.url}到{self.resultPath}！")
+        Log.info(f"成功使用DownloadKit下载{self.url}到{self.resultPath}！")
         self.__finished = "finished"

@@ -93,7 +93,7 @@ class Window(FluentWindow):
         @param traceback: 报错返回信息
         """
         info = "".join(format_exception(type, value, traceback))
-        logging.fatal(f"程序发生异常\n{info}")
+        Log.fatal(f"程序发生异常\n{info}")
         self.messageBox = MessageBox("程序发生异常", info, self.window())
         self.messageBox.contentLabel.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
         self.messageBox.yesButton.setText("重启")
@@ -168,12 +168,12 @@ class Window(FluentWindow):
 
                 self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{data["path"]}安装成功！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.mainPage)
                 self.infoBar.show()
-            logging.info(f"插件{data["path"]}安装成功")
+            Log.info(f"插件{data["path"]}安装成功")
         except Exception as ex:
             self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", f"插件{data["path"]}安装失败{ex}！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.mainPage)
             self.infoBar.show()
 
-            logging.warning(f"插件{data["path"]}安装失败{ex}")
+            Log.warning(f"插件{data["path"]}安装失败{ex}")
 
     def __removeAddon(self, data):
         """
@@ -186,9 +186,9 @@ class Window(FluentWindow):
             self.ADDON_MAINPAGE[data["id"]].deleteLater()
             del self.ADDON_IMPORT[data["id"]]
             del self.ADDON_MAINPAGE[data["id"]]
-        easyCmd(f"del /F /Q /S {joinPath(program.ADDON_PATH, data["id"])}", True)
-        deletePath(joinPath(program.ADDON_PATH, data["id"]))
-        logging.info(f"插件{data["path"]}删除成功")
+        f.easyCmd(f"del /F /Q /S {f.joinPath(program.ADDON_PATH, data["id"])}", True)
+        f.deletePath(f.joinPath(program.ADDON_PATH, data["id"]))
+        Log.info(f"插件{data["path"]}删除成功")
 
         self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{data["path"]}删除成功！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.settingPage)
         self.infoBar.show()
@@ -197,9 +197,9 @@ class Window(FluentWindow):
         """
         重复运行展示窗口
         """
-        if existPath(joinPath(program.DATA_PATH, "zb.unlock")):
-            deletePath(joinPath(program.DATA_PATH, "zb.unlock"))
+        if f.existPath(f.joinPath(program.DATA_PATH, "zb.unlock")):
+            f.deletePath(f.joinPath(program.DATA_PATH, "zb.unlock"))
             self.show()
 
 
-logging.debug("程序主窗口类初始化成功！")
+Log.debug("程序主窗口类初始化成功！")

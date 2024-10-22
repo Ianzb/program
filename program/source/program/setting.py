@@ -10,7 +10,7 @@ class SettingFunctions(QObject):
     DEFAULT_SETTING = {"theme": "Theme.AUTO",
                        "themeColor": "#0078D4",
                        "autoHide": True,
-                       "downloadPath": getDownloadPath(),
+                       "downloadPath": f.DESKTOP_PATH,
                        "showWindow": False,
                        "micaEffect": True,
                        "showTray": True,
@@ -32,7 +32,7 @@ class SettingFunctions(QObject):
         return self.last_setting.get(name, self.DEFAULT_SETTING[name])
 
     def __read(self):
-        if not existPath(program.SETTING_FILE_PATH):
+        if not f.existPath(program.SETTING_FILE_PATH):
             with open(program.SETTING_FILE_PATH, "w", encoding="utf-8") as file:
                 file.write(json.dumps(self.DEFAULT_SETTING, indent=4))
         try:
@@ -41,7 +41,7 @@ class SettingFunctions(QObject):
         except Exception as ex:
             self.last_setting = deepcopy(self.DEFAULT_SETTING)
             self.errorState = True
-            logging.error(f"设置文件数据错误，已自动恢复至默认选项，错误信息：{ex}！")
+            Log.error(f"设置文件数据错误，已自动恢复至默认选项，错误信息：{ex}！")
 
     def save(self, name: str, data):
         """
@@ -49,7 +49,7 @@ class SettingFunctions(QObject):
         @param name: 选项名称
         @param data: 选项数据
         """
-        logging.debug(f"保存设置{name}：{data}")
+        Log.debug(f"保存设置{name}：{data}")
         self.last_setting[name] = data
         self.__save()
 
@@ -67,13 +67,13 @@ class SettingFunctions(QObject):
             self.save(name, self.DEFAULT_SETTING[name])
             self.changeEvent(name)
         else:
-            logging.info("开始重置程序设置！")
+            Log.info("开始重置程序设置！")
             l = self.__compare(self.DEFAULT_SETTING, self.last_setting)
             self.last_setting = deepcopy(self.DEFAULT_SETTING)
             self.__save()
             for i in l:
                 self.changeEvent(i)
-            logging.info("程序设置重置完成！")
+            Log.info("程序设置重置完成！")
 
     def add(self, name: str, data):
         """
@@ -98,7 +98,7 @@ class SettingFunctions(QObject):
         修改设置项事件
         @param name: 名称
         """
-        logging.info(f"设置项{name}发生更改，已同步！")
+        Log.info(f"设置项{name}发生更改，已同步！")
         self.changeSignal.emit(name)
 
     def signalConnect(self, func):
@@ -127,7 +127,7 @@ class SettingFunctions(QObject):
                     for i in l:
                         self.changeEvent(i)
             except Exception as ex:
-                logging.error(f"设置文件数据数据错误，错误信息：{ex}！")
+                Log.error(f"设置文件数据数据错误，错误信息：{ex}！")
 
     def __compare(self, old: dict, new: dict):
         keys = []

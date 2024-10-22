@@ -7,26 +7,26 @@ import ssl
 ssl._create_default_https_context = ssl._create_unverified_context()
 
 # 日志设置
-handler2 = log_import.FileHandler(program.LOGGING_FILE_PATH)
-handler2.setLevel(log_import.DEBUG)
-handler2.setFormatter(log_import.Formatter("[%(levelname)s %(asctime)s %(filename)s %(process)s]:%(message)s"))
+handler2 = logging.FileHandler(program.LOGGING_FILE_PATH)
+handler2.setLevel(logging.DEBUG)
+handler2.setFormatter(logging.Formatter("[%(levelname)s %(asctime)s %(filename)s %(process)s]:%(message)s"))
 
-logging.addHandler(handler2)
+Log.addHandler(handler2)
 
-logging.info(f"程序启动参数{program.STARTUP_ARGUMENT}!")
+Log.info(f"程序启动参数{program.STARTUP_ARGUMENT}!")
 
 # 检查重复运行
 def detectRepeatRun():
-    if existPath(joinPath(program.DATA_PATH, "zb.lock")):
-        with open(joinPath(program.DATA_PATH, "zb.lock"), "r+", encoding="utf-8") as file:
+    if f.existPath(f.joinPath(program.DATA_PATH, "zb.lock")):
+        with open(f.joinPath(program.DATA_PATH, "zb.lock"), "r+", encoding="utf-8") as file:
             pid = file.read().strip()
-        if pid and "zbProgram.exe" in easyCmd(f"tasklist |findstr {pid}", True):
-            open(joinPath(program.DATA_PATH, "zb.unlock"), "w").close()
+        if pid and "zbProgram.exe" in f.easyCmd(f"tasklist |findstr {pid}", True):
+            open(f.joinPath(program.DATA_PATH, "zb.unlock"), "w").close()
             program.close()
         else:
-            if existPath(joinPath(program.DATA_PATH, "zb.unlock")):
-                os.remove(joinPath(program.DATA_PATH, "zb.unlock"))
-            with open(joinPath(program.DATA_PATH, "zb.lock"), "w+", encoding="utf-8") as file:
+            if f.existPath(f.joinPath(program.DATA_PATH, "zb.unlock")):
+                os.remove(f.joinPath(program.DATA_PATH, "zb.unlock"))
+            with open(f.joinPath(program.DATA_PATH, "zb.lock"), "w+", encoding="utf-8") as file:
                 file.write(str(program.PROGRAM_PID))
 
 
@@ -44,13 +44,13 @@ def addToStartup(mode: bool = True):
         if mode:
             win32api.RegSetValueEx(key, program.NAME, 0, win32con.REG_SZ, f"{program.MAIN_FILE_PATH} startup")
             win32api.RegCloseKey(key)
-            logging.info("启动项添加成功")
+            Log.info("启动项添加成功")
         else:
             win32api.RegDeleteValue(key, program.NAME)
             win32api.RegCloseKey(key)
-            logging.info("启动项删除成功")
+            Log.info("启动项删除成功")
     except Exception as ex:
-        logging.warning(f"启动项编辑失败{ex}")
+        Log.warning(f"启动项编辑失败{ex}")
 
 
 def checkStartup():
@@ -73,9 +73,9 @@ def getNewestVersion() -> str:
     获取程序最新版本
     @return: 程序最新版本
     """
-    response = getUrl(program.UPDATE_URL, REQUEST_HEADER, (15, 30))
+    response = f.getUrl(program.UPDATE_URL, f.REQUEST_HEADER, (15, 30))
     data = json.loads(response.text)["version"]
-    logging.info(f"服务器最新版本：{data}")
+    Log.info(f"服务器最新版本：{data}")
     return data
 
 
@@ -85,12 +85,12 @@ def getOnlineAddonDict():
     @return: 字典
     """
     try:
-        response = getUrl(program.ADDON_URL, REQUEST_HEADER, (15, 30))
+        response = f.getUrl(program.ADDON_URL, f.REQUEST_HEADER, (15, 30))
         data = json.loads(response.text)
-        logging.info("插件信息获取成功！")
+        Log.info("插件信息获取成功！")
         return data
     except Exception as ex:
-        logging.warning(f"插件信息获取失败，报错信息：{ex}！")
+        Log.warning(f"插件信息获取失败，报错信息：{ex}！")
 
 
 def getAddonInfoFromUrl(url: str):
@@ -100,13 +100,13 @@ def getAddonInfoFromUrl(url: str):
     @return: 信息
     """
     try:
-        response = getUrl(url, REQUEST_HEADER, (15, 30))
+        response = f.getUrl(url, f.REQUEST_HEADER, (15, 30))
         data = json.loads(response.text)
         data["url"] = url
-        logging.info(f"插件{data["name"]}信息获取成功")
+        Log.info(f"插件{data["name"]}信息获取成功")
         return data
     except Exception as ex:
-        logging.error(f"插件{url}信息获取失败，报错信息：{ex}！")
+        Log.error(f"插件{url}信息获取失败，报错信息：{ex}！")
         return False
 
 
@@ -116,20 +116,20 @@ def downloadAddonFromInfo(data: dict):
     @param data: 插件链接
     """
     try:
-        dir_path = joinPath(program.ADDON_PATH, data["id"])
-        createDir(dir_path)
-        with open(joinPath(dir_path, "addon.json"), "w+") as f:
-            f.write(json.dumps(data, indent=4))
-        result = singleDownload(data["file"], dir_path)
+        dir_path = f.joinPath(program.ADDON_PATH, data["id"])
+        f.createDir(dir_path)
+        with open(f.joinPath(dir_path, "addon.json"), "w+") as file:
+            file.write(json.dumps(data, indent=4))
+        result = f.singleDownload(data["file"], dir_path)
         if result:
-            extractZip(result, dir_path, True)
-            logging.info(f"插件{data["name"]}下载成功！")
+            f.extractZip(result, dir_path, True)
+            Log.info(f"插件{data["name"]}下载成功！")
             return True
         else:
-            logging.error(f"插件{data["name"]}下载失败！")
+            Log.error(f"插件{data["name"]}下载失败！")
             return False
     except Exception as ex:
-        logging.error(f"插件{data["name"]}在下载与解压过程中发生错误，报错信息：{ex}！")
+        Log.error(f"插件{data["name"]}在下载与解压过程中发生错误，报错信息：{ex}！")
         return False
 
 
@@ -138,19 +138,19 @@ def importAddon(path: str):
     导入本体插件
     @param path: 目录
     """
-    extractZip(path, program.cache(splitPath(path)))
-    if existPath(joinPath(program.cache(splitPath(path)), "addon.json")):
-        with open(joinPath(program.cache(splitPath(path)), "addon.json"), "r", encoding="utf-8") as file:
+    f.extractZip(path, program.cache(f.splitPath(path)))
+    if f.existPath(f.joinPath(program.cache(f.splitPath(path)), "addon.json")):
+        with open(f.joinPath(program.cache(f.splitPath(path)), "addon.json"), "r", encoding="utf-8") as file:
             data = json.loads(file.read())
-        extractZip(path, joinPath(program.ADDON_PATH, data[id]))
+        f.extractZip(path, f.joinPath(program.ADDON_PATH, data[id]))
     else:
-        for i in walkDir(program.cache(splitPath(path))):
-            if existPath(joinPath(i, "addon.json")):
-                with open(joinPath(i, "addon.json"), "r", encoding="utf-8") as file:
+        for i in f.walkDir(program.cache(f.splitPath(path))):
+            if f.existPath(f.joinPath(i, "addon.json")):
+                with open(f.joinPath(i, "addon.json"), "r", encoding="utf-8") as file:
                     data = json.loads(file.read())
                 break
-        extractZip(path, program.ADDON_PATH)
-    deletePath(program.cache(splitPath(path)))
+        f.extractZip(path, program.ADDON_PATH)
+    f.deletePath(program.cache(f.splitPath(path)))
     return data
 
 
@@ -160,12 +160,12 @@ def getInstalledAddonInfo():
     @return: 信息
     """
     data = {}
-    for i in walkDir(program.ADDON_PATH, 1):
-        if isFile(joinPath(i, "addon.json")):
-            with open(joinPath(i, "addon.json"), encoding="utf-8") as file:
+    for i in f.walkDir(program.ADDON_PATH, 1):
+        if f.isFile(f.joinPath(i, "addon.json")):
+            with open(f.joinPath(i, "addon.json"), encoding="utf-8") as file:
                 addon_data=json.load(file)
                 data[addon_data["id"]] = addon_data
     return data
 
 
-logging.info("程序动态数据api初始化成功！")
+Log.info("程序动态数据api初始化成功！")

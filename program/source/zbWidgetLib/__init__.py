@@ -102,7 +102,7 @@ class Image(QLabel):
             self.setPixmap(QPixmap(path))
 
     def downloadImage(self):
-        msg = singleDownload(self.url, self.path, True, True, REQUEST_HEADER)
+        msg = f.singleDownload(self.url, self.path, True, True, Info.REQUEST_HEADER)
         if msg:
             self.loading = False
             self.setPixmap(QPixmap(self.path))
@@ -541,7 +541,7 @@ class SmallInfoCard(CardWidget):
         @param data: 文本
         @param pos: 位置：0 左上 1 左下 2 右上 3 右下
         """
-        self.info[pos] = clearCharacters(data)
+        self.info[pos] = f.clearCharacters(data)
         self.contentLabel1.setText(f"{self.info[0]}\n{self.info[1]}".strip())
         self.contentLabel2.setText(f"{self.info[2]}\n{self.info[3]}".strip())
 
@@ -614,4 +614,4 @@ class CardGroup(QWidget):
         self.cardLayout.clearWidget()
 
 
-logging.info("组件库api初始化成功！")
+Log.info("组件库api初始化成功！")

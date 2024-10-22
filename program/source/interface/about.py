@@ -31,10 +31,10 @@ class UpdateSettingCard(SettingCard):
         try:
             data = getNewestVersion()
         except Exception as ex:
-            logging.error(f"检测更新失败，报错信息：{ex}！")
+            Log.error(f"检测更新失败，报错信息：{ex}！")
             self.signalBool.emit(False)
             return
-        if compareVersionCode(data, program.VERSION) == program.VERSION:
+        if f.compareVersionCode(data, program.VERSION) == program.VERSION:
             self.signalBool.emit(True)
         else:
             self.signalStr.emit(data)
@@ -63,7 +63,7 @@ class UpdateSettingCard(SettingCard):
         self.button1.setEnabled(False)
 
         self.infoBar.close()
-        deletePath(program.cache("zbProgramUpdate.exe"))
+        f.deletePath(program.cache("zbProgramUpdate.exe"))
         self.download = DownloadWidget(program.UPDATE_INSTALLER_URL, program.cache("zbProgramUpdate.exe"), program.THREAD_POOL, self.window().aboutPage)
         self.download.signalFinished.connect(self.updateProgram)
 
@@ -83,12 +83,12 @@ class HelpSettingCard(SettingCard):
     def __init__(self, parent=None):
         super().__init__(FIF.HELP, "帮助", "查看程序相关信息", parent)
         self.button1 = HyperlinkButton(program.INSTALL_PATH, "程序安装路径", self, FIF.FOLDER)
-        self.button1.clicked.connect(lambda: showFile(program.INSTALL_PATH))
+        self.button1.clicked.connect(lambda: f.showFile(program.INSTALL_PATH))
         self.button1.setToolTip("打开程序安装路径")
         self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
 
         self.button2 = HyperlinkButton(program.INSTALL_PATH, "程序数据路径", self, FIF.FOLDER)
-        self.button2.clicked.connect(lambda: showFile(program.DATA_PATH))
+        self.button2.clicked.connect(lambda: f.showFile(program.DATA_PATH))
         self.button2.setToolTip("打开程序数据路径")
         self.button2.installEventFilter(ToolTipFilter(self.button2, 1000))
 
@@ -110,7 +110,7 @@ class HelpSettingCard(SettingCard):
         program.THREAD_POOL.submit(self.clearCache)
 
     def clearCache(self):
-        clearDir(joinPath(program.DATA_PATH, "cache"))
+        f.clearDir(f.joinPath(program.DATA_PATH, "cache"))
         program.THREAD_POOL.submit(lambda: self.signalBool.emit(True))
 
     def threadEvent3(self, msg):

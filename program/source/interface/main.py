@@ -45,7 +45,7 @@ class AddonInfoCard(SmallInfoCard):
         self.offlineData = data
         self.setTitle(self.offlineData["name"])
         if "icon" in self.offlineData.keys():
-            self.setImg(program.cache(joinPath("addon", getFileNameFromUrl(self.offlineData["icon"]))), self.offlineData["icon"], program.THREAD_POOL)
+            self.setImg(program.cache(f.joinPath("addon", f.getFileNameFromUrl(self.offlineData["icon"]))), self.offlineData["icon"], program.THREAD_POOL)
         self.setInfo(f"本地版本：{self.offlineData["version"]}", 0)
         if "history" in self.offlineData.keys():
             self.setInfo(f"更新时间：{self.offlineData["history"][self.offlineData["version"]]["time"]}", 1)
@@ -62,7 +62,7 @@ class AddonInfoCard(SmallInfoCard):
 
         self.setTitle(self.onlineData["name"])
         if "icon" in self.onlineData.keys():
-            self.setImg(program.cache(joinPath("addon", getFileNameFromUrl(self.onlineData["icon"]))), self.onlineData["icon"], program.THREAD_POOL)
+            self.setImg(program.cache(f.joinPath("addon", f.getFileNameFromUrl(self.onlineData["icon"]))), self.onlineData["icon"], program.THREAD_POOL)
         self.setInfo(f"在线版本：{self.onlineData["version"]}", 2)
         if "history" in self.onlineData.keys():
             self.setInfo(f"更新时间：{self.onlineData["history"][self.onlineData["version"]]["time"]}", 3)
@@ -142,11 +142,12 @@ class MainPage(BasicTab):
             info = getAddonInfoFromUrl(info)
             self.signalAddCardOnline.emit(info)
         except Exception as ex:
-            logging.error(f"程序发生异常，无法获取插件{info["name"]}的在线信息，报错信息：{ex}！")
+            Log.error(f"程序发生异常，无法获取插件{info["name"]}的在线信息，报错信息：{ex}！")
         self.onlineCount += 1
 
     def addCardOffline(self, info):
         if info["id"] not in self.cardIdDict.keys():
+
             try:
                 card = AddonInfoCard(self)
                 card.setInstalledData(info)
@@ -154,12 +155,12 @@ class MainPage(BasicTab):
                 self.cardGroup1.addWidget(card)
                 card.show()
             except Exception as ex:
-                logging.error(f"程序发生异常，插件{info["name"]}的卡片组件无法加载，报错信息：{ex}！")
+                Log.error(f"程序发生异常，插件{info["name"]}的卡片组件无法加载，报错信息：{ex}！")
         else:
             try:
                 self.cardIdDict[info["id"]].setInstalledData(info)
             except RuntimeError:
-                logging.warning(f"组件{info["id"]}已被删除，无法设置数据了！")
+                Log.warning(f"组件{info["id"]}已被删除，无法设置数据了！")
 
     def addCardOnline(self, info):
         if info["id"] not in self.cardIdDict.keys():
@@ -170,12 +171,12 @@ class MainPage(BasicTab):
                 self.cardGroup1.addWidget(card)
                 card.show()
             except Exception as ex:
-                logging.error(f"程序发生异常，插件{info["name"]}的卡片组件无法加载，报错信息：{ex}！")
+                Log.error(f"程序发生异常，插件{info["name"]}的卡片组件无法加载，报错信息：{ex}！")
         else:
             try:
                 self.cardIdDict[info["id"]].setOnlineData(info)
             except RuntimeError:
-                logging.warning(f"组件{info["id"]}已被删除，无法设置数据了！")
+                Log.warning(f"组件{info["id"]}已被删除，无法设置数据了！")
         self.onlineCount += 1
 
     def reload(self):

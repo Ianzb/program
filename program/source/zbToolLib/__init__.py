@@ -9,4 +9,4 @@ class ZbToolLib(Data, File, Info, System, Web):
     pass
 
 
-logging.info("程序api初始化成功！")
+Log.info("程序api初始化成功！")

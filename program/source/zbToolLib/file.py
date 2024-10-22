@@ -86,7 +86,7 @@ class File:
         @return:
         """
         if not self.existPath(path):
-            logging.warning(f"文件{path}不存在，无法删除！")
+            Log.warning(f"文件{path}不存在，无法删除！")
             return
         try:
             if trash:
@@ -96,7 +96,7 @@ class File:
             else:
                 os.remove(path)
         except Exception as ex:
-            logging.error(f"删除文件{path}失败，错误信息为{ex}，回收站删除模式为{trash}，强制删除模式为{force}。")
+            Log.error(f"删除文件{path}失败，错误信息为{ex}，回收站删除模式为{trash}，强制删除模式为{force}。")
 
     def deleteDir(self, path: str, trash: bool = False, force: bool = False):
         """
@@ -107,7 +107,7 @@ class File:
         @return: 是否删除成功
         """
         if not self.existPath(path):
-            logging.warning(f"文件夹{path}不存在，无法删除！")
+            Log.warning(f"文件夹{path}不存在，无法删除！")
             return False
         try:
             if trash:
@@ -117,7 +117,7 @@ class File:
             else:
                 shutil.rmtree(path)
         except Exception as ex:
-            logging.error(f"删除文件夹{path}失败，错误信息为{ex}，回收站删除模式为{trash}，强制删除模式为{force}。")
+            Log.error(f"删除文件夹{path}失败，错误信息为{ex}，回收站删除模式为{trash}，强制删除模式为{force}。")
         return self.existPath(path)
 
     def deletePath(self, path: str, trash: bool = False, force: bool = False):
@@ -178,7 +178,7 @@ class File:
         @return: 哈希值
         """
         if not self.isFile(path):
-            logging.warning(f"文件{path}不存在，无法获取哈希值。")
+            Log.warning(f"文件{path}不存在，无法获取哈希值。")
             return None
         if mode == "md5":
             from hashlib import md5
@@ -305,11 +305,11 @@ class File:
         @return: 是否成功
         """
         if not self.existPath(old):
-            logging.error(f"文件{old}不存在，无法复制！")
+            Log.error(f"文件{old}不存在，无法复制！")
             return False
         new = self._dirPathToSelfPath(old, new)
         if self.existPath(new) and replace:
-            logging.warning(f"文件{new}已存在，将尝试以{old}替换！")
+            Log.warning(f"文件{new}已存在，将尝试以{old}替换！")
         if not replace:
             new = self.addRepeatSuffix(new)
         if self.isFile(old):
@@ -317,13 +317,13 @@ class File:
                 self.createDir(self.splitPath(new, 3))
                 shutil.copy2(old, new)
             except Exception as ex:
-                logging.error(f"复制文件失败，错误信息：{ex}。")
+                Log.error(f"复制文件失败，错误信息：{ex}。")
                 return False
         elif self.isDir(old):
             try:
                 shutil.copytree(old, new)
             except Exception as ex:
-                logging.error(f"复制文件夹失败，错误信息：{ex}。")
+                Log.error(f"复制文件夹失败，错误信息：{ex}。")
                 return False
         return new if self.existPath(new) else False
 
@@ -335,7 +335,7 @@ class File:
         @param replace: 文件重复时是否替换，关闭时将在复制后位置添加序号
         """
         if not self.existPath(old):
-            logging.error(f"文件{old}不存在，无法移动！")
+            Log.error(f"文件{old}不存在，无法移动！")
             return False
         new = self.copyPath(old, new, replace)
         if new:
@@ -376,6 +376,6 @@ class File:
                 file.close()
                 if delete:
                     self.deleteFile(path)
-                logging.debug(f"{path}解压成功！")
+                Log.debug(f"{path}解压成功！")
             except Exception as ex:
-                logging.warning(f"{path}解压失败{ex}！")
+                Log.warning(f"{path}解压失败{ex}！")

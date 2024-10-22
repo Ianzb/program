@@ -1,7 +1,8 @@
 from .log import *
 
+
 class Data:
-    def clearCharacters(self,text: str, mode: str | list | tuple = "escape+space"):
+    def clearCharacters(self, text: str, mode: str | list | tuple = "escape+space"):
         """
         移除字符串中的指定类型字符
         @param text: 字符串
@@ -21,8 +22,7 @@ class Data:
             text = sub(r'[*?"<>|]', "", text)
         return text
 
-
-    def compareVersionCode(self,version1: str, version2: str):
+    def compareVersionCode(self, version1: str, version2: str):
         """
         比较版本号大小，仅支持如1.0.0的不含字符的版本号
         @param version1: 版本号1
@@ -43,8 +43,7 @@ class Data:
         else:
             return version2
 
-
-    def sortVersionCode(self,version: list, reverse: bool = False, repeat: bool = False):
+    def sortVersionCode(self, version: list, reverse: bool = False, repeat: bool = False):
         """
         版本号列表排序
         @param version: 版本号列表
@@ -57,8 +56,7 @@ class Data:
         version.sort(key=lambda x: tuple(int(v) for v in x.split(".")), reverse=reverse)
         return version
 
-
-    def numberAddUnit(self,value: int):
+    def numberAddUnit(self, value: int):
         """
         数字加单位
         @param value: 值
