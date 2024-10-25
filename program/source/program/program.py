@@ -28,7 +28,7 @@ class Program:
     PROGRAM_PID = os.getpid()  # 程序pid
     DATA_PATH = os.path.join(f.USER_PATH, "zb")  # 程序数据路径
     SETTING_FILE_PATH = os.path.join(DATA_PATH, "settings.json")  # 程序设置文件路径
-    LOGGING_FILE_PATH = os.path.join(DATA_PATH, "Log.log")  # 程序日志文件路径
+    LOGGING_FILE_PATH = os.path.join(DATA_PATH, "logging.log")  # 程序日志文件路径
     ADDON_PATH = os.path.join(DATA_PATH, "addon")  # 程序插件路径
 
     STARTUP_ARGUMENT = sys.argv[1:]  # 程序启动参数

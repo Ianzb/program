@@ -7,6 +7,8 @@ import ssl
 ssl._create_default_https_context = ssl._create_unverified_context()
 
 # 日志设置
+open(program.LOGGING_FILE_PATH, "w").close() if not f.existPath(program.LOGGING_FILE_PATH) or f.fileSize(program.LOGGING_FILE_PATH) >=1024*128 else None
+
 handler2 = logging.FileHandler(program.LOGGING_FILE_PATH)
 handler2.setLevel(logging.DEBUG)
 handler2.setFormatter(logging.Formatter("[%(levelname)s %(asctime)s %(filename)s %(process)s]:%(message)s"))
@@ -14,6 +16,7 @@ handler2.setFormatter(logging.Formatter("[%(levelname)s %(asctime)s %(filename)s
 Log.addHandler(handler2)
 
 Log.info(f"程序启动参数{program.STARTUP_ARGUMENT}!")
+
 
 # 检查重复运行
 def detectRepeatRun():
@@ -119,7 +122,7 @@ def downloadAddonFromInfo(data: dict):
         dir_path = f.joinPath(program.ADDON_PATH, data["id"])
         f.createDir(dir_path)
         with open(f.joinPath(dir_path, "addon.json"), "w+") as file:
-            file.write(json.dumps(data, indent=4))
+            file.write(json.dumps(data, indent=4, ensure_ascii=False))
         result = f.singleDownload(data["file"], dir_path)
         if result:
             f.extractZip(result, dir_path, True)
@@ -163,7 +166,7 @@ def getInstalledAddonInfo():
     for i in f.walkDir(program.ADDON_PATH, 1):
         if f.isFile(f.joinPath(i, "addon.json")):
             with open(f.joinPath(i, "addon.json"), encoding="utf-8") as file:
-                addon_data=json.load(file)
+                addon_data = json.load(file)
                 data[addon_data["id"]] = addon_data
     return data
 

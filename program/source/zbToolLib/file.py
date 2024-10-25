@@ -92,7 +92,7 @@ class File:
             if trash:
                 send2trash.send2trash(path)
             elif force:
-                System.easyCmd(f'del /F /Q /S "{path}"', True)
+                System().easyCmd(f'del /F /Q /S "{path}"', True)
             else:
                 os.remove(path)
         except Exception as ex:
@@ -113,7 +113,7 @@ class File:
             if trash:
                 send2trash.send2trash(path)
             elif force:
-                System.easyCmd(f'rmdir /S /Q "{path}"', True)
+                System().easyCmd(f'rmdir /S /Q "{path}"', True)
             else:
                 shutil.rmtree(path)
         except Exception as ex:
@@ -357,9 +357,9 @@ class File:
         @param path: 路径
         """
         if self.isFile(path):
-            System.easyCmd(f'explorer /select,"{path}"')
+            System().easyCmd(f'explorer /select,"{path}"')
         else:
-            System.easyCmd(f'explorer "{path}"')
+            System().easyCmd(f'explorer "{path}"')
 
     def extractZip(self, path: str, goal: str, delete: bool = False):
         """

@@ -80,13 +80,13 @@ class Web:
         """
         import requests
         try:
-            if File.isDir(path):
-                path = File.joinPath(path, self.getFileNameFromUrl(url))
-            if File.isFile(path) and not exist:
+            if File().isDir(path):
+                path = File().joinPath(path, self.getFileNameFromUrl(url))
+            if File().isFile(path) and not exist:
                 Log.warning(f"由于文件{path}已存在，自动跳过单线程下载！")
                 return False
             if exist and not force:
-                path = File.addRepeatSuffix(path)
+                path = File().addRepeatSuffix(path)
             Log.info(f"正在单线程下载文件{url}到{path}！")
             response = requests.get(url, headers=header, stream=True)
             with open(path, "wb") as f:
@@ -162,18 +162,18 @@ class MultiDownload:
         self.replace = replace
         self.__finished = False
 
-        if File.isDir(self.path):
-            self.path = File.joinPath(self.path, Web.getFileNameFromUrl(self.url))
+        if File().isDir(self.path):
+            self.path = File().joinPath(self.path, Web.getFileNameFromUrl(self.url))
         self.suffixPath = self.path + "." + suffix
-        if File.isFile(self.suffixPath):
-            self.suffixPath = File.addRepeatSuffix(self.suffixPath)
+        if File().isFile(self.suffixPath):
+            self.suffixPath = File().addRepeatSuffix(self.suffixPath)
 
         Log.info(f"开始使用DownloadKit下载{self.url}到{self.path}！")
         self.downloadKit = downloadKit
         self.file = self.downloadKit.add(self.url,
-                                         File.splitPath(self.path, 3),
-                                         File.splitPath(self.suffixPath, 1),
-                                         File.splitPath(self.suffixPath, 2)[1:],
+                                         File().splitPath(self.path, 3),
+                                         File().splitPath(self.suffixPath, 1),
+                                         File().splitPath(self.suffixPath, 2)[1:],
                                          headers=header, split=True, allow_redirects=True, stream=True, timeout=15)
         self.file._set_auto_finish(self._finish)
         if wait:
@@ -219,7 +219,7 @@ class MultiDownload:
         """
         下载完成后的回调函数，无需手动调用。
         """
-        self.resultPath = File.movePath(self.suffixPath, self.path, self.replace)
+        self.resultPath = File().movePath(self.suffixPath, self.path, self.replace)
         if not self.resultPath:
             Log.warning(f"使用DownloadKit下载{self.url}到{self.path}失败：无法移动下载临时文件至正式目录！")
             self.__finished = "failed"
