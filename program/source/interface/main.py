@@ -31,13 +31,14 @@ class AddonInfoCard(SmallInfoCard):
 
         self.offlineData: dict = {}
         self.onlineData: dict = {}
-        self.infoState: str = ""
+
+        self.setButtonStatement()
 
     def showInfo(self):
-        if self.infoState:
+        if self.onlineData or self.offlineData:
             data = self.onlineData if self.onlineData else self.offlineData
             title = f"{data["name"]}插件信息"
-            info = (f"ID：{data["id"]}\n版本：{data["version"]}\n作者：{data["author"]}\n介绍：{data["description"]}\n更新日期：{data["history"][data["version"]]["time"]}\n更新内容：{data["history"][data["version"]]["log"]}\n")
+            info = f"ID：{data["id"]}\n版本：{data["version"]}\n作者：{data["author"]}\n介绍：{data["description"]}\n更新日期：{data["history"][data["version"]]["time"]}\n更新内容：{data["history"][data["version"]]["log"]}\n"
             messageBox = AddonInfoMessageBox(title, info, self.window())
             messageBox.show()
 
@@ -49,12 +50,8 @@ class AddonInfoCard(SmallInfoCard):
         self.setInfo(f"本地版本：{self.offlineData["version"]}", 0)
         if "history" in self.offlineData.keys():
             self.setInfo(f"更新时间：{self.offlineData["history"][self.offlineData["version"]]["time"]}", 1)
-        self.mainButton.setText("加载中")
-        self.mainButton.setEnabled(False)
-        self.mainButton.setIcon(FIF.UPDATE)
-
+        self.setButtonStatement()
         self.infoButton.show()
-        self.infoState = "Offline"
 
     def setOnlineData(self, data):
         self.onlineData = data
@@ -66,17 +63,31 @@ class AddonInfoCard(SmallInfoCard):
         self.setInfo(f"在线版本：{self.onlineData["version"]}", 2)
         if "history" in self.onlineData.keys():
             self.setInfo(f"更新时间：{self.onlineData["history"][self.onlineData["version"]]["time"]}", 3)
-        if self.infoState == "Offline":
+        self.setButtonStatement()
+        self.infoButton.show()
+
+    def setButtonStatement(self):
+        if self.onlineData and self.offlineData:
             if self.onlineData["version"] != self.offlineData["version"]:
                 self.mainButton.setText("更新")
                 self.mainButton.setIcon(FIF.UPDATE)
+                self.mainButton.setEnabled(True)
             elif self.onlineData["version"] == self.offlineData["version"]:
                 self.mainButton.setText("重新安装")
                 self.mainButton.setIcon(FIF.DOWNLOAD)
-        elif not self.infoState:
-            self.mainButton.setText("下载并安装")
-        self.infoButton.show()
-        self.infoState = "Online"
+                self.mainButton.setEnabled(True)
+        elif not self.onlineData and self.offlineData:
+            self.mainButton.setText("仅本地")
+            self.mainButton.setIcon(FIF.DOWNLOAD)
+            self.mainButton.setEnabled(False)
+        elif self.onlineData and not self.offlineData:
+            self.mainButton.setText("下载")
+            self.mainButton.setIcon(FIF.DOWNLOAD)
+            self.mainButton.setEnabled(True)
+        else:
+            self.mainButton.setText("加载中")
+            self.mainButton.setIcon(FIF.SEARCH)
+            self.mainButton.setEnabled(False)
 
 
 class MainPage(BasicTab):
@@ -87,7 +98,7 @@ class MainPage(BasicTab):
     subtitle = "常用功能"
     signalAddCardOffline = pyqtSignal(dict)
     signalAddCardOnline = pyqtSignal(dict)
-    signalGetInfoOnline= pyqtSignal(str)
+    signalGetInfoOnline = pyqtSignal(str)
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
