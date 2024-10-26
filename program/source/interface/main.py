@@ -22,6 +22,7 @@ class AddonInfoMessageBox(MessageBox):
 
         self.yesButton.deleteLater()
         self.cancelButton.setText("关闭")
+        self.cancelButton.clicked.connect(self.deleteLater)
 
 
 class AddonInfoCard(SmallInfoCard):
@@ -31,7 +32,6 @@ class AddonInfoCard(SmallInfoCard):
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
-
 
         self.mainButton.clicked.connect(self.downloadAddon)
 
@@ -152,6 +152,7 @@ class MainPage(BasicTab):
     signalAddCardOffline = pyqtSignal(dict)
     signalAddCardOnline = pyqtSignal(dict)
     signalGetInfoOnline = pyqtSignal(str)
+
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.setIcon(FIF.HOME)
@@ -165,7 +166,7 @@ class MainPage(BasicTab):
 
         self.card1 = GrayCard("插件管理", self)
 
-        self.reloadButton = PushButton("重置", self, FIF.SYNC)
+        self.reloadButton = PushButton("刷新", self, FIF.SYNC)
         self.reloadButton.setEnabled(False)
         self.reloadButton.clicked.connect(self.reload)
         self.card1.addWidget(self.reloadButton)
@@ -181,7 +182,6 @@ class MainPage(BasicTab):
         self.signalGetInfoOnline.connect(self.getOnlineAddonInfo)
 
         program.THREAD_POOL.submit(self.getInstalledAddonList)
-
 
     def getInstalledAddonList(self):
         info = program.getInstalledAddonInfo()

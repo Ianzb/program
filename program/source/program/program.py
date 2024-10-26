@@ -109,6 +109,8 @@ class Program:
         """
         程序重复运行检测
         """
+        if not self.isExe:
+            return
         value = False
         if os.path.exists(os.path.join(self.DATA_PATH, "zb.lock")):
             with open(os.path.join(self.DATA_PATH, "zb.lock"), "r+", encoding="utf-8") as file:

@@ -1,5 +1,5 @@
 from .widget import *
-
+from .download import DownloadWidget
 
 class UpdateSettingCard(SettingCard):
     """
@@ -29,7 +29,7 @@ class UpdateSettingCard(SettingCard):
 
     def checkUpdate(self):
         try:
-            data = getNewestVersion()
+            data = program.getNewestVersion()
         except Exception as ex:
             Log.error(f"检测更新失败，报错信息：{ex}！")
             self.signalBool.emit(False)
