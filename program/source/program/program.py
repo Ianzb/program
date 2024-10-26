@@ -111,24 +111,6 @@ class Program:
         """
         if not self.isExe:
             return
-        value = False
-        if os.path.exists(os.path.join(self.DATA_PATH, "zb.lock")):
-            with open(os.path.join(self.DATA_PATH, "zb.lock"), "r+", encoding="utf-8") as file:
-                pid = file.read().strip()
-                if pid:
-                    data = os.popen(f"tasklist |findstr {pid}")
-                    if "zbProgram.exe" in data.read():
-                        value = True
-        if value:
-            open(os.path.join(self.DATA_PATH, "zb.unlock"), "w").close()
-            self.close()
-        else:
-            if os.path.exists(os.path.join(self.DATA_PATH, "zb.unlock")):
-                os.remove(os.path.join(self.DATA_PATH, "zb.unlock"))
-            with open(os.path.join(self.DATA_PATH, "zb.lock"), "w+", encoding="utf-8") as file:
-                file.write(str(self.PROGRAM_PID))
-
-    def detectRepeatRun(self):
         if f.existPath(f.joinPath(program.DATA_PATH, "zb.lock")):
             with open(f.joinPath(program.DATA_PATH, "zb.lock"), "r+", encoding="utf-8") as file:
                 pid = file.read().strip()
@@ -236,7 +218,6 @@ class Program:
         except Exception as ex:
             Log.error(f"插件{data["name"]}在下载与解压过程中发生错误，报错信息：{ex}！")
             return False
-
 
     def getInstalledAddonInfo(self):
         """
