@@ -211,17 +211,29 @@ class Program:
             Log.error(f"插件{url}信息获取失败，报错信息：{ex}！")
             return False
 
-    def downloadAddonFromInfo(self, data: dict, general_data: dict|None = None):
+    def downloadAddonFromInfo(self, data: dict):
         """
         通过插件自述文件数据链接获取指定插件信息
         @param data: 插件信息
         @param general_data: 基础链接（addon.json链接，仅文件为相对路径的时候需要）
         """
+        dir_path = f.joinPath(program.ADDON_PATH, data["id"])
+        f.createDir(dir_path)
+        with open(f.joinPath(dir_path, "addon.json"), "w+", encoding="utf-8") as file:
+            file.write(json.dumps(data, indent=2, ensure_ascii=False))
+        result = f.singleDownload(data["file"], dir_path)
+        if result:
+            f.extractZip(result, dir_path, True)
+            Log.info(f"插件{data["name"]}下载成功！")
+            return True
+        else:
+            Log.error(f"插件{data["name"]}下载失败！")
+            return False
         try:
             dir_path = f.joinPath(program.ADDON_PATH, data["id"])
             f.createDir(dir_path)
-            with open(f.joinPath(dir_path, "addon.json"), "w+") as file:
-                file.write(json.dumps(data, indent=4, ensure_ascii=False))
+            with open(f.joinPath(dir_path, "addon.json"), "w+",encoding="utf-8") as file:
+                file.write(json.dumps(data, indent=2, ensure_ascii=False))
             if not f.isUrl(data["file"]) and general_data is not None:
                 data["file"] = f.joinUrl(general_data[data["id"]], data["file"])
             result = f.singleDownload(data["file"], dir_path)
@@ -242,13 +254,16 @@ class Program:
         获取本地插件信息，格式为 {“插件id”:{自述文件字典数据}...}
         @return: 信息
         """
-        data = {}
-        for i in f.walkDir(program.ADDON_PATH, 1):
-            if f.isFile(f.joinPath(i, "addon.json")):
-                with open(f.joinPath(i, "addon.json"), encoding="utf-8") as file:
-                    addon_data = json.load(file)
-                    data[addon_data["id"]] = addon_data
-        return data
+        try:
+            data = {}
+            for i in f.walkDir(program.ADDON_PATH, 1):
+                if f.isFile(f.joinPath(i, "addon.json")):
+                    with open(f.joinPath(i, "addon.json"), encoding="utf-8") as file:
+                        addon_data = json.load(file)
+                        data[addon_data["id"]] = addon_data
+            return data
+        except Exception as ex:
+            Log.error(f"获取本地插件信息失败，报错信息：{ex}！")
 
 
 program = Program()

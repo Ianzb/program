@@ -32,7 +32,6 @@ class AddonInfoCard(SmallInfoCard):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
 
-        self.general_data = {}
 
         self.mainButton.clicked.connect(self.downloadAddon)
 
@@ -58,16 +57,16 @@ class AddonInfoCard(SmallInfoCard):
             self.window().addAddonFinishEvent.connect(self.addAddon)
             self.mainButton.setEnabled(False)
             self.removeButton.setEnabled(False)
-            program.THREAD_POOL(lambda: self.window().downloadAddon(self.onlineData, self.general_data))
+            self.window().downloadAddon(self.onlineData)
             self.parent().parent().parent().parent().addProcessing()
 
     def addAddon(self, msg):
         data = self.onlineData if self.onlineData else self.offlineData
-        if msg == data[id]:
+        if msg == data["id"]:
             self.mainButton.setEnabled(True)
             self.removeButton.setEnabled(True)
             self.window().addAddonFinishEvent.disconnect(self.addAddon)
-            self.parent().parent().parent().parent().reduceProcessing()
+            self.parent().parent().parent().parent().finishProcessing()
 
     def removeAddon(self):
         data = self.onlineData if self.onlineData else self.offlineData
@@ -184,7 +183,7 @@ class MainPage(BasicTab):
         self.signalAddCardOnline.connect(self.addCardOnline)
         self.signalGetInfoOnline.connect(self.getOnlineAddonInfo)
 
-        self.thread1 = program.THREAD_POOL.submit(self.getInstalledAddonList)
+        program.THREAD_POOL.submit(self.getInstalledAddonList)
 
     def addProcessing(self):
         self.onProcessing += 1
@@ -248,7 +247,6 @@ class MainPage(BasicTab):
             try:
                 card = AddonInfoCard(self)
                 card.setOnlineData(info)
-                card.general_data = self.addon_list
                 self.cardIdDict[info["id"]] = card
                 self.cardGroup1.addWidget(card)
                 card.show()

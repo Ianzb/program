@@ -71,6 +71,9 @@ class Window(FluentWindow):
         self.removeAddonEvent.connect(self.removeAddon)
         # 插件安装
         # self.addAddon(getInstalledAddonInfo())
+        data = program.getInstalledAddonInfo()
+        for i in data.keys():
+            self.addAddon(data[i])
 
     def keyPressEvent(self, QKeyEvent):
         """
@@ -123,13 +126,17 @@ class Window(FluentWindow):
         """
         self.navigationInterface.addSeparator(eval(f"NavigationItemPosition.{pos.upper()}"))
 
-    def downloadAddon(self, data, general_data):
-        result = program.downloadAddonFromInfo(data, general_data)
+    def downloadAddon(self, data):
+        self.__downloadAddon(data)
+        program.THREAD_POOL.submit(self.__downloadAddon, data)
+
+    def __downloadAddon(self, data):
+        result = program.downloadAddonFromInfo(data)
         self.addAddonFinishEvent.emit(data["id"])
         if result:
             self.addAddonEvent.emit(data)
         else:
-            self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", f"插件{data["path"]}下载失败！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.mainPage)
+            self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", f"插件{data["name"]}下载失败！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.mainPage)
             self.infoBar.show()
 
     def addAddon(self, data: dict):
@@ -139,11 +146,11 @@ class Window(FluentWindow):
         """
         try:
             if data["id"] in self.ADDON_OBJECT.keys():
-                self.navigationInterface.removeWidget(data["path"])
+                self.navigationInterface.removeWidget(data["name"])
                 self.stackedWidget.view.removeWidget(self.ADDON_MAINPAGE[data["id"]])
                 self.ADDON_MAINPAGE[data["id"]].deleteLater()
 
-                self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{data["path"]}更新成功，重启程序生效！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.mainPage)
+                self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{data["name"]}更新成功，重启程序生效！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.mainPage)
                 self.button1 = PushButton("重启", self, FIF.SYNC)
                 self.button1.clicked.connect(program.restart)
                 self.button1.setToolTip("重启程序")
@@ -151,19 +158,22 @@ class Window(FluentWindow):
                 self.infoBar.addWidget(self.button1)
                 self.infoBar.show()
             else:
-                self.ADDON_OBJECT[data["id"]] = importlib.import_module(data["id"])
-                self.ADDON_MAINPAGE[data["id"]] = self.ADDON_OBJECT[data["id"]].AddonPage(self)
-                self.ADDON_MAINPAGE[data["id"]].setObjectName(data["path"])
-                self.addPage(self.ADDON_MAINPAGE[data["id"]], "scroll")
+                lib = importlib.import_module(data["id"])
+                widget = lib.AddonPage(self)
+                widget.setObjectName(data["name"])
+                self.addPage(widget, data["name"])
 
-                self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{data["path"]}安装成功！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.mainPage)
+                self.ADDON_OBJECT[data["id"]] = lib
+                self.ADDON_MAINPAGE[data["id"]] = widget
+
+                self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{data["name"]}安装成功！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.mainPage)
                 self.infoBar.show()
-            Log.info(f"插件{data["path"]}安装成功")
+            Log.info(f"插件{data["name"]}安装成功")
         except Exception as ex:
-            self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", f"插件{data["path"]}安装失败{ex}！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.mainPage)
+            self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", f"插件{data["name"]}安装失败{ex}！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.mainPage)
             self.infoBar.show()
 
-            Log.warning(f"插件{data["path"]}安装失败{ex}")
+            Log.warning(f"插件{data["name"]}安装失败{ex}")
 
     def removeAddon(self, data: dict):
         """
@@ -171,7 +181,7 @@ class Window(FluentWindow):
         @param msg: 数据
         """
         if data["id"] in self.ADDON_OBJECT.keys():
-            self.navigationInterface.removeWidget(data["path"])
+            self.navigationInterface.removeWidget(data["name"])
             self.stackedWidget.view.removeWidget(self.ADDON_MAINPAGE[data["id"]])
             self.ADDON_MAINPAGE[data["id"]].deleteLater()
             del self.ADDON_OBJECT[data["id"]]
