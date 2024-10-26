@@ -171,7 +171,7 @@ class MultiDownload:
         self.__finished = False
 
         if File().isDir(self.path):
-            self.path = File().joinPath(self.path, Web.getFileNameFromUrl(self.url))
+            self.path = File().joinPath(self.path, Web().getFileNameFromUrl(self.url))
         self.suffixPath = self.path + "." + suffix
         if File().isFile(self.suffixPath):
             self.suffixPath = File().addRepeatSuffix(self.suffixPath)

@@ -1,4 +1,5 @@
-from .base import*
+from .base import *
+
 """ 基于Pyside6-Fluent-Widget同名称组件修改，修复了主窗口关闭时异常退出的问题 """
 
 
@@ -21,8 +22,6 @@ InfoBar.__fadeOut = hook_InfoBar__fadeOut
 InfoBar.close = hook_InfoBar_close
 
 
-
-
 class FixedExpandLayout(QLayout):
     """ 基于Pyside6-Fluent-Widget同名称组件修改，修复了无法遍历组件的问题 """
 
@@ -37,6 +36,11 @@ class FixedExpandLayout(QLayout):
 
         self.__widgets.append(widget)
         widget.installEventFilter(self)
+
+    def removeWidget(self, widget: QWidget):
+        if widget in self.__widgets:
+            self.__widgets.remove(widget)
+            widget.removeEventFilter(self)
 
     def addItem(self, item):
         self.__items.append(item)

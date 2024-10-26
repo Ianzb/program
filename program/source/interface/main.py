@@ -148,7 +148,6 @@ class MainPage(BasicTab):
     主页
     """
     title = "主页"
-    subtitle = "常用功能"
     signalAddCardOffline = pyqtSignal(dict)
     signalAddCardOnline = pyqtSignal(dict)
     signalGetInfoOnline = pyqtSignal(str)

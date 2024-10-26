@@ -1,5 +1,4 @@
 from .widget import *
-from .download import DownloadWidget
 
 class UpdateSettingCard(SettingCard):
     """
@@ -64,14 +63,17 @@ class UpdateSettingCard(SettingCard):
 
         self.infoBar.close()
         f.deletePath(program.cache("zbProgramUpdate.exe"))
-        self.download = DownloadWidget(program.UPDATE_INSTALLER_URL, program.cache("zbProgramUpdate.exe"), program.THREAD_POOL, self.window().aboutPage)
-        self.download.signalFinished.connect(self.updateProgram)
+        self.download = self.window().downloadPage.startDownload(program.UPDATE_INSTALLER_URL, program.cache("zbProgramUpdate.exe"), False, True)
+        self.download.connect(self.updateProgram)
 
     def updateProgram(self, msg):
         self.button1.setEnabled(True)
 
-        if msg == "finished":
+        if msg:
             os.popen(program.cache("zbProgramUpdate.exe"))
+        else:
+            self.infoBar = InfoBar(InfoBarIcon.WARNING, "警告", "安装包下载失败，无法更新！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.window().aboutPage)
+            self.infoBar.show()
 
 
 class HelpSettingCard(SettingCard):

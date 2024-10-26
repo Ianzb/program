@@ -44,10 +44,12 @@ class Window(FluentWindow):
         组件初始化
         """
         self.mainPage = MainPage(self)
+        self.downloadPage = DownloadPage(self)
         self.settingPage = SettingPage(self)
         self.aboutPage = AboutPage(self)
 
         self.addPage(self.mainPage, "top")
+        self.addPage(self.downloadPage, "top")
         self.addSeparator("top")
         self.addSeparator("bottom")
         self.addPage(self.settingPage, "bottom")
