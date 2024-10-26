@@ -235,7 +235,7 @@ class StartupSettingCard(SettingCard):
 
         super().__init__(FIF.POWER_BUTTON, "开机自启动", "设置程序的开机自启动功能", parent)
         self.checkBox1 = CheckBox("开机自启动", self)
-        self.checkBox1.setChecked(checkStartup())
+        self.checkBox1.setChecked(program.checkStartup())
         self.checkBox1.clicked.connect(self.button1Clicked)
         self.checkBox1.setToolTip("设置程序开机自启动")
         self.checkBox1.installEventFilter(ToolTipFilter(self.checkBox1, 1000))
@@ -245,7 +245,7 @@ class StartupSettingCard(SettingCard):
         self.checkBox2.clicked.connect(self.button2Clicked)
         self.checkBox2.setToolTip("设置程序在开机自启动时自动最小化窗口")
         self.checkBox2.installEventFilter(ToolTipFilter(self.checkBox2, 1000))
-        self.checkBox2.setEnabled(checkStartup())
+        self.checkBox2.setEnabled(program.checkStartup())
 
         self.hBoxLayout.addWidget(self.checkBox1, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(8)
@@ -267,10 +267,10 @@ class StartupSettingCard(SettingCard):
     def button1Clicked(self):
         if self.checkBox1.isChecked():
             self.checkBox2.setEnabled(True)
-            addToStartup(True)
+            program.addToStartup(True)
         else:
             self.checkBox2.setEnabled(False)
-            addToStartup(False)
+            program.addToStartup(False)
 
     def button2Clicked(self):
         setting.save("autoHide", self.checkBox2.isChecked())

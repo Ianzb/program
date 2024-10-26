@@ -7,8 +7,12 @@ class Window(FluentWindow):
     """
     主窗口
     """
-    ADDON_IMPORT = {}  # 导入的插件的对象
-    ADDON_MAINPAGE = {}  # 导入的插件的主页
+
+    addAddonEvent = pyqtSignal(dict)
+    removeAddonEvent = pyqtSignal(dict)
+    addAddonFinishEvent = pyqtSignal(str)
+    ADDON_OBJECT = {}  # 导入的插件的对象
+    ADDON_MAINPAGE = {}
 
     def __init__(self):
         super().__init__()
@@ -63,6 +67,8 @@ class Window(FluentWindow):
             self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", "设置文件数据错误，已自动恢复至默认选项，具体错误原因请查看程序日志！", Qt.Orientation.Vertical, True, -1, InfoBarPosition.TOP_RIGHT, self.mainPage)
             self.infoBar.show()
 
+        self.addAddonEvent.connect(self.addAddon)
+        self.removeAddonEvent.connect(self.removeAddon)
         # 插件安装
         # self.addAddon(getInstalledAddonInfo())
 
@@ -117,41 +123,25 @@ class Window(FluentWindow):
         """
         self.navigationInterface.addSeparator(eval(f"NavigationItemPosition.{pos.upper()}"))
 
-    def addAddon(self, msg):
+    def downloadAddon(self, data, general_data):
+        result = program.downloadAddonFromInfo(data, general_data)
+        self.addAddonFinishEvent.emit(data["id"])
+        if result:
+            self.addAddonEvent.emit(data)
+        else:
+            self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", f"插件{data["path"]}下载失败！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.mainPage)
+            self.infoBar.show()
+
+    def addAddon(self, data: dict):
         """
         添加插件
         @param msg: 数据
         """
-        if "id" in msg.keys():
-            self.__addAddon(msg)
-        else:
-            for v in msg.values():
-                self.__addAddon(v)
-
-    def removeAddon(self, msg):
-        """
-        移除插件
-        @param msg: 数据
-        """
-        if "id" in msg.keys():
-            self.__removeAddon(msg)
-        else:
-            for v in msg.values():
-                self.__removeAddon(v)
-
-    def __addAddon(self, data):
-        """
-        添加插件
-        @param data: 数据
-        """
-
         try:
-            if data["id"] in self.ADDON_IMPORT.keys():
+            if data["id"] in self.ADDON_OBJECT.keys():
                 self.navigationInterface.removeWidget(data["path"])
                 self.stackedWidget.view.removeWidget(self.ADDON_MAINPAGE[data["id"]])
                 self.ADDON_MAINPAGE[data["id"]].deleteLater()
-                del self.ADDON_IMPORT[data["id"]]
-                del self.ADDON_MAINPAGE[data["id"]]
 
                 self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{data["path"]}更新成功，重启程序生效！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.mainPage)
                 self.button1 = PushButton("重启", self, FIF.SYNC)
@@ -161,8 +151,8 @@ class Window(FluentWindow):
                 self.infoBar.addWidget(self.button1)
                 self.infoBar.show()
             else:
-                self.ADDON_IMPORT[data["id"]] = importlib.import_module(data["id"])
-                self.ADDON_MAINPAGE[data["id"]] = self.ADDON_IMPORT[data["id"]].AddonPage(self)
+                self.ADDON_OBJECT[data["id"]] = importlib.import_module(data["id"])
+                self.ADDON_MAINPAGE[data["id"]] = self.ADDON_OBJECT[data["id"]].AddonPage(self)
                 self.ADDON_MAINPAGE[data["id"]].setObjectName(data["path"])
                 self.addPage(self.ADDON_MAINPAGE[data["id"]], "scroll")
 
@@ -175,23 +165,28 @@ class Window(FluentWindow):
 
             Log.warning(f"插件{data["path"]}安装失败{ex}")
 
-    def __removeAddon(self, data):
+    def removeAddon(self, data: dict):
         """
         移除插件
-        @param data: 数据
+        @param msg: 数据
         """
-        if data["id"] in self.ADDON_IMPORT.keys():
+        if data["id"] in self.ADDON_OBJECT.keys():
             self.navigationInterface.removeWidget(data["path"])
             self.stackedWidget.view.removeWidget(self.ADDON_MAINPAGE[data["id"]])
             self.ADDON_MAINPAGE[data["id"]].deleteLater()
-            del self.ADDON_IMPORT[data["id"]]
+            del self.ADDON_OBJECT[data["id"]]
             del self.ADDON_MAINPAGE[data["id"]]
-        f.easyCmd(f"del /F /Q /S {f.joinPath(program.ADDON_PATH, data["id"])}", True)
-        f.deletePath(f.joinPath(program.ADDON_PATH, data["id"]))
-        Log.info(f"插件{data["path"]}删除成功")
+        f.deleteDir(f.joinPath(program.ADDON_PATH, data["id"]), force=True)
+        if not f.existPath(f.joinPath(program.ADDON_PATH, data["id"])):
+            Log.info(f"插件{data["name"]}删除成功")
 
-        self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{data["path"]}删除成功！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.settingPage)
-        self.infoBar.show()
+            self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{data["name"]}删除成功！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.mainPage)
+            self.infoBar.show()
+        else:
+            Log.info(f"插件{data["name"]}删除失败")
+
+            self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", f"插件{data["name"]}删除失败！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.mainPage)
+            self.infoBar.show()
 
     def timerEvent(self):
         """

@@ -32,17 +32,52 @@ class AddonInfoCard(SmallInfoCard):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
 
+        self.general_data = {}
+
+        self.mainButton.clicked.connect(self.downloadAddon)
+
         self.infoButton = ToolButton(FIF.INFO, self)
         self.infoButton.clicked.connect(self.showInfo)
         self.infoButton.hide()
 
+        self.removeButton = ToolButton(FIF.DELETE, self)
+        self.removeButton.clicked.connect(self.removeAddon)
+        self.removeButton.hide()
+
         self.hBoxLayout.insertWidget(4, self.infoButton)
+        self.hBoxLayout.insertWidget(7, self.removeButton)
         self.hBoxLayout.setSpacing(8)
 
         self.offlineData: dict = {}
         self.onlineData: dict = {}
 
         self.setButtonStatement()
+
+    def downloadAddon(self):
+        if self.onlineData:
+            self.window().addAddonFinishEvent.connect(self.addAddon)
+            self.mainButton.setEnabled(False)
+            self.removeButton.setEnabled(False)
+            program.THREAD_POOL(lambda: self.window().downloadAddon(self.onlineData, self.general_data))
+            self.parent().parent().parent().parent().addProcessing()
+
+    def addAddon(self, msg):
+        data = self.onlineData if self.onlineData else self.offlineData
+        if msg == data[id]:
+            self.mainButton.setEnabled(True)
+            self.removeButton.setEnabled(True)
+            self.window().addAddonFinishEvent.disconnect(self.addAddon)
+            self.parent().parent().parent().parent().reduceProcessing()
+
+    def removeAddon(self):
+        data = self.onlineData if self.onlineData else self.offlineData
+        self.window().removeAddon(data)
+        self.removeButton.setEnabled(False)
+        self.infoButton.setEnabled(False)
+        self.mainButton.setEnabled(False)
+        self.setTitle(f"{data["name"]}（已删除）")
+        self.setInfo("本地未安装", 0)
+        self.setInfo("", 1)
 
     def showInfo(self):
         if self.offlineData or self.onlineData:
@@ -66,6 +101,7 @@ class AddonInfoCard(SmallInfoCard):
             self.setInfo(f"更新时间：{self.offlineData["history"][self.offlineData["version"]]["time"]}", 1)
         self.setButtonStatement()
         self.infoButton.show()
+        self.removeButton.show()
 
     def setOnlineData(self, data):
         self.onlineData = data
@@ -83,6 +119,7 @@ class AddonInfoCard(SmallInfoCard):
             self.setInfo(f"更新时间：{self.onlineData["history"][self.onlineData["version"]]["time"]}", 3)
         self.setButtonStatement()
         self.infoButton.show()
+        self.removeButton.show()
 
     def setButtonStatement(self):
         if self.onlineData and self.offlineData:
@@ -117,11 +154,13 @@ class MainPage(BasicTab):
     signalAddCardOffline = pyqtSignal(dict)
     signalAddCardOnline = pyqtSignal(dict)
     signalGetInfoOnline = pyqtSignal(str)
+    onProcessing: int = 0
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.setIcon(FIF.HOME)
 
+        self.addon_list = {}
         self.cardIdDict = {}
         self.onlineCount = 0
 
@@ -147,28 +186,41 @@ class MainPage(BasicTab):
 
         self.thread1 = program.THREAD_POOL.submit(self.getInstalledAddonList)
 
+    def addProcessing(self):
+        self.onProcessing += 1
+        if self.onProcessing >= 1:
+            self.reloadButton.setEnabled(False)
+
+    def finishProcessing(self):
+        self.onProcessing -= 1
+        if self.onProcessing < 0:
+            self.onProcessing = 0
+        if self.onProcessing == 0:
+            self.reloadButton.setEnabled(True)
+
     def getInstalledAddonList(self):
-        info = getInstalledAddonInfo()
+        info = program.getInstalledAddonInfo()
         for k, v in info.items():
             self.signalAddCardOffline.emit(v)
-        self.thread2 = program.THREAD_POOL.submit(self.getOnlineAddonListGeneral)
+        self.thread2 = program.THREAD_POOL.submit(self.getOnlineAddonList)
 
-    def getOnlineAddonListGeneral(self):
-        info: dict = getOnlineAddonDict()
+    def getOnlineAddonList(self):
+        self.addon_list = program.getOnlineAddonDict()
+
         self.onlineCount = 0
-        for k, v in info.items():
+        for k, v in self.addon_list.items():
             self.signalGetInfoOnline.emit(v)
-        while self.onlineCount < len(info.keys()):
+        while self.onlineCount < len(self.addon_list.keys()):
             time.sleep(0.5)
         for i in self.cardIdDict.keys():
-            if i not in info.keys():
+            if i not in self.addon_list.keys():
                 self.cardIdDict[i].mainButton.setText("无数据")
                 self.cardIdDict[i].setInfo("无在线数据", 2)
         self.reloadButton.setEnabled(True)
 
     def getOnlineAddonInfo(self, info: str):
         try:
-            info = getAddonInfoFromUrl(info)
+            info = program.getAddonInfoFromUrl(info)
             self.signalAddCardOnline.emit(info)
         except Exception as ex:
             Log.error(f"程序发生异常，无法获取插件{info["name"]}的在线信息，报错信息：{ex}！")
@@ -196,6 +248,7 @@ class MainPage(BasicTab):
             try:
                 card = AddonInfoCard(self)
                 card.setOnlineData(info)
+                card.general_data = self.addon_list
                 self.cardIdDict[info["id"]] = card
                 self.cardGroup1.addWidget(card)
                 card.show()
