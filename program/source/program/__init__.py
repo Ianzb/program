@@ -7,7 +7,7 @@ import ssl
 ssl._create_default_https_context = ssl._create_unverified_context()
 
 # 日志设置
-open(program.LOGGING_FILE_PATH, "w").close() if not f.existPath(program.LOGGING_FILE_PATH) or f.fileSize(program.LOGGING_FILE_PATH) >=1024*128 else None
+open(program.LOGGING_FILE_PATH, "w").close() if not f.existPath(program.LOGGING_FILE_PATH) or f.fileSize(program.LOGGING_FILE_PATH) >= 1024 * 128 else None
 
 handler2 = logging.FileHandler(program.LOGGING_FILE_PATH)
 handler2.setLevel(logging.DEBUG)
@@ -113,16 +113,19 @@ def getAddonInfoFromUrl(url: str):
         return False
 
 
-def downloadAddonFromInfo(data: dict):
+def downloadAddonFromInfo(data: dict, base_url: str = ""):
     """
     通过插件自述文件数据链接获取指定插件信息
     @param data: 插件链接
+    @param base_url: 基础链接（addon.json链接，仅文件为相对路径的时候需要）
     """
     try:
         dir_path = f.joinPath(program.ADDON_PATH, data["id"])
         f.createDir(dir_path)
         with open(f.joinPath(dir_path, "addon.json"), "w+") as file:
             file.write(json.dumps(data, indent=4, ensure_ascii=False))
+        if not f.isUrl(data["file"]):
+            data["file"] = f.joinUrl(base_url, data["file"])
         result = f.singleDownload(data["file"], dir_path)
         if result:
             f.extractZip(result, dir_path, True)

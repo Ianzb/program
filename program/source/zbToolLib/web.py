@@ -4,6 +4,14 @@ from .info import Info
 
 
 class Web:
+    def isUrl(self, url: str):
+        """
+        判断是否是网址
+        @param url: 网址字符串
+        @return: 布尔值
+        """
+        return url.startswith("http://") or url.startswith("https://")
+
     def joinUrl(self, *urls):
         """
         拼接网址

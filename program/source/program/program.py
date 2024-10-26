@@ -33,6 +33,7 @@ class Program:
 
     STARTUP_ARGUMENT = sys.argv[1:]  # 程序启动参数
     THREAD_POOL = ThreadPoolExecutor()  # 程序公用线程池
+    ADDON = {}  # 导入的插件的对象
 
     def __init__(self):
         # 创建数据目录

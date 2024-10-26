@@ -4,13 +4,8 @@
   "author": "Ianzb",
   "description": "管理Minecraft资源文件。",
   "version": "3.0.12",
-  "file": [
-    "__init__.py",
-    "mc_api.py",
-    "mc_ui.py",
-    "murmurhash2.pyd",
-    "python_nbt.py"
-  ],
+  "icon": "mcmanager.png",
+  "file": "mcmanager.zip",
   "history": {
     "3.0.0": {
       "time": "2024年9月16日",

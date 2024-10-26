@@ -8,8 +8,18 @@ class AddonInfoMessageBox(MessageBox):
     插件信息消息框
     """
 
-    def __init__(self, title: str, content: str, parent=None):
+    def __init__(self, title: str, content: str, data: dict, parent=None):
         super().__init__(title=title, content=content, parent=parent)
+        self.image = Image(self, thread_pool=program.THREAD_POOL)
+        if "icon" in data.keys():
+            if f.isUrl(data["icon"]):
+                self.image.setImg(program.cache(f.joinPath("addon", f.getFileNameFromUrl(data["icon"]))), data["icon"])
+                self.textLayout.insertWidget(1, self.image)
+            else:
+                if f.existPath(f.joinPath(program.ADDON_PATH, data["id"], data["icon"])):
+                    self.image.setImg(f.joinPath(program.ADDON_PATH, data["id"], data["icon"]))
+                    self.textLayout.insertWidget(1, self.image)
+
         self.yesButton.deleteLater()
         self.cancelButton.setText("关闭")
 
@@ -35,18 +45,22 @@ class AddonInfoCard(SmallInfoCard):
         self.setButtonStatement()
 
     def showInfo(self):
-        if self.onlineData or self.offlineData:
+        if self.offlineData or self.onlineData:
             data = self.onlineData if self.onlineData else self.offlineData
             title = f"{data["name"]}插件信息"
             info = f"ID：{data["id"]}\n版本：{data["version"]}\n作者：{data["author"]}\n介绍：{data["description"]}\n更新日期：{data["history"][data["version"]]["time"]}\n更新内容：{data["history"][data["version"]]["log"]}\n"
-            messageBox = AddonInfoMessageBox(title, info, self.window())
+            messageBox = AddonInfoMessageBox(title, info, data, self.window())
             messageBox.show()
 
     def setInstalledData(self, data):
         self.offlineData = data
         self.setTitle(self.offlineData["name"])
         if "icon" in self.offlineData.keys():
-            self.setImg(program.cache(f.joinPath("addon", f.getFileNameFromUrl(self.offlineData["icon"]))), self.offlineData["icon"], program.THREAD_POOL)
+            if f.isUrl(self.offlineData["icon"]):
+                self.setImg(program.cache(f.joinPath("addon", f.getFileNameFromUrl(self.offlineData["icon"]))), self.offlineData["icon"], program.THREAD_POOL)
+            else:
+                if f.existPath(f.joinPath(program.ADDON_PATH, self.offlineData["id"], self.offlineData["icon"])):
+                    self.setImg(f.joinPath(program.ADDON_PATH, self.offlineData["id"], self.offlineData["icon"]))
         self.setInfo(f"本地版本：{self.offlineData["version"]}", 0)
         if "history" in self.offlineData.keys():
             self.setInfo(f"更新时间：{self.offlineData["history"][self.offlineData["version"]]["time"]}", 1)
@@ -59,7 +73,11 @@ class AddonInfoCard(SmallInfoCard):
 
         self.setTitle(self.onlineData["name"])
         if "icon" in self.onlineData.keys():
-            self.setImg(program.cache(f.joinPath("addon", f.getFileNameFromUrl(self.onlineData["icon"]))), self.onlineData["icon"], program.THREAD_POOL)
+            if f.isUrl(self.onlineData["icon"]):
+                self.setImg(program.cache(f.joinPath("addon", f.getFileNameFromUrl(self.onlineData["icon"]))), self.onlineData["icon"], program.THREAD_POOL)
+            else:
+                if f.existPath(f.joinPath(program.ADDON_PATH, self.onlineData["id"], self.onlineData["icon"])):
+                    self.setImg(f.joinPath(program.ADDON_PATH, self.onlineData["id"], self.onlineData["icon"]))
         self.setInfo(f"在线版本：{self.onlineData["version"]}", 2)
         if "history" in self.onlineData.keys():
             self.setInfo(f"更新时间：{self.onlineData["history"][self.onlineData["version"]]["time"]}", 3)

@@ -1,0 +1,15 @@
+{
+  "id": "example",
+  "name": "zbProgram插件示例",
+  "author": "Ianzb",
+  "description": "介绍文本",
+  "version": "0.0.0",
+  "icon": "example.png",
+  "file": "example.zip",
+  "history": {
+    "0.0.0": {
+      "time": "2024年9月26日",
+      "log": "日志"
+    }
+  }
+}

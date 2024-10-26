@@ -4,9 +4,8 @@
   "author": "Ianzb",
   "description": "一款简易的文件整理清理插件。",
   "version": "1.0.2",
-  "file": [
-    "__init__.py"
-  ],
+  "icon": "filemanager.png",
+  "file": "filemanager.zip",
   "history": {
     "0.0.1": {
       "time": "暂无",
