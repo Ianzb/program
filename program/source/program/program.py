@@ -217,25 +217,12 @@ class Program:
         @param data: 插件信息
         @param general_data: 基础链接（addon.json链接，仅文件为相对路径的时候需要）
         """
-        dir_path = f.joinPath(program.ADDON_PATH, data["id"])
-        f.createDir(dir_path)
-        with open(f.joinPath(dir_path, "addon.json"), "w+", encoding="utf-8") as file:
-            file.write(json.dumps(data, indent=2, ensure_ascii=False))
-        result = f.singleDownload(data["file"], dir_path)
-        if result:
-            f.extractZip(result, dir_path, True)
-            Log.info(f"插件{data["name"]}下载成功！")
-            return True
-        else:
-            Log.error(f"插件{data["name"]}下载失败！")
-            return False
+
         try:
             dir_path = f.joinPath(program.ADDON_PATH, data["id"])
             f.createDir(dir_path)
-            with open(f.joinPath(dir_path, "addon.json"), "w+",encoding="utf-8") as file:
+            with open(f.joinPath(dir_path, "addon.json"), "w+", encoding="utf-8") as file:
                 file.write(json.dumps(data, indent=2, ensure_ascii=False))
-            if not f.isUrl(data["file"]) and general_data is not None:
-                data["file"] = f.joinUrl(general_data[data["id"]], data["file"])
             result = f.singleDownload(data["file"], dir_path)
             if result:
                 f.extractZip(result, dir_path, True)

@@ -127,7 +127,6 @@ class Window(FluentWindow):
         self.navigationInterface.addSeparator(eval(f"NavigationItemPosition.{pos.upper()}"))
 
     def downloadAddon(self, data):
-        self.__downloadAddon(data)
         program.THREAD_POOL.submit(self.__downloadAddon, data)
 
     def __downloadAddon(self, data):
@@ -159,9 +158,9 @@ class Window(FluentWindow):
                 self.infoBar.show()
             else:
                 lib = importlib.import_module(data["id"])
-                widget = lib.AddonPage(self)
+                widget = lib.init(program,Log,setting,self)
                 widget.setObjectName(data["name"])
-                self.addPage(widget, data["name"])
+                self.addPage(widget, "scroll")
 
                 self.ADDON_OBJECT[data["id"]] = lib
                 self.ADDON_MAINPAGE[data["id"]] = widget

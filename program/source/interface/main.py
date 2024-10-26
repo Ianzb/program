@@ -58,7 +58,6 @@ class AddonInfoCard(SmallInfoCard):
             self.mainButton.setEnabled(False)
             self.removeButton.setEnabled(False)
             self.window().downloadAddon(self.onlineData)
-            self.parent().parent().parent().parent().addProcessing()
 
     def addAddon(self, msg):
         data = self.onlineData if self.onlineData else self.offlineData
@@ -66,7 +65,6 @@ class AddonInfoCard(SmallInfoCard):
             self.mainButton.setEnabled(True)
             self.removeButton.setEnabled(True)
             self.window().addAddonFinishEvent.disconnect(self.addAddon)
-            self.parent().parent().parent().parent().finishProcessing()
 
     def removeAddon(self):
         data = self.onlineData if self.onlineData else self.offlineData
@@ -153,8 +151,6 @@ class MainPage(BasicTab):
     signalAddCardOffline = pyqtSignal(dict)
     signalAddCardOnline = pyqtSignal(dict)
     signalGetInfoOnline = pyqtSignal(str)
-    onProcessing: int = 0
-
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.setIcon(FIF.HOME)
@@ -185,17 +181,6 @@ class MainPage(BasicTab):
 
         program.THREAD_POOL.submit(self.getInstalledAddonList)
 
-    def addProcessing(self):
-        self.onProcessing += 1
-        if self.onProcessing >= 1:
-            self.reloadButton.setEnabled(False)
-
-    def finishProcessing(self):
-        self.onProcessing -= 1
-        if self.onProcessing < 0:
-            self.onProcessing = 0
-        if self.onProcessing == 0:
-            self.reloadButton.setEnabled(True)
 
     def getInstalledAddonList(self):
         info = program.getInstalledAddonInfo()
