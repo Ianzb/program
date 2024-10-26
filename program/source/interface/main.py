@@ -65,6 +65,7 @@ class AddonInfoCard(SmallInfoCard):
             self.mainButton.setEnabled(True)
             self.removeButton.setEnabled(True)
             self.window().addAddonFinishEvent.disconnect(self.addAddon)
+            self.setInstalledData(self.onlineData)
 
     def removeAddon(self):
         data = self.onlineData if self.onlineData else self.offlineData

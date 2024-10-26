@@ -7,8 +7,10 @@ try:
     from program.source.zbWidgetLib import *
 except:
     pass
-def init(p,l,s,window):
-    global program,Log,setting
+
+
+def init(p, l, s, window):
+    global program, Log, setting
     program = p
     Log = l
     setting = s
@@ -17,4 +19,5 @@ def init(p,l,s,window):
         def __init__(self, parent=None):
             super().__init__(parent)
             self.setIcon(FIF.CLOUD_DOWNLOAD)
+
     return MainPage(window)
