@@ -13,5 +13,5 @@ class System:
         value = os.popen(command)
         if pause:
             value = value.read()
-            Log.info(f"执行Cmd命令{command}的返回值为{value}。")
+            log.info(f"执行Cmd命令{command}的返回值为{value}。")
             return value

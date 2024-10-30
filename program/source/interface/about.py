@@ -30,7 +30,7 @@ class UpdateSettingCard(SettingCard):
         try:
             data = program.getNewestVersion()
         except Exception as ex:
-            Log.error(f"检测更新失败，报错信息：{ex}！")
+            log.error(f"检测更新失败，报错信息：{ex}！")
             self.signalBool.emit(False)
             return
         if f.compareVersionCode(data, program.VERSION) == program.VERSION:

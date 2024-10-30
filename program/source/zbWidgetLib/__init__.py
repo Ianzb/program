@@ -613,4 +613,4 @@ class CardGroup(QWidget):
         self.cardLayout.clearWidget()
 
 
-Log.info("组件库api初始化成功！")
+log.info("组件库api初始化成功！")

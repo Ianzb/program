@@ -94,7 +94,7 @@ class Program:
         """
         退出程序
         """
-        Log.info("程序已退出！")
+        log.info("程序已退出！")
         os._exit(0)
 
     def restart(self):
@@ -102,7 +102,7 @@ class Program:
         重启程序
         """
         os.popen(self.MAIN_FILE_PATH)
-        Log.info("程序正在重启中！")
+        log.info("程序正在重启中！")
         os._exit(0)
 
     def detectRepeatRun(self):
@@ -134,13 +134,13 @@ class Program:
             if mode:
                 win32api.RegSetValueEx(key, program.NAME, 0, win32con.REG_SZ, f"{program.MAIN_FILE_PATH} startup")
                 win32api.RegCloseKey(key)
-                Log.info("启动项添加成功")
+                log.info("启动项添加成功")
             else:
                 win32api.RegDeleteValue(key, program.NAME)
                 win32api.RegCloseKey(key)
-                Log.info("启动项删除成功")
+                log.info("启动项删除成功")
         except Exception as ex:
-            Log.warning(f"启动项编辑失败{ex}")
+            log.warning(f"启动项编辑失败{ex}")
 
     def checkStartup(self):
         """
@@ -163,7 +163,7 @@ class Program:
         """
         response = f.getUrl(program.UPDATE_URL, f.REQUEST_HEADER, (15, 30))
         data = json.loads(response.text)["version"]
-        Log.info(f"服务器最新版本：{data}")
+        log.info(f"服务器最新版本：{data}")
         return data
 
     def getOnlineAddonDict(self):
@@ -174,10 +174,10 @@ class Program:
         try:
             response = f.getUrl(program.ADDON_URL, f.REQUEST_HEADER, (15, 30))
             data = json.loads(response.text)
-            Log.info("插件信息获取成功！")
+            log.info("插件信息获取成功！")
             return data
         except Exception as ex:
-            Log.warning(f"插件信息获取失败，报错信息：{ex}！")
+            log.warning(f"插件信息获取失败，报错信息：{ex}！")
 
     def getAddonInfoFromUrl(self, url: str):
         """
@@ -189,10 +189,10 @@ class Program:
             response = f.getUrl(url, f.REQUEST_HEADER, (15, 30))
             data = json.loads(response.text)
             data["url"] = url
-            Log.info(f"插件{data["name"]}信息获取成功")
+            log.info(f"插件{data["name"]}信息获取成功")
             return data
         except Exception as ex:
-            Log.error(f"插件{url}信息获取失败，报错信息：{ex}！")
+            log.error(f"插件{url}信息获取失败，报错信息：{ex}！")
             return False
 
     def downloadAddonFromInfo(self, data: dict):
@@ -210,13 +210,13 @@ class Program:
             result = f.singleDownload(data["file"], dir_path)
             if result:
                 f.extractZip(result, dir_path, True)
-                Log.info(f"插件{data["name"]}下载成功！")
+                log.info(f"插件{data["name"]}下载成功！")
                 return True
             else:
-                Log.error(f"插件{data["name"]}下载失败！")
+                log.error(f"插件{data["name"]}下载失败！")
                 return False
         except Exception as ex:
-            Log.error(f"插件{data["name"]}在下载与解压过程中发生错误，报错信息：{ex}！")
+            log.error(f"插件{data["name"]}在下载与解压过程中发生错误，报错信息：{ex}！")
             return False
 
     def getInstalledAddonInfo(self):
@@ -233,7 +233,7 @@ class Program:
                         data[addon_data["id"]] = addon_data
             return data
         except Exception as ex:
-            Log.error(f"获取本地插件信息失败，报错信息：{ex}！")
+            log.error(f"获取本地插件信息失败，报错信息：{ex}！")
 
 
 program = Program()

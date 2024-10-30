@@ -207,7 +207,7 @@ class MainPage(BasicTab):
             info = program.getAddonInfoFromUrl(info)
             self.signalAddCardOnline.emit(info)
         except Exception as ex:
-            Log.error(f"程序发生异常，无法获取插件{info["name"]}的在线信息，报错信息：{ex}！")
+            log.error(f"程序发生异常，无法获取插件{info["name"]}的在线信息，报错信息：{ex}！")
         self.onlineCount += 1
 
     def addCardOffline(self, info):
@@ -220,12 +220,12 @@ class MainPage(BasicTab):
                 self.cardGroup1.addWidget(card)
                 card.show()
             except Exception as ex:
-                Log.error(f"程序发生异常，插件{info["name"]}的卡片组件无法加载，报错信息：{ex}！")
+                log.error(f"程序发生异常，插件{info["name"]}的卡片组件无法加载，报错信息：{ex}！")
         else:
             try:
                 self.cardIdDict[info["id"]].setInstalledData(info)
             except RuntimeError:
-                Log.warning(f"组件{info["id"]}已被删除，无法设置数据了！")
+                log.warning(f"组件{info["id"]}已被删除，无法设置数据了！")
 
     def addCardOnline(self, info):
         if info["id"] not in self.cardIdDict.keys():
@@ -236,12 +236,12 @@ class MainPage(BasicTab):
                 self.cardGroup1.addWidget(card)
                 card.show()
             except Exception as ex:
-                Log.error(f"程序发生异常，插件{info["name"]}的卡片组件无法加载，报错信息：{ex}！")
+                log.error(f"程序发生异常，插件{info["name"]}的卡片组件无法加载，报错信息：{ex}！")
         else:
             try:
                 self.cardIdDict[info["id"]].setOnlineData(info)
             except RuntimeError:
-                Log.warning(f"组件{info["id"]}已被删除，无法设置数据了！")
+                log.warning(f"组件{info["id"]}已被删除，无法设置数据了！")
         self.onlineCount += 1
 
     def reload(self):
