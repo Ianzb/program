@@ -8,6 +8,14 @@ class DownloadInfoCard(SettingCard):
     setProgressSignal = pyqtSignal(int)
 
     def __init__(self, url: str, path: str, parent=None, wait: bool = False, replace: bool = False):
+        """
+        下载信息卡片
+        @param url: 下载链接
+        @param path: 下载目录
+        @param parent: 父组件
+        @param wait: 是否等待
+        @param replace: 是否替换
+        """
         super().__init__(FIF.DOWNLOAD, f.splitPath(f.joinPath(path, f.getFileNameFromUrl(url)) if f.isDir(path) else path), f"文件链接：{url}\n目标位置：{f.joinPath(path, f.getFileNameFromUrl(url)) if f.isDir(path) else path}", parent)
         self.contentLabel.setTextInteractionFlags(Qt.TextSelectableByMouse)
 
@@ -103,6 +111,14 @@ class DownloadPage(BasicPage):
         self.vBoxLayout.addWidget(self.cardGroup)
 
     def startDownload(self, url: str, path: str, wait: bool = False, replace: bool = False):
+        """
+
+        @param url: 下载链接
+        @param path: 下载路径
+        @param wait: 是否等待
+        @param replace: 是否替换
+        @return: 下载状态事件
+        """
         d = DownloadInfoCard(url, path, self, wait, replace)
         self.cardGroup.addWidget(d)
         return d.downloadSignal

@@ -10,7 +10,7 @@ class AddonInfoMessageBox(MessageBox):
 
     def __init__(self, title: str, content: str, data: dict, parent=None):
         super().__init__(title=title, content=content, parent=parent)
-        self.image = Image(self, thread_pool=program.THREAD_POOL)
+        self.image = Image(self)
         if "icon" in data.keys():
             if f.isUrl(data["icon"]):
                 self.image.setImg(program.cache(f.joinPath("addon", f.getFileNameFromUrl(data["icon"]))), data["icon"])

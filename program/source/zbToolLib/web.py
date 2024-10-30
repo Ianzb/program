@@ -87,6 +87,8 @@ class Web:
         @return:
         """
         import requests
+        if not File().existPath(path):
+            File().createDir(File().splitPath(path, 3))
         try:
             if File().isDir(path):
                 path = File().joinPath(path, self.getFileNameFromUrl(url))
@@ -219,7 +221,6 @@ class MultiDownload:
         if self.result == "downloading":
             self.file.cancel()
             self.file.session.close()
-            self.downloadKit.cancel()
         else:
             log.warning(f"使用DownloadKit下载{self.url}的状态为{self.result}，无法停止！")
 

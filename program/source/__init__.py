@@ -172,7 +172,7 @@ class Window(FluentWindow):
                 self.infoBar.show()
             log.info(f"插件{data["name"]}安装成功")
         except Exception as ex:
-            self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", f"插件{data["name"]}安装失败{ex}！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.mainPage)
+            self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", f"插件{data["name"]}安装失败！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.mainPage)
             self.infoBar.show()
 
             log.warning(f"插件{data["name"]}安装失败{ex}")

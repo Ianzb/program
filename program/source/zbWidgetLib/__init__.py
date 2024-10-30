@@ -65,46 +65,55 @@ class Image(QLabel):
     """
     图片组件（可实时下载）
     """
+    downloadFinishedSignal = pyqtSignal(bool)
 
     @functools.singledispatchmethod
-    def __init__(self, parent=None, fixed_size=True, thread_pool: QThreadPool = None):
+    def __init__(self, parent=None, fixed_size=True):
         super().__init__(parent=parent)
         if fixed_size:
             self.setFixedSize(48, 48)
         self.setScaledContents(True)
         self.loading = False
-        self.threadPool = thread_pool
 
     @__init__.register
-    def _(self, path: str, url: str = None, parent=None, fixed_size=True, thread_pool: QThreadPool = None):
+    def _(self, path: str, url: str = None, parent=None, fixed_size=True, threadPool=None):
         """
         @param path: 路径
         @param url: 链接
         """
-        self.__init__(parent, fixed_size, thread_pool)
+        self.__init__(parent, fixed_size)
         if path:
-            self.setImg(path, url)
+            self.setImg(path, url, threadPool)
 
-    def setImg(self, path: str, url: str = None):
+    def setImg(self, path: str, url: str = None, threadPool=None):
         """
         设置图片
         @param path: 路径
         @param url: 链接
+        @param threadPool: 下载线程池
         """
         if url:
             self.loading = True
             self.path = path
             self.url = url
-            self.downloadImageThread = self.threadPool.submit(self.downloadImage)
+
+            self.downloadFinishedSignal.connect(self.downloadFinished)
+            threadPool.submit(self.download)
         else:
             self.loading = False
             self.setPixmap(QPixmap(path))
 
-    def downloadImage(self):
-        msg = f.singleDownload(self.url, self.path, True, True, Info.REQUEST_HEADER)
-        if msg:
+    def downloadFinished(self, msg):
+        if msg or f.existPath(self.path):
             self.loading = False
             self.setPixmap(QPixmap(self.path))
+
+    def download(self):
+        if f.existPath(self.path):
+            self.downloadFinishedSignal.emit(True)
+            return
+        msg = f.singleDownload(self.url, self.path, False, True, Info().REQUEST_HEADER)
+        self.downloadFinishedSignal.emit(bool(msg))
 
 
 class CopyTextButton(ToolButton):
@@ -525,14 +534,13 @@ class SmallInfoCard(CardWidget):
         """
         self.titleLabel.setText(text)
 
-    def setImg(self, path: str, url: str = None, thread_pool: QThreadPool = None):
+    def setImg(self, path: str, url: str = None, threadPool=None):
         """
         设置图片
         @param path: 路径
         @param url: 链接
         """
-        self.image.threadPool = thread_pool
-        self.image.setImg(path, url)
+        self.image.setImg(path, url, threadPool)
 
     def setInfo(self, data: str, pos: int):
         """
