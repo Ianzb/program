@@ -11,6 +11,7 @@ class Window(FluentWindow):
     addAddonEvent = pyqtSignal(dict)
     removeAddonEvent = pyqtSignal(dict)
     addAddonFinishEvent = pyqtSignal(str)
+    downloadAddonFailedSignal = pyqtSignal(dict)
     ADDON_OBJECT = {}  # 导入的插件的对象
     ADDON_MAINPAGE = {}
 
@@ -56,9 +57,6 @@ class Window(FluentWindow):
         self.addPage(self.aboutPage, "bottom")
 
     def __initActivity(self):
-        # 报错检测
-        if program.isExe:
-            sys.excepthook = self.getException
         # 循环监测事件
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.timerEvent)
@@ -71,8 +69,9 @@ class Window(FluentWindow):
 
         self.addAddonEvent.connect(self.addAddon)
         self.removeAddonEvent.connect(self.removeAddon)
+        self.downloadAddonFailedSignal.connect(self.__downloadAddonFailed)
+
         # 插件安装
-        # self.addAddon(getInstalledAddonInfo())
         data = program.getInstalledAddonInfo()
         for i in data.keys():
             self.addAddon(data[i])
@@ -95,23 +94,6 @@ class Window(FluentWindow):
             self.hide()
         else:
             program.close()
-
-    def getException(self, type, value, traceback):
-        """
-        报错拦截
-        @param type: 报错类型
-        @param value: 报错对象
-        @param traceback: 报错返回信息
-        """
-        info = "".join(format_exception(type, value, traceback))
-        log.fatal(f"程序发生异常\n{info}")
-        self.messageBox = MessageBox("程序发生异常", info, self.window())
-        self.messageBox.contentLabel.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
-        self.messageBox.yesButton.setText("重启")
-        self.messageBox.yesButton.setIcon(FIF.SYNC)
-        self.messageBox.yesButton.clicked.connect(program.restart)
-        self.messageBox.cancelButton.setText("关闭")
-        self.messageBox.exec()
 
     def addPage(self, page, pos: str):
         """
@@ -137,8 +119,12 @@ class Window(FluentWindow):
         if result:
             self.addAddonEvent.emit(data)
         else:
-            self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", f"插件{data["name"]}下载失败！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.mainPage)
-            self.infoBar.show()
+
+            self.downloadAddonFailedSignal.emit(data)
+
+    def __downloadAddonFailed(self, data):
+        self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", f"插件{data["name"]}下载失败！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.mainPage)
+        self.infoBar.show()
 
     def addAddon(self, data: dict):
         """

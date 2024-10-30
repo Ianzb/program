@@ -207,7 +207,7 @@ class Program:
             f.createDir(dir_path)
             with open(f.joinPath(dir_path, "addon.json"), "w+", encoding="utf-8") as file:
                 file.write(json.dumps(data, indent=2, ensure_ascii=False))
-            result = f.singleDownload(data["file"], dir_path)
+            result = f.singleDownload(data["file"], dir_path, True, True)
             if result:
                 f.extractZip(result, dir_path, True)
                 log.info(f"插件{data["name"]}下载成功！")

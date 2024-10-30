@@ -1,19 +1,19 @@
 {
-    "id": "appstore",
-    "name": "应用商店",
-    "author": "Ianzb",
-    "description": "一款简易的应用商店插件，支持360和腾讯应用中心的应用。",
-    "version": "1.5.0",
-    "icon": "appstore.png",
-    "file": "appstore.zip",
-    "history": {
-        "1.5.0": {
-            "time": "2024年10月30日",
-            "log": "基本适配zb小程序5.0.0版本"
-        },
-        "1.4.3": {
-            "time": "暂无",
-            "log": "暂无"
-        }
+  "id": "appstore",
+  "name": "应用商店",
+  "author": "Ianzb",
+  "description": "一款简易的应用商店插件，支持360和腾讯应用中心的应用。",
+  "version": "1.5.0",
+  "icon": "appstore.png",
+  "file": "https://vip.123pan.cn/1813801926/code/addon/appstore/appstore.zip",
+  "history": {
+    "1.5.0": {
+      "time": "2024年10月30日",
+      "log": "基本适配zb小程序5.0.0版本。"
+    },
+    "1.4.3": {
+      "time": "暂无",
+      "log": "暂无"
     }
+  }
 }
