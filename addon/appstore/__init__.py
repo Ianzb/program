@@ -7,7 +7,7 @@ except:
 addonBase = AddonBase()
 
 
-def addonInit():
+def addonInit(window):
     global program, log, setting
     program = addonBase.program
     log = addonBase.log

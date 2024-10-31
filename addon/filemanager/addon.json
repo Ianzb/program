@@ -3,7 +3,7 @@
   "name": "文件整理",
   "author": "Ianzb",
   "description": "一款简易的文件整理清理插件。",
-  "version": "1.0.2",
+  "version": "1.1.0beta",
   "icon": "filemanager.png",
   "file": "https://vip.123pan.cn/1813801926/code/addon/filemanager/filemanager.zip",
   "history": {
@@ -26,6 +26,10 @@
     "1.0.2": {
       "time": "2024年9月7日",
       "log": "紧急修复上一版本startswith拼写错误导致无法整理目录的Bug"
+    },
+    "1.1.0beta": {
+      "time": "2024年10月31日",
+      "log": "基本适配zb小程序5.0.0版本。"
     }
   }
 }
