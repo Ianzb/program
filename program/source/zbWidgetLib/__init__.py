@@ -8,7 +8,7 @@ def setToolTip(widget: QWidget, text: str):
     widget.installEventFilter(ToolTipFilter(widget, 1000))
 
 
-class AnimationBase:
+class FadeInAnimation:
     def __init__(self, widget: QWidget):
         self.widget = widget
         self.duration = 500
@@ -21,11 +21,11 @@ class AnimationBase:
         self.widget.showEvent = self.show
         self.widget.moveEvent = self.move
 
-    def move(self, msg):
+    def move(self, msg=None):
         if not self.pos_animation.state() == QParallelAnimationGroup.Running:
             self._originalPos = self.widget.pos()
 
-    def show(self, msg):
+    def show(self, msg=None):
 
         self.pos_animation.setStartValue(QPoint(self._originalPos.x(), self._originalPos.y() + 25))
         self.pos_animation.setEndValue(self._originalPos)
@@ -280,7 +280,7 @@ class GrayCard(QWidget):
         qconfig.themeChanged.connect(self.setTheme)
 
         if animation:
-            self.animation = AnimationBase(self)
+            self.animation = FadeInAnimation(self)
 
     def setTheme(self):
         if isDarkTheme():
@@ -393,7 +393,7 @@ class BigInfoCard(CardWidget):
         qconfig.themeChanged.connect(self.setTheme)
 
         if animation:
-            self.animation = AnimationBase(self)
+            self.animation = FadeInAnimation(self)
 
     def setTheme(self):
         if isDarkTheme():
@@ -519,7 +519,7 @@ class SmallInfoCard(CardWidget):
         qconfig.themeChanged.connect(self.setTheme)
 
         if animation:
-            self.animation = AnimationBase(self)
+            self.animation = FadeInAnimation(self)
 
     def setTheme(self):
         if isDarkTheme():
@@ -583,7 +583,7 @@ class CardGroup(QWidget):
         self.titleLabel.adjustSize()
 
         if animation:
-            self.animation = AnimationBase(self)
+            self.animation = FadeInAnimation(self)
 
     @__init__.register
     def _(self, title: str = None, parent=None, animation: bool = True):
