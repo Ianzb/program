@@ -1,5 +1,6 @@
 from .widget import *
 
+
 class UpdateSettingCard(SettingCard):
     """
     更新设置卡片
@@ -63,7 +64,7 @@ class UpdateSettingCard(SettingCard):
 
         self.infoBar.close()
         f.deletePath(program.cache("zbProgramUpdate.exe"))
-        self.download = self.window().downloadPage.startDownload(program.UPDATE_INSTALLER_URL, program.cache("zbProgramUpdate.exe"), False, True)
+        self.download = self.window().downloadPage.startDownload(program.UPDATE_INSTALLER_URL, program.cache("zbProgramUpdate.exe"), True)
         self.download.connect(self.updateProgram)
 
     def updateProgram(self, msg):

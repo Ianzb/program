@@ -98,7 +98,7 @@ class AppInfoCard(SmallInfoCard):
 
     def mainButtonClicked(self):
         self.mainButton.setEnabled(False)
-        self.download = self.window().downloadPage.startDownload(self.data["下载链接"], f.joinPath(setting.read("downloadPath"), self.data["文件名称"]), False, True)
+        self.download = self.window().downloadPage.startDownload(self.data["下载链接"], f.joinPath(setting.read("downloadPath"), self.data["文件名称"]), True)
         self.download.connect(lambda: self.mainButton.setEnabled(True))
 
 
