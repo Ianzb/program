@@ -8,7 +8,7 @@ addonBase = AddonBase()
 
 
 def addonInit():
-    global program, log, setting, window
+    global program, log, setting, window, sf
     program = addonBase.program
     log = addonBase.log
     setting = addonBase.setting
@@ -620,7 +620,6 @@ class AddonPage(BasicTab):
         self.button1_1.clicked.connect(self.button1_1Clicked)
         self.button1_1.setToolTip("开始整理+清理文件，范围包括：\n  整理指定目录文件\n  整理微信文件\n  清空回收站\n  清理系统缓存")
         self.button1_1.installEventFilter(ToolTipFilter(self.button1_1, 1000))
-
 
         self.button1_2 = ToolButton(FIF.FOLDER, self)
         self.button1_2.clicked.connect(lambda: f.showFile(setting.read("sortGoalPath")))
