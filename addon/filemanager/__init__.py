@@ -7,11 +7,12 @@ except:
 addonBase = AddonBase()
 
 
-def addonInit(window):
-    global program, log, setting, sf
+def addonInit():
+    global program, log, setting, window
     program = addonBase.program
     log = addonBase.log
     setting = addonBase.setting
+    window = addonBase.window
     setting.adds({"sortGoalPath": "",
                   "wechatPath": "",
                   "sortNameBlacklist": [],

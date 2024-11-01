@@ -9,12 +9,13 @@ except:
 addonBase = AddonBase()
 
 
-def addonInit(self):
-    global program, log, setting
+def addonInit():
+    global program, log, setting, window
     program = addonBase.program
     log = addonBase.log
     setting = addonBase.setting
-    return AddonMainPage()
+    window = addonBase.window
+    return AddonMainPage(window)
 
 
 class AddonMainPage(BasicTab):

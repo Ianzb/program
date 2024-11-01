@@ -11,7 +11,8 @@ class AddonBase:
         self.log = None
         self.setting = None
 
-    def set(self, __program, __log, __setting):
+    def set(self, __program, __log, __setting, __window):
         self.program = __program
         self.log = __log
         self.setting = __setting
+        self.window = __window

@@ -146,8 +146,8 @@ class Window(FluentWindow):
                 self.infoBar.show()
             else:
                 lib = importlib.import_module(data["id"])
-                lib.addonBase.set(program, log, setting)
-                widget = lib.addonInit(self)
+                lib.addonBase.set(program, log, setting, self)
+                widget = lib.addonInit()
                 widget.setObjectName(data["name"])
                 self.addPage(widget, "scroll")
 

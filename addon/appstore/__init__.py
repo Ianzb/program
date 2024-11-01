@@ -7,12 +7,13 @@ except:
 addonBase = AddonBase()
 
 
-def addonInit(window):
-    global program, log, setting
+def addonInit():
+    global program, log, setting, window
     program = addonBase.program
     log = addonBase.log
     setting = addonBase.setting
-    return AddonPage()
+    window = addonBase.window
+    return AddonPage(window)
 
 
 def xmlToJson(data: str) -> dict:
