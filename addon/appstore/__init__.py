@@ -130,7 +130,7 @@ class AddonPage(BasicTab):
         self.comboBox.setToolTip("选择下载应用来源")
         self.comboBox.installEventFilter(ToolTipFilter(self.comboBox, 1000))
 
-        self.card = GrayCard("应用商店")
+        self.card = GrayCard("应用商店", self)
         self.card.addWidget(self.lineEdit)
         self.card.addWidget(self.comboBox)
 

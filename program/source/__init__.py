@@ -1,7 +1,6 @@
 from .interface import *
 from traceback import format_exception
 import importlib
-import addon
 
 class Window(FluentWindow):
     """
