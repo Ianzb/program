@@ -175,8 +175,8 @@ class SortFunctions:
         清空回收站
         """
         try:
-            import winshell
-            winshell.recycle_bin().empty(confirm=False, show_progress=False, sound=False)
+            from .winshell.winshell import recycle_bin
+            recycle_bin().empty(confirm=False, show_progress=False, sound=False)
             log.debug("成功清空回收站！")
         except Exception as ex:
             log.warning(f"无法清空回收站，报错信息：{ex}！")
