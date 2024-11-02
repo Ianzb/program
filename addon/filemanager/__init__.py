@@ -70,7 +70,6 @@ class SortFunctions:
         清理重复文件
         @param path: 文件夹路径
         """
-        from filecmp import cmp
         if f.isDir(path):
             names = f.walkFile(path)
             if not names:
@@ -78,7 +77,7 @@ class SortFunctions:
             names.sort(key=lambda i: len(i))
             for i in range(len(names)):
                 for j in range(len(names[:i])):
-                    if cmp(names[i], names[j], False):
+                    if filecmp.cmp(names[i], names[j], False):
                         f.deletePath(names[j], setting.read("deleteToTrash"))
 
     def clearFile(self, path: str):

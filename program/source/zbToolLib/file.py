@@ -1,6 +1,6 @@
 from .log import *
 from .system import System
-import os, sys, shutil, send2trash
+import os, sys, shutil, send2trash, winshell, filecmp
 
 
 class File:
