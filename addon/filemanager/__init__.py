@@ -71,7 +71,7 @@ class SortFunctions:
         @param path: 文件夹路径
         """
         if f.isDir(path):
-            names = f.walkFile(path)
+            names = f.walkFile(path, 1)
             if not names:
                 return
             names.sort(key=lambda i: len(i))
@@ -175,7 +175,7 @@ class SortFunctions:
         清空回收站
         """
         try:
-            from .winshell.winshell import recycle_bin
+            from winshell import recycle_bin
             recycle_bin().empty(confirm=False, show_progress=False, sound=False)
             log.debug("成功清空回收站！")
         except Exception as ex:
