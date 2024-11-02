@@ -92,7 +92,7 @@ class SortFunctions:
             self.clearRepeatFile(path)
             log.debug(f"成功清理{path}文件夹")
         except Exception as ex:
-            log.warning(f"无法清理{path}文件夹{ex}")
+            log.warning(f"无法清理{path}文件夹，报错信息：{ex}！")
 
     def belongDir(self, path: str, parent: str) -> bool:
         """
@@ -135,10 +135,10 @@ class SortFunctions:
                     for i in file_list:
                         if f.splitPath(i, 0) in blacklist[0] or i in blacklist[1]:
                             continue
-                        f.movePath(i, f.joinPath(new, "文件夹", f.splitPath(i, 0)))
-            log.debug(f"成功整理{old}文件夹")
+                        f.movePath(i, f.joinPath(new, "文件夹"))
+            log.debug(f"成功整理{old}文件夹！")
         except Exception as ex:
-            log.warning(f"无法整理{old}文件夹{ex}")
+            log.warning(f"无法整理{old}文件夹，报错信息：{ex}！")
 
     def sortWechatFiles(self):
         """
@@ -158,9 +158,9 @@ class SortFunctions:
                 self.sortDir(i, setting.read("sortGoalPath"))
             for i in list1:
                 self.sortDir(i, setting.read("sortGoalPath"), 1)
-            log.debug("成功整理微信文件")
+            log.debug("成功整理微信文件！")
         except Exception as ex:
-            log.warning(f"无法整理微信文件{ex}")
+            log.warning(f"无法整理微信文件，报错信息：{ex}！")
 
     def clearSystemCache(self):
         """
@@ -178,9 +178,9 @@ class SortFunctions:
         try:
             import winshell
             winshell.recycle_bin().empty(confirm=False, show_progress=False, sound=False)
-            log.debug("成功清空回收站")
+            log.debug("成功清空回收站！")
         except Exception as ex:
-            log.warning(f"无法清空回收站{ex}")
+            log.warning(f"无法清空回收站，报错信息：{ex}！")
 
     def getSortNameBlacklist(self):
         """
@@ -196,10 +196,10 @@ class SortFunctions:
         @return: 整理文件路径黑名单列表
         """
         data = list(setting.read("sortPathBlacklist"))
-        if f.isSamePath(setting.read("sortGoalPath"), program.DESKTOP_PATH):
-            data += [f.joinPath(program.DESKTOP_PATH, i) for i in list(setting.read("sortFormat").keys()) + ["文件夹"]]
-        elif self.belongDir(setting.read("sortGoalPath"), program.DESKTOP_PATH):
-            for i in f.walkDir(program.DESKTOP_PATH, 1):
+        if f.isSamePath(setting.read("sortGoalPath"), f.DESKTOP_PATH):
+            data += [f.joinPath(f.DESKTOP_PATH, i) for i in list(setting.read("sortFormat").keys()) + ["文件夹"]]
+        elif self.belongDir(setting.read("sortGoalPath"), f.DESKTOP_PATH):
+            for i in f.walkDir(f.DESKTOP_PATH, 1):
                 if self.belongDir(setting.read("sortGoalPath"), i):
                     data.append(i)
         return list(set(data))
@@ -272,7 +272,7 @@ class PathBlacklistEditMessageBox(MessageBoxBase):
         self.widget.setMinimumWidth(350)
 
     def yesButtonClicked(self):
-        setting.save("sortPathBlacklist", sorted(list(set([f.formatPathString(i.strip()) for i in f.removeIllegalPath(self.textEdit.toPlainText(), 1).split("\n") if i]))))
+        setting.save("sortPathBlacklist", sorted(list(set([f.formatPathString(i.strip()) for i in f.clearCharacters(self.textEdit.toPlainText(), "illegalPath").split("\n") if i]))))
 
         self.accept()
         self.accepted.emit()
@@ -281,14 +281,14 @@ class PathBlacklistEditMessageBox(MessageBoxBase):
         get = QFileDialog.getExistingDirectory(self, "选择黑名单文件夹", "C:/")
         if f.existPath(get):
             get = f.formatPathString(get)
-            if get not in sorted(list(set([f.formatPathString(i.strip()) for i in f.removeIllegalPath(self.textEdit.toPlainText(), 1).split("\n") if i]))):
+            if get not in sorted(list(set([f.formatPathString(i.strip()) for i in f.clearCharacters(self.textEdit.toPlainText(), "illegalPath").split("\n") if i]))):
                 self.textEdit.setText((self.textEdit.toPlainText().strip() + "\n" + get).strip())
 
     def addFileButtonClicked(self):
         get = QFileDialog.getOpenFileName(self, "选择黑名单文件", "C:/")[0]
         if f.existPath(get):
             get = f.formatPathString(get)
-            if get not in sorted(list(set([f.formatPathString(i.strip()) for i in f.removeIllegalPath(self.textEdit.toPlainText(), 1).split("\n") if i]))):
+            if get not in sorted(list(set([f.formatPathString(i.strip()) for i in f.clearCharacters(self.textEdit.toPlainText(), "illegalPath").split("\n") if i]))):
                 self.textEdit.setText((self.textEdit.toPlainText().strip() + "\n" + get).strip())
 
 
@@ -327,7 +327,7 @@ class SortFolderEditMessageBox(MessageBoxBase):
         self.widget.setMinimumWidth(350)
 
     def yesButtonClicked(self):
-        setting.save("sortFolder", sorted(list(set([f.formatPathString(i.strip()) for i in f.removeIllegalPath(self.textEdit.toPlainText(), 1).split("\n") if i]))))
+        setting.save("sortFolder", sorted(list(set([f.formatPathString(i.strip()) for i in f.clearCharacters(self.textEdit.toPlainText(), "illegalPath").split("\n") if i]))))
         self.accept()
         self.accepted.emit()
 
@@ -335,7 +335,7 @@ class SortFolderEditMessageBox(MessageBoxBase):
         get = QFileDialog.getExistingDirectory(self, "选择整理文件夹", "C:/")
         if f.existPath(get):
             get = f.formatPathString(get)
-            if get not in sorted(list(set([f.formatPathString(i.strip()) for i in f.removeIllegalPath(self.textEdit.toPlainText(), 1).split("\n") if i]))):
+            if get not in sorted(list(set([f.formatPathString(i.strip()) for i in f.clearCharacters(self.textEdit.toPlainText(), "illegalPath").split("\n") if i]))):
                 self.textEdit.setText((self.textEdit.toPlainText().strip() + "\n" + get).strip())
 
     def resetButtonClicked(self):
@@ -461,39 +461,34 @@ class SortPathSettingCard(SettingCard):
 
         self.setAcceptDrops(True)
 
+        self.setText()
+        setting.signalConnect(self.setEvent)
+
+    def setEvent(self, msg):
+        if msg in ["sortGoalPath", "wechatPath"]:
+            self.setText()
+
     def button1Clicked(self):
         get = QFileDialog.getExistingDirectory(self, "选择整理目标目录", setting.read("sortGoalPath"))
         self.saveSetting(get)
 
     def button2Clicked(self):
         get = QFileDialog.getExistingDirectory(self, "选择微信WeChat Files文件夹目录", setting.read("wechatPath"))
-        if get:
-            if f.splitPath(get) not in ["WeChat Files", "xwechat_files"]:
-                return
-        self.saveSetting(get)
+        self.saveWechatPath(get)
+
+    def setText(self):
+        self.contentLabel.setText(f"整理目标路径：{setting.read("sortGoalPath")}\n微信路径：{setting.read("wechatPath")}")
 
     def saveSetting(self, path: str):
         if f.existPath(path):
-            if "WeChat Files" == f.splitPath(path):
-                setting.save("wechatPath", path)
-            else:
-                setting.save("sortGoalPath", path)
-        self.contentLabel.setText(f"整理目标路径：{setting.read("sortGoalPath")}\n微信路径：{setting.read("wechatPath")}")
+            setting.save("sortGoalPath", path)
+        self.setText()
 
-    def dragEnterEvent(self, event):
-        if event.mimeData().hasUrls():
-            if len(event.mimeData().urls()) == 1:
-                if f.isDir(event.mimeData().urls()[0].toLocalFile()):
-                    event.acceptProposedAction()
-                    self.contentLabel.setText("拖拽到此卡片即可快速导入目录！")
+    def saveWechatPath(self, path: str):
+        if f.existPath(path):
+            setting.save("wechatPath", path)
+        self.setText()
 
-    def dragLeaveEvent(self, event):
-        self.contentLabel.setText(f"整理目标路径：{setting.read("sortGoalPath")}\n微信路径：{setting.read("wechatPath")}")
-
-    def dropEvent(self, event):
-        if event.mimeData().hasUrls():
-            file = event.mimeData().urls()[0].toLocalFile()
-            self.saveSetting(file)
 
 
 class SortSettingCard(SettingCard):
@@ -555,31 +550,26 @@ class FeaturesSettingCard(SettingCard):
 
         super().__init__(FIF.DEVELOPER_TOOLS, "功能", "", parent)
         self.checkBox1 = CheckBox("整理微信", self)
-        self.checkBox1.setChecked(setting.read("sortWechat"))
         self.checkBox1.clicked.connect(lambda: setting.save("sortWechat", self.checkBox1.isChecked()))
         self.checkBox1.setToolTip("是否整理微信下载文件")
         self.checkBox1.installEventFilter(ToolTipFilter(self.checkBox1, 1000))
 
         self.checkBox2 = CheckBox("清理缓存", self)
-        self.checkBox2.setChecked(setting.read("clearCache"))
         self.checkBox2.clicked.connect(lambda: setting.save("clearCache", self.checkBox2.isChecked()))
         self.checkBox2.setToolTip("是否清理电脑缓存（可能会影响部分运行中软件）")
         self.checkBox2.installEventFilter(ToolTipFilter(self.checkBox2, 1000))
 
         self.checkBox3 = CheckBox("清理文件", self)
-        self.checkBox3.setChecked(setting.read("clearFile"))
         self.checkBox3.clicked.connect(lambda: setting.save("clearFile", self.checkBox3.isChecked()))
         self.checkBox3.setToolTip("是否删除整理过程中发现的重复文件和空文件，该功能较耗费时间")
         self.checkBox3.installEventFilter(ToolTipFilter(self.checkBox3, 1000))
 
         self.checkBox4 = CheckBox("清理回收站", self)
-        self.checkBox4.setChecked(setting.read("clearTrash"))
         self.checkBox4.clicked.connect(lambda: setting.save("clearTrash", self.checkBox4.isChecked()))
         self.checkBox4.setToolTip("是否清空回收站文件，删除后文件将不可恢复")
         self.checkBox4.installEventFilter(ToolTipFilter(self.checkBox4, 1000))
 
         self.checkBox5 = CheckBox("删除至回收站", self)
-        self.checkBox5.setChecked(setting.read("deleteToTrash"))
         self.checkBox5.clicked.connect(lambda: setting.save("deleteToTrash", self.checkBox5.isChecked()))
         self.checkBox5.setToolTip("是否将整理过程中的无用文件删除至回收站而非直接删除")
         self.checkBox5.installEventFilter(ToolTipFilter(self.checkBox5, 1000))
@@ -594,6 +584,20 @@ class FeaturesSettingCard(SettingCard):
         self.hBoxLayout.addSpacing(8)
         self.hBoxLayout.addWidget(self.checkBox5, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
+
+        self.set()
+        setting.signalConnect(self.setEvent)
+
+    def setEvent(self, msg):
+        if msg in ["sortWechat", "clearCache", "clearFile", "clearTrash", "deleteToTrash"]:
+            self.set()
+
+    def set(self):
+        self.checkBox1.setChecked(setting.read("sortWechat"))
+        self.checkBox2.setChecked(setting.read("clearCache"))
+        self.checkBox3.setChecked(setting.read("clearFile"))
+        self.checkBox4.setChecked(setting.read("clearTrash"))
+        self.checkBox5.setChecked(setting.read("deleteToTrash"))
 
     def button1Clicked(self):
         if self.checkBox1.isChecked():

@@ -13,11 +13,4 @@ from qfluentwidgets import *
 from qfluentwidgets.components.material import *
 from qfluentwidgets import FluentIcon as FIF
 
-QApplication.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
-QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
-QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
-app = QApplication(sys.argv)
-translator = FluentTranslator()
-app.installTranslator(translator)
-
-f=ZbToolLib()
+f = ZbToolLib()

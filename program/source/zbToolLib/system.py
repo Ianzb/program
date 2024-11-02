@@ -15,3 +15,5 @@ class System:
             value = value.read()
             log.info(f"执行Cmd命令{command}的返回值为{value}。")
             return value
+        else:
+            log.info(f"执行Cmd命令{command}。")
