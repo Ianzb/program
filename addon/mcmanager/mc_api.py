@@ -8,12 +8,14 @@ addonBase = AddonBase()
 
 
 def addonInit():
-    global program, log, setting, window
+    global program, log, setting, window, mc
     program = addonBase.program
     log = addonBase.log
     setting = addonBase.setting
     setting.add("minecraftJavaPath", f.pathJoin(program.USER_PATH, r"AppData\Roaming\.minecraft"))
     window = addonBase.window
+    mc = MinecraftFunctions()
+    mc.FILE_DOWNLOAD_PATH = setting.read("minecraftJavaPath")  # 游戏文件下载根路径
 
 
 
@@ -22,7 +24,7 @@ class MinecraftFunctions(QWidget):
     Minecraft函数
     """
     versionUpdateSignal = pyqtSignal()
-    FILE_DOWNLOAD_PATH = setting.read("minecraftJavaPath")  # 游戏文件下载根路径
+
     FILE_PATH = {
         "模组": "mods",
         "光影包": "shaderpacks",
@@ -769,6 +771,3 @@ class MinecraftFunctions(QWidget):
                 str1 += v1[i] + "版本：" + v2[i] + "\n"
         logging.debug("成功获取我的世界最新版本")
         return str1
-
-
-mc = MinecraftFunctions()

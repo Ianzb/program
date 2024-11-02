@@ -1,9 +1,22 @@
 from .mc_api import *
 
 
+def addonInit():
+    global program, log, setting, window, mc
+    program = addonBase.program
+    log = addonBase.log
+    setting = addonBase.setting
+    setting.add("minecraftJavaPath", f.pathJoin(program.USER_PATH, r"AppData\Roaming\.minecraft"))
+    window = addonBase.window
+    mc = MinecraftFunctions()
+    mc.FILE_DOWNLOAD_PATH = setting.read("minecraftJavaPath")  # 游戏文件下载根路径
+
+
 def addonWidget():
     return AddonPage(window)
-class AddonThread(QThread, SignalBase):
+
+
+class AddonThread(QThread):
     """
     多线程模块
     """
