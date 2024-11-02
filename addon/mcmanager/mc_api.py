@@ -1,14 +1,20 @@
-import sys, os
-
-sys.path.append(os.path.dirname(sys.argv[0]))
-from source.widget.custom import *
+from source.addon import *
 
 try:
-    from program.source.zbWidgetLib.custom import *
+    from program.source.addon import *
 except:
     pass
+addonBase = AddonBase()
 
-setting.add("minecraftJavaPath", f.pathJoin(program.USER_PATH, r"AppData\Roaming\.minecraft"))
+
+def addonInit():
+    global program, log, setting, window
+    program = addonBase.program
+    log = addonBase.log
+    setting = addonBase.setting
+    setting.add("minecraftJavaPath", f.pathJoin(program.USER_PATH, r"AppData\Roaming\.minecraft"))
+    window = addonBase.window
+
 
 
 class MinecraftFunctions(QWidget):
@@ -30,7 +36,7 @@ class MinecraftFunctions(QWidget):
         "资源包": [".zip"],
     }  # 文件类型-文件格式映射表
 
-    RELEASE_VERSIONS = ["1.21.1", "1.21",
+    RELEASE_VERSIONS = ["1.21.3", "1.21.2", "1.21.1", "1.21",
                         "1.20.6", "1.20.5", "1.20.4", "1.20.3", "1.20.2", "1.20.1", "1.20",
                         "1.19.4", "1.19.3", "1.19.2", "1.19.1", "1.19",
                         "1.18.2", "1.18.1", "1.18",

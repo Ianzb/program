@@ -13,6 +13,9 @@ def addonInit():
     log = addonBase.log
     setting = addonBase.setting
     window = addonBase.window
+
+
+def addonWidget():
     return AddonPage(window)
 
 

@@ -1,6 +1,8 @@
 from .mc_api import *
 
 
+def addonWidget():
+    return AddonPage(window)
 class AddonThread(QThread, SignalBase):
     """
     多线程模块

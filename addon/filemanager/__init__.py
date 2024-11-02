@@ -35,6 +35,9 @@ def addonInit():
                   "deleteToTrash": False,
                   })
     sf = SortFunctions()
+
+
+def addonWidget():
     return AddonPage(window)
 
 
@@ -487,7 +490,6 @@ class SortPathSettingCard(SettingCard):
         if f.existPath(path):
             setting.save("wechatPath", path)
         self.setText()
-
 
 
 class SortSettingCard(SettingCard):
