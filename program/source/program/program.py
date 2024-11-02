@@ -10,7 +10,7 @@ class Program:
     NAME = "zb小程序"  # 程序名称
     VERSION = "5.0.0"  # 程序版本
     TITLE = f"{NAME} {VERSION}"  # 程序标题
-    URL = "https://ianzb.github.io/project/"  # 程序网址
+    URL = "https://ianzb.github.io/project/program.html"  # 程序网址
     LICENSE = "GPLv3"  # 程序许可协议
     UPDATE_URL = "https://vip.123pan.cn/1813801926/Code/program/index.json"  # 更新网址
     UPDATE_INSTALLER_URL = "https://vip.123pan.cn/1813801926/Code/program/zbProgram_setup.exe"  # 更新安装包链接
