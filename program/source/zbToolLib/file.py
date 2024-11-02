@@ -359,7 +359,7 @@ class File:
         if self.isFile(path):
             System().easyCmd(f'explorer /select,"{path}"')
         else:
-            System().easyCmd(f'explorer "{path}"')
+            os.startfile(path)
 
     def extractZip(self, path: str, goal: str, delete: bool = False):
         """
