@@ -8,9 +8,19 @@ class AddonInfoMessageBox(MessageBox):
     插件信息消息框
     """
 
-    def __init__(self, title: str, content: str, data: dict, parent=None):
-        super().__init__(title=title, content=content, parent=parent)
+    def __init__(self, parent=None):
+        super().__init__(title="", content="", parent=parent)
         self.image = Image(self)
+
+        self.yesButton.deleteLater()
+        self.cancelButton.setText("关闭")
+        self.cancelButton.clicked.connect(self.closeMessageBox)
+
+    def closeMessageBox(self):
+        self.accept()
+        self.accepted.emit()
+
+    def setData(self, data: dict):
         if "icon" in data.keys():
             if f.isUrl(data["icon"]):
                 self.image.setImg(program.cache(f.joinPath("addon", f.getFileNameFromUrl(data["icon"]))), data["icon"])
@@ -19,10 +29,6 @@ class AddonInfoMessageBox(MessageBox):
                 if f.existPath(f.joinPath(program.ADDON_PATH, data["id"], data["icon"])):
                     self.image.setImg(f.joinPath(program.ADDON_PATH, data["id"], data["icon"]))
                     self.textLayout.insertWidget(1, self.image)
-
-        self.yesButton.deleteLater()
-        self.cancelButton.setText("关闭")
-        self.cancelButton.clicked.connect(self.deleteLater)
 
 
 class AddonInfoCard(SmallInfoCard):
@@ -51,6 +57,8 @@ class AddonInfoCard(SmallInfoCard):
         self.onlineData: dict = {}
 
         self.setButtonStatement()
+
+        self.messageBox = AddonInfoMessageBox(self.window())
 
     def downloadAddon(self):
         if self.onlineData:
@@ -82,8 +90,10 @@ class AddonInfoCard(SmallInfoCard):
             data = self.onlineData if self.onlineData else self.offlineData
             title = f"{data["name"]}插件信息"
             info = f"ID：{data["id"]}\n版本：{data["version"]}\n作者：{data["author"]}\n介绍：{data["description"]}\n更新日期：{data["history"][data["version"]]["time"]}\n更新内容：{data["history"][data["version"]]["log"]}\n"
-            messageBox = AddonInfoMessageBox(title, info, data, self.window())
-            messageBox.show()
+            self.messageBox.setData(data)
+            self.messageBox.titleLabel.setText(title)
+            self.messageBox.contentLabel.setText(info)
+            self.messageBox.show()
 
     def setInstalledData(self, data):
         self.offlineData = data
