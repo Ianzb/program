@@ -52,7 +52,7 @@ class SortFunctions:
             if paths:
                 for i in paths:
                     if f.fileSize(i) == 0:
-                        f.deletePathFile(i, setting.read("deleteToTrash"))
+                        f.deleteFile(i, setting.read("deleteToTrash"))
 
     def clearEmptyDir(self, path):
         """
@@ -80,6 +80,7 @@ class SortFunctions:
             names.sort(key=lambda i: len(i))
             for i in range(len(names)):
                 for j in range(len(names[:i])):
+                    if not f.existPath(names[i]) or not f.existPath(names[j]): continue
                     if filecmp.cmp(names[i], names[j], False):
                         f.deletePath(names[j], setting.read("deleteToTrash"))
 
@@ -130,6 +131,7 @@ class SortFunctions:
                             if f.splitPath(i, 2).lower() in list(setting.read("sortFormat").values())[j]:
                                 if f.splitPath(i, 0) in blacklist[0] or i in blacklist[1]:
                                     continue
+                                f.setOnlyRead(i, False)
                                 f.movePath(i, f.joinPath(new, list(setting.read("sortFormat").keys())[j]))
             if mode in [0, 2]:
                 file_list = f.walkDir(old, 1)
@@ -152,8 +154,10 @@ class SortFunctions:
             for i in f.walkDir(setting.read("wechatPath"), 1):
                 if f.existPath(f.joinPath(i, "FileStorage/File")):
                     list1.append(f.joinPath(i, "FileStorage/File"))
+                elif f.existPath(f.joinPath(i, "msg/file/")):
+                    list1.append(f.joinPath(i, "msg/file/"))
             for i in list1:
-                if f.walkDir(i, 1) == None:
+                if f.walkDir(i, 1) is None:
                     return
                 list2 = list2 + f.walkDir(i, 1)
             for i in list2:
