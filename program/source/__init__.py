@@ -2,6 +2,7 @@ from .interface import *
 from traceback import format_exception
 import importlib
 
+
 class Window(FluentWindow):
     """
     主窗口
@@ -132,9 +133,12 @@ class Window(FluentWindow):
         """
         try:
             if data["id"] in self.ADDON_OBJECT.keys():
-                self.navigationInterface.removeWidget(data["name"])
-                self.stackedWidget.view.removeWidget(self.ADDON_MAINPAGE[data["id"]])
-                self.ADDON_MAINPAGE[data["id"]].deleteLater()
+                try:
+                    self.navigationInterface.removeWidget(data["name"])
+                    self.stackedWidget.view.removeWidget(self.ADDON_MAINPAGE[data["id"]])
+                    self.ADDON_MAINPAGE[data["id"]].deleteLater()
+                except:
+                    pass
 
                 self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{data["name"]}更新成功，重启程序生效！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.mainPage)
                 self.button1 = PushButton("重启", self, FIF.SYNC)
