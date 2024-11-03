@@ -33,8 +33,13 @@ class DownloadInfoCard(SettingCard):
         self.folderButton.clicked.connect(lambda: f.showFile(f.joinPath(self.path, f.getFileNameFromUrl(self.url)) if f.isDir(self.path) else self.path))
         self.folderButton.hide()
 
-        self.closeButton = ToolButton(FIF.DELETE, self)
-        setToolTip(self.closeButton, "关闭下载")
+        self.deleteButton = ToolButton(FIF.DELETE, self)
+        setToolTip(self.deleteButton, "删除下载文件")
+        self.deleteButton.clicked.connect(self.deleteDownload)
+        self.deleteButton.hide()
+
+        self.closeButton = ToolButton(FIF.CLOSE, self)
+        setToolTip(self.closeButton, "关闭下载任务")
         self.closeButton.clicked.connect(self.closeDownload)
 
         self.vBoxLayout = QVBoxLayout()
@@ -43,6 +48,7 @@ class DownloadInfoCard(SettingCard):
 
         self.hBoxLayout.addLayout(self.vBoxLayout, 0)
         self.hBoxLayout.addWidget(self.folderButton, 0, Qt.AlignRight)
+        self.hBoxLayout.addWidget(self.deleteButton, 0, Qt.AlignRight)
         self.hBoxLayout.addWidget(self.closeButton, 0, Qt.AlignRight)
         self.hBoxLayout.setSpacing(8)
         self.hBoxLayout.setContentsMargins(16, 0, 16, 0)
@@ -57,6 +63,11 @@ class DownloadInfoCard(SettingCard):
         self.window().downloadPage.cardGroup.cardLayout.removeWidget(self)
         self.downloadSignal.emit(False)
         self.deleteLater()
+
+    def deleteDownload(self):
+        path = self.d.resultPath
+        f.deleteFile(path, True)
+        log.info(f"已删除下载的{path}文件！")
 
     def startDownload(self):
         self.d = MultiDownload(self.url, self.path, False, self.replace, ".downloading", f.REQUEST_HEADER)
@@ -88,6 +99,7 @@ class DownloadInfoCard(SettingCard):
                     self.progressLabel.setText("下载完成")
                     self.downloadSignal.emit(True)
                     self.folderButton.show()
+                    self.deleteButton.show()
                     break
             time.sleep(0.25)
 
@@ -108,7 +120,7 @@ class DownloadPage(BasicPage):
         self.lineEdit = AcrylicSearchLineEdit(self)
         self.lineEdit.setPlaceholderText("下载链接")
         setToolTip(self.lineEdit, "请输入任意网络下载链接")
-        self.lineEdit.setMaxLength(50)
+        self.lineEdit.setMaxLength(1000)
         self.lineEdit.textChanged.connect(self.lineEditChanged)
         self.lineEdit.returnPressed.connect(self.downloadButtonClicked)
         self.lineEdit.searchButton.setIcon(FIF.DOWNLOAD)
@@ -129,7 +141,7 @@ class DownloadPage(BasicPage):
     def downloadButtonClicked(self):
         if not self.lineEdit.text() or not f.isUrl(self.lineEdit.text()):
             return
-        self.startDownload(self.lineEdit.text(), f.joinPath(setting.read("downloadPath"), f.getFileNameFromUrl(self.lineEdit.text())), True)
+        self.startDownload(self.lineEdit.text(), f.joinPath(setting.read("downloadPath"), f.getFileNameFromUrl(self.lineEdit.text())))
 
     def startDownload(self, url: str, path: str, replace: bool = False):
         """
