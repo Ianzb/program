@@ -27,12 +27,14 @@ def addonWidget():
 class PyChatApi:
     BASE_URL = "http://localhost:5000"
     HEADER = {"Content-Type": "application/json"}
+    APPID = program.STARTUP_ARGUMENT[program.STARTUP_ARGUMENT.index("--pychatappid") + 1]
+    APPKEY = program.STARTUP_ARGUMENT[program.STARTUP_ARGUMENT.index("--pychatappkey") + 1]
 
     def getAppId(self):
-        return program.STARTUP_ARGUMENT[program.STARTUP_ARGUMENT.index("--pychatappid") + 1]
+        return self.APPID
 
     def getAppKey(self):
-        return program.STARTUP_ARGUMENT[program.STARTUP_ARGUMENT.index("--pychatappkey") + 1]
+        return self.APPKEY
 
     def _genSalt(self):
         return str(random.randint(1, 100000))
