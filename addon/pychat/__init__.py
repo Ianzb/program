@@ -38,15 +38,16 @@ class PyChatApi:
         return str(random.randint(1, 100000))
 
     def _genSignStr(self, *args, **kwargs):
-        return hashlib.sha256((self.getAppId() + self.getAppKey() + "".join(args) + self._genSalt()).encode()).hexdigest()
+        return hashlib.sha256((self.getAppId() + self.getAppKey() + "".join(args)).encode()).hexdigest()
 
     def loginUser(self, username, password):
+        salt = self._genSalt()
         data = {
             "app_id": self.getAppId(),
             "username": username,
             "password": password,
-            "salt": self._genSalt(),
-            "sign": self._genSignStr(username, password)
+            "salt": salt,
+            "sign": self._genSignStr(username, password, salt)
         }
         response = f.postUrl(f.joinUrl(self.BASE_URL, "/api/v1/login_user"), data, self.HEADER)
         return json.load(response.text)
