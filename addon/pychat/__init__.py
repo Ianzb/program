@@ -1,5 +1,4 @@
 import hashlib
-import json
 import random
 
 from source.addon import *
@@ -27,29 +26,70 @@ def addonWidget():
 class PyChatApi:
     BASE_URL = "http://localhost:5000"
     HEADER = {"Content-Type": "application/json"}
+    APPID = program.STARTUP_ARGUMENT[program.STARTUP_ARGUMENT.index("--pychatappid") + 1]
+    APPKEY = program.STARTUP_ARGUMENT[program.STARTUP_ARGUMENT.index("--pychatappkey") + 1]
 
-    def getAppId(self):
-        return program.STARTUP_ARGUMENT[program.STARTUP_ARGUMENT.index("--pychatappid") + 1]
+    session = None
 
-    def getAppKey(self):
-        return program.STARTUP_ARGUMENT[program.STARTUP_ARGUMENT.index("--pychatappkey") + 1]
+    @classmethod
+    def api(cls, relative_path, arguments_seq, callback=None):
+        """
+        api默认装饰器，以简化api编写
+        回调示例：callback(data_dict, response_obj)
+        """
 
-    def _genSalt(self):
+        def decorator(func):
+            @functools.wraps(func)  # 使用 wraps 来保留原函数的元数据
+            def wrapper(*args, **kwargs):
+                salt = PyChatApi._genSalt()
+                data_dict: dict = func(*args, **kwargs)
+                arguments_values = [data_dict[a] for a in arguments_seq]
+                sign = cls._genSignStr(*arguments_values)
+                data_dict.setdefault("app_id", cls.getAppId())
+                data_dict.setdefault("salt", salt)
+                data_dict.setdefault("sign", sign)
+                response = f.postUrl(f.joinUrl(cls.BASE_URL, relative_path), data_dict, cls.HEADER)
+                response_obj = response.json()
+
+                if callback:
+                    callback(data_dict, response_obj)
+
+                return response_obj
+
+            return wrapper
+
+        return decorator
+
+    @classmethod
+    def getAppId(cls):
+        return cls.APPID
+
+    @classmethod
+    def getAppKey(cls):
+        return cls.APPKEY
+
+    @staticmethod
+    def _genSalt():
         return str(random.randint(1, 100000))
 
-    def _genSignStr(self, *args, **kwargs):
-        return hashlib.sha256((self.getAppId() + self.getAppKey() + "".join(args) + self._genSalt()).encode()).hexdigest()
+    @classmethod
+    def _genSignStr(cls, *args):
+        return hashlib.sha256((cls.getAppId() + cls.getAppKey() + "".join(args)).encode()).hexdigest()
 
+    @api("/api/v1/login_user", ["username", "password"])  # TODO: add callback function to store session
     def loginUser(self, username, password):
-        data = {
-            "app_id": self.getAppId(),
+        return {
             "username": username,
             "password": password,
-            "salt": self._genSalt(),
-            "sign": self._genSignStr(username, password)
         }
-        response = f.postUrl(f.joinUrl(self.BASE_URL, "/api/v1/login_user"), data, self.HEADER)
-        return json.load(response.text)
+
+    @api("/api/v1/register_user", ["username", "password", "description"])
+    def registerUser(self, username, password, description):
+        return {
+            'username': username,
+            'password': password,
+            'description': description,
+        }
 
 
 class LoginPage(BasicTab):
@@ -125,13 +165,17 @@ class LoginPage(BasicTab):
         self.vBoxLayout.addWidget(self.lineEdit3)
         self.vBoxLayout.addWidget(self.label4)
         self.vBoxLayout.addWidget(self.lineEdit4)
-        self.vBoxLayout.addItem(QtWidgets.QSpacerItem(20, 5, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed))
+        self.vBoxLayout.addItem(
+            QtWidgets.QSpacerItem(20, 5, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed))
         self.vBoxLayout.addWidget(self.checkBox)
-        self.vBoxLayout.addItem(QtWidgets.QSpacerItem(20, 5, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed))
+        self.vBoxLayout.addItem(
+            QtWidgets.QSpacerItem(20, 5, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed))
         self.vBoxLayout.addWidget(self.pushButton1)
-        self.vBoxLayout.addItem(QtWidgets.QSpacerItem(20, 6, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed))
+        self.vBoxLayout.addItem(
+            QtWidgets.QSpacerItem(20, 6, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed))
         self.vBoxLayout.addWidget(self.pushButton2)
-        self.vBoxLayout.addItem(QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding))
+        self.vBoxLayout.addItem(
+            QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding))
 
         self.loginSignal.connect(self.loginFinished)
 
@@ -143,7 +187,7 @@ class LoginPage(BasicTab):
             log.error(f"登录错误，报错信息：{ex}！")
 
     def loginFinished(self, data):
-        print(data)
+        print(data)  # TODO: move to callback?
 
 
 class AddonPage(ChangeableTab):
