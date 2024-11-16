@@ -196,7 +196,8 @@ class MainPage(BasicTab):
         info = program.getInstalledAddonInfo()
         for k, v in info.items():
             self.signalAddCardOffline.emit(v)
-        self.thread2 = program.THREAD_POOL.submit(self.getOnlineAddonList)
+        if not program.isExe:
+            program.THREAD_POOL.submit(self.getOnlineAddonList)
 
     def getOnlineAddonList(self):
         self.addon_list = program.getOnlineAddonDict()
@@ -258,4 +259,4 @@ class MainPage(BasicTab):
         self.reloadButton.setEnabled(False)
         self.cardGroup1.cardLayout.clearWidget()
         self.cardIdDict = {}
-        self.getInstalledAddonList()
+        program.THREAD_POOL.submit(self.getInstalledAddonList)
