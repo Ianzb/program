@@ -121,7 +121,7 @@ class ChangeableTab(BasicTab):
         self.vBoxLayout.setContentsMargins(0, 0, 0, 0)
         self.vBoxLayout.setSpacing(0)
 
-    def addPage(self, widget, name=None, alignment: Qt.AlignmentFlag = Qt.AlignLeft):
+    def addPage(self, widget, name=None, alignment: Qt.AlignmentFlag | None = None):
         """
         添加页面
         @param widget: 组件
@@ -132,7 +132,10 @@ class ChangeableTab(BasicTab):
         if not name:
             name = widget.objectName()
         self.page[name] = widget
-        self.vBoxLayout.addWidget(widget, 0, alignment)
+        if alignment:
+            self.vBoxLayout.addWidget(widget, 0, alignment)
+        else:
+            self.vBoxLayout.addWidget(widget)
 
     def showPage(self, name):
         """
