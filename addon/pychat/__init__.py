@@ -176,6 +176,41 @@ class PyChatApi:
             'session': session.getSession()
         }
 
+    @api("api/v1/change_user_password", ["session", "username", "new_password"])
+    def changeUserPassword(self, session, username, new_password):
+        return {
+            'session': session.getSession(),
+            'username': username,
+            'new_password': new_password
+        }
+
+    @api("api/v1/get_user_info", ["session", "username"])
+    def getUserInfo(self, session, username):
+        return {
+            'session': session.getSession(),
+            'username': username
+        }
+
+    @api("api/v1/send_direct_message", ["session"])
+    def sendDirectMessage(self, session, recv_user, message):
+         return {
+            'session': session.getSession(),
+            'recv_user': recv_user,
+            'message': message
+        }
+
+    @api("api/v1/get_direct_message", ["session"])
+    def getDirectMessage(self, session):
+        return {
+            'session': session.getSession(),
+        }
+
+    @api("api/v1/get_direct_message/all_cache", ["session"])
+    def getDirectMessageAllCache(self, session):
+        return {
+            'session': session.getSession(),
+        }
+
 
 class LoginPage(BasicTab):
     loginSignal = pyqtSignal(dict)
