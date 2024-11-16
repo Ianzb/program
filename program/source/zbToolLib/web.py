@@ -35,6 +35,8 @@ class Web:
         """
         import requests
         log.info(f"正在Get请求{url}的信息！")
+        if not url.startswith("https://") and not url.startswith("http://"):
+            url = "http://" + url
         for i in range(times):
             try:
                 response = requests.get(url, headers=header, stream=True, timeout=timeout)
@@ -56,7 +58,8 @@ class Web:
         """
         import requests
         log.info(f"正在Post请求{url}的信息！")
-
+        if not url.startswith("https://") and not url.startswith("http://"):
+            url = "http://" + url
         for i in range(times):
             try:
                 response = requests.post(url, headers=header, json=json, timeout=timeout)
