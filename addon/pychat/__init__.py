@@ -20,6 +20,7 @@ def addonInit():
     api = PyChatApi()
     PyChatApi.APPID = program.STARTUP_ARGUMENT[program.STARTUP_ARGUMENT.index("--pychatappid") + 1]
     PyChatApi.APPKEY = program.STARTUP_ARGUMENT[program.STARTUP_ARGUMENT.index("--pychatappkey") + 1]
+    sessionManager.startHeartbeat()
 
 
 def addonWidget():
@@ -27,13 +28,16 @@ def addonWidget():
 
 
 class PyChatApiSession:
+    SESSION_TIMEOUT = 30 # seconds
+
     def __init__(self, session: str, exp_time: float):
         self.session: str = session
         self.exp_time: float = exp_time  # timestamp
 
     @property
     def is_valid(self):
-        return self.session is not None and self.exp_time is not None and self.exp_time > time.time()
+        return (self.session is not None and self.exp_time is not None
+                and self.exp_time > time.time() + self.SESSION_TIMEOUT)
 
     def getSession(self):
         return self.session
@@ -49,6 +53,7 @@ class PyChatApiSession:
 
 
 class PyChatApiSessionManager:
+    HEARTBEAT_INTERVAL = 10  # seconds
     def __init__(self):
         self.sessions = {}  # {username: PyChatApiSession}
 
@@ -57,17 +62,23 @@ class PyChatApiSessionManager:
 
     def addOrUpdateSession(self, username, session, exp_time):
         self.sessions.update({username: PyChatApiSession(session, exp_time)})
-        program.THREAD_POOL.submit(self.heartbeat)
 
     def clearSession(self):
         self.sessions.clear()
 
-    def heartbeat(self):
+    def _autoHeartbeat(self):
         while True:
-            time.sleep(250)
-            for session in self.sessions.values():
-                log.info(f"已自动更新Session{session.getSession()}！")
-                api.heartbeat(session)
+            time.sleep(self.HEARTBEAT_INTERVAL)
+            for session in self.sessions.items():
+                if session[1].is_valid:
+                    continue
+                api.heartbeat(session[1])
+                log.info(f"已自动更新用户{session[0]}的Session: {session[1].getSession()}，"
+                         f"新的过期时间为"
+                         f"{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(session[1].getExpTime()))}！")
+
+    def startHeartbeat(self):
+        program.THREAD_POOL.submit(self._autoHeartbeat)
 
 
 sessionManager = PyChatApiSessionManager()
@@ -108,6 +119,7 @@ class PyChatApi:
                 response_obj = response.json()
 
                 if callback:
+                    # log.debug(f"回调函数{callback.__name__}被调用，参数为{data_dict}, {response_obj}")
                     callback(data_dict, response_obj)
 
                 return {"data_dict": data_dict, "response_obj": response_obj}
@@ -143,9 +155,9 @@ class PyChatApi:
     def postLoginUser(data_dict: dict, response_obj: dict):
         status = response_obj.get("status", -1)
         if status == 0:
-            session = data_dict.get("session", None)
+            session = response_obj.get("session", None)
             if session is not None:
-                sessionManager.addOrUpdateSession(data_dict.get("username"), session, data_dict.get("exp_time"))
+                sessionManager.addOrUpdateSession(data_dict.get("username"), session, response_obj.get("exp_time"))
                 return response_obj
         else:
             log.error(f"登录失败，{data_dict}, {response_obj}")
@@ -162,6 +174,41 @@ class PyChatApi:
     def heartbeat(self, session):
         return {
             'session': session.getSession()
+        }
+
+    @api("api/v1/change_user_password", ["session", "username", "new_password"])
+    def changeUserPassword(self, session, username, new_password):
+        return {
+            'session': session.getSession(),
+            'username': username,
+            'new_password': new_password
+        }
+
+    @api("api/v1/get_user_info", ["session", "username"])
+    def getUserInfo(self, session, username):
+        return {
+            'session': session.getSession(),
+            'username': username
+        }
+
+    @api("api/v1/send_direct_message", ["session"])
+    def sendDirectMessage(self, session, recv_user, message):
+         return {
+            'session': session.getSession(),
+            'recv_user': recv_user,
+            'message': message
+        }
+
+    @api("api/v1/get_direct_message", ["session"])
+    def getDirectMessage(self, session):
+        return {
+            'session': session.getSession(),
+        }
+
+    @api("api/v1/get_direct_message/all_cache", ["session"])
+    def getDirectMessageAllCache(self, session):
+        return {
+            'session': session.getSession(),
         }
 
 
