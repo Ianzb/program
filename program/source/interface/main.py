@@ -194,8 +194,7 @@ class MainPage(BasicTab):
         info = program.getInstalledAddonInfo()
         for k, v in info.items():
             self.signalAddCardOffline.emit(v)
-        if not program.isExe:
-            program.THREAD_POOL.submit(self.getOnlineAddonList)
+        program.THREAD_POOL.submit(self.getOnlineAddonList)
 
     def getOnlineAddonList(self):
         self.addon_list = program.getOnlineAddonDict()
