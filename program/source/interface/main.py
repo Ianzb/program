@@ -59,6 +59,7 @@ class AddonInfoCard(SmallInfoCard):
         self.setButtonStatement()
 
         self.messageBox = AddonInfoMessageBox(self.window())
+        self.messageBox.hide()
 
     def downloadAddon(self):
         if self.onlineData:
