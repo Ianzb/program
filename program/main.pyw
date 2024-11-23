@@ -7,6 +7,7 @@ if program.isStartup and setting.read("autoHide"):
 else:
     window.show()
     log.info("程序主窗口展示！")
+setTheme(eval(setting.read("theme")))
 app.exec()
 
 from source.addon import *
