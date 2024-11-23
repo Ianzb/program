@@ -160,7 +160,6 @@ class MainPage(BasicTab):
     title = "主页"
     signalAddCardOffline = pyqtSignal(dict)
     signalAddCardOnline = pyqtSignal(dict)
-    signalGetInfoOnline = pyqtSignal(str)
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
@@ -188,7 +187,6 @@ class MainPage(BasicTab):
 
         self.signalAddCardOffline.connect(self.addCardOffline)
         self.signalAddCardOnline.connect(self.addCardOnline)
-        self.signalGetInfoOnline.connect(self.getOnlineAddonInfo)
 
         program.THREAD_POOL.submit(self.getInstalledAddonList)
 
@@ -204,7 +202,7 @@ class MainPage(BasicTab):
 
         self.onlineCount = 0
         for k, v in self.addon_list.items():
-            self.signalGetInfoOnline.emit(v)
+            program.THREAD_POOL.submit(self.getOnlineAddonInfo, v)
         while self.onlineCount < len(self.addon_list.keys()):
             time.sleep(0.5)
         for i in self.cardIdDict.keys():
