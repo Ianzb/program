@@ -40,6 +40,7 @@ class Web:
         for i in range(times):
             try:
                 response = requests.get(url, headers=header, stream=True, timeout=timeout)
+                log.info(f"Get请求{url}成功！")
                 return response
             except Exception as ex:
                 log.warning(f"第{i + 1}次Get请求{url}失败，错误信息为{ex}，正在重试中！")
@@ -63,6 +64,7 @@ class Web:
         for i in range(times):
             try:
                 response = requests.post(url, headers=header, json=json, timeout=timeout)
+                log.info(f"Post请求{url}成功！")
                 return response
             except Exception as ex:
                 log.warning(f"第{i + 1}次Post请求{url}失败，错误信息为{ex}，正在重试中！")
