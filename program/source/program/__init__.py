@@ -15,7 +15,7 @@ ssl._create_default_https_context = ssl._create_unverified_context()
 # 日志设置
 open(program.LOGGING_FILE_PATH, "w").close() if not f.existPath(program.LOGGING_FILE_PATH) or f.fileSize(program.LOGGING_FILE_PATH) >= 1024 * 128 else None
 
-handler2 = logging.FileHandler(program.LOGGING_FILE_PATH)
+handler2 = logging.FileHandler(program.LOGGING_FILE_PATH, encoding="utf-8")
 handler2.setLevel(logging.DEBUG)
 handler2.setFormatter(logging.Formatter("[%(levelname)s %(asctime)s %(filename)s %(process)s]:%(message)s"))
 
