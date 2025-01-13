@@ -4,7 +4,7 @@
 
 
 作者：Ianzb
- 
+
 ![Release Download](https://img.shields.io/github/downloads/Ianzb/program/total?style=flat-square)
 [![Release Version](https://img.shields.io/github/v/release/Ianzb/program?style=flat-square)](https://github.com/Ianzb/program/releases/latest)
 [![GitHub license](https://img.shields.io/github/license/Ianzb/program?style=flat-square)](LICENSE)
@@ -35,10 +35,12 @@ zb小程序是一款使用Python开发，基于PyQt5和PyQt-Fluent-Widgets开发
 - Windows 10/11
 
 ## 开发环境
+
 - Python 3.12.X
 - 运行库详见requirements.txt
 
 ## 目录介绍
+
 - `program`：主程序
 - `addon`：插件
 - `script`：打包相关脚本（需自行修改路径等内容）
