@@ -14,12 +14,12 @@ numpy==2.2.1
 openpyxl==3.1.5
 packaging==24.2
 pefile==2024.8.26
-pillow==11.0.0
+pillow==11.1.0
 pyinstaller==6.11.1
 pyinstaller-hooks-contrib==2024.11
 PyQt-Fluent-Widgets==1.7.4
 PyQt5==5.15.11
-PyQt5-Frameless-Window==0.4.3
+PyQt5-Frameless-Window==0.4.5
 PyQt5-Qt5==5.15.2
 PyQt5-stubs==5.15.6.0
 PyQt5_sip==12.16.1
@@ -27,9 +27,10 @@ pywin32==308
 pywin32-ctypes==0.2.3
 QtPy==2.4.2
 requests==2.32.3
-scipy==1.14.1
+scipy==1.15.1
 Send2Trash==1.8.3
-setuptools==75.6.0
+setuptools==75.8.0
 soupsieve==2.6
 urllib3==2.3.0
 winshell==0.6
+zbToolLib==1.0.1
