@@ -1,4 +1,4 @@
-from ..zbToolLib import *
+from zbToolLib import *
 import functools
 from PyQt5 import *
 from PyQt5.Qt import *
