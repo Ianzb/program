@@ -174,7 +174,7 @@ class AboutSettingCard(SettingCard):
     """
 
     def __init__(self, parent=None):
-        super().__init__(FIF.INFO, "关于", f"© 2022-2024 Ianzb. GPLv3 License.\n当前版本 {program.VERSION}", parent)
+        super().__init__(FIF.INFO, "关于", f"© 2022-2025 Ianzb. GPLv3 License.\n当前版本 {program.VERSION}", parent)
         self.button1 = HyperlinkButton(program.URL, "程序官网", self, FIF.LINK)
         self.button1.setToolTip("打开程序官网")
         self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
