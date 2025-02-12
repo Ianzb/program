@@ -1,26 +1,5 @@
 from .base import *
 
-""" 基于Pyside6-Fluent-Widget同名称组件修改，修复了主窗口关闭时异常退出的问题 """
-
-
-def hook_InfoBar__fadeOut(self):
-    """ fade out """
-    self.opacityAni.setDuration(200)
-    self.opacityAni.setStartValue(1)
-    self.opacityAni.setEndValue(0)
-    self.opacityAni.finished.connect(self.close)
-    self.opacityAni.start()
-
-
-def hook_InfoBar_close(self):
-    self.hide()
-    self.closedSignal.emit()
-    self.deleteLater()
-
-
-InfoBar.__fadeOut = hook_InfoBar__fadeOut
-InfoBar.close = hook_InfoBar_close
-
 
 class FixedExpandLayout(QLayout):
     """ 基于Pyside6-Fluent-Widget同名称组件修改，修复了无法遍历组件的问题 """

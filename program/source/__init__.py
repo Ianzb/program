@@ -8,10 +8,10 @@ class Window(FluentWindow):
     主窗口
     """
 
-    addAddonEvent = pyqtSignal(dict)
-    removeAddonEvent = pyqtSignal(dict)
-    addAddonFinishEvent = pyqtSignal(str)
-    downloadAddonFailedSignal = pyqtSignal(dict)
+    addAddonEvent = Signal(dict)
+    removeAddonEvent = Signal(dict)
+    addAddonFinishEvent = Signal(str)
+    downloadAddonFailedSignal = Signal(dict)
     ADDON_OBJECT = {}  # 导入的插件的对象
     ADDON_MAINPAGE = {}
 

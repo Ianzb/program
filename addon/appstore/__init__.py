@@ -108,8 +108,8 @@ class AddonPage(BasicTab):
     """
     插件主页面
     """
-    signalList = pyqtSignal(list)
-    signalBool = pyqtSignal(bool)
+    signalList = Signal(list)
+    signalBool = Signal(bool)
 
     def __init__(self, parent=None):
         super().__init__(parent)

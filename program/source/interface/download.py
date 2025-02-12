@@ -4,8 +4,8 @@ from .widget import *
 
 
 class DownloadInfoCard(SettingCard):
-    downloadSignal = pyqtSignal(bool)
-    setProgressSignal = pyqtSignal(int)
+    downloadSignal = Signal(bool)
+    setProgressSignal = Signal(int)
 
     def __init__(self, url: str, path: str, parent=None, replace: bool = False):
         """
@@ -73,7 +73,7 @@ class DownloadInfoCard(SettingCard):
         self.d = f.downloadManager.download(self.url, self.path, False, self.replace, f.REQUEST_HEADER)
         while True:
             if not self.d.isFinished():
-                self.setProgressSignal.emit(self.d.rate)
+                self.setProgressSignal.emit(self.d.progress())
             else:
                 self.progressLabel.setText("下载完成")
                 self.downloadSignal.emit(True)
@@ -82,6 +82,11 @@ class DownloadInfoCard(SettingCard):
                     case "cancel":
                         self.setProgressSignal.emit(0)
                         self.progressLabel.setText("已取消")
+                        self.downloadSignal.emit(False)
+                        break
+                    case "skip":
+                        self.setProgressSignal.emit(0)
+                        self.progressLabel.setText("已跳过")
                         self.downloadSignal.emit(False)
                         break
                     case "fail":

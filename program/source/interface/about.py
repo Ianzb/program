@@ -5,8 +5,8 @@ class UpdateSettingCard(SettingCard):
     """
     更新设置卡片
     """
-    signalBool = pyqtSignal(bool)
-    signalStr = pyqtSignal(str)
+    signalBool = Signal(bool)
+    signalStr = Signal(str)
 
     def __init__(self, parent=None):
         super().__init__(FIF.UPDATE, "更新", "更新程序至新版本", parent)
@@ -81,7 +81,7 @@ class HelpSettingCard(SettingCard):
     """
     帮助设置卡片
     """
-    signalBool = pyqtSignal(bool)
+    signalBool = Signal(bool)
 
     def __init__(self, parent=None):
         super().__init__(FIF.HELP, "帮助", "查看程序相关信息", parent)

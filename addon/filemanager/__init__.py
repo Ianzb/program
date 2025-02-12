@@ -204,10 +204,10 @@ class SortFunctions:
         @return: 整理文件路径黑名单列表
         """
         data = list(setting.read("sortPathBlacklist"))
-        if f.isSamePath(setting.read("sortGoalPath"), f.DESKTOP_PATH):
-            data += [f.joinPath(f.DESKTOP_PATH, i) for i in list(setting.read("sortFormat").keys()) + ["文件夹"]]
-        elif self.belongDir(setting.read("sortGoalPath"), f.DESKTOP_PATH):
-            for i in f.walkDir(f.DESKTOP_PATH, 1):
+        if f.isSamePath(setting.read("sortGoalPath"), f.DESKTOP_PATH()):
+            data += [f.joinPath(f.DESKTOP_PATH(), i) for i in list(setting.read("sortFormat").keys()) + ["文件夹"]]
+        elif self.belongDir(setting.read("sortGoalPath"), f.DESKTOP_PATH()):
+            for i in f.walkDir(f.DESKTOP_PATH(), 1):
                 if self.belongDir(setting.read("sortGoalPath"), i):
                     data.append(i)
         return list(set(data))
@@ -620,9 +620,9 @@ class AddonPage(BasicTab):
     """
     插件主页面
     """
-    restartExplorerSignal = pyqtSignal(bool)
-    sortFileSignal = pyqtSignal(bool)
-    signalBool = pyqtSignal(bool)
+    restartExplorerSignal = Signal(bool)
+    sortFileSignal = Signal(bool)
+    signalBool = Signal(bool)
 
     def __init__(self, parent=None):
         super().__init__(parent)

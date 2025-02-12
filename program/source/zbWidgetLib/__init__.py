@@ -8,36 +8,6 @@ def setToolTip(widget: QWidget, text: str):
     widget.installEventFilter(ToolTipFilter(widget, 1000))
 
 
-class FadeInAnimation:
-    def __init__(self, widget: QWidget):
-        self.widget = widget
-        self.duration = 500
-
-        self.pos_animation = QPropertyAnimation(self.widget, b"pos")
-        self.pos_animation.setDuration(self.duration)
-
-        self.widget.show()
-        self._originalPos = self.widget.pos()
-        self.widget.showEvent = self.show
-        self.widget.moveEvent = self.move
-
-    def move(self, msg=None):
-        if not self.pos_animation.state() == QParallelAnimationGroup.Running:
-            self._originalPos = self.widget.pos()
-
-    def show(self, msg=None):
-
-        self.pos_animation.setStartValue(QPoint(self._originalPos.x(), self._originalPos.y() + 25))
-        self.pos_animation.setEndValue(self._originalPos)
-        self.pos_animation.setEasingCurve(QEasingCurve.OutCubic)
-
-        if self.pos_animation.state() == QParallelAnimationGroup.Running:
-            self.pos_animation.stop()
-            self.widget.setWindowOpacity(1.0)
-            self.widget.move(self._originalPos)
-        self.pos_animation.start()
-
-
 class StatisticsWidget(QWidget):
     """
     两行信息组件
@@ -65,7 +35,7 @@ class Image(QLabel):
     """
     图片组件（可实时下载）
     """
-    downloadFinishedSignal = pyqtSignal(bool)
+    downloadFinishedSignal = Signal(bool)
 
     @functools.singledispatchmethod
     def __init__(self, parent=None, fixed_size=True):
@@ -112,7 +82,7 @@ class Image(QLabel):
         if f.existPath(self.path):
             self.downloadFinishedSignal.emit(True)
             return
-        msg = f.singleDownload(self.url, self.path, False, True, Info().REQUEST_HEADER)
+        msg = f.singleDownload(self.url, self.path, False, True, f.REQUEST_HEADER)
         self.downloadFinishedSignal.emit(bool(msg))
 
 
@@ -247,7 +217,7 @@ class GrayCard(QWidget):
     灰色背景组件卡片
     """
 
-    def __init__(self, title: str = None, parent=None, alignment=Qt.AlignLeft, animation: bool = True):
+    def __init__(self, title: str = None, parent=None, alignment=Qt.AlignLeft):
         """
         @param title: 标题
         """
@@ -278,9 +248,6 @@ class GrayCard(QWidget):
 
         self.setTheme()
         qconfig.themeChanged.connect(self.setTheme)
-
-        if animation:
-            self.animation = FadeInAnimation(self)
 
     def setTheme(self):
         if isDarkTheme():
@@ -315,7 +282,7 @@ class BigInfoCard(CardWidget):
     详细信息卡片（资源主页展示）
     """
 
-    def __init__(self, parent=None, url: bool = True, tag: bool = True, data: bool = True, animation: bool = True):
+    def __init__(self, parent=None, url: bool = True, tag: bool = True, data: bool = True):
         """
         @param url: 是否展示链接
         @param tag: 是否展示标签
@@ -392,9 +359,6 @@ class BigInfoCard(CardWidget):
         self.setTheme()
         qconfig.themeChanged.connect(self.setTheme)
 
-        if animation:
-            self.animation = FadeInAnimation(self)
-
     def setTheme(self):
         if isDarkTheme():
             self.setStyleSheet("QLabel {background-color: transparent; color: white}")
@@ -470,7 +434,7 @@ class SmallInfoCard(CardWidget):
     普通信息卡片（搜索列表展示）
     """
 
-    def __init__(self, parent=None, animation: bool = True):
+    def __init__(self, parent=None):
         super().__init__(parent)
         self.setMinimumWidth(100)
         self.setFixedHeight(73)
@@ -518,9 +482,6 @@ class SmallInfoCard(CardWidget):
         self.setTheme()
         qconfig.themeChanged.connect(self.setTheme)
 
-        if animation:
-            self.animation = FadeInAnimation(self)
-
     def setTheme(self):
         if isDarkTheme():
             self.setStyleSheet("QLabel {background-color: transparent; color: white}")
@@ -561,7 +522,7 @@ class CardGroup(QWidget):
     """
 
     @functools.singledispatchmethod
-    def __init__(self, parent=None, animation: bool = True):
+    def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.setMinimumSize(0, 0)
 
@@ -582,12 +543,9 @@ class CardGroup(QWidget):
         FluentStyleSheet.SETTING_CARD_GROUP.apply(self)
         self.titleLabel.adjustSize()
 
-        if animation:
-            self.animation = FadeInAnimation(self)
-
     @__init__.register
-    def _(self, title: str = None, parent=None, animation: bool = True):
-        self.__init__(parent, animation)
+    def _(self, title: str = None, parent=None):
+        self.__init__(parent)
         if title:
             self.titleLabel.setText(title)
 
@@ -599,6 +557,7 @@ class CardGroup(QWidget):
         card.setParent(self)
         card.show()
         self.cardLayout.addWidget(card)
+        self.cardLayout.update()
 
     def setTitle(self, text: str):
         """
@@ -619,5 +578,3 @@ class CardGroup(QWidget):
         自定义清空组件函数
         """
         self.cardLayout.clearWidget()
-
-

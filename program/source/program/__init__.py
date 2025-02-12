@@ -4,9 +4,6 @@ from .program import *
 from .setting import *
 import logging
 
-QApplication.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
-QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
-QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
 app = QApplication(sys.argv)
 translator = FluentTranslator()
 app.installTranslator(translator)

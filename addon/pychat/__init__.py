@@ -213,9 +213,9 @@ class PyChatApi:
 
 
 class LoginPage(BasicTab):
-    loginSignal = pyqtSignal(dict)
-    successSignal = pyqtSignal()
-    errorSignal = pyqtSignal()
+    loginSignal = Signal(dict)
+    successSignal = Signal()
+    errorSignal = Signal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -388,8 +388,8 @@ class AddonPage(ChangeableTab):
     """
     插件主页面
     """
-    signalList = pyqtSignal(list)
-    signalBool = pyqtSignal(bool)
+    signalList = Signal(list)
+    signalBool = Signal(bool)
 
     def __init__(self, parent=None):
         super().__init__(parent)
