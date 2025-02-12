@@ -1,3 +1,5 @@
+import subprocess
+
 from ..zbWidgetLib import *
 import os, sys, logging
 from concurrent.futures import ThreadPoolExecutor
@@ -101,7 +103,7 @@ class Program:
         """
         重启程序
         """
-        os.popen(self.MAIN_FILE_PATH)
+        subprocess.Popen(self.MAIN_FILE_PATH)
         logging.info("程序正在重启中！")
         os._exit(0)
 
