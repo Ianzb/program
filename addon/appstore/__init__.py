@@ -1,3 +1,5 @@
+import logging
+
 from source.addon import *
 
 try:
@@ -8,9 +10,8 @@ addonBase = AddonBase()
 
 
 def addonInit():
-    global program, log, setting, window
+    global program, setting, window
     program = addonBase.program
-    log = addonBase.log
     setting = addonBase.setting
     window = addonBase.window
 
@@ -36,7 +37,7 @@ def searchSoftware(name: str, source: str) -> list:
     @param name: 名称
     @return: 列表
     """
-    log.info(f"正在{source}应用商店搜索应用{name}！")
+    logging.info(f"正在{source}应用商店搜索应用{name}！")
     try:
         list = []
         if source == "腾讯":
@@ -73,7 +74,7 @@ def searchSoftware(name: str, source: str) -> list:
                              })
         return list
     except Exception as ex:
-        log.error(f"在{source}应用商店搜索应用{name}失败，报错信息{ex}！")
+        logging.error(f"在{source}应用商店搜索应用{name}失败，报错信息{ex}！")
 
 
 class AppInfoCard(SmallInfoCard):

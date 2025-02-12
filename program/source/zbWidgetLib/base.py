@@ -1,4 +1,3 @@
-from zbToolLib import *
 import functools
 from PyQt5 import *
 from PyQt5.Qt import *
@@ -13,4 +12,4 @@ from qfluentwidgets import *
 from qfluentwidgets.components.material import *
 from qfluentwidgets import FluentIcon as FIF
 
-f = ZbToolLib()
+import zbToolLib as f

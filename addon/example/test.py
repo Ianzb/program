@@ -10,9 +10,8 @@ addonBase = AddonBase()
 
 
 def addonInit():
-    global program, log, setting, window
+    global program, setting, window
     program = addonBase.program
-    log = addonBase.log
     setting = addonBase.setting
     window = addonBase.window
 

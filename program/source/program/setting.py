@@ -41,7 +41,7 @@ class SettingFunctions(QObject):
         except Exception as ex:
             self.last_setting = deepcopy(self.DEFAULT_SETTING)
             self.errorState = True
-            log.error(f"设置文件数据错误，已自动恢复至默认选项，错误信息：{ex}！")
+            logging.error(f"设置文件数据错误，已自动恢复至默认选项，错误信息：{ex}！")
 
     def save(self, name: str, data):
         """
@@ -49,7 +49,7 @@ class SettingFunctions(QObject):
         @param name: 选项名称
         @param data: 选项数据
         """
-        log.debug(f"保存设置{name}：{data}")
+        logging.debug(f"保存设置{name}：{data}")
         self.last_setting[name] = data
         self.__save()
 
@@ -67,13 +67,13 @@ class SettingFunctions(QObject):
             self.save(name, self.DEFAULT_SETTING[name])
             self.changeEvent(name)
         else:
-            log.info("开始重置程序设置！")
+            logging.info("开始重置程序设置！")
             l = self.__compare(self.DEFAULT_SETTING, self.last_setting)
             self.last_setting = deepcopy(self.DEFAULT_SETTING)
             self.__save()
             for i in l:
                 self.changeEvent(i)
-            log.info("程序设置重置完成！")
+            logging.info("程序设置重置完成！")
 
     def add(self, name: str, data):
         """
@@ -98,7 +98,7 @@ class SettingFunctions(QObject):
         修改设置项事件
         @param name: 名称
         """
-        log.info(f"设置项{name}发生更改，已同步！")
+        logging.info(f"设置项{name}发生更改，已同步！")
         self.changeSignal.emit(name)
 
     def signalConnect(self, func):
@@ -127,7 +127,7 @@ class SettingFunctions(QObject):
                     for i in l:
                         self.changeEvent(i)
             except Exception as ex:
-                log.error(f"设置文件数据数据错误，错误信息：{ex}！")
+                logging.error(f"设置文件数据数据错误，错误信息：{ex}！")
 
     def __compare(self, old: dict, new: dict):
         keys = []

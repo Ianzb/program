@@ -1,3 +1,6 @@
+import filecmp
+import logging
+
 from source.addon import *
 
 try:
@@ -8,9 +11,8 @@ addonBase = AddonBase()
 
 
 def addonInit():
-    global program, log, setting, window, sf
+    global program, setting, window, sf
     program = addonBase.program
-    log = addonBase.log
     setting = addonBase.setting
     window = addonBase.window
     setting.adds({"sortGoalPath": "",
@@ -93,9 +95,9 @@ class SortFunctions:
             self.clearEmptyFile(path)
             self.clearEmptyDir(path)
             self.clearRepeatFile(path)
-            log.debug(f"成功清理{path}文件夹")
+            logging.debug(f"成功清理{path}文件夹")
         except Exception as ex:
-            log.warning(f"无法清理{path}文件夹，报错信息：{ex}！")
+            logging.warning(f"无法清理{path}文件夹，报错信息：{ex}！")
 
     def belongDir(self, path: str, parent: str) -> bool:
         """
@@ -140,9 +142,9 @@ class SortFunctions:
                         if f.splitPath(i, 0) in blacklist[0] or i in blacklist[1]:
                             continue
                         f.movePath(i, f.joinPath(new, "文件夹"))
-            log.debug(f"成功整理{old}文件夹！")
+            logging.debug(f"成功整理{old}文件夹！")
         except Exception as ex:
-            log.warning(f"无法整理{old}文件夹，报错信息：{ex}！")
+            logging.warning(f"无法整理{old}文件夹，报错信息：{ex}！")
 
     def sortWechatFiles(self):
         """
@@ -164,9 +166,9 @@ class SortFunctions:
                 self.sortDir(i, setting.read("sortGoalPath"))
             for i in list1:
                 self.sortDir(i, setting.read("sortGoalPath"), 1)
-            log.debug("成功整理微信文件！")
+            logging.debug("成功整理微信文件！")
         except Exception as ex:
-            log.warning(f"无法整理微信文件，报错信息：{ex}！")
+            logging.warning(f"无法整理微信文件，报错信息：{ex}！")
 
     def clearSystemCache(self):
         """
@@ -184,9 +186,9 @@ class SortFunctions:
         try:
             from winshell import recycle_bin
             recycle_bin().empty(confirm=False, show_progress=False, sound=False)
-            log.debug("成功清空回收站！")
+            logging.debug("成功清空回收站！")
         except Exception as ex:
-            log.warning(f"无法清空回收站，报错信息：{ex}！")
+            logging.warning(f"无法清空回收站，报错信息：{ex}！")
 
     def getSortNameBlacklist(self):
         """
@@ -714,10 +716,10 @@ class AddonPage(BasicTab):
                     sf.clearFile(f.joinPath(setting.read("sortGoalPath"), i))
                 sf.clearFile(setting.read("sortGoalPath"))
             self.sortFileSignal.emit(True)
-            log.debug("一键整理成功")
+            logging.debug("一键整理成功")
         except Exception as ex:
             self.sortFileSignal.emit(False)
-            log.warning(f"一键整理失败，报错信息：{ex}！")
+            logging.warning(f"一键整理失败，报错信息：{ex}！")
 
     def threadEvent1(self, msg):
         self.button1_1.setEnabled(True)

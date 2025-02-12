@@ -1,5 +1,8 @@
+from logging.config import dictConfig
+
 from .program import *
 from .setting import *
+import logging
 
 QApplication.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
 QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
@@ -15,14 +18,38 @@ ssl._create_default_https_context = ssl._create_unverified_context()
 # 日志设置
 open(program.LOGGING_FILE_PATH, "w").close() if not f.existPath(program.LOGGING_FILE_PATH) or f.fileSize(program.LOGGING_FILE_PATH) >= 1024 * 128 else None
 
-handler2 = logging.FileHandler(program.LOGGING_FILE_PATH, encoding="utf-8")
-handler2.setLevel(logging.DEBUG)
-handler2.setFormatter(logging.Formatter("[%(levelname)s %(asctime)s %(filename)s %(process)s]:%(message)s"))
+dictConfig({
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "default": {
+            "format": "[%(levelname)s %(asctime)s %(filename)s %(process)s]:%(message)s"
+        }
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "level": "INFO",
+            "formatter": "default",
+        },
+        "log_file": {
+            "class": "logging.FileHandler",
+            "level": "INFO",
+            "formatter": "default",
+            "filename": program.LOGGING_FILE_PATH,
+            "encoding": "utf-8",
+        },
 
-log.addHandler(handler2)
+    },
+    "root": {
+        "level": "DEBUG",
+        "handlers": ["console", "log_file"],
+    },
+}
+)
 
-log.info(f"程序启动参数{program.STARTUP_ARGUMENT}!")
+logging.info(f"程序启动参数{program.STARTUP_ARGUMENT}!")
 
 program.detectRepeatRun()
 
-log.info("程序动态数据api初始化成功！")
+logging.info("程序动态数据api初始化成功！")

@@ -58,7 +58,7 @@ class DownloadInfoCard(SettingCard):
         self.setProgressSignal.connect(self.setProgress)
 
     def closeDownload(self):
-        self.d.stop()
+        self.d.cancel()
         self.setProgressSignal.disconnect(self.setProgress)
         self.window().downloadPage.cardGroup.cardLayout.removeWidget(self)
         self.downloadSignal.emit(False)
@@ -67,40 +67,35 @@ class DownloadInfoCard(SettingCard):
     def deleteDownload(self):
         path = self.d.resultPath
         f.deleteFile(path, True)
-        log.info(f"已删除下载的{path}文件！")
+        logging.info(f"已删除下载的{path}文件！")
 
     def startDownload(self):
-        self.d = MultiDownload(self.url, self.path, False, self.replace, ".downloading", f.REQUEST_HEADER)
+        self.d = f.downloadManager.download(self.url, self.path, False, self.replace, f.REQUEST_HEADER)
         while True:
-            match self.d.result:
-                case "downloading":
-
-                    if self.d.rate == 100:
-                        self.progressBar.setValue(100)
+            if not self.d.isFinished():
+                self.setProgressSignal.emit(self.d.rate)
+            else:
+                self.progressLabel.setText("下载完成")
+                self.downloadSignal.emit(True)
+                self.folderButton.show()
+                match self.d.result():
+                    case "cancel":
+                        self.setProgressSignal.emit(0)
+                        self.progressLabel.setText("已取消")
+                        self.downloadSignal.emit(False)
+                        break
+                    case "fail":
+                        self.setProgressSignal.emit(0)
+                        self.progressLabel.setText("下载失败")
+                        self.downloadSignal.emit(False)
+                        break
+                    case "success":
+                        self.setProgressSignal.emit(100)
                         self.progressLabel.setText("下载完成")
                         self.downloadSignal.emit(True)
                         self.folderButton.show()
+                        self.deleteButton.show()
                         break
-                    else:
-                        self.setProgressSignal.emit(self.d.rate)
-
-                case "skipped":
-                    self.setProgressSignal.emit(0)
-                    self.progressLabel.setText("已取消")
-                    self.downloadSignal.emit(False)
-                    break
-                case "failed":
-                    self.setProgressSignal.emit(0)
-                    self.progressLabel.setText("下载失败")
-                    self.downloadSignal.emit(False)
-                    break
-                case "finished":
-                    self.setProgressSignal.emit(100)
-                    self.progressLabel.setText("下载完成")
-                    self.downloadSignal.emit(True)
-                    self.folderButton.show()
-                    self.deleteButton.show()
-                    break
             time.sleep(0.25)
 
     def setProgress(self, percent: int):

@@ -1,3 +1,4 @@
+import bs4
 from source.addon import *
 
 try:

@@ -3,7 +3,7 @@
   "name": "应用商店",
   "author": "Ianzb",
   "description": "一款简易的应用商店插件，支持360和腾讯应用中心的应用。",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "icon": "appstore.png",
   "file": "https://vip.123pan.cn/1813801926/code/addon/appstore/appstore.zip",
   "history": {
@@ -14,6 +14,10 @@
     "1.5.0": {
       "time": "2024年11月2日",
       "log": "基本适配zb小程序5.0.0版本，但有搜索时内存泄露的问题。"
+    },
+    "1.5.1": {
+      "time": "2025年2月12日",
+      "log": "适配最新版本。"
     }
   }
 }

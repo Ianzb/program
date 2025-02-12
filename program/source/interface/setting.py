@@ -427,5 +427,5 @@ class SettingPage(BasicPage):
         self.vBoxLayout.addWidget(self.cardGroup2, 0, Qt.AlignTop)
         self.vBoxLayout.addWidget(self.cardGroup3, 0, Qt.AlignTop)
 
-        if not (f.WINDOWS_VERSION[0] >= 10 and f.WINDOWS_VERSION[2] >= 22000):
+        if not (f.SYSTEM_VERSION[0] >= 10 and f.SYSTEM_VERSION[2] >= 22000):
             self.micaEffectSettingCard.hide()

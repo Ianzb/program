@@ -149,7 +149,7 @@ class Window(FluentWindow):
                 self.infoBar.show()
             else:
                 lib = importlib.import_module(data["id"])
-                lib.addonBase.set(program, log, setting, self)
+                lib.addonBase.set(program, setting, self)
                 lib.addonInit()
                 widget = lib.addonWidget()
                 widget.setObjectName(data["name"])
@@ -160,12 +160,12 @@ class Window(FluentWindow):
 
                 self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{data["name"]}安装成功！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.mainPage)
                 self.infoBar.show()
-            log.info(f"插件{data["name"]}安装成功")
+            logging.info(f"插件{data["name"]}安装成功")
         except Exception as ex:
             self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", f"插件{data["name"]}安装失败！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.mainPage)
             self.infoBar.show()
 
-            log.warning(f"插件{data["name"]}安装失败{ex}")
+            logging.warning(f"插件{data["name"]}安装失败{ex}")
 
     def removeAddon(self, data: dict):
         """
@@ -180,12 +180,12 @@ class Window(FluentWindow):
             del self.ADDON_MAINPAGE[data["id"]]
         f.deleteDir(f.joinPath(program.ADDON_PATH, data["id"]), force=True)
         if not f.existPath(f.joinPath(program.ADDON_PATH, data["id"])):
-            log.info(f"插件{data["name"]}删除成功")
+            logging.info(f"插件{data["name"]}删除成功")
 
             self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{data["name"]}删除成功！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.mainPage)
             self.infoBar.show()
         else:
-            log.info(f"插件{data["name"]}删除失败")
+            logging.info(f"插件{data["name"]}删除失败")
 
             self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", f"插件{data["name"]}删除失败！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.mainPage)
             self.infoBar.show()
@@ -199,4 +199,4 @@ class Window(FluentWindow):
             self.show()
 
 
-log.debug("程序主窗口类初始化成功！")
+logging.debug("程序主窗口类初始化成功！")
