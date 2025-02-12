@@ -84,7 +84,7 @@ class SortFunctions:
                 for j in range(len(names[:i])):
                     if not f.existPath(names[i]) or not f.existPath(names[j]): continue
                     if filecmp.cmp(names[i], names[j], False):
-                        f.deletePath(names[j], setting.read("deleteToTrash"))
+                        f.deletePath(sorted([names[i], names[j]])[0], setting.read("deleteToTrash"))
 
     def clearFile(self, path: str):
         """
