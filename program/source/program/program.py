@@ -1,6 +1,6 @@
 import subprocess
 
-from ..zbWidgetLib import *
+from zbWidgetLib import *
 import os, sys, logging
 from concurrent.futures import ThreadPoolExecutor
 
@@ -10,7 +10,7 @@ class Program:
     程序信息
     """
     NAME = "zb小程序"  # 程序名称
-    VERSION = "5.2.0"  # 程序版本
+    VERSION = "5.2.1"  # 程序版本
     TITLE = f"{NAME} {VERSION}"  # 程序标题
     URL = "https://ianzb.github.io/project/program.html"  # 程序网址
     LICENSE = "GPLv3"  # 程序许可协议

@@ -17,33 +17,10 @@ class Window(FluentWindow):
 
     def __init__(self):
         super().__init__()
-        self.__initWindow()
-        self.__initWidget()
-        self.__initActivity()
 
-    def __initWindow(self):
-        """
-        窗口初始化
-        """
-        # 外观调整
-        self.navigationInterface.setAcrylicEnabled(True)
-        # 窗口属性
-        self.resize(900, 700)
-        self.setMinimumSize(700, 500)
-        self.setWindowIcon(QIcon(program.ICON))
-        self.setWindowTitle(program.TITLE)
-        self.navigationInterface.setReturnButtonVisible(False)
-        # 窗口居中
-        desktop = QApplication.screens()[0].size()
-        w, h = desktop.width(), desktop.height()
-        self.move(w // 2 - self.width() // 2, h // 2 - self.height() // 2)
         # 托盘组件
         self.tray = Tray(self)
 
-    def __initWidget(self):
-        """
-        组件初始化
-        """
         self.mainPage = MainPage(self)
         self.downloadPage = DownloadPage(self)
         self.settingPage = SettingPage(self)
@@ -56,7 +33,6 @@ class Window(FluentWindow):
         self.addPage(self.settingPage, "bottom")
         self.addPage(self.aboutPage, "bottom")
 
-    def __initActivity(self):
         # 循环监测事件
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.timerEvent)
@@ -70,6 +46,20 @@ class Window(FluentWindow):
         self.addAddonEvent.connect(self.addAddon)
         self.removeAddonEvent.connect(self.removeAddon)
         self.downloadAddonFailedSignal.connect(self.__downloadAddonFailed)
+
+        # 外观调整
+        self.navigationInterface.setAcrylicEnabled(True)
+        # 窗口属性
+        self.setMinimumSize(700, 500)
+        self.setWindowIcon(QIcon(program.ICON))
+        self.setWindowTitle(program.TITLE)
+        self.navigationInterface.setReturnButtonVisible(False)
+        self.show()
+        self.resize(900, 700)
+        # 窗口居中
+        desktop = QApplication.screens()[0].size()
+        w, h = desktop.width(), desktop.height()
+        self.move(w // 2 - self.width() // 2, h // 2 - self.height() // 2)
 
         # 插件安装
         data = program.getInstalledAddonInfo()

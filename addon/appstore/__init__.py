@@ -147,6 +147,9 @@ class AddonPage(BasicTab):
         self.cardGroup = CardGroup(self.view)
         self.vBoxLayout.addWidget(self.cardGroup)
 
+        self.signalList.connect(self.thread1)
+        self.signalBool.connect(self.thread2)
+
     def lineEditChanged(self, text):
         self.lineEdit.searchButton.setEnabled(bool(text))
 
@@ -155,7 +158,7 @@ class AddonPage(BasicTab):
 
     def searchButtonClicked(self):
         if self.lineEdit.text():
-            self.cardGroup.clearWidget()
+            self.cardGroup.clearCard()
 
             self.cardGroup.setTitleEnabled(False)
             self.lineEdit.setEnabled(False)
@@ -164,8 +167,7 @@ class AddonPage(BasicTab):
             self.loadingCard.setText("搜索中...")
             self.loadingCard.show()
 
-            self.signalList.connect(self.thread1)
-            self.signalBool.connect(self.thread2)
+
             program.THREAD_POOL.submit(self.__search)
 
     def __search(self):
@@ -178,9 +180,8 @@ class AddonPage(BasicTab):
     def thread1(self, msg):
         self.loadingCard.hide()
         for i in msg:
-            self.infoCard = AppInfoCard(i, self.comboBox.currentText(), self)
-            self.vBoxLayout.addWidget(self.infoCard, 0, Qt.AlignTop)
-            self.cardGroup.addWidget(self.infoCard)
+            infoCard = AppInfoCard(i, self.comboBox.currentText(), self)
+            self.cardGroup.addCard(infoCard, i["下载链接"])
         if msg:
             self.cardGroup.setTitle(f"搜索结果（{len(msg)}个）")
         else:

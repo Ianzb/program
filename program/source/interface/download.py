@@ -60,7 +60,7 @@ class DownloadInfoCard(SettingCard):
     def closeDownload(self):
         self.d.cancel()
         self.setProgressSignal.disconnect(self.setProgress)
-        self.window().downloadPage.cardGroup.cardLayout.removeWidget(self)
+        self.window().downloadPage.cardGroup.removeCard(self.url)
         self.downloadSignal.emit(False)
         self.deleteLater()
 
@@ -153,5 +153,5 @@ class DownloadPage(BasicPage):
         @return: 下载状态事件
         """
         d = DownloadInfoCard(url, path, self, replace)
-        self.cardGroup.addWidget(d)
+        self.cardGroup.addCard(d, url)
         return d.downloadSignal

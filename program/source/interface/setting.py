@@ -413,15 +413,15 @@ class SettingPage(BasicPage):
 
         self.downloadSettingCard = DownloadSettingCard(self)
 
-        self.cardGroup1.addWidget(self.themeSettingCard)
-        self.cardGroup1.addWidget(self.colorSettingCard)
-        self.cardGroup1.addWidget(self.micaEffectSettingCard)
+        self.cardGroup1.addCard(self.themeSettingCard, "themeSettingCard")
+        self.cardGroup1.addCard(self.colorSettingCard, "colorSettingCard")
+        self.cardGroup1.addCard(self.micaEffectSettingCard, "micaEffectSettingCard")
 
-        self.cardGroup2.addWidget(self.startupSettingCard)
-        self.cardGroup2.addWidget(self.traySettingCard)
-        self.cardGroup2.addWidget(self.hideSettingCard)
+        self.cardGroup2.addCard(self.startupSettingCard, "startupSettingCard")
+        self.cardGroup2.addCard(self.traySettingCard, "traySettingCard")
+        self.cardGroup2.addCard(self.hideSettingCard, "hideSettingCard")
 
-        self.cardGroup3.addWidget(self.downloadSettingCard)
+        self.cardGroup3.addCard(self.downloadSettingCard, "downloadSettingCard")
 
         self.vBoxLayout.addWidget(self.cardGroup1, 0, Qt.AlignTop)
         self.vBoxLayout.addWidget(self.cardGroup2, 0, Qt.AlignTop)

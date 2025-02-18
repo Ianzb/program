@@ -654,9 +654,9 @@ class AddonPage(BasicTab):
         self.featuresSettingCard = FeaturesSettingCard(self)
 
         self.cardGroup1 = CardGroup("设置", self)
-        self.cardGroup1.addWidget(self.sortPathSettingCard)
-        self.cardGroup1.addWidget(self.sortSettingCard)
-        self.cardGroup1.addWidget(self.featuresSettingCard)
+        self.cardGroup1.addCard(self.sortPathSettingCard, "sortPathSettingCard")
+        self.cardGroup1.addCard(self.sortSettingCard, "sortSettingCard")
+        self.cardGroup1.addCard(self.featuresSettingCard, "featuresSettingCard")
 
         self.vBoxLayout.addWidget(self.card1, 0, Qt.AlignTop)
         self.vBoxLayout.addWidget(self.card2, 0, Qt.AlignTop)

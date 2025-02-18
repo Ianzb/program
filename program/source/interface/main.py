@@ -167,7 +167,6 @@ class MainPage(BasicTab):
         self.setIcon(FIF.HOME)
 
         self.addon_list = {}
-        self.cardIdDict = {}
         self.onlineCount = 0
 
         self.image = ImageLabel(program.source("title.png"))
@@ -205,10 +204,10 @@ class MainPage(BasicTab):
             program.THREAD_POOL.submit(self.getOnlineAddonInfo, v)
         while self.onlineCount < len(self.addon_list.keys()):
             time.sleep(0.5)
-        for i in self.cardIdDict.keys():
+        for i in self.cardGroup1.cardMap.keys():
             if i not in self.addon_list.keys():
-                self.cardIdDict[i].mainButton.setText("无数据")
-                self.cardIdDict[i].setInfo("无在线数据", 2)
+                self.cardGroup1.cardMap[i].mainButton.setText("无数据")
+                self.cardGroup1.cardMap[i].setInfo("无在线数据", 2)
         self.reloadButton.setEnabled(True)
 
     def getOnlineAddonInfo(self, info: str):
@@ -220,41 +219,38 @@ class MainPage(BasicTab):
         self.onlineCount += 1
 
     def addCardOffline(self, info):
-        if info["id"] not in self.cardIdDict.keys():
-
+        if info.get("id") not in self.cardGroup1.cardMap.keys():
             try:
                 card = AddonInfoCard(self)
                 card.setInstalledData(info)
-                self.cardIdDict[info["id"]] = card
-                self.cardGroup1.addWidget(card)
+                self.cardGroup1.addCard(card, info["id"])
                 card.show()
             except Exception as ex:
                 logging.error(f"程序发生异常，插件{info["name"]}的卡片组件无法加载，报错信息：{ex}！")
         else:
             try:
-                self.cardIdDict[info["id"]].setInstalledData(info)
+                self.cardGroup1.findCard(info["id"]).setInstalledData(info)
             except RuntimeError:
                 logging.warning(f"组件{info["id"]}已被删除，无法设置数据了！")
 
     def addCardOnline(self, info):
-        if info["id"] not in self.cardIdDict.keys():
+        if info.get("id") not in self.cardGroup1.cardMap.keys():
             try:
                 card = AddonInfoCard(self)
                 card.setOnlineData(info)
-                self.cardIdDict[info["id"]] = card
-                self.cardGroup1.addWidget(card)
+                self.cardGroup1.addCard(card, info["id"])
                 card.show()
             except Exception as ex:
                 logging.error(f"程序发生异常，插件{info["name"]}的卡片组件无法加载，报错信息：{ex}！")
         else:
             try:
-                self.cardIdDict[info["id"]].setOnlineData(info)
+                self.cardGroup1.findCard(info["id"]).setOnlineData(info)
             except RuntimeError:
                 logging.warning(f"组件{info["id"]}已被删除，无法设置数据了！")
         self.onlineCount += 1
 
     def reload(self):
         self.reloadButton.setEnabled(False)
-        self.cardGroup1.cardLayout.clearWidget()
-        self.cardIdDict = {}
+        self.cardGroup1.clearCard()
+        self.cardGroup1.cardMap = {}
         program.THREAD_POOL.submit(self.getInstalledAddonList)

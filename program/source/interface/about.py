@@ -202,15 +202,15 @@ class AboutPage(BasicPage):
 
         self.cardGroup1 = CardGroup("关于", self)
 
-        self.updateSettingCard = UpdateSettingCard(self)
-        self.helpSettingCard = HelpSettingCard(self)
-        self.controlSettingCard = ControlSettingCard(self)
-        self.aboutSettingCard = AboutSettingCard(self)
+        self.updateSettingCard = UpdateSettingCard()
+        self.helpSettingCard = HelpSettingCard()
+        self.controlSettingCard = ControlSettingCard()
+        self.aboutSettingCard = AboutSettingCard()
 
-        self.cardGroup1.addWidget(self.updateSettingCard)
-        self.cardGroup1.addWidget(self.helpSettingCard)
-        self.cardGroup1.addWidget(self.controlSettingCard)
-        self.cardGroup1.addWidget(self.aboutSettingCard)
+        self.cardGroup1.addCard(self.updateSettingCard, "updateSettingCard")
+        self.cardGroup1.addCard(self.helpSettingCard, "helpSettingCard")
+        self.cardGroup1.addCard(self.controlSettingCard, "controlSettingCard")
+        self.cardGroup1.addCard(self.aboutSettingCard, "aboutSettingCard")
 
         self.bigInfoCard = BigInfoCard(self, data=False)
         self.bigInfoCard.setImg(program.source("zb.png"))
