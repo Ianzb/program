@@ -51,8 +51,9 @@ class DownloadInfoCard(SmallInfoCard):
         self.closeButton.clicked.connect(self.closeDownload)
 
         self.vBoxLayout = QVBoxLayout()
-        self.vBoxLayout.addWidget(self.progressLabel, 0, Qt.AlignCenter)
-        self.vBoxLayout.addWidget(self.progressBar, 0, Qt.AlignCenter)
+        self.vBoxLayout.addWidget(self.progressLabel, 0, Qt.AlignCenter | Qt.AlignBottom)
+        self.vBoxLayout.addWidget(self.progressBar, 0, Qt.AlignCenter | Qt.AlignTop)
+        self.vBoxLayout.setSpacing(8)
 
         self.hBoxLayout.addLayout(self.vBoxLayout, 0)
         self.hBoxLayout.addWidget(self.folderButton, 0, Qt.AlignRight)
@@ -161,5 +162,5 @@ class DownloadPage(BasicPage):
         @return: 下载状态事件
         """
         d = DownloadInfoCard(url, path, self, replace)
-        self.cardGroup.addCard(d, url)
+        self.cardGroup.addCard(d, url + str(time.time()))
         return d.downloadSignal
