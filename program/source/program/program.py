@@ -14,9 +14,9 @@ class Program:
     TITLE = f"{NAME} {VERSION}"  # 程序标题
     URL = "https://ianzb.github.io/project/program.html"  # 程序网址
     LICENSE = "GPLv3"  # 程序许可协议
-    UPDATE_URL = "https://vip.123pan.cn/1813801926/Code/program/index.json"  # 更新网址
-    UPDATE_INSTALLER_URL = "https://vip.123pan.cn/1813801926/Code/program/zbProgram_setup.exe"  # 更新安装包链接
-    ADDON_URL = "https://vip.123pan.cn/1813801926/Code/addon/addon.json"  # 插件信息网址
+    UPDATE_URL = "http://123pan.ianzb.cn/Code/program/index.json"  # 更新网址
+    UPDATE_INSTALLER_URL = "http://123pan.ianzb.cn/Code/program/zbProgram_setup.exe"  # 更新安装包链接
+    ADDON_URL = "http://123pan.ianzb.cn/Code/addon/addon.json"  # 插件信息网址
     UNINSTALL_FILE = "unins000.exe"  # 卸载程序名称
 
     AUTHOR_NAME = "Ianzb"  # 作者名称
