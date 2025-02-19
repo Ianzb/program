@@ -19,7 +19,7 @@ class Tray(QSystemTrayIcon):
         self.action3 = Action(FIF.SYNC, "重启", triggered=program.restart)
         self.action4 = Action(FIF.CLOSE, "退出", triggered=program.close)
 
-        self.menu = AcrylicMenu()
+        self.menu = AcrylicMenu(self)
 
         self.menu.addAction(self.action1)
         self.menu.addAction(self.action2)

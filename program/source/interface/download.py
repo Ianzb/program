@@ -3,7 +3,7 @@ import time
 from .widget import *
 
 
-class DownloadInfoCard(SettingCard):
+class DownloadInfoCard(SmallInfoCard):
     downloadSignal = Signal(bool)
     setProgressSignal = Signal(int)
 
@@ -15,8 +15,15 @@ class DownloadInfoCard(SettingCard):
         @param parent: 父组件
         @param replace: 是否替换
         """
-        super().__init__(FIF.DOWNLOAD, f.splitPath(f.joinPath(path, f.getFileNameFromUrl(url)) if f.isDir(path) else path), f"文件链接：{url}\n目标位置：{f.joinPath(path, f.getFileNameFromUrl(url)) if f.isDir(path) else path}", parent)
-        self.contentLabel.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        super().__init__(parent)
+        self.setTitle(f.splitPath(f.joinPath(path, f.getFileNameFromUrl(url)) if f.isDir(path) else path))
+        self.setInfo(f"文件链接：{url}", 0)
+        self.setInfo(f"目标位置：{f.joinPath(path, f.getFileNameFromUrl(url)) if f.isDir(path) else path}", 1)
+        self.titleLabel.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        self.contentLabel1.setTextInteractionFlags(Qt.TextSelectableByMouse)
+
+        self.image.deleteLater()
+        self.mainButton.deleteLater()
 
         self.url = url
         self.path = path

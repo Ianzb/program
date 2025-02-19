@@ -153,6 +153,10 @@ class AddonInfoCard(SmallInfoCard):
             self.mainButton.setIcon(FIF.SEARCH)
             self.mainButton.setEnabled(False)
 
+    def deleteLater(self):
+        super().deleteLater()
+        self.messageBox.deleteLater()
+
 
 class MainPage(BasicTab):
     """
