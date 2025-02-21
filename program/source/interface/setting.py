@@ -8,21 +8,18 @@ class ThemeSettingCard(ExpandSettingCard):
     themeChanged = Signal(OptionsConfigItem)
 
     def __init__(self, parent=None):
-        super().__init__(FIF.BRUSH, "程序主题", "修改程序明暗主题", parent)
-        self.label = QLabel(self)
+        super().__init__(FIF.BRUSH, "模式", "更改显示的颜色", parent)
+        self.label = BodyLabel(self)
 
         self.addWidget(self.label)
 
         self.radioButton1 = RadioButton("浅色", self.view)
-        self.radioButton1.setToolTip("设置浅色模式")
         self.radioButton1.installEventFilter(ToolTipFilter(self.radioButton1, 1000))
 
         self.radioButton2 = RadioButton("深色", self.view)
-        self.radioButton2.setToolTip("设置深色模式")
         self.radioButton2.installEventFilter(ToolTipFilter(self.radioButton2, 1000))
 
         self.radioButton3 = RadioButton("跟随系统设置", self.view)
-        self.radioButton3.setToolTip("设置跟随系统模式")
         self.radioButton3.installEventFilter(ToolTipFilter(self.radioButton3, 1000))
 
         self.buttonGroup = QButtonGroup(self)
@@ -89,8 +86,8 @@ class ColorSettingCard(ExpandGroupSettingCard):
     colorChanged = Signal(QColor)
 
     def __init__(self, parent=None):
-        super().__init__(FIF.PALETTE, "主题色", "修改程序的主题色", parent=parent)
-        self.label1 = QLabel(self)
+        super().__init__(FIF.PALETTE, "主题色", "更改程序的主题色", parent=parent)
+        self.label1 = BodyLabel(self)
 
         self.addWidget(self.label1)
 
@@ -99,7 +96,7 @@ class ColorSettingCard(ExpandGroupSettingCard):
         self.customColorWidget = QWidget(self.view)
         self.customColorLayout = QHBoxLayout(self.customColorWidget)
 
-        self.label2 = QLabel("自定义颜色", self.customColorWidget)
+        self.label2 = BodyLabel("自定义颜色", self.customColorWidget)
 
         self.radioLayout = QVBoxLayout(self.radioWidget)
 
@@ -108,12 +105,10 @@ class ColorSettingCard(ExpandGroupSettingCard):
         self.radioLayout.setContentsMargins(48, 18, 0, 18)
         self.radioLayout.setSizeConstraint(QVBoxLayout.SizeConstraint.SetMinimumSize)
 
-        self.button1 = RadioButton("默认", self.radioWidget)
-        self.button1.setToolTip("设置默认颜色")
+        self.button1 = RadioButton("系统默认", self.radioWidget)
         self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
 
         self.button2 = RadioButton("自定义", self.radioWidget)
-        self.button2.setToolTip("设置自定义颜色")
         self.button2.installEventFilter(ToolTipFilter(self.button2, 1000))
 
         self.button3 = QPushButton("选择颜色", self.customColorWidget)
@@ -146,17 +141,27 @@ class ColorSettingCard(ExpandGroupSettingCard):
         self.set()
         setting.signalConnect(self.setEvent)
 
+    def getDefaultColor(self):
+        from qframelesswindow.utils import getSystemAccentColor
+        sysColor = getSystemAccentColor()
+        if sysColor.isValid():
+            return sysColor.name()
+        else:
+            return "#0078D4"
+
     def set(self):
         self.buttonGroup.buttonClicked.disconnect(self.buttonGroupClicked)
-        if setting.read("themeColor") == "#0078D4":
+        if setting.read("themeColor") == "default":
             self.button1.setChecked(True)
             self.button3.setEnabled(False)
+            self.color = QColor(self.getDefaultColor())
         else:
             self.button2.setChecked(True)
             self.button3.setEnabled(True)
+            self.color = QColor(setting.read("themeColor"))
+
         self.label1.setText(self.buttonGroup.checkedButton().text())
         self.label1.adjustSize()
-        self.color = QColor(setting.read("themeColor"))
         setThemeColor(self.color, lazy=True)
         self.buttonGroup.buttonClicked.connect(self.buttonGroupClicked)
 
@@ -173,8 +178,8 @@ class ColorSettingCard(ExpandGroupSettingCard):
 
         if button is self.button1:
             self.button3.setDisabled(True)
-            setting.save("themeColor", "#0078D4")
-            setThemeColor("#0078D4", lazy=True)
+            setting.save("themeColor", "default")
+            setThemeColor(QColor(self.getDefaultColor()), lazy=True)
         else:
             self.button3.setDisabled(False)
             setting.save("themeColor", self.color.name())
@@ -233,7 +238,7 @@ class StartupSettingCard(SettingCard):
 
     def __init__(self, parent=None):
 
-        super().__init__(FIF.POWER_BUTTON, "开机自启动", "设置程序的开机自启动功能", parent)
+        super().__init__(FIF.POWER_BUTTON, "开机自启动", "", parent)
         self.checkBox1 = CheckBox("开机自启动", self)
         self.checkBox1.setChecked(program.checkStartup())
         self.checkBox1.clicked.connect(self.button1Clicked)
