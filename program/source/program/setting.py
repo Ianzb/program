@@ -8,9 +8,9 @@ class SettingFunctions(QObject):
     设置相关函数
     """
     DEFAULT_SETTING = {"theme": "Theme.AUTO",
-                       "themeColor": "#0078D4",
+                       "themeColor": "default",
                        "autoHide": True,
-                       "downloadPath": f.DOWNLOAD_PATH,
+                       "downloadPath": f.DOWNLOAD_PATH(),
                        "showWindow": False,
                        "micaEffect": True,
                        "showTray": True,
@@ -40,6 +40,7 @@ class SettingFunctions(QObject):
                 self.last_setting = json.load(file)
         except Exception as ex:
             self.last_setting = deepcopy(self.DEFAULT_SETTING)
+            self.reset()
             self.errorState = True
             logging.error(f"设置文件数据错误，已自动恢复至默认选项，错误信息：{ex}！")
 

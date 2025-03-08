@@ -19,7 +19,7 @@ def addonInit():
                   "wechatPath": "",
                   "sortNameBlacklist": [],
                   "sortPathBlacklist": [],
-                  "sortFolder": [f.DESKTOP_PATH],
+                  "sortFolder": [f.DESKTOP_PATH()],
                   "sortFormat": {"PPT": [".ppt", ".pptx"],
                                  "文档": [".doc", ".docx", ".txt", ".pdf"],
                                  "表格": [".xls", ".xlsx", ".xlsm", ".xlsb", ".xlt", ".csv"],

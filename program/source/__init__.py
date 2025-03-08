@@ -38,11 +38,6 @@ class Window(FluentWindow):
         self.timer.timeout.connect(self.timerEvent)
         self.timer.start(250)
 
-        # 设置数据异常提醒
-        if setting.errorState:
-            self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", "设置文件数据错误，已自动恢复至默认选项，具体错误原因请查看程序日志！", Qt.Orientation.Vertical, True, -1, InfoBarPosition.TOP_RIGHT, self.mainPage)
-            self.infoBar.show()
-
         self.addAddonEvent.connect(self.addAddon)
         self.removeAddonEvent.connect(self.removeAddon)
         self.downloadAddonFailedSignal.connect(self.__downloadAddonFailed)
@@ -60,6 +55,11 @@ class Window(FluentWindow):
         desktop = QApplication.screens()[0].size()
         w, h = desktop.width(), desktop.height()
         self.move(w // 2 - self.width() // 2, h // 2 - self.height() // 2)
+
+        # 设置数据异常提醒
+        if setting.errorState:
+            self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", "设置文件数据错误，已自动恢复至默认选项，具体错误原因请查看程序日志！", Qt.Orientation.Vertical, True, -1, InfoBarPosition.TOP_RIGHT, self.mainPage)
+            self.infoBar.show()
 
         # 插件安装
         data = program.getInstalledAddonInfo()
@@ -109,7 +109,6 @@ class Window(FluentWindow):
         if result:
             self.addAddonEvent.emit(data)
         else:
-
             self.downloadAddonFailedSignal.emit(data)
 
     def __downloadAddonFailed(self, data):
