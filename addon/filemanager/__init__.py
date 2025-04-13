@@ -19,7 +19,7 @@ def addonInit():
                   "wechatPath": "",
                   "sortNameBlacklist": [],
                   "sortPathBlacklist": [],
-                  "sortFolder": [f.DESKTOP_PATH()],
+                  "sortFolder": [zb.DESKTOP_PATH()],
                   "sortFormat": {"PPT": [".ppt", ".pptx"],
                                  "文档": [".doc", ".docx", ".txt", ".pdf"],
                                  "表格": [".xls", ".xlsx", ".xlsm", ".xlsb", ".xlt", ".csv"],
@@ -49,20 +49,20 @@ class SortFunctions:
         删除空文件
         @param path: 文件夹路径
         """
-        if f.isDir(path):
-            paths = f.walkFile(path, 1)
+        if zb.isDir(path):
+            paths = zb.walkFile(path, 1)
             if paths:
                 for i in paths:
-                    if f.fileSize(i) == 0:
-                        f.deleteFile(i, setting.read("deleteToTrash"))
+                    if zb.fileSize(i) == 0:
+                        zb.deleteFile(i, setting.read("deleteToTrash"))
 
     def clearEmptyDir(self, path):
         """
         删除空文件夹
         @param path: 文件夹路径
         """
-        if f.isDir(path):
-            paths = f.walkDir(path, 1)
+        if zb.isDir(path):
+            paths = zb.walkDir(path, 1)
             if paths:
                 for i in paths:
                     try:
@@ -75,16 +75,16 @@ class SortFunctions:
         清理重复文件
         @param path: 文件夹路径
         """
-        if f.isDir(path):
-            names = f.walkFile(path, 1)
+        if zb.isDir(path):
+            names = zb.walkFile(path, 1)
             if not names:
                 return
             names.sort(key=lambda i: len(i))
             for i in range(len(names)):
                 for j in range(len(names[:i])):
-                    if not f.existPath(names[i]) or not f.existPath(names[j]): continue
+                    if not zb.existPath(names[i]) or not zb.existPath(names[j]): continue
                     if filecmp.cmp(names[i], names[j], False):
-                        f.deletePath(sorted([names[i], names[j]])[0], setting.read("deleteToTrash"))
+                        zb.deletePath(sorted([names[i], names[j]])[0], setting.read("deleteToTrash"))
 
     def clearFile(self, path: str):
         """
@@ -125,23 +125,23 @@ class SortFunctions:
         try:
             blacklist = [self.getSortNameBlacklist(), self.getSortPathBlacklist()]
             if mode in [0, 1]:
-                file_list = f.walkFile(old, 1)
+                file_list = zb.walkFile(old, 1)
                 if file_list:
                     for i in file_list:
                         if i.startswith("~$"): continue  # 跳过office临时文件
                         for j in range(len(setting.read("sortFormat").values())):
-                            if f.splitPath(i, 2).lower() in list(setting.read("sortFormat").values())[j]:
-                                if f.splitPath(i, 0) in blacklist[0] or i in blacklist[1]:
+                            if zb.splitPath(i, 2).lower() in list(setting.read("sortFormat").values())[j]:
+                                if zb.splitPath(i, 0) in blacklist[0] or i in blacklist[1]:
                                     continue
-                                f.setOnlyRead(i, False)
-                                f.movePath(i, f.joinPath(new, list(setting.read("sortFormat").keys())[j]))
+                                zb.setOnlyRead(i, False)
+                                zb.movePath(i, zb.joinPath(new, list(setting.read("sortFormat").keys())[j]))
             if mode in [0, 2]:
-                file_list = f.walkDir(old, 1)
+                file_list = zb.walkDir(old, 1)
                 if file_list:
                     for i in file_list:
-                        if f.splitPath(i, 0) in blacklist[0] or i in blacklist[1]:
+                        if zb.splitPath(i, 0) in blacklist[0] or i in blacklist[1]:
                             continue
-                        f.movePath(i, f.joinPath(new, "文件夹"))
+                        zb.movePath(i, zb.joinPath(new, "文件夹"))
             logging.debug(f"成功整理{old}文件夹！")
         except Exception as ex:
             logging.warning(f"无法整理{old}文件夹，报错信息：{ex}！")
@@ -153,15 +153,15 @@ class SortFunctions:
         try:
             list1 = []
             list2 = []
-            for i in f.walkDir(setting.read("wechatPath"), 1):
-                if f.existPath(f.joinPath(i, "FileStorage/File")):
-                    list1.append(f.joinPath(i, "FileStorage/File"))
-                elif f.existPath(f.joinPath(i, "msg/file/")):
-                    list1.append(f.joinPath(i, "msg/file/"))
+            for i in zb.walkDir(setting.read("wechatPath"), 1):
+                if zb.existPath(zb.joinPath(i, "FileStorage/File")):
+                    list1.append(zb.joinPath(i, "FileStorage/File"))
+                elif zb.existPath(zb.joinPath(i, "msg/file/")):
+                    list1.append(zb.joinPath(i, "msg/file/"))
             for i in list1:
-                if f.walkDir(i, 1) is None:
+                if zb.walkDir(i, 1) is None:
                     return
-                list2 = list2 + f.walkDir(i, 1)
+                list2 = list2 + zb.walkDir(i, 1)
             for i in list2:
                 self.sortDir(i, setting.read("sortGoalPath"))
             for i in list1:
@@ -175,7 +175,7 @@ class SortFunctions:
         清理系统缓存
         """
         try:
-            f.clearDir(os.getenv("TEMP"))
+            zb.clearDir(os.getenv("TEMP"))
         except:
             pass
 
@@ -204,10 +204,10 @@ class SortFunctions:
         @return: 整理文件路径黑名单列表
         """
         data = list(setting.read("sortPathBlacklist"))
-        if f.isSamePath(setting.read("sortGoalPath"), f.DESKTOP_PATH()):
-            data += [f.joinPath(f.DESKTOP_PATH(), i) for i in list(setting.read("sortFormat").keys()) + ["文件夹"]]
-        elif self.belongDir(setting.read("sortGoalPath"), f.DESKTOP_PATH()):
-            for i in f.walkDir(f.DESKTOP_PATH(), 1):
+        if zb.isSamePath(setting.read("sortGoalPath"), zb.DESKTOP_PATH()):
+            data += [zb.joinPath(zb.DESKTOP_PATH(), i) for i in list(setting.read("sortFormat").keys()) + ["文件夹"]]
+        elif self.belongDir(setting.read("sortGoalPath"), zb.DESKTOP_PATH()):
+            for i in zb.walkDir(zb.DESKTOP_PATH(), 1):
                 if self.belongDir(setting.read("sortGoalPath"), i):
                     data.append(i)
         return list(set(data))
@@ -239,7 +239,7 @@ class NameBlacklistEditMessageBox(MessageBoxBase):
         self.widget.setMinimumWidth(350)
 
     def yesButtonClicked(self):
-        setting.save("sortNameBlacklist", sorted(list(set([i.strip() for i in f.removeIllegalPath(self.textEdit.toPlainText()).split("\n") if i]))))
+        setting.save("sortNameBlacklist", sorted(list(set([i.strip() for i in zb.removeIllegalPath(self.textEdit.toPlainText()).split("\n") if i]))))
 
         self.accept()
         self.accepted.emit()
@@ -280,23 +280,23 @@ class PathBlacklistEditMessageBox(MessageBoxBase):
         self.widget.setMinimumWidth(350)
 
     def yesButtonClicked(self):
-        setting.save("sortPathBlacklist", sorted(list(set([f.formatPathString(i.strip()) for i in f.clearCharacters(self.textEdit.toPlainText(), "illegalPath").split("\n") if i]))))
+        setting.save("sortPathBlacklist", sorted(list(set([zb.formatPathString(i.strip()) for i in zb.clearCharacters(self.textEdit.toPlainText(), "illegalPath").split("\n") if i]))))
 
         self.accept()
         self.accepted.emit()
 
     def addFolderButtonClicked(self):
         get = QFileDialog.getExistingDirectory(self, "选择黑名单文件夹", "C:/")
-        if f.existPath(get):
-            get = f.formatPathString(get)
-            if get not in sorted(list(set([f.formatPathString(i.strip()) for i in f.clearCharacters(self.textEdit.toPlainText(), "illegalPath").split("\n") if i]))):
+        if zb.existPath(get):
+            get = zb.formatPathString(get)
+            if get not in sorted(list(set([zb.formatPathString(i.strip()) for i in zb.clearCharacters(self.textEdit.toPlainText(), "illegalPath").split("\n") if i]))):
                 self.textEdit.setText((self.textEdit.toPlainText().strip() + "\n" + get).strip())
 
     def addFileButtonClicked(self):
         get = QFileDialog.getOpenFileName(self, "选择黑名单文件", "C:/")[0]
-        if f.existPath(get):
-            get = f.formatPathString(get)
-            if get not in sorted(list(set([f.formatPathString(i.strip()) for i in f.clearCharacters(self.textEdit.toPlainText(), "illegalPath").split("\n") if i]))):
+        if zb.existPath(get):
+            get = zb.formatPathString(get)
+            if get not in sorted(list(set([zb.formatPathString(i.strip()) for i in zb.clearCharacters(self.textEdit.toPlainText(), "illegalPath").split("\n") if i]))):
                 self.textEdit.setText((self.textEdit.toPlainText().strip() + "\n" + get).strip())
 
 
@@ -335,15 +335,15 @@ class SortFolderEditMessageBox(MessageBoxBase):
         self.widget.setMinimumWidth(350)
 
     def yesButtonClicked(self):
-        setting.save("sortFolder", sorted(list(set([f.formatPathString(i.strip()) for i in f.clearCharacters(self.textEdit.toPlainText(), "illegalPath").split("\n") if i]))))
+        setting.save("sortFolder", sorted(list(set([zb.formatPathString(i.strip()) for i in zb.clearCharacters(self.textEdit.toPlainText(), "illegalPath").split("\n") if i]))))
         self.accept()
         self.accepted.emit()
 
     def addButtonClicked(self):
         get = QFileDialog.getExistingDirectory(self, "选择整理文件夹", "C:/")
-        if f.existPath(get):
-            get = f.formatPathString(get)
-            if get not in sorted(list(set([f.formatPathString(i.strip()) for i in f.clearCharacters(self.textEdit.toPlainText(), "illegalPath").split("\n") if i]))):
+        if zb.existPath(get):
+            get = zb.formatPathString(get)
+            if get not in sorted(list(set([zb.formatPathString(i.strip()) for i in zb.clearCharacters(self.textEdit.toPlainText(), "illegalPath").split("\n") if i]))):
                 self.textEdit.setText((self.textEdit.toPlainText().strip() + "\n" + get).strip())
 
     def resetButtonClicked(self):
@@ -488,12 +488,12 @@ class SortPathSettingCard(SettingCard):
         self.contentLabel.setText(f"整理目标路径：{setting.read("sortGoalPath")}\n微信路径：{setting.read("wechatPath")}")
 
     def saveSetting(self, path: str):
-        if f.existPath(path):
+        if zb.existPath(path):
             setting.save("sortGoalPath", path)
         self.setText()
 
     def saveWechatPath(self, path: str):
-        if f.existPath(path):
+        if zb.existPath(path):
             setting.save("wechatPath", path)
         self.setText()
 
@@ -633,7 +633,7 @@ class AddonPage(BasicTab):
         self.button1_1.installEventFilter(ToolTipFilter(self.button1_1, 1000))
 
         self.button1_2 = ToolButton(FIF.FOLDER, self)
-        self.button1_2.clicked.connect(lambda: f.showFile(setting.read("sortGoalPath")))
+        self.button1_2.clicked.connect(lambda: zb.showFile(setting.read("sortGoalPath")))
         self.button1_2.setToolTip("打开整理文件所在目录")
         self.button1_2.installEventFilter(ToolTipFilter(self.button1_2, 1000))
 
@@ -700,7 +700,7 @@ class AddonPage(BasicTab):
 
     def sortFile(self):
         try:
-            f.createDir(setting.read("sortGoalPath"))
+            zb.createDir(setting.read("sortGoalPath"))
             if setting.read("clearTrash"):
                 program.THREAD_POOL.submit(sf.clearTrash)
             if setting.read("clearCache"):
@@ -708,12 +708,12 @@ class AddonPage(BasicTab):
             if setting.read("wechatPath") and setting.read("sortWechat"):
                 sf.sortWechatFiles()
             for i in setting.read("sortFolder"):
-                if f.isDir(i):
+                if zb.isDir(i):
                     if not (sf.belongDir(i, setting.read("sortGoalPath")) or sf.belongDir(setting.read("sortGoalPath"), i)):
                         sf.sortDir(i, setting.read("sortGoalPath"))
             if setting.read("clearFile"):
                 for i in list(setting.read("sortFormat").keys()) + ["文件夹"]:
-                    sf.clearFile(f.joinPath(setting.read("sortGoalPath"), i))
+                    sf.clearFile(zb.joinPath(setting.read("sortGoalPath"), i))
                 sf.clearFile(setting.read("sortGoalPath"))
             self.sortFileSignal.emit(True)
             logging.debug("一键整理成功")
@@ -737,9 +737,9 @@ class AddonPage(BasicTab):
         program.THREAD_POOL.submit(self.restartExplorer)
 
     def restartExplorer(self):
-        f.easyCmd("taskkill /f /im explorer.exe", True)
+        zb.easyCmd("taskkill /zb /im explorer.exe", True)
         self.restartExplorerSignal.emit(True)
-        f.easyCmd("start C:/windows/explorer.exe", True)
+        zb.easyCmd("start C:/windows/explorer.exe", True)
 
     def restartExplorerFinished(self, msg):
         self.button2_1.setEnabled(True)

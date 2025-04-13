@@ -13,7 +13,7 @@ import ssl
 ssl._create_default_https_context = ssl._create_unverified_context()
 
 # 日志设置
-open(program.LOGGING_FILE_PATH, "w").close() if not f.existPath(program.LOGGING_FILE_PATH) or f.fileSize(program.LOGGING_FILE_PATH) >= 1024 * 128 else None
+open(program.LOGGING_FILE_PATH, "w").close() if not zb.existPath(program.LOGGING_FILE_PATH) or zb.fileSize(program.LOGGING_FILE_PATH) >= 1024 * 128 else None
 
 dictConfig({
     "version": 1,

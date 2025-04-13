@@ -16,9 +16,9 @@ class DownloadInfoCard(SmallInfoCard):
         @param replace: 是否替换
         """
         super().__init__(parent)
-        self.setTitle(f.splitPath(f.joinPath(path, f.getFileNameFromUrl(url)) if f.isDir(path) else path))
+        self.setTitle(zb.splitPath(zb.joinPath(path, zb.getFileNameFromUrl(url)) if zb.isDir(path) else path))
         self.setInfo(f"文件链接：{url}", 0)
-        self.setInfo(f"目标位置：{f.joinPath(path, f.getFileNameFromUrl(url)) if f.isDir(path) else path}", 1)
+        self.setInfo(f"目标位置：{zb.joinPath(path, zb.getFileNameFromUrl(url)) if zb.isDir(path) else path}", 1)
         self.titleLabel.setTextInteractionFlags(Qt.TextSelectableByMouse)
         self.contentLabel1.setTextInteractionFlags(Qt.TextSelectableByMouse)
         self.contentLabel2.deleteLater()
@@ -38,7 +38,7 @@ class DownloadInfoCard(SmallInfoCard):
 
         self.folderButton = ToolButton(FIF.FOLDER, self)
         setToolTip(self.folderButton, "打开下载目录")
-        self.folderButton.clicked.connect(lambda: f.showFile(f.joinPath(self.path, f.getFileNameFromUrl(self.url)) if f.isDir(self.path) else self.path))
+        self.folderButton.clicked.connect(lambda: zb.showFile(zb.joinPath(self.path, zb.getFileNameFromUrl(self.url)) if zb.isDir(self.path) else self.path))
         self.folderButton.hide()
 
         self.deleteButton = ToolButton(FIF.DELETE, self)
@@ -75,11 +75,11 @@ class DownloadInfoCard(SmallInfoCard):
 
     def deleteDownload(self):
         path = self.d.resultPath
-        f.deleteFile(path, True)
+        zb.deleteFile(path, True)
         logging.info(f"已删除下载的{path}文件！")
 
     def startDownload(self):
-        self.d = f.downloadManager.download(self.url, self.path, False, self.replace, f.REQUEST_HEADER)
+        self.d = zb.downloadManager.download(self.url, self.path, False, self.replace, zb.REQUEST_HEADER)
         while True:
             if not self.d.isFinished():
                 self.setProgressSignal.emit(self.d.progress())
@@ -148,9 +148,9 @@ class DownloadPage(BasicPage):
         self.lineEdit.searchButton.setEnabled(bool(self.lineEdit.text()))
 
     def downloadButtonClicked(self):
-        if not self.lineEdit.text() or not f.isUrl(self.lineEdit.text()):
+        if not self.lineEdit.text() or not zb.isUrl(self.lineEdit.text()):
             return
-        self.startDownload(self.lineEdit.text(), f.joinPath(setting.read("downloadPath"), f.getFileNameFromUrl(self.lineEdit.text())))
+        self.startDownload(self.lineEdit.text(), zb.joinPath(setting.read("downloadPath"), zb.getFileNameFromUrl(self.lineEdit.text())))
 
     def startDownload(self, url: str, path: str, replace: bool = False):
         """

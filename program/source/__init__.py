@@ -167,8 +167,8 @@ class Window(FluentWindow):
             self.ADDON_MAINPAGE[data["id"]].deleteLater()
             del self.ADDON_OBJECT[data["id"]]
             del self.ADDON_MAINPAGE[data["id"]]
-        f.deleteDir(f.joinPath(program.ADDON_PATH, data["id"]), force=True)
-        if not f.existPath(f.joinPath(program.ADDON_PATH, data["id"])):
+        zb.deleteDir(zb.joinPath(program.ADDON_PATH, data["id"]), force=True)
+        if not zb.existPath(zb.joinPath(program.ADDON_PATH, data["id"])):
             logging.info(f"插件{data["name"]}删除成功")
 
             self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{data["name"]}删除成功！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.mainPage)
@@ -183,8 +183,8 @@ class Window(FluentWindow):
         """
         重复运行展示窗口
         """
-        if f.existPath(f.joinPath(program.DATA_PATH, "zb.unlock")):
-            f.deletePath(f.joinPath(program.DATA_PATH, "zb.unlock"))
+        if zb.existPath(zb.joinPath(program.DATA_PATH, "zb.unlock")):
+            zb.deletePath(zb.joinPath(program.DATA_PATH, "zb.unlock"))
             self.show()
 
 

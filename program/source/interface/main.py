@@ -22,12 +22,12 @@ class AddonInfoMessageBox(MessageBox):
 
     def setData(self, data: dict):
         if "icon" in data.keys():
-            if f.isUrl(data["icon"]):
-                self.image.setImg(program.cache(f.joinPath("addon", f.getFileNameFromUrl(data["icon"]))), data["icon"])
+            if zb.isUrl(data["icon"]):
+                self.image.setImg(program.cache(zb.joinPath("addon", zb.getFileNameFromUrl(data["icon"]))), data["icon"])
                 self.textLayout.insertWidget(1, self.image)
             else:
-                if f.existPath(f.joinPath(program.ADDON_PATH, data["id"], data["icon"])):
-                    self.image.setImg(f.joinPath(program.ADDON_PATH, data["id"], data["icon"]))
+                if zb.existPath(zb.joinPath(program.ADDON_PATH, data["id"], data["icon"])):
+                    self.image.setImg(zb.joinPath(program.ADDON_PATH, data["id"], data["icon"]))
                     self.textLayout.insertWidget(1, self.image)
 
 
@@ -100,11 +100,11 @@ class AddonInfoCard(SmallInfoCard):
         self.offlineData = data
         self.setTitle(self.offlineData["name"])
         if "icon" in self.offlineData.keys():
-            if f.isUrl(self.offlineData["icon"]):
-                self.setImg(program.cache(f.joinPath("addon", f.getFileNameFromUrl(self.offlineData["icon"]))), self.offlineData["icon"], program.THREAD_POOL)
+            if zb.isUrl(self.offlineData["icon"]):
+                self.setImg(program.cache(zb.joinPath("addon", zb.getFileNameFromUrl(self.offlineData["icon"]))), self.offlineData["icon"], program.THREAD_POOL)
             else:
-                if f.existPath(f.joinPath(program.ADDON_PATH, self.offlineData["id"], self.offlineData["icon"])):
-                    self.setImg(f.joinPath(program.ADDON_PATH, self.offlineData["id"], self.offlineData["icon"]))
+                if zb.existPath(zb.joinPath(program.ADDON_PATH, self.offlineData["id"], self.offlineData["icon"])):
+                    self.setImg(zb.joinPath(program.ADDON_PATH, self.offlineData["id"], self.offlineData["icon"]))
         self.setInfo(f"本地版本：{self.offlineData["version"]}", 0)
         if "history" in self.offlineData.keys():
             self.setInfo(f"更新时间：{self.offlineData["history"][self.offlineData["version"]]["time"]}", 1)
@@ -118,11 +118,11 @@ class AddonInfoCard(SmallInfoCard):
 
         self.setTitle(self.onlineData["name"])
         if "icon" in self.onlineData.keys():
-            if f.isUrl(self.onlineData["icon"]):
-                self.setImg(program.cache(f.joinPath("addon", f.getFileNameFromUrl(self.onlineData["icon"]))), self.onlineData["icon"], program.THREAD_POOL)
+            if zb.isUrl(self.onlineData["icon"]):
+                self.setImg(program.cache(zb.joinPath("addon", zb.getFileNameFromUrl(self.onlineData["icon"]))), self.onlineData["icon"], program.THREAD_POOL)
             else:
-                if f.existPath(f.joinPath(program.ADDON_PATH, self.onlineData["id"], self.onlineData["icon"])):
-                    self.setImg(f.joinPath(program.ADDON_PATH, self.onlineData["id"], self.onlineData["icon"]))
+                if zb.existPath(zb.joinPath(program.ADDON_PATH, self.onlineData["id"], self.onlineData["icon"])):
+                    self.setImg(zb.joinPath(program.ADDON_PATH, self.onlineData["id"], self.onlineData["icon"]))
         self.setInfo(f"在线版本：{self.onlineData["version"]}", 2)
         if "history" in self.onlineData.keys():
             self.setInfo(f"更新时间：{self.onlineData["history"][self.onlineData["version"]]["time"]}", 3)

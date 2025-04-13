@@ -41,17 +41,17 @@ def searchSoftware(name: str, source: str) -> list:
     try:
         list = []
         if source == "腾讯":
-            data = f.getUrl(f"https://s.pcmgr.qq.com/tapi/web/searchcgi.php?type=search&keyword={name}&page=1&pernum=100", f.REQUEST_HEADER).text
+            data = zb.getUrl(f"https://s.pcmgr.qq.com/tapi/web/searchcgi.php?type=search&keyword={name}&page=1&pernum=100", zb.REQUEST_HEADER).text
             data = json.loads(data)["list"]
             for i in range(len(data)):
                 data[i]["xmlInfo"] = xmlToJson(data[i]["xmlInfo"])
             for i in data:
                 list.append({"名称": i["SoftName"],
                              "图标": f"https://pc3.gtimg.com/softmgr/logo/48/{i["xmlInfo"]["soft"]["logo48"]}",
-                             "介绍": f.clearCharacters(i["xmlInfo"]["soft"]["feature"]),
+                             "介绍": zb.clearCharacters(i["xmlInfo"]["soft"]["feature"]),
                              "当前版本": i["xmlInfo"]["soft"]["versionname"],
                              "更新日期": i["xmlInfo"]["soft"]["publishdate"],
-                             "文件大小": f.fileSizeAddUnit(int(i["xmlInfo"]["soft"]["filesize"])),
+                             "文件大小": zb.fileSizeAddUnit(int(i["xmlInfo"]["soft"]["filesize"])),
                              "文件名称": i["xmlInfo"]["soft"]["filename"],
                              "下载链接": i["xmlInfo"]["soft"]["url"],
                              })
@@ -60,16 +60,16 @@ def searchSoftware(name: str, source: str) -> list:
                 elif i["xmlInfo"]["soft"]["@osbit"] == "1":
                     list[-1]["名称"] += " 32位"
         elif source == "360":
-            data = f.getUrl(f"https://bapi.safe.360.cn/soft/search?keyword={name}&page=1", f.REQUEST_HEADER).text
+            data = zb.getUrl(f"https://bapi.safe.360.cn/soft/search?keyword={name}&page=1", zb.REQUEST_HEADER).text
             data = json.loads(data)["data"]["list"]
             for i in data:
                 list.append({"名称": i["softname"],
                              "图标": i["logo"] if "https:" in i["logo"] else f"https:{i["logo"]}",
-                             "介绍": f.clearCharacters(i["desc"], "escape"),
+                             "介绍": zb.clearCharacters(i["desc"], "escape"),
                              "当前版本": i["version"],
                              "更新日期": i["date"],
                              "文件大小": i["size"],
-                             "文件名称": f.splitPath(i["soft_download"], 0),
+                             "文件名称": zb.splitPath(i["soft_download"], 0),
                              "下载链接": i["soft_download"],
                              })
         return list
@@ -93,7 +93,7 @@ class AppInfoCard(SmallInfoCard):
         self.mainButton.clicked.connect(self.mainButtonClicked)
         setToolTip(self.mainButton, "下载软件")
 
-        self.setImg(program.cache(f"{self.source}/{f.clearCharacters(self.data["名称"], "illegalPath")}.png"), self.data["图标"], program.THREAD_POOL)
+        self.setImg(program.cache(f"{self.source}/{zb.clearCharacters(self.data["名称"], "illegalPath")}.png"), self.data["图标"], program.THREAD_POOL)
         self.setTitle(f"{self.data["名称"]}")
 
         self.setInfo(self.data["介绍"], 0)
@@ -102,7 +102,7 @@ class AppInfoCard(SmallInfoCard):
         self.setInfo(f"更新日期：{self.data["更新日期"]}", 3)
 
     def mainButtonClicked(self):
-        self.download = self.window().downloadPage.startDownload(self.data["下载链接"], f.joinPath(setting.read("downloadPath"), self.data["文件名称"]), True)
+        self.download = self.window().downloadPage.startDownload(self.data["下载链接"], zb.joinPath(setting.read("downloadPath"), self.data["文件名称"]), True)
 
 class AddonPage(BasicTab):
     """

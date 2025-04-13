@@ -369,7 +369,7 @@ class DownloadSettingCard(SettingCard):
             self.contentLabel.setText(f"当前路径：{setting.read("downloadPath")}")
 
     def saveSetting(self, path: str):
-        if f.existPath(path):
+        if zb.existPath(path):
             setting.save("downloadPath", path)
         self.contentLabel.setText(f"当前路径：{setting.read("downloadPath")}")
 
@@ -380,7 +380,7 @@ class DownloadSettingCard(SettingCard):
     def dragEnterEvent(self, event):
         if event.mimeData().hasUrls():
             if len(event.mimeData().urls()) == 1:
-                if f.isDir(event.mimeData().urls()[0].toLocalFile()):
+                if zb.isDir(event.mimeData().urls()[0].toLocalFile()):
                     event.acceptProposedAction()
                     self.contentLabel.setText("拖拽到此卡片即可快速导入目录！")
 
@@ -432,5 +432,5 @@ class SettingPage(BasicPage):
         self.vBoxLayout.addWidget(self.cardGroup2, 0, Qt.AlignTop)
         self.vBoxLayout.addWidget(self.cardGroup3, 0, Qt.AlignTop)
 
-        if not (f.SYSTEM_VERSION[0] >= 10 and f.SYSTEM_VERSION[2] >= 22000):
+        if not (zb.SYSTEM_VERSION[0] >= 10 and zb.SYSTEM_VERSION[2] >= 22000):
             self.micaEffectSettingCard.hide()

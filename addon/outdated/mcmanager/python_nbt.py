@@ -446,7 +446,7 @@ class NBTTagLong(NBTTagSingleValue):
 
 class NBTTagFloat(NBTTagSingleValue):
     _type_id = TAG_FLOAT
-    fmt = Struct(">f")
+    fmt = Struct(">zb")
 
     def __init__(self, value=.0, **kwargs):
         super().__init__(value=value, **kwargs)

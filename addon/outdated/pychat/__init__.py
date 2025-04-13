@@ -119,7 +119,7 @@ class PyChatApi:
                 response_obj = response.json()
 
                 if callback:
-                    # log.debug(f"回调函数{callback.__name__}被调用，参数为{data_dict}, {response_obj}")
+                    # log.debug(zb"回调函数{callback.__name__}被调用，参数为{data_dict}, {response_obj}")
                     callback(data_dict, response_obj)
 
                 return {"data_dict": data_dict, "response_obj": response_obj}

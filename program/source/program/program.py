@@ -28,7 +28,7 @@ class Program:
     INSTALL_PATH = os.path.dirname(MAIN_FILE_PATH)  # 程序安装路径
     SOURCE_PATH = r"source\img"  # 程序资源文件路径
     PROGRAM_PID = os.getpid()  # 程序pid
-    DATA_PATH = os.path.join(f.USER_PATH, "zb")  # 程序数据路径
+    DATA_PATH = os.path.join(zb.USER_PATH, "zb")  # 程序数据路径
     SETTING_FILE_PATH = os.path.join(DATA_PATH, "settings.json")  # 程序设置文件路径
     LOGGING_FILE_PATH = os.path.join(DATA_PATH, "logging.log")  # 程序日志文件路径
     ADDON_PATH = os.path.join(DATA_PATH, "addon")  # 程序插件路径
@@ -113,16 +113,16 @@ class Program:
         """
         if not self.isExe:
             return
-        if f.existPath(f.joinPath(program.DATA_PATH, "zb.lock")):
-            with open(f.joinPath(program.DATA_PATH, "zb.lock"), "r+", encoding="utf-8") as file:
+        if zb.existPath(zb.joinPath(program.DATA_PATH, "zb.lock")):
+            with open(zb.joinPath(program.DATA_PATH, "zb.lock"), "r+", encoding="utf-8") as file:
                 pid = file.read().strip()
-            if pid and "zbProgram.exe" in f.easyCmd(f"tasklist |findstr {pid}", True):
-                open(f.joinPath(program.DATA_PATH, "zb.unlock"), "w").close()
+            if pid and "zbProgram.exe" in zb.easyCmd(f"tasklist |findstr {pid}", True):
+                open(zb.joinPath(program.DATA_PATH, "zb.unlock"), "w").close()
                 program.close()
             else:
-                if f.existPath(f.joinPath(program.DATA_PATH, "zb.unlock")):
-                    os.remove(f.joinPath(program.DATA_PATH, "zb.unlock"))
-                with open(f.joinPath(program.DATA_PATH, "zb.lock"), "w+", encoding="utf-8") as file:
+                if zb.existPath(zb.joinPath(program.DATA_PATH, "zb.unlock")):
+                    os.remove(zb.joinPath(program.DATA_PATH, "zb.unlock"))
+                with open(zb.joinPath(program.DATA_PATH, "zb.lock"), "w+", encoding="utf-8") as file:
                     file.write(str(program.PROGRAM_PID))
 
     def addToStartup(self, mode: bool = True):
@@ -163,7 +163,7 @@ class Program:
         获取程序最新版本
         @return: 程序最新版本
         """
-        response = f.getUrl(program.UPDATE_URL, f.REQUEST_HEADER, (15, 30))
+        response = zb.getUrl(program.UPDATE_URL, zb.REQUEST_HEADER, (15, 30))
         data = json.loads(response.text)["version"]
         logging.info(f"服务器最新版本：{data}")
         return data
@@ -174,7 +174,7 @@ class Program:
         @return: 字典
         """
         try:
-            response = f.getUrl(program.ADDON_URL, f.REQUEST_HEADER, (15, 30))
+            response = zb.getUrl(program.ADDON_URL, zb.REQUEST_HEADER, (15, 30))
             data = json.loads(response.text)
             logging.info("插件信息获取成功！")
             return data
@@ -188,7 +188,7 @@ class Program:
         @return: 信息
         """
         try:
-            response = f.getUrl(url, f.REQUEST_HEADER, (15, 30))
+            response = zb.getUrl(url, zb.REQUEST_HEADER, (15, 30))
             data = json.loads(response.text)
             data["url"] = url
             logging.info(f"插件{data["name"]}信息获取成功")
@@ -205,13 +205,13 @@ class Program:
         """
 
         try:
-            dir_path = f.joinPath(program.ADDON_PATH, data["id"])
-            f.createDir(dir_path)
-            with open(f.joinPath(dir_path, "addon.json"), "w+", encoding="utf-8") as file:
+            dir_path = zb.joinPath(program.ADDON_PATH, data["id"])
+            zb.createDir(dir_path)
+            with open(zb.joinPath(dir_path, "addon.json"), "w+", encoding="utf-8") as file:
                 file.write(json.dumps(data, indent=2, ensure_ascii=False))
-            result = f.singleDownload(data["file"], dir_path, True, True)
+            result = zb.singleDownload(data["file"], dir_path, True, True)
             if result:
-                f.extractZip(result, dir_path, True)
+                zb.extractZip(result, dir_path, True)
                 logging.info(f"插件{data["name"]}下载成功！")
                 return True
             else:
@@ -228,9 +228,9 @@ class Program:
         """
         try:
             data = {}
-            for i in f.walkDir(program.ADDON_PATH, 1):
-                if f.isFile(f.joinPath(i, "addon.json")):
-                    with open(f.joinPath(i, "addon.json"), encoding="utf-8") as file:
+            for i in zb.walkDir(program.ADDON_PATH, 1):
+                if zb.isFile(zb.joinPath(i, "addon.json")):
+                    with open(zb.joinPath(i, "addon.json"), encoding="utf-8") as file:
                         addon_data = json.load(file)
                         data[addon_data["id"]] = addon_data
             return data
