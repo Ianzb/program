@@ -1,8 +1,10 @@
+import logging
+import os
 import subprocess
+import sys
+from concurrent.futures import ThreadPoolExecutor
 
 from zbWidgetLib import *
-import os, sys, logging
-from concurrent.futures import ThreadPoolExecutor
 
 
 class Program:
@@ -10,7 +12,7 @@ class Program:
     程序信息
     """
     NAME = "zb小程序"  # 程序名称
-    VERSION = "5.2.2"  # 程序版本
+    VERSION = "5.3.0"  # 程序版本
     TITLE = f"{NAME} {VERSION}"  # 程序标题
     URL = "https://ianzb.github.io/project/program.html"  # 程序网址
     LICENSE = "GPLv3"  # 程序许可协议
@@ -55,6 +57,10 @@ class Program:
 
         # 添加插件路径
         sys.path.append(self.ADDON_PATH)
+
+        # 打包后资源路径切换
+        if self.isExe:
+            self.SOURCE_PATH = sys._MEIPASS + r"\img"
 
     @property
     def ICON(self) -> str:

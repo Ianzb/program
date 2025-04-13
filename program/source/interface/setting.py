@@ -5,7 +5,7 @@ class ThemeSettingCard(ExpandSettingCard):
     """
     主题设置卡片
     """
-    themeChanged = Signal(OptionsConfigItem)
+    themeChanged = pyqtSignal(OptionsConfigItem)
 
     def __init__(self, parent=None):
         super().__init__(FIF.BRUSH, "模式", "更改显示的颜色", parent)
@@ -83,7 +83,7 @@ class ColorSettingCard(ExpandGroupSettingCard):
     """
     主题色设置卡片
     """
-    colorChanged = Signal(QColor)
+    colorChanged = pyqtSignal(QColor)
 
     def __init__(self, parent=None):
         super().__init__(FIF.PALETTE, "主题色", "更改程序的主题色", parent=parent)

@@ -24,7 +24,7 @@ class MinecraftFunctions(QWidget):
     """
     Minecraft函数
     """
-    versionUpdateSignal = Signal()
+    versionUpdateSignal = pyqtSignal()
 
     FILE_PATH = {
         "模组": "mods",

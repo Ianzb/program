@@ -20,7 +20,7 @@ def addonWidget():
     return AddonPage(window)
 
 
-def xmlToJson(data: str) -> dict:
+def xmlToJson(data: str):
     """
     xml转json
     @param data: xml字符串
@@ -31,7 +31,7 @@ def xmlToJson(data: str) -> dict:
     return data
 
 
-def searchSoftware(name: str, source: str) -> list:
+def searchSoftware(name: str, source: str):
     """
     搜索软件
     @param name: 名称
@@ -96,10 +96,10 @@ class AppInfoCard(SmallInfoCard):
         self.setImg(program.cache(f"{self.source}/{zb.clearCharacters(self.data["名称"], "illegalPath")}.png"), self.data["图标"], program.THREAD_POOL)
         self.setTitle(f"{self.data["名称"]}")
 
-        self.setInfo(self.data["介绍"], 0)
-        self.setInfo(self.data["文件大小"], 1)
-        self.setInfo(f"当前版本：{self.data["当前版本"]}", 2)
-        self.setInfo(f"更新日期：{self.data["更新日期"]}", 3)
+        self.setText(self.data["介绍"], 0)
+        self.setText(self.data["文件大小"], 1)
+        self.setText(f"当前版本：{self.data["当前版本"]}", 2)
+        self.setText(f"更新日期：{self.data["更新日期"]}", 3)
 
     def mainButtonClicked(self):
         self.download = self.window().downloadPage.startDownload(self.data["下载链接"], zb.joinPath(setting.read("downloadPath"), self.data["文件名称"]), True)
@@ -108,8 +108,8 @@ class AddonPage(BasicTab):
     """
     插件主页面
     """
-    signalList = Signal(list)
-    signalBool = Signal(bool)
+    signalList = pyqtSignal(list)
+    signalBool = pyqtSignal(bool)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -160,7 +160,7 @@ class AddonPage(BasicTab):
         if self.lineEdit.text():
             self.cardGroup.clearCard()
 
-            self.cardGroup.setTitleEnabled(False)
+            self.cardGroup.setShowTitle(False)
             self.lineEdit.setEnabled(False)
             self.comboBox.setEnabled(False)
 
@@ -186,7 +186,7 @@ class AddonPage(BasicTab):
             self.cardGroup.setTitle(f"搜索结果（{len(msg)}个）")
         else:
             self.cardGroup.setTitle(f"无搜索结果")
-        self.cardGroup.setTitleEnabled(True)
+        self.cardGroup.setShowTitle(True)
         self.lineEdit.setEnabled(True)
         self.comboBox.setEnabled(True)
 

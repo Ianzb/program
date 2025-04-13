@@ -3,7 +3,7 @@
   "name": "应用商店",
   "author": "Ianzb",
   "description": "一款简易的应用商店插件，支持360和腾讯应用中心的应用。",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "icon": "appstore.png",
   "file": "http://123pan.ianzb.cn/code/addon/appstore/appstore.zip",
   "history": {
@@ -22,6 +22,11 @@
     "1.5.2": {
       "time": "2025年2月18日",
       "log": "适配最新版本，修复搜索时重复添加信号绑定的Bug。"
+    },
+    "1.5.3": {
+      "time": "2025年4月13日",
+      "log": "适配最新版本。"
     }
-  }
+  },
+  "url": "http://123pan.ianzb.cn/code/addon/appstore/addon.json"
 }

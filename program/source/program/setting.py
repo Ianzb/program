@@ -16,7 +16,7 @@ class SettingFunctions(QObject):
                        "showTray": True,
                        "hideWhenClose": True,
                        }
-    changeSignal = Signal(str)
+    changeSignal = pyqtSignal(str)
     errorState = False  # 错误信息
     def __init__(self):
         super().__init__()

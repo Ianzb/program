@@ -83,8 +83,8 @@ class AddonInfoCard(SmallInfoCard):
         self.infoButton.setEnabled(False)
         self.mainButton.setEnabled(False)
         self.setTitle(f"{data["name"]}（已删除）")
-        self.setInfo("本地未安装", 0)
-        self.setInfo("", 1)
+        self.setText("本地未安装", 0)
+        self.setText("", 1)
 
     def showInfo(self):
         if self.offlineData or self.onlineData:
@@ -105,9 +105,9 @@ class AddonInfoCard(SmallInfoCard):
             else:
                 if zb.existPath(zb.joinPath(program.ADDON_PATH, self.offlineData["id"], self.offlineData["icon"])):
                     self.setImg(zb.joinPath(program.ADDON_PATH, self.offlineData["id"], self.offlineData["icon"]))
-        self.setInfo(f"本地版本：{self.offlineData["version"]}", 0)
+        self.setText(f"本地版本：{self.offlineData["version"]}", 0)
         if "history" in self.offlineData.keys():
-            self.setInfo(f"更新时间：{self.offlineData["history"][self.offlineData["version"]]["time"]}", 1)
+            self.setText(f"更新时间：{self.offlineData["history"][self.offlineData["version"]]["time"]}", 1)
         self.setButtonStatement()
         self.infoButton.show()
         self.removeButton.show()
@@ -123,9 +123,9 @@ class AddonInfoCard(SmallInfoCard):
             else:
                 if zb.existPath(zb.joinPath(program.ADDON_PATH, self.onlineData["id"], self.onlineData["icon"])):
                     self.setImg(zb.joinPath(program.ADDON_PATH, self.onlineData["id"], self.onlineData["icon"]))
-        self.setInfo(f"在线版本：{self.onlineData["version"]}", 2)
+        self.setText(f"在线版本：{self.onlineData["version"]}", 2)
         if "history" in self.onlineData.keys():
-            self.setInfo(f"更新时间：{self.onlineData["history"][self.onlineData["version"]]["time"]}", 3)
+            self.setText(f"更新时间：{self.onlineData["history"][self.onlineData["version"]]["time"]}", 3)
         self.setButtonStatement()
         self.infoButton.show()
         self.removeButton.show()
@@ -163,8 +163,8 @@ class MainPage(BasicTab):
     主页
     """
     title = "主页"
-    signalAddCardOffline = Signal(dict)
-    signalAddCardOnline = Signal(dict)
+    signalAddCardOffline = pyqtSignal(dict)
+    signalAddCardOnline = pyqtSignal(dict)
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
@@ -208,10 +208,10 @@ class MainPage(BasicTab):
             program.THREAD_POOL.submit(self.getOnlineAddonInfo, v)
         while self.onlineCount < len(self.addon_list.keys()):
             time.sleep(0.5)
-        for i in self.cardGroup1.cardMap.keys():
+        for i in self.cardGroup1._cardMap.keys():
             if i not in self.addon_list.keys():
-                self.cardGroup1.cardMap[i].mainButton.setText("无数据")
-                self.cardGroup1.cardMap[i].setInfo("无在线数据", 2)
+                self.cardGroup1._cardMap[i].mainButton.setText("无数据")
+                self.cardGroup1._cardMap[i].setText("无在线数据", 2)
         self.reloadButton.setEnabled(True)
 
     def getOnlineAddonInfo(self, info: str):
@@ -223,7 +223,7 @@ class MainPage(BasicTab):
         self.onlineCount += 1
 
     def addCardOffline(self, info):
-        if info.get("id") not in self.cardGroup1.cardMap.keys():
+        if info.get("id") not in self.cardGroup1._cardMap.keys():
             try:
                 card = AddonInfoCard(self)
                 card.setInstalledData(info)
@@ -233,12 +233,12 @@ class MainPage(BasicTab):
                 logging.error(f"程序发生异常，插件{info["name"]}的卡片组件无法加载，报错信息：{ex}！")
         else:
             try:
-                self.cardGroup1.findCard(info["id"]).setInstalledData(info)
+                self.cardGroup1.getCard(info["id"]).setInstalledData(info)
             except RuntimeError:
                 logging.warning(f"组件{info["id"]}已被删除，无法设置数据了！")
 
     def addCardOnline(self, info):
-        if info.get("id") not in self.cardGroup1.cardMap.keys():
+        if info.get("id") not in self.cardGroup1._cardMap.keys():
             try:
                 card = AddonInfoCard(self)
                 card.setOnlineData(info)
@@ -248,7 +248,7 @@ class MainPage(BasicTab):
                 logging.error(f"程序发生异常，插件{info["name"]}的卡片组件无法加载，报错信息：{ex}！")
         else:
             try:
-                self.cardGroup1.findCard(info["id"]).setOnlineData(info)
+                self.cardGroup1.getCard(info["id"]).setOnlineData(info)
             except RuntimeError:
                 logging.warning(f"组件{info["id"]}已被删除，无法设置数据了！")
         self.onlineCount += 1
@@ -256,5 +256,4 @@ class MainPage(BasicTab):
     def reload(self):
         self.reloadButton.setEnabled(False)
         self.cardGroup1.clearCard()
-        self.cardGroup1.cardMap = {}
         program.THREAD_POOL.submit(self.getInstalledAddonList)

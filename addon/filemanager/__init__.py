@@ -2,7 +2,6 @@ import filecmp
 import logging
 
 from source.addon import *
-
 try:
     from program.source.addon import *
 except:
@@ -239,7 +238,7 @@ class NameBlacklistEditMessageBox(MessageBoxBase):
         self.widget.setMinimumWidth(350)
 
     def yesButtonClicked(self):
-        setting.save("sortNameBlacklist", sorted(list(set([i.strip() for i in zb.removeIllegalPath(self.textEdit.toPlainText()).split("\n") if i]))))
+        setting.save("sortNameBlacklist", sorted(list(set([i.strip() for i in zb.clearCharacters(self.textEdit.toPlainText(), "illegalPath").split("\n") if i]))))
 
         self.accept()
         self.accepted.emit()
@@ -620,9 +619,9 @@ class AddonPage(BasicTab):
     """
     插件主页面
     """
-    restartExplorerSignal = Signal(bool)
-    sortFileSignal = Signal(bool)
-    signalBool = Signal(bool)
+    restartExplorerSignal = pyqtSignal(bool)
+    sortFileSignal = pyqtSignal(bool)
+    signalBool = pyqtSignal(bool)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -737,7 +736,7 @@ class AddonPage(BasicTab):
         program.THREAD_POOL.submit(self.restartExplorer)
 
     def restartExplorer(self):
-        zb.easyCmd("taskkill /zb /im explorer.exe", True)
+        zb.easyCmd("taskkill /f /im explorer.exe", True)
         self.restartExplorerSignal.emit(True)
         zb.easyCmd("start C:/windows/explorer.exe", True)
 

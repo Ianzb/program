@@ -8,10 +8,10 @@ class Window(FluentWindow):
     主窗口
     """
 
-    addAddonEvent = Signal(dict)
-    removeAddonEvent = Signal(dict)
-    addAddonFinishEvent = Signal(str)
-    downloadAddonFailedSignal = Signal(dict)
+    addAddonEvent = pyqtSignal(dict)
+    removeAddonEvent = pyqtSignal(dict)
+    addAddonFinishEvent = pyqtSignal(str)
+    downloadAddonFailedSignal = pyqtSignal(dict)
     ADDON_OBJECT = {}  # 导入的插件的对象
     ADDON_MAINPAGE = {}
 
@@ -91,7 +91,7 @@ class Window(FluentWindow):
         @param page: 页面对象
         @param pos: 位置top/scroll/bottom
         """
-        return self.addSubInterface(page, page.icon(), page.objectName(), eval(f"NavigationItemPosition.{pos.upper()}"))
+        return self.addSubInterface(page, page.getIcon(), page.objectName(), eval(f"NavigationItemPosition.{pos.upper()}"))
 
     def addSeparator(self, pos: str):
         """

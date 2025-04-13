@@ -4,8 +4,8 @@ from .widget import *
 
 
 class DownloadInfoCard(SmallInfoCard):
-    downloadSignal = Signal(bool)
-    setProgressSignal = Signal(int)
+    downloadSignal = pyqtSignal(bool)
+    setProgressSignal = pyqtSignal(int)
 
     def __init__(self, url: str, path: str, parent=None, replace: bool = False):
         """
@@ -17,8 +17,8 @@ class DownloadInfoCard(SmallInfoCard):
         """
         super().__init__(parent)
         self.setTitle(zb.splitPath(zb.joinPath(path, zb.getFileNameFromUrl(url)) if zb.isDir(path) else path))
-        self.setInfo(f"文件链接：{url}", 0)
-        self.setInfo(f"目标位置：{zb.joinPath(path, zb.getFileNameFromUrl(url)) if zb.isDir(path) else path}", 1)
+        self.setText(f"文件链接：{url}", 0)
+        self.setText(f"目标位置：{zb.joinPath(path, zb.getFileNameFromUrl(url)) if zb.isDir(path) else path}", 1)
         self.titleLabel.setTextInteractionFlags(Qt.TextSelectableByMouse)
         self.contentLabel1.setTextInteractionFlags(Qt.TextSelectableByMouse)
         self.contentLabel2.deleteLater()
@@ -82,7 +82,7 @@ class DownloadInfoCard(SmallInfoCard):
         self.d = zb.downloadManager.download(self.url, self.path, False, self.replace, zb.REQUEST_HEADER)
         while True:
             if not self.d.isFinished():
-                self.setProgressSignal.emit(self.d.progress())
+                self.setProgressSignal.emit(int(self.d.progress()))
             else:
                 self.progressLabel.setText("下载完成")
                 self.downloadSignal.emit(True)
@@ -113,6 +113,7 @@ class DownloadInfoCard(SmallInfoCard):
             time.sleep(0.25)
 
     def setProgress(self, percent: int):
+        print(percent)
         self.progressBar.setValue(percent)
         self.progressLabel.setText(f"{percent}%")
 
