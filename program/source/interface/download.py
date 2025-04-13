@@ -85,7 +85,6 @@ class DownloadInfoCard(SmallInfoCard):
                 self.setProgressSignal.emit(int(self.d.progress()))
             else:
                 self.progressLabel.setText("下载完成")
-                self.downloadSignal.emit(True)
                 self.folderButton.show()
                 match self.d.result():
                     case "cancel":
@@ -113,7 +112,6 @@ class DownloadInfoCard(SmallInfoCard):
             time.sleep(0.25)
 
     def setProgress(self, percent: int):
-        print(percent)
         self.progressBar.setValue(percent)
         self.progressLabel.setText(f"{percent}%")
 

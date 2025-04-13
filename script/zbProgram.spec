@@ -2,10 +2,10 @@
 
 
 a = Analysis(
-    ['D:\\Code\\program\\program\\main.pyw'],
+    ['..\\program\\main.pyw'],
     pathex=[],
     binaries=[],
-    datas=[('D:\\Code\\program\\program\\source\\img', 'img')],
+    datas=[('..\\program\\source\\img', 'img')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -32,7 +32,7 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=['D:\\Code\\program\\program\\source\\img\\program.ico'],
+    icon=['..\\program\\source\\img\\program.ico'],
     contents_directory='source',
 )
 coll = COLLECT(

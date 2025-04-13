@@ -1,5 +1,6 @@
 from .widget import *
 
+
 class UpdateSettingCard(SettingCard):
     """
     更新设置卡片
@@ -70,7 +71,7 @@ class UpdateSettingCard(SettingCard):
         self.button1.setEnabled(True)
 
         if msg:
-            os.popen(program.cache("zbProgramUpdate.exe"))
+            zb.startFile(program.cache("zbProgramUpdate.exe"))
         else:
             self.infoBar = InfoBar(InfoBarIcon.WARNING, "警告", "安装包下载失败，无法更新！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.window().aboutPage)
             self.infoBar.show()

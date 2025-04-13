@@ -25,13 +25,13 @@ DefaultDirName=C:\Program Files\zbProgram
 ChangesAssociations=yes
 DefaultGroupName={#MyAppName}
 AllowNoIcons=yes
-LicenseFile=D:\Code\program\LICENSE
+LicenseFile=..\LICENSE
 ; Uncomment the following line to run in non administrative install mode (install for current user only.)
 ;PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=dialog
-OutputDir=D:\Code\打包\zbProgram
+OutputDir=..\build\zbProgram
 OutputBaseFilename=zbProgram_setup
-SetupIconFile=D:\Code\program\program\source\img\program.ico
+SetupIconFile=..\program\source\img\program.ico
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
@@ -44,8 +44,8 @@ Name: "desktopicon"; Description: "创建桌面快捷方式";  Flags: unchecked
 Name: "startupicon"; Description: "开机自启动"; Flags: unchecked
 
 [Files]
-Source: "D:\Code\打包\zbProgram\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\Code\打包\zbProgram\source\*"; DestDir: "{app}\source"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\build\zbProgram\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\build\zbProgram\source\*"; DestDir: "{app}\source"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Registry]
