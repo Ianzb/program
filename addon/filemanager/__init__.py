@@ -1,4 +1,3 @@
-import filecmp
 import logging
 
 from source.addon import *
@@ -74,6 +73,7 @@ class SortFunctions:
         清理重复文件
         @param path: 文件夹路径
         """
+        from .filecmp import cmp
         if zb.isDir(path):
             names = zb.walkFile(path, 1)
             if not names:
@@ -82,7 +82,7 @@ class SortFunctions:
             for i in range(len(names)):
                 for j in range(len(names[:i])):
                     if not zb.existPath(names[i]) or not zb.existPath(names[j]): continue
-                    if filecmp.cmp(names[i], names[j], False):
+                    if cmp(names[i], names[j], False):
                         zb.deletePath(sorted([names[i], names[j]])[0], setting.read("deleteToTrash"))
 
     def clearFile(self, path: str):
