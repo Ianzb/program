@@ -1,10 +1,23 @@
 import logging
-import os
 import subprocess
-import sys
 from concurrent.futures import ThreadPoolExecutor
 
-from zbWidgetLib import *
+import functools
+from PyQt5 import *
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
+from PyQt5 import QtCore
+from PyQt5 import QtGui
+from PyQt5 import QtWidgets
+from qtpy import *
+from qfluentwidgets import *
+from qfluentwidgets.components.material import *
+from qfluentwidgets import FluentIcon as FIF
+
+import zbToolLib as zb
+import zbWidgetLib as zbw
+from qtpy import *
 
 
 class Program:
@@ -13,9 +26,11 @@ class Program:
     """
     NAME = "zb小程序"  # 程序名称
     VERSION = "5.3.0"  # 程序版本
+    CORE_VERSION = "5.3.2"  # 内核版本
     TITLE = f"{NAME} {VERSION}"  # 程序标题
     URL = "https://ianzb.github.io/project/program.html"  # 程序网址
     LICENSE = "GPLv3"  # 程序许可协议
+    INFO = "© 2022-2025 Ianzb. GPLv3 License."
     UPDATE_URL = "http://123pan.ianzb.cn/Code/program/index.json"  # 更新网址
     UPDATE_INSTALLER_URL = "http://123pan.ianzb.cn/Code/program/zbProgram_setup.exe"  # 更新安装包链接
     ADDON_URL = "http://123pan.ianzb.cn/Code/addon/addon.json"  # 插件信息网址
@@ -26,22 +41,21 @@ class Program:
     GITHUB_URL = "https://github.com/Ianzb/program/"  # Github网址
 
     MAIN_FILE_PATH = sys.argv[0]  # 程序主文件路径
-    MAIN_FILE_NAME = os.path.basename(MAIN_FILE_PATH)  # 当前程序文件名称
-    INSTALL_PATH = os.path.dirname(MAIN_FILE_PATH)  # 程序安装路径
+    MAIN_FILE_NAME = zb.getFileName(MAIN_FILE_PATH)  # 当前程序文件名称
+    INSTALL_PATH = zb.getFileDir(MAIN_FILE_PATH)  # 程序安装路径
     SOURCE_PATH = r"source\img"  # 程序资源文件路径
-    PROGRAM_PID = os.getpid()  # 程序pid
-    DATA_PATH = os.path.join(zb.USER_PATH, "zb")  # 程序数据路径
-    SETTING_FILE_PATH = os.path.join(DATA_PATH, "settings.json")  # 程序设置文件路径
-    LOGGING_FILE_PATH = os.path.join(DATA_PATH, "logging.log")  # 程序日志文件路径
-    ADDON_PATH = os.path.join(DATA_PATH, "addon")  # 程序插件路径
+    PID = os.getpid()  # 程序pid
+    DATA_PATH = zb.joinPath(zb.USER_PATH, "zb")  # 程序数据路径
+    SETTING_FILE_PATH = zb.joinPath(DATA_PATH, "settings.json")  # 程序设置文件路径
+    LOGGING_FILE_PATH = zb.joinPath(DATA_PATH, "logging.log")  # 程序日志文件路径
+    ADDON_PATH = zb.joinPath(DATA_PATH, "addon")  # 程序插件路径
 
     STARTUP_ARGUMENT = sys.argv[1:]  # 程序启动参数
     THREAD_POOL = ThreadPoolExecutor()  # 程序公用线程池
 
     def __init__(self):
         # 创建数据目录
-        if not os.path.exists(self.DATA_PATH):
-            os.mkdir(self.DATA_PATH)
+        zb.createDir(self.DATA_PATH)
 
         # 切换运行路径
         os.chdir(self.INSTALL_PATH)
@@ -63,11 +77,11 @@ class Program:
             self.SOURCE_PATH = sys._MEIPASS + r"\img"
 
     @property
-    def ICON(self) -> str:
+    def ICON(self):
         return program.source("program.png")
 
     @property
-    def isStartup(self) -> bool:
+    def isStartup(self):
         """
         判断程序是否为开机自启动
         @return: bool
@@ -75,28 +89,28 @@ class Program:
         return "startup" in self.STARTUP_ARGUMENT
 
     @property
-    def isExe(self) -> bool:
+    def isExe(self):
         """
         判断程序是否为
         @return:
         """
         return ".exe" in self.MAIN_FILE_NAME
 
-    def source(self, name: str) -> str:
+    def source(self, *args):
         """
         快捷获取程序资源文件路径
         @param name: 文件名
         @return: 文件路径
         """
-        return os.path.join(self.SOURCE_PATH, name)
+        return zb.joinPath(self.SOURCE_PATH, *args)
 
-    def cache(self, name: str) -> str:
+    def cache(self, *args):
         """
         快捷获取程序缓存文件路径
         @param name: 文件名
         @return: 文件路径
         """
-        return os.path.join(self.DATA_PATH, "cache", name)
+        return zb.joinPath(self.DATA_PATH, "cache", *args)
 
     def close(self):
         """
@@ -129,7 +143,7 @@ class Program:
                 if zb.existPath(zb.joinPath(program.DATA_PATH, "zb.unlock")):
                     os.remove(zb.joinPath(program.DATA_PATH, "zb.unlock"))
                 with open(zb.joinPath(program.DATA_PATH, "zb.lock"), "w+", encoding="utf-8") as file:
-                    file.write(str(program.PROGRAM_PID))
+                    file.write(str(program.PID))
 
     def addToStartup(self, mode: bool = True):
         """
@@ -169,7 +183,7 @@ class Program:
         获取程序最新版本
         @return: 程序最新版本
         """
-        response = zb.getUrl(program.UPDATE_URL, zb.REQUEST_HEADER, (15, 30))
+        response = zb.getUrl(program.UPDATE_URL, headers=zb.REQUEST_HEADER)
         data = json.loads(response.text)["version"]
         logging.info(f"服务器最新版本：{data}")
         return data
@@ -180,7 +194,7 @@ class Program:
         @return: 字典
         """
         try:
-            response = zb.getUrl(program.ADDON_URL, zb.REQUEST_HEADER, (15, 30))
+            response = zb.getUrl(program.ADDON_URL, headers=zb.REQUEST_HEADER)
             data = json.loads(response.text)
             logging.info("插件信息获取成功！")
             return data
@@ -194,7 +208,7 @@ class Program:
         @return: 信息
         """
         try:
-            response = zb.getUrl(url, zb.REQUEST_HEADER, (15, 30))
+            response = zb.getUrl(url, headers=zb.REQUEST_HEADER)
             data = json.loads(response.text)
             data["url"] = url
             logging.info(f"插件{data["name"]}信息获取成功")
@@ -234,7 +248,7 @@ class Program:
         """
         try:
             data = {}
-            for i in zb.walkDir(program.ADDON_PATH, 1):
+            for i in zb.walkDir(program.ADDON_PATH, True):
                 if zb.isFile(zb.joinPath(i, "addon.json")):
                     with open(zb.joinPath(i, "addon.json"), encoding="utf-8") as file:
                         addon_data = json.load(file)

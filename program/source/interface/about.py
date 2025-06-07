@@ -1,3 +1,5 @@
+import webbrowser
+
 from .widget import *
 
 
@@ -174,7 +176,7 @@ class AboutSettingCard(SettingCard):
     """
 
     def __init__(self, parent=None):
-        super().__init__(FIF.INFO, "关于", f"© 2022-2025 Ianzb. GPLv3 License.\n当前版本 {program.VERSION}", parent)
+        super().__init__(FIF.INFO, "关于", f"{program.INFO}\nVersion {program.VERSION}. Powered by zbGuiTemplate {program.CORE_VERSION}.", parent)
         self.button1 = HyperlinkButton(program.URL, "程序官网", self, FIF.LINK)
         self.button1.setToolTip("打开程序官网")
         self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
@@ -188,19 +190,18 @@ class AboutSettingCard(SettingCard):
         self.hBoxLayout.addSpacing(16)
 
 
-class AboutPage(BasicPage):
+class AboutPage(zbw.BasicPage):
     """
     关于页面
     """
-    title = "关于"
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
-
         self.setViewportMargins(0, 70, 0, 0)
+        self.setTitle("关于")
         self.setIcon(FIF.INFO)
 
-        self.cardGroup1 = CardGroup("关于", self)
+        self.cardGroup1 = zbw.CardGroup("关于", self)
 
         self.updateSettingCard = UpdateSettingCard()
         self.helpSettingCard = HelpSettingCard()
@@ -212,7 +213,7 @@ class AboutPage(BasicPage):
         self.cardGroup1.addCard(self.controlSettingCard, "controlSettingCard")
         self.cardGroup1.addCard(self.aboutSettingCard, "aboutSettingCard")
 
-        self.bigInfoCard = BigInfoCard(self, data=False)
+        self.bigInfoCard = zbw.BigInfoCard(self, data=False)
         self.bigInfoCard.setImg(program.source("zb.png"))
         self.bigInfoCard.image.setMinimumSize(150, 150)
         self.bigInfoCard.setTitle(program.AUTHOR_NAME)

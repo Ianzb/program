@@ -3,11 +3,11 @@ import time
 from .widget import *
 
 
-class DownloadInfoCard(SmallInfoCard):
+class DownloadInfoCard(zbw.SmallInfoCard):
     downloadSignal = pyqtSignal(bool)
     setProgressSignal = pyqtSignal(int)
 
-    def __init__(self, url: str, path: str, parent=None, replace: bool = False):
+    def __init__(self, url: str, path: str, parent=None, replace: bool = False, wid: str = False):
         """
         下载信息卡片
         @param url: 下载链接
@@ -16,7 +16,7 @@ class DownloadInfoCard(SmallInfoCard):
         @param replace: 是否替换
         """
         super().__init__(parent)
-        self.setTitle(zb.splitPath(zb.joinPath(path, zb.getFileNameFromUrl(url)) if zb.isDir(path) else path))
+        self.setTitle(zb.getFileNameFromUrl(url))
         self.setText(f"文件链接：{url}", 0)
         self.setText(f"目标位置：{zb.joinPath(path, zb.getFileNameFromUrl(url)) if zb.isDir(path) else path}", 1)
         self.titleLabel.setTextInteractionFlags(Qt.TextSelectableByMouse)
@@ -29,6 +29,7 @@ class DownloadInfoCard(SmallInfoCard):
         self.url = url
         self.path = path
         self.replace = replace
+        self.wid = wid
 
         self.progressBar = ProgressBar(self)
         self.progressBar.setRange(0, 100)
@@ -37,17 +38,17 @@ class DownloadInfoCard(SmallInfoCard):
         self.progressLabel = BodyLabel("加载中...", self)
 
         self.folderButton = ToolButton(FIF.FOLDER, self)
-        setToolTip(self.folderButton, "打开下载目录")
+        zbw.setToolTip(self.folderButton, "打开下载目录")
         self.folderButton.clicked.connect(lambda: zb.showFile(zb.joinPath(self.path, zb.getFileNameFromUrl(self.url)) if zb.isDir(self.path) else self.path))
         self.folderButton.hide()
 
         self.deleteButton = ToolButton(FIF.DELETE, self)
-        setToolTip(self.deleteButton, "删除下载文件")
+        zbw.setToolTip(self.deleteButton, "删除下载文件")
         self.deleteButton.clicked.connect(self.deleteDownload)
         self.deleteButton.hide()
 
         self.closeButton = ToolButton(FIF.CLOSE, self)
-        setToolTip(self.closeButton, "关闭下载任务")
+        zbw.setToolTip(self.closeButton, "关闭下载任务")
         self.closeButton.clicked.connect(self.closeDownload)
 
         self.vBoxLayout = QVBoxLayout()
@@ -74,9 +75,11 @@ class DownloadInfoCard(SmallInfoCard):
         self.deleteLater()
 
     def deleteDownload(self):
-        path = self.d.resultPath
+        path = self.d.outputPath()
         zb.deleteFile(path, True)
         logging.info(f"已删除下载的{path}文件！")
+        self.parent().removeCard(self.wid)
+        self.deleteLater()
 
     def startDownload(self):
         self.d = zb.downloadManager.download(self.url, self.path, False, self.replace, zb.REQUEST_HEADER)
@@ -116,18 +119,18 @@ class DownloadInfoCard(SmallInfoCard):
         self.progressLabel.setText(f"{percent}%")
 
 
-class DownloadPage(BasicPage):
-    title = "下载"
+class DownloadPage(zbw.BasicPage):
 
     def __init__(self, parent=None):
         super().__init__(parent)
 
         self.setViewportMargins(0, 70, 0, 0)
+        self.setTitle("下载")
         self.setIcon(FIF.DOWNLOAD)
 
         self.lineEdit = AcrylicSearchLineEdit(self)
         self.lineEdit.setPlaceholderText("下载链接")
-        setToolTip(self.lineEdit, "请输入任意网络下载链接")
+        zbw.setToolTip(self.lineEdit, "请输入任意网络下载链接")
         self.lineEdit.setMaxLength(1000)
         self.lineEdit.textChanged.connect(self.lineEditChanged)
         self.lineEdit.returnPressed.connect(self.downloadButtonClicked)
@@ -135,10 +138,10 @@ class DownloadPage(BasicPage):
         self.lineEdit.searchButton.clicked.connect(self.downloadButtonClicked)
         self.lineEdit.searchButton.setEnabled(False)
 
-        self.card = GrayCard("自定义下载", self)
+        self.card = zbw.GrayCard("自定义下载", self)
         self.card.addWidget(self.lineEdit)
 
-        self.cardGroup = CardGroup("下载列表", self)
+        self.cardGroup = zbw.CardGroup("下载列表", self)
 
         self.vBoxLayout.addWidget(self.card)
         self.vBoxLayout.addWidget(self.cardGroup)
@@ -160,6 +163,7 @@ class DownloadPage(BasicPage):
         @param replace: 是否替换
         @return: 下载状态事件
         """
-        d = DownloadInfoCard(url, path, self, replace)
-        self.cardGroup.addCard(d, url + str(time.time()))
+        wid = url + str(time.time())
+        d = DownloadInfoCard(url, path, self, replace, wid)
+        self.cardGroup.addCard(d, wid)
         return d.downloadSignal

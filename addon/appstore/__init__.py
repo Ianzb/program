@@ -23,7 +23,7 @@ def addonWidget():
 def xmlToJson(data: str):
     """
     xml转json
-    @param data: xml字符串
+    :param data: xml字符串
     @return: 字典格式json数据
     """
     from .xmltodict import parse
@@ -34,21 +34,21 @@ def xmlToJson(data: str):
 def searchSoftware(name: str, source: str):
     """
     搜索软件
-    @param name: 名称
+    :param name: 名称
     @return: 列表
     """
     logging.info(f"正在{source}应用商店搜索应用{name}！")
     try:
         list = []
         if source == "腾讯":
-            data = zb.getUrl(f"https://s.pcmgr.qq.com/tapi/web/searchcgi.php?type=search&keyword={name}&page=1&pernum=100", zb.REQUEST_HEADER).text
+            data = zb.getUrl(f"https://s.pcmgr.qq.com/tapi/web/searchcgi.php?type=search&keyword={name}&page=1&pernum=100", headers=zb.REQUEST_HEADER).text
             data = json.loads(data)["list"]
             for i in range(len(data)):
                 data[i]["xmlInfo"] = xmlToJson(data[i]["xmlInfo"])
             for i in data:
                 list.append({"名称": i["SoftName"],
                              "图标": f"https://pc3.gtimg.com/softmgr/logo/48/{i["xmlInfo"]["soft"]["logo48"]}",
-                             "介绍": zb.clearCharacters(i["xmlInfo"]["soft"]["feature"]),
+                             "介绍": zb.clearIllegalPathName(i["xmlInfo"]["soft"]["feature"]),
                              "当前版本": i["xmlInfo"]["soft"]["versionname"],
                              "更新日期": i["xmlInfo"]["soft"]["publishdate"],
                              "文件大小": zb.fileSizeAddUnit(int(i["xmlInfo"]["soft"]["filesize"])),
@@ -60,16 +60,16 @@ def searchSoftware(name: str, source: str):
                 elif i["xmlInfo"]["soft"]["@osbit"] == "1":
                     list[-1]["名称"] += " 32位"
         elif source == "360":
-            data = zb.getUrl(f"https://bapi.safe.360.cn/soft/search?keyword={name}&page=1", zb.REQUEST_HEADER).text
+            data = zb.getUrl(f"https://bapi.safe.360.cn/soft/search?keyword={name}&page=1", headers=zb.REQUEST_HEADER).text
             data = json.loads(data)["data"]["list"]
             for i in data:
                 list.append({"名称": i["softname"],
                              "图标": i["logo"] if "https:" in i["logo"] else f"https:{i["logo"]}",
-                             "介绍": zb.clearCharacters(i["desc"], "escape"),
+                             "介绍": zb.clearIllegalPathName(i["desc"]),
                              "当前版本": i["version"],
                              "更新日期": i["date"],
                              "文件大小": i["size"],
-                             "文件名称": zb.splitPath(i["soft_download"], 0),
+                             "文件名称": zb.getFileNameFromUrl(i["soft_download"]),
                              "下载链接": i["soft_download"],
                              })
         return list
@@ -77,7 +77,7 @@ def searchSoftware(name: str, source: str):
         logging.error(f"在{source}应用商店搜索应用{name}失败，报错信息{ex}！")
 
 
-class AppInfoCard(SmallInfoCard):
+class AppInfoCard(zbw.SmallInfoCard):
     """
     应用商店信息卡片
     """
@@ -91,9 +91,9 @@ class AppInfoCard(SmallInfoCard):
         self.mainButton.setText("下载")
         self.mainButton.setIcon(FIF.DOWNLOAD)
         self.mainButton.clicked.connect(self.mainButtonClicked)
-        setToolTip(self.mainButton, "下载软件")
+        zbw.setToolTip(self.mainButton, "下载软件")
 
-        self.setImg(program.cache(f"{self.source}/{zb.clearCharacters(self.data["名称"], "illegalPath")}.png"), self.data["图标"], program.THREAD_POOL)
+        self.setImg(program.cache(f"{self.source}/{zb.clearIllegalPathName(self.data["名称"])}.png"), self.data["图标"], program.THREAD_POOL)
         self.setTitle(f"{self.data["名称"]}")
 
         self.setText(self.data["介绍"], 0)
@@ -104,7 +104,8 @@ class AppInfoCard(SmallInfoCard):
     def mainButtonClicked(self):
         self.download = self.window().downloadPage.startDownload(self.data["下载链接"], zb.joinPath(setting.read("downloadPath"), self.data["文件名称"]), True)
 
-class AddonPage(BasicTab):
+
+class AddonPage(zbw.BasicTab):
     """
     插件主页面
     """
@@ -114,6 +115,7 @@ class AddonPage(BasicTab):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setIcon(FIF.SHOPPING_CART)
+        self.setTitle("应用商店")
 
         self.vBoxLayout.setSpacing(8)
 
@@ -134,17 +136,17 @@ class AddonPage(BasicTab):
         self.comboBox.setToolTip("选择下载应用来源")
         self.comboBox.installEventFilter(ToolTipFilter(self.comboBox, 1000))
 
-        self.card = GrayCard("应用商店", self)
+        self.card = zbw.GrayCard("应用商店", self)
         self.card.addWidget(self.lineEdit)
         self.card.addWidget(self.comboBox)
 
-        self.loadingCard = LoadingCard(self)
+        self.loadingCard = zbw.LoadingCard(self)
         self.loadingCard.hide()
 
         self.vBoxLayout.addWidget(self.card)
         self.vBoxLayout.addWidget(self.loadingCard, 0, Qt.AlignCenter)
 
-        self.cardGroup = CardGroup(self.view)
+        self.cardGroup = zbw.CardGroup(self.view)
         self.vBoxLayout.addWidget(self.cardGroup)
 
         self.signalList.connect(self.thread1)
@@ -166,7 +168,6 @@ class AddonPage(BasicTab):
 
             self.loadingCard.setText("搜索中...")
             self.loadingCard.show()
-
 
             program.THREAD_POOL.submit(self.__search)
 

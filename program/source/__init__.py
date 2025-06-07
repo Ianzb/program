@@ -1,12 +1,14 @@
-from .interface import *
-from traceback import format_exception
 import importlib
+import traceback
+
+from .interface import *
 
 
-class Window(FluentWindow):
+class Window(zbw.Window):
     """
     主窗口
     """
+    initFinished = pyqtSignal()
 
     addAddonEvent = pyqtSignal(dict)
     removeAddonEvent = pyqtSignal(dict)
@@ -25,13 +27,12 @@ class Window(FluentWindow):
         self.downloadPage = DownloadPage(self)
         self.settingPage = SettingPage(self)
         self.aboutPage = AboutPage(self)
-
-        self.addPage(self.mainPage, "top")
-        self.addPage(self.downloadPage, "top")
+        self.addPage(self.mainPage, self.mainPage.title(), self.mainPage.icon(), "top")
+        self.addPage(self.downloadPage, self.downloadPage.title(), self.downloadPage.icon(), "top")
         self.addSeparator("top")
         self.addSeparator("bottom")
-        self.addPage(self.settingPage, "bottom")
-        self.addPage(self.aboutPage, "bottom")
+        self.addPage(self.settingPage, self.settingPage.title(), self.settingPage.icon(), "bottom")
+        self.addPage(self.aboutPage, self.aboutPage.title(), self.aboutPage.icon(), "bottom")
 
         # 循环监测事件
         self.timer = QTimer(self)
@@ -60,6 +61,7 @@ class Window(FluentWindow):
         if setting.errorState:
             self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", "设置文件数据错误，已自动恢复至默认选项，具体错误原因请查看程序日志！", Qt.Orientation.Vertical, True, -1, InfoBarPosition.TOP_RIGHT, self.mainPage)
             self.infoBar.show()
+        self.initFinished.emit()
 
         # 插件安装
         data = program.getInstalledAddonInfo()
@@ -84,21 +86,6 @@ class Window(FluentWindow):
             self.hide()
         else:
             program.close()
-
-    def addPage(self, page, pos: str):
-        """
-        添加导航栏页面简易版
-        @param page: 页面对象
-        @param pos: 位置top/scroll/bottom
-        """
-        return self.addSubInterface(page, page.getIcon(), page.objectName(), eval(f"NavigationItemPosition.{pos.upper()}"))
-
-    def addSeparator(self, pos: str):
-        """
-        添加导航栏分割线简易版
-        @param pos: 位置top/scroll/bottom
-        """
-        self.navigationInterface.addSeparator(eval(f"NavigationItemPosition.{pos.upper()}"))
 
     def downloadAddon(self, data):
         program.THREAD_POOL.submit(self.__downloadAddon, data)
@@ -142,7 +129,7 @@ class Window(FluentWindow):
                 lib.addonInit()
                 widget = lib.addonWidget()
                 widget.setObjectName(data["name"])
-                self.addPage(widget, "scroll")
+                self.addPage(widget, widget.title(), widget.icon(), "scroll")
 
                 self.ADDON_OBJECT[data["id"]] = lib
                 self.ADDON_MAINPAGE[data["id"]] = widget
@@ -154,7 +141,7 @@ class Window(FluentWindow):
             self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", f"插件{data["name"]}安装失败！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.mainPage)
             self.infoBar.show()
 
-            logging.warning(f"插件{data["name"]}安装失败{ex}")
+            logging.warning(f"插件{data["name"]}安装失败{traceback.format_exc()}")
 
     def removeAddon(self, data: dict):
         """

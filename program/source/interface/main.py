@@ -10,7 +10,7 @@ class AddonInfoMessageBox(MessageBox):
 
     def __init__(self, parent=None):
         super().__init__(title="", content="", parent=parent)
-        self.image = Image(self)
+        self.image = zbw.WebImage(self)
 
         self.yesButton.deleteLater()
         self.cancelButton.setText("关闭")
@@ -31,7 +31,7 @@ class AddonInfoMessageBox(MessageBox):
                     self.textLayout.insertWidget(1, self.image)
 
 
-class AddonInfoCard(SmallInfoCard):
+class AddonInfoCard(zbw.SmallInfoCard):
     """
     插件信息卡片
     """
@@ -158,16 +158,16 @@ class AddonInfoCard(SmallInfoCard):
         self.messageBox.deleteLater()
 
 
-class MainPage(BasicTab):
+class MainPage(zbw.BasicTab):
     """
     主页
     """
-    title = "主页"
     signalAddCardOffline = pyqtSignal(dict)
     signalAddCardOnline = pyqtSignal(dict)
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
+        self.setTitle("主页")
         self.setIcon(FIF.HOME)
 
         self.addon_list = {}
@@ -176,14 +176,14 @@ class MainPage(BasicTab):
         self.image = ImageLabel(program.source("title.png"))
         self.image.setFixedSize(410, 135)
 
-        self.card1 = GrayCard("插件管理", self)
+        self.card1 = zbw.GrayCard("插件管理", self)
 
         self.reloadButton = PushButton("刷新", self, FIF.SYNC)
         self.reloadButton.setEnabled(False)
         self.reloadButton.clicked.connect(self.reload)
         self.card1.addWidget(self.reloadButton)
 
-        self.cardGroup1 = CardGroup("插件列表", self)
+        self.cardGroup1 = zbw.CardGroup("插件列表", self)
 
         self.vBoxLayout.addWidget(self.image, 0, Qt.AlignCenter)
         self.vBoxLayout.addWidget(self.card1)

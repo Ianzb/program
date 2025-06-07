@@ -1,6 +1,4 @@
 from .program import *
-import json
-from copy import *
 
 
 class SettingFunctions(QObject):
@@ -18,6 +16,7 @@ class SettingFunctions(QObject):
                        }
     changeSignal = pyqtSignal(str)
     errorState = False  # 错误信息
+
     def __init__(self):
         super().__init__()
         program.THREAD_POOL.submit(self.checkFileChange)
@@ -34,7 +33,7 @@ class SettingFunctions(QObject):
     def __read(self):
         if not zb.existPath(program.SETTING_FILE_PATH):
             with open(program.SETTING_FILE_PATH, "w", encoding="utf-8") as file:
-                file.write(json.dumps(self.DEFAULT_SETTING, indent=2,ensure_ascii=False))
+                file.write(json.dumps(self.DEFAULT_SETTING, indent=2, ensure_ascii=False))
         try:
             with open(program.SETTING_FILE_PATH, "r", encoding="utf-8") as file:
                 self.last_setting = json.load(file)
@@ -56,7 +55,7 @@ class SettingFunctions(QObject):
 
     def __save(self):
         with open(program.SETTING_FILE_PATH, "w", encoding="utf-8") as file:
-            file.write(json.dumps(self.last_setting, indent=2,ensure_ascii=False))
+            file.write(json.dumps(self.last_setting, indent=2, ensure_ascii=False))
         self.last_timestamp = os.path.getmtime(program.SETTING_FILE_PATH)
 
     def reset(self, name=None):

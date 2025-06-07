@@ -36,8 +36,8 @@ class ThemeSettingCard(ExpandSettingCard):
         self.viewLayout.addWidget(self.radioButton2)
         self.viewLayout.addWidget(self.radioButton3)
 
-        self.set()
         setting.signalConnect(self.setEvent)
+        self.window().initFinished.connect(self.set)
 
         self._adjustViewSize()
 
@@ -138,8 +138,8 @@ class ColorSettingCard(ExpandGroupSettingCard):
 
         self._adjustViewSize()
 
-        self.set()
         setting.signalConnect(self.setEvent)
+        self.window().initFinished.connect(self.set)
 
     def getDefaultColor(self):
         from qframelesswindow.utils import getSystemAccentColor
@@ -213,8 +213,8 @@ class MicaEffectSettingCard(SettingCard):
         self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
-        self.set()
         setting.signalConnect(self.setEvent)
+        self.window().initFinished.connect(self.set)
 
     def set(self):
         self.button1.checkedChanged.disconnect(self.button1Clicked)
@@ -257,8 +257,8 @@ class StartupSettingCard(SettingCard):
         self.hBoxLayout.addWidget(self.checkBox2, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
-        self.set()
         setting.signalConnect(self.setEvent)
+        self.window().initFinished.connect(self.set)
 
     def set(self):
         self.checkBox2.clicked.disconnect(self.button2Clicked)
@@ -393,20 +393,20 @@ class DownloadSettingCard(SettingCard):
             self.saveSetting(file)
 
 
-class SettingPage(BasicPage):
+class SettingPage(zbw.BasicPage):
     """
     设置页面
     """
-    title = "设置"
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.setViewportMargins(0, 70, 0, 0)
+        self.setTitle("设置")
         self.setIcon(FIF.SETTING)
 
-        self.cardGroup1 = CardGroup("外观", self)
-        self.cardGroup2 = CardGroup("行为", self)
-        self.cardGroup3 = CardGroup("功能", self)
+        self.cardGroup1 = zbw.CardGroup("外观", self)
+        self.cardGroup2 = zbw.CardGroup("行为", self)
+        self.cardGroup3 = zbw.CardGroup("功能", self)
 
         self.themeSettingCard = ThemeSettingCard(self)
         self.colorSettingCard = ColorSettingCard(self)
