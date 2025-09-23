@@ -92,14 +92,14 @@ class Window(zbw.Window):
 
     def __downloadAddon(self, data):
         result = program.downloadAddonFromInfo(data)
-        self.addAddonFinishEvent.emit(data["id"])
+        self.addAddonFinishEvent.emit(data.get("id"))
         if result:
             self.addAddonEvent.emit(data)
         else:
             self.downloadAddonFailedSignal.emit(data)
 
     def __downloadAddonFailed(self, data):
-        self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", f"插件{data["name"]}下载失败！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.mainPage)
+        self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", f"插件{data.get("name", "")}下载失败！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.mainPage)
         self.infoBar.show()
 
     def addAddon(self, data: dict):
@@ -108,15 +108,16 @@ class Window(zbw.Window):
         @param msg: 数据
         """
         try:
-            if data["id"] in self.ADDON_OBJECT.keys():
+            if data.get("id") in self.ADDON_OBJECT:
                 try:
-                    self.navigationInterface.removeWidget(data["name"])
-                    self.stackedWidget.view.removeWidget(self.ADDON_MAINPAGE[data["id"]])
-                    self.ADDON_MAINPAGE[data["id"]].deleteLater()
+                    self.navigationInterface.removeWidget(data.get("name", ""))
+                    self.stackedWidget.view.removeWidget(self.ADDON_MAINPAGE.get(data.get("id")))
+                    if self.ADDON_MAINPAGE.get(data.get("id")):
+                        self.ADDON_MAINPAGE.get(data.get("id")).deleteLater()
                 except:
                     pass
 
-                self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{data["name"]}更新成功，重启程序生效！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.mainPage)
+                self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{data.get("name", "")}更新成功，重启程序生效！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.mainPage)
                 self.button1 = PushButton("重启", self, FIF.SYNC)
                 self.button1.clicked.connect(program.restart)
                 self.button1.setToolTip("重启程序")
@@ -124,46 +125,48 @@ class Window(zbw.Window):
                 self.infoBar.addWidget(self.button1)
                 self.infoBar.show()
             else:
-                lib = importlib.import_module(data["id"])
+                lib = importlib.import_module(data.get("id", ""))
                 lib.addonBase.set(program, setting, self)
                 lib.addonInit()
                 widget = lib.addonWidget()
-                widget.setObjectName(data["name"])
+                widget.setObjectName(data.get("name", ""))
                 self.addPage(widget, widget.title(), widget.icon(), "scroll")
 
-                self.ADDON_OBJECT[data["id"]] = lib
-                self.ADDON_MAINPAGE[data["id"]] = widget
+                self.ADDON_OBJECT[data.get("id")] = lib
+                self.ADDON_MAINPAGE[data.get("id")] = widget
 
-                self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{data["name"]}安装成功！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.mainPage)
+                self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{data.get("name", "")}安装成功！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.mainPage)
                 self.infoBar.show()
-            logging.info(f"插件{data["name"]}安装成功")
+            logging.info(f"插件{data.get("name", "")}安装成功")
         except Exception as ex:
-            self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", f"插件{data["name"]}安装失败！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.mainPage)
+            self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", f"插件{data.get("name", "")}安装失败！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.mainPage)
             self.infoBar.show()
 
-            logging.warning(f"插件{data["name"]}安装失败{traceback.format_exc()}")
+            logging.warning(f"插件{data.get("name", "")}安装失败{traceback.format_exc()}")
 
     def removeAddon(self, data: dict):
         """
         移除插件
         @param msg: 数据
         """
-        if data["id"] in self.ADDON_OBJECT.keys():
-            self.navigationInterface.removeWidget(data["name"])
-            self.stackedWidget.view.removeWidget(self.ADDON_MAINPAGE[data["id"]])
-            self.ADDON_MAINPAGE[data["id"]].deleteLater()
-            del self.ADDON_OBJECT[data["id"]]
-            del self.ADDON_MAINPAGE[data["id"]]
-        zb.deleteDir(zb.joinPath(program.ADDON_PATH, data["id"]), force=True)
-        if not zb.existPath(zb.joinPath(program.ADDON_PATH, data["id"])):
-            logging.info(f"插件{data["name"]}删除成功")
+        if data.get("id") in self.ADDON_OBJECT:
+            self.navigationInterface.removeWidget(data.get("name", ""))
+            mainpage = self.ADDON_MAINPAGE.get(data.get("id"))
+            if mainpage:
+                self.stackedWidget.view.removeWidget(mainpage)
+                mainpage.deleteLater()
+            self.ADDON_OBJECT.pop(data.get("id"), None)
+            self.ADDON_MAINPAGE.pop(data.get("id"), None)
+        zb.deleteDir(zb.joinPath(program.ADDON_PATH, data.get("id", "")), force=True)
+        if not zb.existPath(zb.joinPath(program.ADDON_PATH, data.get("id", ""))):
+            logging.info(f"插件{data.get("name", "")}删除成功")
 
-            self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{data["name"]}删除成功！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.mainPage)
+            self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{data.get("name", "")}删除成功！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.mainPage)
             self.infoBar.show()
         else:
-            logging.info(f"插件{data["name"]}删除失败")
+            logging.info(f"插件{data.get("name", "")}删除失败")
 
-            self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", f"插件{data["name"]}删除失败！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.mainPage)
+            self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", f"插件{data.get("name", "")}删除失败！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.mainPage)
             self.infoBar.show()
 
     def timerEvent(self):

@@ -25,7 +25,7 @@ class Program:
     程序信息
     """
     NAME = "zb小程序"  # 程序名称
-    VERSION = "5.4.0"  # 程序版本
+    VERSION = "5.3.1"  # 程序版本
     CORE_VERSION = "5.3.4"  # 内核版本
     TITLE = f"{NAME} {VERSION}"  # 程序标题
     URL = "https://ianzb.github.io/project/program.html"  # 程序网址
@@ -211,7 +211,7 @@ class Program:
             response = zb.getUrl(url, headers=zb.REQUEST_HEADER)
             data = json.loads(response.text)
             data["url"] = url
-            logging.info(f"插件{data["name"]}信息获取成功")
+            logging.info(f"插件{data.get("name", "")}信息获取成功")
             return data
         except Exception as ex:
             logging.error(f"插件{url}信息获取失败，报错信息：{ex}！")
@@ -225,20 +225,20 @@ class Program:
         """
 
         try:
-            dir_path = zb.joinPath(program.ADDON_PATH, data["id"])
+            dir_path = zb.joinPath(program.ADDON_PATH, data.get("id", ""))
             zb.createDir(dir_path)
             with open(zb.joinPath(dir_path, "addon.json"), "w+", encoding="utf-8") as file:
                 file.write(json.dumps(data, indent=2, ensure_ascii=False))
-            result = zb.singleDownload(data["file"], dir_path, True, True)
+            result = zb.singleDownload(data.get("file", ""), dir_path, True, True)
             if result:
                 zb.extractZip(result, dir_path, True)
-                logging.info(f"插件{data["name"]}下载成功！")
+                logging.info(f"插件{data.get("name", "")}下载成功！")
                 return True
             else:
-                logging.error(f"插件{data["name"]}下载失败！")
+                logging.error(f"插件{data.get("name", "")}下载失败！")
                 return False
         except Exception as ex:
-            logging.error(f"插件{data["name"]}在下载与解压过程中发生错误，报错信息：{ex}！")
+            logging.error(f"插件{data.get("name", "")}在下载与解压过程中发生错误，报错信息：{ex}！")
             return False
 
     def getInstalledAddonInfo(self):
@@ -252,7 +252,9 @@ class Program:
                 if zb.isFile(zb.joinPath(i, "addon.json")):
                     with open(zb.joinPath(i, "addon.json"), encoding="utf-8") as file:
                         addon_data = json.load(file)
-                        data[addon_data["id"]] = addon_data
+                        key = addon_data.get("id", "")
+                        if key:
+                            data[key] = addon_data
             return data
         except Exception as ex:
             logging.error(f"获取本地插件信息失败，报错信息：{ex}！")

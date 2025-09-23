@@ -21,13 +21,13 @@ class AddonInfoMessageBox(MessageBox):
         self.accepted.emit()
 
     def setData(self, data: dict):
-        if "icon" in data.keys():
-            if zb.isUrl(data["icon"]):
-                self.image.setImg(program.cache(zb.joinPath("addon", zb.getFileNameFromUrl(data["icon"]))), data["icon"])
+        if data.get("icon"):
+            if zb.isUrl(data.get("icon")):
+                self.image.setImg(program.cache(zb.joinPath("addon", zb.getFileNameFromUrl(data.get("icon")))), data.get("icon"))
                 self.textLayout.insertWidget(1, self.image)
             else:
-                if zb.existPath(zb.joinPath(program.ADDON_PATH, data["id"], data["icon"])):
-                    self.image.setImg(zb.joinPath(program.ADDON_PATH, data["id"], data["icon"]))
+                if zb.existPath(zb.joinPath(program.ADDON_PATH, data.get("id", ""), data.get("icon"))):
+                    self.image.setImg(zb.joinPath(program.ADDON_PATH, data.get("id", ""), data.get("icon")))
                     self.textLayout.insertWidget(1, self.image)
 
 
@@ -70,7 +70,7 @@ class AddonInfoCard(zbw.SmallInfoCard):
 
     def addAddon(self, msg):
         data = self.onlineData if self.onlineData else self.offlineData
-        if msg == data["id"]:
+        if msg == data.get("id"):
             self.mainButton.setEnabled(True)
             self.removeButton.setEnabled(True)
             self.window().addAddonFinishEvent.disconnect(self.addAddon)
@@ -82,15 +82,20 @@ class AddonInfoCard(zbw.SmallInfoCard):
         self.removeButton.setEnabled(False)
         self.infoButton.setEnabled(False)
         self.mainButton.setEnabled(False)
-        self.setTitle(f"{data["name"]}（已删除）")
+        self.setTitle(f"{data.get("name", "")}（已删除）")
         self.setText("本地未安装", 0)
         self.setText("", 1)
 
     def showInfo(self):
         if self.offlineData or self.onlineData:
             data = self.onlineData if self.onlineData else self.offlineData
-            title = f"{data["name"]}插件信息"
-            info = f"ID：{data["id"]}\n版本：{data["version"]}\n作者：{data["author"]}\n介绍：{data["description"]}\n更新日期：{data["history"][data["version"]]["time"]}\n更新内容：{data["history"][data["version"]]["log"]}\n"
+            title = f"{data.get("name", "")}插件信息"
+            ver = data.get("version", "")
+            hist = data.get("history", {}).get(ver, {})
+            info = (
+                f"ID：{data.get("id", "")}\n版本：{ver}\n作者：{data.get("author", "")}\n介绍：{data.get("description", "")}\n"
+                f"更新日期：{hist.get("time", "")}\n更新内容：{hist.get("log", "")}\n"
+            )
             self.messageBox.setData(data)
             self.messageBox.titleLabel.setText(title)
             self.messageBox.contentLabel.setText(info)
@@ -98,16 +103,24 @@ class AddonInfoCard(zbw.SmallInfoCard):
 
     def setInstalledData(self, data):
         self.offlineData = data
-        self.setTitle(self.offlineData["name"])
-        if "icon" in self.offlineData.keys():
-            if zb.isUrl(self.offlineData["icon"]):
-                self.setImg(program.cache(zb.joinPath("addon", zb.getFileNameFromUrl(self.offlineData["icon"]))), self.offlineData["icon"], program.THREAD_POOL)
+        self.setTitle(self.offlineData.get("name", ""))
+        if self.offlineData.get("icon"):
+            if zb.isUrl(self.offlineData.get("icon")):
+                self.setImg(
+                    program.cache(zb.joinPath("addon", zb.getFileNameFromUrl(self.offlineData.get("icon")))),
+                    self.offlineData.get("icon"),
+                    program.THREAD_POOL,
+                )
             else:
-                if zb.existPath(zb.joinPath(program.ADDON_PATH, self.offlineData["id"], self.offlineData["icon"])):
-                    self.setImg(zb.joinPath(program.ADDON_PATH, self.offlineData["id"], self.offlineData["icon"]))
-        self.setText(f"本地版本：{self.offlineData["version"]}", 0)
-        if "history" in self.offlineData.keys():
-            self.setText(f"更新时间：{self.offlineData["history"][self.offlineData["version"]]["time"]}", 1)
+                if zb.existPath(zb.joinPath(program.ADDON_PATH, self.offlineData.get("id", ""), self.offlineData.get("icon"))):
+                    self.setImg(zb.joinPath(program.ADDON_PATH, self.offlineData.get("id", ""), self.offlineData.get("icon")))
+        self.setText(f"本地版本：{self.offlineData.get("version", "")}", 0)
+        if self.offlineData.get("history"):
+            ver = self.offlineData.get("version", "")
+            self.setText(
+                f"更新时间：{self.offlineData.get("history", {}).get(ver, {}).get("time", "")}",
+                1,
+            )
         self.setButtonStatement()
         self.infoButton.show()
         self.removeButton.show()
@@ -116,27 +129,35 @@ class AddonInfoCard(zbw.SmallInfoCard):
         self.onlineData = data
         self.mainButton.setEnabled(True)
 
-        self.setTitle(self.onlineData["name"])
-        if "icon" in self.onlineData.keys():
-            if zb.isUrl(self.onlineData["icon"]):
-                self.setImg(program.cache(zb.joinPath("addon", zb.getFileNameFromUrl(self.onlineData["icon"]))), self.onlineData["icon"], program.THREAD_POOL)
+        self.setTitle(self.onlineData.get("name", ""))
+        if self.onlineData.get("icon"):
+            if zb.isUrl(self.onlineData.get("icon")):
+                self.setImg(
+                    program.cache(zb.joinPath("addon", zb.getFileNameFromUrl(self.onlineData.get("icon")))),
+                    self.onlineData.get("icon"),
+                    program.THREAD_POOL,
+                )
             else:
-                if zb.existPath(zb.joinPath(program.ADDON_PATH, self.onlineData["id"], self.onlineData["icon"])):
-                    self.setImg(zb.joinPath(program.ADDON_PATH, self.onlineData["id"], self.onlineData["icon"]))
-        self.setText(f"在线版本：{self.onlineData["version"]}", 2)
-        if "history" in self.onlineData.keys():
-            self.setText(f"更新时间：{self.onlineData["history"][self.onlineData["version"]]["time"]}", 3)
+                if zb.existPath(zb.joinPath(program.ADDON_PATH, self.onlineData.get("id", ""), self.onlineData.get("icon"))):
+                    self.setImg(zb.joinPath(program.ADDON_PATH, self.onlineData.get("id", ""), self.onlineData.get("icon")))
+        self.setText(f"在线版本：{self.onlineData.get("version", "")}", 2)
+        if self.onlineData.get("history"):
+            ver = self.onlineData.get("version", "")
+            self.setText(
+                f"更新时间：{self.onlineData.get("history", {}).get(ver, {}).get("time", "")}",
+                3,
+            )
         self.setButtonStatement()
         self.infoButton.show()
         self.removeButton.show()
 
     def setButtonStatement(self):
         if self.onlineData and self.offlineData:
-            if self.onlineData["version"] != self.offlineData["version"]:
+            if self.onlineData.get("version") != self.offlineData.get("version"):
                 self.mainButton.setText("更新")
                 self.mainButton.setIcon(FIF.UPDATE)
                 self.mainButton.setEnabled(True)
-            elif self.onlineData["version"] == self.offlineData["version"]:
+            elif self.onlineData.get("version") == self.offlineData.get("version"):
                 self.mainButton.setText("重新安装")
                 self.mainButton.setIcon(FIF.DOWNLOAD)
                 self.mainButton.setEnabled(True)
@@ -219,38 +240,38 @@ class MainPage(zbw.BasicTab):
             info = program.getAddonInfoFromUrl(info)
             self.signalAddCardOnline.emit(info)
         except Exception as ex:
-            logging.error(f"程序发生异常，无法获取插件{info["name"]}的在线信息，报错信息：{ex}！")
+            logging.error(f"程序发生异常，无法获取插件{info}的在线信息，报错信息：{ex}！")
         self.onlineCount += 1
 
     def addCardOffline(self, info):
-        if info.get("id") not in self.cardGroup1._cardMap.keys():
+        if info.get("id") not in self.cardGroup1._cardMap:
             try:
                 card = AddonInfoCard(self)
                 card.setInstalledData(info)
                 self.cardGroup1.addCard(card, info["id"])
                 card.show()
             except Exception as ex:
-                logging.error(f"程序发生异常，插件{info["name"]}的卡片组件无法加载，报错信息：{ex}！")
+                logging.error(f"程序发生异常，插件{info.get("name", "")}的卡片组件无法加载，报错信息：{ex}！")
         else:
             try:
                 self.cardGroup1.getCard(info["id"]).setInstalledData(info)
             except RuntimeError:
-                logging.warning(f"组件{info["id"]}已被删除，无法设置数据了！")
+                logging.warning(f"组件{info.get("id", "")}已被删除，无法设置数据了！")
 
     def addCardOnline(self, info):
-        if info.get("id") not in self.cardGroup1._cardMap.keys():
+        if info.get("id") not in self.cardGroup1._cardMap:
             try:
                 card = AddonInfoCard(self)
                 card.setOnlineData(info)
                 self.cardGroup1.addCard(card, info["id"])
                 card.show()
             except Exception as ex:
-                logging.error(f"程序发生异常，插件{info["name"]}的卡片组件无法加载，报错信息：{ex}！")
+                logging.error(f"程序发生异常，插件{info.get("name", "")}的卡片组件无法加载，报错信息：{ex}！")
         else:
             try:
                 self.cardGroup1.getCard(info["id"]).setOnlineData(info)
             except RuntimeError:
-                logging.warning(f"组件{info["id"]}已被删除，无法设置数据了！")
+                logging.warning(f"组件{info.get("id", "")}已被删除，无法设置数据了！")
         self.onlineCount += 1
 
     def reload(self):
