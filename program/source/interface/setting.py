@@ -14,13 +14,10 @@ class ThemeSettingCard(ExpandSettingCard):
         self.addWidget(self.label)
 
         self.radioButton1 = RadioButton("浅色", self.view)
-        self.radioButton1.installEventFilter(ToolTipFilter(self.radioButton1, 1000))
 
         self.radioButton2 = RadioButton("深色", self.view)
-        self.radioButton2.installEventFilter(ToolTipFilter(self.radioButton2, 1000))
 
         self.radioButton3 = RadioButton("跟随系统设置", self.view)
-        self.radioButton3.installEventFilter(ToolTipFilter(self.radioButton3, 1000))
 
         self.buttonGroup = QButtonGroup(self)
         self.buttonGroup.buttonClicked.connect(self.buttonGroupClicked)
@@ -106,14 +103,11 @@ class ColorSettingCard(ExpandGroupSettingCard):
         self.radioLayout.setSizeConstraint(QVBoxLayout.SizeConstraint.SetMinimumSize)
 
         self.button1 = RadioButton("系统默认", self.radioWidget)
-        self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
 
         self.button2 = RadioButton("自定义", self.radioWidget)
-        self.button2.installEventFilter(ToolTipFilter(self.button2, 1000))
 
         self.button3 = QPushButton("选择颜色", self.customColorWidget)
-        self.button3.setToolTip("选择自定义颜色")
-        self.button3.installEventFilter(ToolTipFilter(self.button3, 1000))
+        self.button3.setNewToolTip("选择自定义颜色")
         self.button3.clicked.connect(self.showColorDialog)
 
         self.radioLayout.addWidget(self.button1)
@@ -207,8 +201,7 @@ class MicaEffectSettingCard(SettingCard):
         self.button1 = SwitchButton(self, IndicatorPosition.RIGHT)
         self.button1.setChecked(setting.read("micaEffect"))
         self.button1.checkedChanged.connect(self.button1Clicked)
-        self.button1.setToolTip("开启 Windows 11 的窗口模糊效果")
-        self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
+        self.button1.setNewToolTip("开启 Windows 11 的窗口模糊效果")
 
         self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
@@ -242,14 +235,12 @@ class StartupSettingCard(SettingCard):
         self.checkBox1 = CheckBox("开机自启动", self)
         self.checkBox1.setChecked(program.checkStartup())
         self.checkBox1.clicked.connect(self.button1Clicked)
-        self.checkBox1.setToolTip("设置程序开机自启动")
-        self.checkBox1.installEventFilter(ToolTipFilter(self.checkBox1, 1000))
+        self.checkBox1.setNewToolTip("设置程序开机自启动")
 
         self.checkBox2 = CheckBox("最小化启动", self)
         self.checkBox2.setChecked(setting.read("autoHide"))
         self.checkBox2.clicked.connect(self.button2Clicked)
-        self.checkBox2.setToolTip("设置程序在开机自启动时自动最小化窗口")
-        self.checkBox2.installEventFilter(ToolTipFilter(self.checkBox2, 1000))
+        self.checkBox2.setNewToolTip("设置程序在开机自启动时自动最小化窗口")
         self.checkBox2.setEnabled(program.checkStartup())
 
         self.hBoxLayout.addWidget(self.checkBox1, 0, Qt.AlignRight)
@@ -291,8 +282,7 @@ class TraySettingCard(SettingCard):
         self.button1 = SwitchButton(self, IndicatorPosition.RIGHT)
         self.button1.setChecked(setting.read("showTray"))
         self.button1.checkedChanged.connect(self.button1Clicked)
-        self.button1.setToolTip("在系统托盘展示软件图标")
-        self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
+        self.button1.setNewToolTip("在系统托盘展示软件图标")
 
         self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
@@ -325,8 +315,7 @@ class HideSettingCard(SettingCard):
         self.button1 = SwitchButton(self, IndicatorPosition.RIGHT)
         self.button1.setChecked(setting.read("hideWhenClose"))
         self.button1.checkedChanged.connect(self.button1Clicked)
-        self.button1.setToolTip("关闭窗口时程序自动隐藏")
-        self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
+        self.button1.setNewToolTip("关闭窗口时程序自动隐藏")
 
         self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
@@ -356,8 +345,7 @@ class DownloadSettingCard(SettingCard):
         super().__init__(FIF.DOWNLOAD, "下载文件", f"当前路径：{setting.read("downloadPath")}", parent)
         self.button1 = PushButton("下载目录", self, FIF.FOLDER_ADD)
         self.button1.clicked.connect(self.button1Clicked)
-        self.button1.setToolTip("设置下载文件夹目录")
-        self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
+        self.button1.setNewToolTip("设置下载文件夹目录")
 
         self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)

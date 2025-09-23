@@ -25,8 +25,8 @@ class Program:
     程序信息
     """
     NAME = "zb小程序"  # 程序名称
-    VERSION = "5.3.0"  # 程序版本
-    CORE_VERSION = "5.3.2"  # 内核版本
+    VERSION = "5.4.0"  # 程序版本
+    CORE_VERSION = "5.3.4"  # 内核版本
     TITLE = f"{NAME} {VERSION}"  # 程序标题
     URL = "https://ianzb.github.io/project/program.html"  # 程序网址
     LICENSE = "GPLv3"  # 程序许可协议

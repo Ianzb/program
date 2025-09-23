@@ -15,8 +15,7 @@ class UpdateSettingCard(SettingCard):
 
         self.button1 = PrimaryPushButton("检查更新", self, FIF.DOWNLOAD)
         self.button1.clicked.connect(self.button1Clicked)
-        self.button1.setToolTip("检查程序新版本更新")
-        self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
+        self.button1.setNewToolTip("检查程序新版本更新")
 
         self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
@@ -89,18 +88,15 @@ class HelpSettingCard(SettingCard):
         super().__init__(FIF.HELP, "帮助", "查看程序相关信息", parent)
         self.button1 = HyperlinkButton(program.INSTALL_PATH, "程序安装路径", self, FIF.FOLDER)
         self.button1.clicked.connect(lambda: zb.showFile(program.INSTALL_PATH))
-        self.button1.setToolTip("打开程序安装路径")
-        self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
+        self.button1.setNewToolTip("打开程序安装路径")
 
         self.button2 = HyperlinkButton(program.INSTALL_PATH, "程序数据路径", self, FIF.FOLDER)
         self.button2.clicked.connect(lambda: zb.showFile(program.DATA_PATH))
-        self.button2.setToolTip("打开程序数据路径")
-        self.button2.installEventFilter(ToolTipFilter(self.button2, 1000))
+        self.button2.setNewToolTip("打开程序数据路径")
 
         self.button3 = HyperlinkButton("", "清理程序缓存", self, FIF.BROOM)
         self.button3.clicked.connect(self.button3Clicked)
-        self.button3.setToolTip("清理程序运行过程中生成的缓存文件")
-        self.button3.installEventFilter(ToolTipFilter(self.button3, 1000))
+        self.button3.setNewToolTip("清理程序运行过程中生成的缓存文件")
 
         self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
         self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignRight)
@@ -134,23 +130,19 @@ class ControlSettingCard(SettingCard):
         super().__init__(FIF.ALBUM, "控制", "", parent)
         self.button1 = HyperlinkButton("", "重置设置", self, FIF.SYNC)
         self.button1.clicked.connect(self.button1Clicked)
-        self.button1.setToolTip("重启程序设置")
-        self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
+        self.button1.setNewToolTip("重启程序设置")
 
         self.button2 = PushButton("关闭", self, FIF.CLOSE)
         self.button2.clicked.connect(program.close)
-        self.button2.setToolTip("关闭程序")
-        self.button2.installEventFilter(ToolTipFilter(self.button2, 1000))
+        self.button2.setNewToolTip("关闭程序")
 
         self.button3 = PushButton("重启", self, FIF.SYNC)
         self.button3.clicked.connect(program.restart)
-        self.button3.setToolTip("重启程序")
-        self.button3.installEventFilter(ToolTipFilter(self.button3, 1000))
+        self.button3.setNewToolTip("重启程序")
 
         self.button4 = PrimaryPushButton("卸载", self, FIF.DELETE)
         self.button4.clicked.connect(lambda: os.popen(f"start {program.UNINSTALL_FILE}"))
-        self.button4.setToolTip("卸载程序")
-        self.button4.installEventFilter(ToolTipFilter(self.button4, 1000))
+        self.button4.setNewToolTip("卸载程序")
 
         self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
         self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignRight)
@@ -178,12 +170,10 @@ class AboutSettingCard(SettingCard):
     def __init__(self, parent=None):
         super().__init__(FIF.INFO, "关于", f"{program.INFO}\nVersion {program.VERSION}. Powered by zbGuiTemplate {program.CORE_VERSION}.", parent)
         self.button1 = HyperlinkButton(program.URL, "程序官网", self, FIF.LINK)
-        self.button1.setToolTip("打开程序官网")
-        self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
+        self.button1.setNewToolTip("打开程序官网")
 
         self.button2 = HyperlinkButton(program.GITHUB_URL, "GitHub", self, FIF.GITHUB)
-        self.button2.setToolTip("打开程序GitHub页面")
-        self.button2.installEventFilter(ToolTipFilter(self.button2, 1000))
+        self.button2.setNewToolTip("打开程序GitHub页面")
 
         self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
         self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignRight)
