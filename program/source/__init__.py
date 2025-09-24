@@ -50,6 +50,9 @@ class Window(zbw.Window):
         self.setWindowIcon(QIcon(program.ICON))
         self.setWindowTitle(program.TITLE)
         self.navigationInterface.setReturnButtonVisible(False)
+
+        if program.isStartup and setting.read("autoHide"):
+            self.setWindowOpacity(0)
         self.show()
         self.resize(900, 700)
         # 窗口居中
