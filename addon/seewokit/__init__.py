@@ -202,24 +202,28 @@ class SeewoPage(zbw.BasicTab):
         self.detectButton = PrimaryPushButton("监视盘符", self, FIF.FOLDER)
         self.detectButton.clicked.connect(self.detectButtonClicked)
 
+        self.showButton = PushButton("打开复制目录", self, FIF.FOLDER)
+        self.showButton.clicked.connect(lambda: zb.showFile(setting.read("copyPath")))
+
         self.label1 = BodyLabel("自动复制", self)
 
         self.autoCopyButton = SwitchButton(self)
         self.autoCopyButton.setChecked(setting.read("autoCopy"))
         self.autoCopyButton.checkedChanged.connect(self.autoCopyButtonClicked)
 
-        self.fileChooser = zbw.FileChooser(self)
-        self.fileChooser.setMode("folder")
-        self.fileChooser.setDescription("导出路径")
-        self.fileChooser.setOnlyOne(True)
-        self.fileChooser.setDefaultPath(setting.read("copyPath"))
-        self.fileChooser.fileChoosedSignal.connect(self.fileChoosed)
-
         self.card2.addWidget(self.detectButton)
+        self.card2.addWidget(self.showButton)
         self.card2.addWidget(self.label1, 0, Qt.AlignCenter)
         self.card2.addWidget(self.autoCopyButton, 0, Qt.AlignCenter)
 
-        self.label2 = StrongBodyLabel(f"导出路径：{setting.read("copyPath") or "无"}", self)
+        self.label2 = StrongBodyLabel(f"复制路径：{setting.read("copyPath") or "无"}", self)
+
+        self.fileChooser = zbw.FileChooser(self)
+        self.fileChooser.setMode("folder")
+        self.fileChooser.setDescription("复制路径")
+        self.fileChooser.setOnlyOne(True)
+        self.fileChooser.setDefaultPath(setting.read("copyPath"))
+        self.fileChooser.fileChoosedSignal.connect(self.fileChoosed)
 
         self.vBoxLayout.addWidget(self.card1)
         self.vBoxLayout.addWidget(self.card2)
@@ -248,7 +252,7 @@ class SeewoPage(zbw.BasicTab):
         elif name == "canCloseMessage":
             self.canCloseCheckBox.setChecked(setting.read("canCloseMessage"))
         elif name == "copyPath":
-            self.label2.setText(f"导出路径：{setting.read("copyPath") or "无"}")
+            self.label2.setText(f"复制路径：{setting.read("copyPath") or "无"}")
             self.fileChooser.setDefaultPath(setting.read("copyPath"))
 
     def autoCopyButtonClicked(self, checked):
