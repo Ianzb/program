@@ -3,13 +3,17 @@
   "name": "Seewo工具箱",
   "author": "Ianzb",
   "description": "为学校希沃白板设计的实用功能。",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "icon": "seewokit.png",
   "file": "http://123pan.ianzb.cn/code/addon/seewokit/seewokit.zip",
   "history": {
     "1.0.0": {
       "time": "2025年9月23日",
       "log": "支持自动弹窗功能！"
+    },
+    "1.0.1": {
+      "time": "2025年9月24日",
+      "log": "修复多出空格的Bug。"
     }
   },
   "url": "http://123pan.ianzb.cn/code/addon/seewokit/addon.json"

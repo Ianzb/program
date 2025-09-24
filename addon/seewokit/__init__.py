@@ -103,5 +103,6 @@ class SeewoPage(zbw.BasicTab):
         messageBox.setWindowFlags(Qt.WindowStaysOnTopHint)
         messageBox.cancelButton.hide()
         messageBox.contentLabel.setSelectable()
+        messageBox.contentLabel.setWordWrap(True)
         messageBox.contentLabel.setTextFormat(Qt.TextFormat.RichText)
         messageBox.show()
