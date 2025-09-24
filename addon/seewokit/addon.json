@@ -17,7 +17,7 @@
     },
     "1.1.0": {
       "time": "2025年9月24日",
-      "log": "新增禁止关闭窗口，窗口移动功能。"
+      "log": "新增禁止关闭窗口，窗口移动功能，添加自动复制文件相关功能。"
     }
   },
   "url": "http://123pan.ianzb.cn/code/addon/seewokit/addon.json"

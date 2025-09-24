@@ -1,4 +1,7 @@
 import logging
+import string
+import time
+import traceback
 
 from source.addon import *
 
@@ -19,6 +22,9 @@ def addonInit():
                   "messageEnabled": False,
                   "canCloseMessage": True,
                   "messageMove": False,
+                  "monitorPath": [],
+                  "autoCopy": False,
+                  "copyPath": zb.joinPath(program.DATA_PATH, "复制"),
                   })
 
 
@@ -122,6 +128,41 @@ class MessageDialog(zbw.ScrollDialog):
             messageBox.show()
 
 
+class DetectFolderEditMessageBox(MessageBoxBase):
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.titleLabel = SubtitleLabel("监视盘符", self)
+
+        self.textEdit = TextEdit(self)
+        self.textEdit.setPlaceholderText("输入盘符名称\n一行一个")
+        self.textEdit.setText("\n".join(setting.read("monitorPath")))
+        self.textEdit.setNewToolTip("输入盘符名称\n一行一个")
+
+        self.viewLayout.addWidget(self.titleLabel)
+        self.viewLayout.addWidget(self.textEdit)
+
+        self.yesButton.setText("确定")
+        self.yesButton.clicked.connect(self.yesButtonClicked)
+
+        self.resetButton = PushButton("重置", self.buttonGroup)
+        self.resetButton.clicked.connect(self.resetButtonClicked)
+
+        self.buttonLayout.insertWidget(1, self.resetButton, 1, Qt.AlignVCenter)
+
+        self.cancelButton.setText("取消")
+
+        self.widget.setMinimumWidth(350)
+
+    def yesButtonClicked(self):
+        setting.save("monitorPath", sorted(list(set([i.upper() for i in self.textEdit.toPlainText().split("\n") if i in string.ascii_letters and len(i) == 1]))))
+
+    def resetButtonClicked(self):
+        setting.reset("monitorPath")
+        self.accept()
+        self.accepted.emit()
+
+
 class SeewoPage(zbw.BasicTab):
     showMessageSignal = pyqtSignal()
 
@@ -156,11 +197,62 @@ class SeewoPage(zbw.BasicTab):
         self.card1.addWidget(self.moveCheckBox, 0, Qt.AlignCenter)
         self.card1.addWidget(self.canCloseCheckBox, 0, Qt.AlignCenter)
 
+        self.card2 = zbw.GrayCard("文件复制", self)
+
+        self.detectButton = PrimaryPushButton("监视盘符", self, FIF.FOLDER)
+        self.detectButton.clicked.connect(self.detectButtonClicked)
+
+        self.label1 = BodyLabel("自动复制", self)
+
+        self.autoCopyButton = SwitchButton(self)
+        self.autoCopyButton.setChecked(setting.read("autoCopy"))
+        self.autoCopyButton.checkedChanged.connect(self.autoCopyButtonClicked)
+
+        self.fileChooser = zbw.FileChooser(self)
+        self.fileChooser.setMode("folder")
+        self.fileChooser.setDescription("导出路径")
+        self.fileChooser.setOnlyOne(True)
+        self.fileChooser.setDefaultPath(setting.read("copyPath"))
+        self.fileChooser.fileChoosedSignal.connect(self.fileChoosed)
+
+        self.card2.addWidget(self.detectButton)
+        self.card2.addWidget(self.label1, 0, Qt.AlignCenter)
+        self.card2.addWidget(self.autoCopyButton, 0, Qt.AlignCenter)
+
+        self.label2 = StrongBodyLabel(f"导出路径：{setting.read("copyPath") or "无"}", self)
+
         self.vBoxLayout.addWidget(self.card1)
+        self.vBoxLayout.addWidget(self.card2)
+        self.vBoxLayout.addWidget(self.label2)
+        self.vBoxLayout.addWidget(self.fileChooser, 0, Qt.AlignCenter)
 
         if setting.read("messageEnabled"):
             program.THREAD_POOL.submit(self._waitAndShowMessage)
             self.showMessageSignal.connect(self.showMessage)
+        program.THREAD_POOL.submit(self.autoCopy)
+
+        setting.signalConnect(self.set)
+
+    def fileChoosed(self, paths):
+        path = paths[0]
+        if zb.isDir(path):
+            setting.save("copyPath", path)
+
+    def set(self, name):
+        if name == "autoCopy":
+            self.autoCopyButton.setChecked(setting.read("autoCopy"))
+        elif name == "messageEnabled":
+            self.messageCheckBox.setChecked(setting.read("messageEnabled"))
+        elif name == "messageMove":
+            self.moveCheckBox.setChecked(setting.read("messageMove"))
+        elif name == "canCloseMessage":
+            self.canCloseCheckBox.setChecked(setting.read("canCloseMessage"))
+        elif name == "copyPath":
+            self.label2.setText(f"导出路径：{setting.read("copyPath") or "无"}")
+            self.fileChooser.setDefaultPath(setting.read("copyPath"))
+
+    def autoCopyButtonClicked(self, checked):
+        setting.save("autoCopy", self.autoCopyButton.isChecked())
 
     def messageButtonClicked(self):
         messageBox = SetMessageMessageBox(self.window())
@@ -183,3 +275,48 @@ class SeewoPage(zbw.BasicTab):
     def showMessage(self):
         messageBox = MessageDialog()
         messageBox.show()
+
+    def detectButtonClicked(self):
+        messageBox = DetectFolderEditMessageBox(self.window())
+        messageBox.show()
+
+    def autoCopy(self):
+        def get_disk_name(drive_letter):
+            """
+            获取指定盘符的硬盘产品硬件名称。
+            :param drive_letter: 盘符，例如 'C'
+            :return: 硬盘产品名称或 None
+            """
+            try:
+                return str(int(time.time()))
+                # from .wmi import WMI
+                # c = WMI()
+                # for disk in c.Win32_LogicalDisk():
+                #     if disk.DeviceID == f"{drive_letter}:":
+                #         for partition in c.Win32_DiskPartition():
+                #             if partition.DeviceID in disk.DeviceID:
+                #                 for physical_disk in c.Win32_DiskDrive():
+                #                     if partition.DeviceID in physical_disk.DeviceID:
+                #                         return physical_disk.Model
+            except Exception as e:
+                logging.error(f"获取盘符 {drive_letter} 的硬盘名称失败: {traceback.print_exc()}")
+            return None
+
+        copy = {}
+        while True:
+            time.sleep(5)
+            if setting.read("autoCopy") and setting.read("copyPath") and zb.isDir(setting.read("copyPath")):
+                for name in setting.read("monitorPath"):
+                    path = name + r":/"
+                    if zb.existPath(path):
+                        if copy.get(name):
+                            return
+                        try:
+                            disc_name = get_disk_name(name) or "UnknownDisk"
+                            logging.info(f"正在复制{path}到{zb.joinPath(setting.read("copyPath"), name, disc_name)}！")
+                            zb.copyPath(path, zb.joinPath(setting.read("copyPath"), name, disc_name))
+                            copy[name] = True
+                        except:
+                            logging.warning(f"复制{path}到{setting.read('copyPath')}失败，报错信息：{traceback.format_exc()}！")
+                    else:
+                        copy[name] = False

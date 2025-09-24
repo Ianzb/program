@@ -1,3 +1,7 @@
+"""
+来自https://github.com/martinblech/xmltodict MIT许可
+"""
+
 #!/usr/bin/env python
 "Makes working with XML feel like you are working with JSON"
 
