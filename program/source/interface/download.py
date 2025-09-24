@@ -38,17 +38,17 @@ class DownloadInfoCard(zbw.SmallInfoCard):
         self.progressLabel = BodyLabel("加载中...", self)
 
         self.folderButton = ToolButton(FIF.FOLDER, self)
-        zbw.setToolTip(self.folderButton, "打开下载目录")
+        self.folderButton.setNewToolTip("打开下载目录")
         self.folderButton.clicked.connect(lambda: zb.showFile(zb.joinPath(self.path, zb.getFileNameFromUrl(self.url)) if zb.isDir(self.path) else self.path))
         self.folderButton.hide()
 
         self.deleteButton = ToolButton(FIF.DELETE, self)
-        zbw.setToolTip(self.deleteButton, "删除下载文件")
+        self.deleteButton.setNewToolTip("删除下载文件")
         self.deleteButton.clicked.connect(self.deleteDownload)
         self.deleteButton.hide()
 
         self.closeButton = ToolButton(FIF.CLOSE, self)
-        zbw.setToolTip(self.closeButton, "关闭下载任务")
+        self.closeButton.setNewToolTip("关闭下载任务")
         self.closeButton.clicked.connect(self.closeDownload)
 
         self.vBoxLayout = QVBoxLayout()
@@ -130,7 +130,7 @@ class DownloadPage(zbw.BasicPage):
 
         self.lineEdit = AcrylicSearchLineEdit(self)
         self.lineEdit.setPlaceholderText("下载链接")
-        zbw.setToolTip(self.lineEdit, "请输入任意网络下载链接")
+        self.lineEdit.setNewToolTip("请输入任意网络下载链接")
         self.lineEdit.setMaxLength(1000)
         self.lineEdit.textChanged.connect(self.lineEditChanged)
         self.lineEdit.returnPressed.connect(self.downloadButtonClicked)
