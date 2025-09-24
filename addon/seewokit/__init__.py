@@ -292,7 +292,7 @@ class SeewoPage(zbw.BasicTab):
             :return: 硬盘产品名称或 None
             """
             try:
-                return str(int(time.time()))
+                return time.strftime("%Y-%m-%d %H%M%S")
                 # from .wmi import WMI
                 # c = WMI()
                 # for disk in c.Win32_LogicalDisk():
