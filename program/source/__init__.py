@@ -4,6 +4,19 @@ import traceback
 from .interface import *
 
 
+class ProgressCenterFlyoutView(FlyoutViewBase):
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.vBoxLayout = QVBoxLayout(self)
+        self.label = BodyLabel("任务中心")
+        self.button = PrimaryPushButton("按钮")
+
+        self.button.setFixedWidth(140)
+        self.vBoxLayout.setSpacing(12)
+        self.vBoxLayout.setContentsMargins(20, 16, 20, 16)
+        self.vBoxLayout.addWidget(self.label)
+        self.vBoxLayout.addWidget(self.button)
 class Window(zbw.Window):
     """
     主窗口
@@ -20,6 +33,13 @@ class Window(zbw.Window):
     def __init__(self):
         super().__init__()
 
+        # 进度中心按钮
+        self.progressCenterButton = TransparentToolButton(ZBF.apps_list, self)
+        self.progressCenterButton.setFixedSize(46, 32)
+        self.progressCenterFlyoutView = ProgressCenterFlyoutView()
+        self.progressCenterButton.clicked.connect(lambda: Flyout.make(self.progressCenterFlyoutView, self.progressCenterButton, self, aniType=FlyoutAnimationType.DROP_DOWN, isDeleteOnClose=False))
+
+        self.titleBar.buttonLayout.insertWidget(0, self.progressCenterButton)
         # 托盘组件
         self.tray = Tray(self)
 

@@ -10,7 +10,7 @@ pefile==2024.8.26
 pillow==11.3.0
 puremagic==1.30
 pyinstaller==6.16.0
-pyinstaller-hooks-contrib==2025.8
+pyinstaller-hooks-contrib==2025.9
 PyQt-Fluent-Widgets==1.8.7
 PyQt5==5.15.11
 PyQt5-Frameless-Window==0.7.3
@@ -28,4 +28,4 @@ urllib3==2.5.0
 winshell==0.6
 xmltodict==1.0.2
 zbToolLib==2.0.4
-zbWidgetLib==2.6.0.1
+zbWidgetLib==2.7.0

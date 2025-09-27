@@ -17,6 +17,7 @@ from qfluentwidgets import FluentIcon as FIF
 
 import zbToolLib as zb
 import zbWidgetLib as zbw
+from zbWidgetLib import ZBF
 from qtpy import *
 
 
