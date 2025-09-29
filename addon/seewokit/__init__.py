@@ -165,6 +165,7 @@ class DetectFolderEditMessageBox(MessageBoxBase):
 
 class SeewoPage(zbw.BasicTab):
     showMessageSignal = pyqtSignal()
+    setHistoryText = pyqtSignal(str)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -225,10 +226,18 @@ class SeewoPage(zbw.BasicTab):
         self.fileChooser.setDefaultPath(setting.read("copyPath"))
         self.fileChooser.fileChoosedSignal.connect(self.fileChoosed)
 
+        self.statusLabel = StrongBodyLabel("当前状态：空闲。", self)
+        self.historyLabel = BodyLabel("", self)
+        self.historyLabel.setWordWrap(True)
+        self.historyLabel.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        self.historyLabel.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+
         self.vBoxLayout.addWidget(self.card1)
         self.vBoxLayout.addWidget(self.card2)
         self.vBoxLayout.addWidget(self.label2)
         self.vBoxLayout.addWidget(self.fileChooser, 0, Qt.AlignCenter)
+        self.vBoxLayout.addWidget(self.statusLabel)
+        self.vBoxLayout.addWidget(self.historyLabel)
 
         if setting.read("messageEnabled"):
             program.THREAD_POOL.submit(self._waitAndShowMessage)
@@ -236,6 +245,11 @@ class SeewoPage(zbw.BasicTab):
         program.THREAD_POOL.submit(self.autoCopy)
 
         setting.signalConnect(self.set)
+        self.setHistoryText.connect(self.addHistory)
+
+    def addHistory(self, text: str):
+        full_text = f"{time.strftime("%Y-%m-%d %H:%M:%S")} {text}\n" + self.historyLabel.text()
+        self.historyLabel.setText(full_text)
 
     def fileChoosed(self, paths):
         path = paths[0]
@@ -310,17 +324,25 @@ class SeewoPage(zbw.BasicTab):
         while True:
             time.sleep(5)
             if setting.read("autoCopy") and setting.read("copyPath") and zb.isDir(setting.read("copyPath")):
+                self.statusLabel.setText("当前状态：监视中...")
                 for name in setting.read("monitorPath"):
                     path = name + r":/"
                     if zb.existPath(path):
                         if copy.get(name):
                             return
+                        disc_name = get_disk_name(name) or "UnknownDisk"
+                        target_path = zb.joinPath(setting.read("copyPath"), name, disc_name)
                         try:
-                            disc_name = get_disk_name(name) or "UnknownDisk"
-                            logging.info(f"正在复制{path}到{zb.joinPath(setting.read("copyPath"), name, disc_name)}！")
-                            zb.copyPath(path, zb.joinPath(setting.read("copyPath"), name, disc_name))
+                            self.setHistoryText.emit(f"正在复制{name}盘...")
+                            self.statusLabel.setText(f"当前状态：正在复制{name}盘...")
+                            logging.info(f"正在复制{path}到{target_path}！")
+                            zb.copyPath(path, target_path)
                             copy[name] = True
                         except:
-                            logging.warning(f"复制{path}到{setting.read('copyPath')}失败，报错信息：{traceback.format_exc()}！")
+                            logging.warning(f"复制{path}到{setting.read("copyPath")}失败，报错信息：{traceback.format_exc()}！")
+                        self.setHistoryText.emit(f"复制{name}盘到{target_path}成功！")
+                        self.statusLabel.setText(f"当前状态：复制{name}盘成功！")
                     else:
                         copy[name] = False
+            else:
+                self.statusLabel.setText("当前状态：空闲。")

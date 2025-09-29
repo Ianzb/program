@@ -3,7 +3,7 @@
   "name": "Seewo工具箱",
   "author": "Ianzb",
   "description": "为学校希沃白板设计的实用功能。",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "icon": "seewokit.png",
   "file": "http://123pan.ianzb.cn/code/addon/seewokit/seewokit.zip",
   "history": {
@@ -18,6 +18,10 @@
     "1.1.0": {
       "time": "2025年9月24日",
       "log": "新增禁止关闭窗口，窗口移动功能，添加自动复制文件相关功能。"
+    },
+    "1.1.1": {
+      "time": "2025年9月29日",
+      "log": "新增状态文本提示。"
     }
   },
   "url": "http://123pan.ianzb.cn/code/addon/seewokit/addon.json"
