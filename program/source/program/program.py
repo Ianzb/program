@@ -141,12 +141,11 @@ class Program:
                 open(zb.joinPath(self.DATA_PATH, "zb.unlock"), "w").close()
                 logging.info(f"检测到重复PID{pid}，程序重复运行，自动关闭！")
                 self.close()
-            else:
-                if zb.existPath(zb.joinPath(self.DATA_PATH, "zb.unlock")):
-                    os.remove(zb.joinPath(self.DATA_PATH, "zb.unlock"))
-                with open(zb.joinPath(self.DATA_PATH, "zb.lock"), "w+", encoding="utf-8") as file:
-                    file.write(str(self.PID))
-                logging.info(f"程序运行锁创建成功，PID{self.PID}！")
+        if zb.existPath(zb.joinPath(self.DATA_PATH, "zb.unlock")):
+            os.remove(zb.joinPath(self.DATA_PATH, "zb.unlock"))
+        with open(zb.joinPath(self.DATA_PATH, "zb.lock"), "w+", encoding="utf-8") as file:
+            file.write(str(self.PID))
+        logging.info(f"程序运行锁创建成功，PID{self.PID}！")
 
     def addToStartup(self, mode: bool = True):
         """
