@@ -17,6 +17,8 @@ class ProgressCenterFlyoutView(FlyoutViewBase):
         self.vBoxLayout.setContentsMargins(20, 16, 20, 16)
         self.vBoxLayout.addWidget(self.label)
         self.vBoxLayout.addWidget(self.button)
+
+
 class Window(zbw.Window):
     """
     主窗口

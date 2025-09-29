@@ -79,7 +79,7 @@ class Program:
 
     @property
     def ICON(self):
-        return program.source("program.png")
+        return self.source("program.png")
 
     @property
     def isStartup(self):
@@ -134,17 +134,17 @@ class Program:
         """
         if not self.isExe:
             return
-        if zb.existPath(zb.joinPath(program.DATA_PATH, "zb.lock")):
-            with open(zb.joinPath(program.DATA_PATH, "zb.lock"), "r+", encoding="utf-8") as file:
+        if zb.existPath(zb.joinPath(self.DATA_PATH, "zb.lock")):
+            with open(zb.joinPath(self.DATA_PATH, "zb.lock"), "r+", encoding="utf-8") as file:
                 pid = file.read().strip()
             if pid and "zbProgram.exe" in zb.easyCmd(f"tasklist |findstr {pid}", True):
-                open(zb.joinPath(program.DATA_PATH, "zb.unlock"), "w").close()
-                program.close()
+                open(zb.joinPath(self.DATA_PATH, "zb.unlock"), "w").close()
+                self.close()
             else:
-                if zb.existPath(zb.joinPath(program.DATA_PATH, "zb.unlock")):
-                    os.remove(zb.joinPath(program.DATA_PATH, "zb.unlock"))
-                with open(zb.joinPath(program.DATA_PATH, "zb.lock"), "w+", encoding="utf-8") as file:
-                    file.write(str(program.PID))
+                if zb.existPath(zb.joinPath(self.DATA_PATH, "zb.unlock")):
+                    os.remove(zb.joinPath(self.DATA_PATH, "zb.unlock"))
+                with open(zb.joinPath(self.DATA_PATH, "zb.lock"), "w+", encoding="utf-8") as file:
+                    file.write(str(self.PID))
 
     def addToStartup(self, mode: bool = True):
         """
@@ -155,11 +155,11 @@ class Program:
         key = win32api.RegOpenKey(win32con.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Run", 0, win32con.KEY_ALL_ACCESS)
         try:
             if mode:
-                win32api.RegSetValueEx(key, program.NAME, 0, win32con.REG_SZ, f"{program.MAIN_FILE_PATH} startup")
+                win32api.RegSetValueEx(key, self.NAME, 0, win32con.REG_SZ, f"{self.MAIN_FILE_PATH} startup")
                 win32api.RegCloseKey(key)
                 logging.info("启动项添加成功")
             else:
-                win32api.RegDeleteValue(key, program.NAME)
+                win32api.RegDeleteValue(key, self.NAME)
                 win32api.RegCloseKey(key)
                 logging.info("启动项删除成功")
         except Exception as ex:
@@ -173,7 +173,7 @@ class Program:
         import win32api, win32con
         try:
             key = win32api.RegOpenKeyEx(win32con.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Run", 0, win32con.KEY_READ)
-            win32api.RegQueryValueEx(key, program.NAME)
+            win32api.RegQueryValueEx(key, self.NAME)
             win32api.RegCloseKey(key)
             return True
         except win32api.error:
@@ -184,7 +184,7 @@ class Program:
         获取程序最新版本
         @return: 程序最新版本
         """
-        response = zb.getUrl(program.UPDATE_URL, headers=zb.REQUEST_HEADER)
+        response = zb.getUrl(self.UPDATE_URL, headers=zb.REQUEST_HEADER)
         data = json.loads(response.text)["version"]
         logging.info(f"服务器最新版本：{data}")
         return data
@@ -195,7 +195,7 @@ class Program:
         @return: 字典
         """
         try:
-            response = zb.getUrl(program.ADDON_URL, headers=zb.REQUEST_HEADER)
+            response = zb.getUrl(self.ADDON_URL, headers=zb.REQUEST_HEADER)
             data = json.loads(response.text)
             logging.info("插件信息获取成功！")
             return data
@@ -226,7 +226,7 @@ class Program:
         """
 
         try:
-            dir_path = zb.joinPath(program.ADDON_PATH, data.get("id", ""))
+            dir_path = zb.joinPath(self.ADDON_PATH, data.get("id", ""))
             zb.createDir(dir_path)
             with open(zb.joinPath(dir_path, "addon.json"), "w+", encoding="utf-8") as file:
                 file.write(json.dumps(data, indent=2, ensure_ascii=False))
@@ -249,7 +249,7 @@ class Program:
         """
         try:
             data = {}
-            for i in zb.walkDir(program.ADDON_PATH, True):
+            for i in zb.walkDir(self.ADDON_PATH, True):
                 if zb.isFile(zb.joinPath(i, "addon.json")):
                     with open(zb.joinPath(i, "addon.json"), encoding="utf-8") as file:
                         addon_data = json.load(file)
