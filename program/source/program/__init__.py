@@ -34,7 +34,7 @@ dictConfig({
         },
         "log_file": {
             "class": "logging.FileHandler",
-            "level": "INFO",
+            "level": "DEBUG",
             "formatter": "default",
             "filename": program.LOGGING_FILE_PATH,
             "encoding": "utf-8",
@@ -49,6 +49,7 @@ dictConfig({
 )
 
 logging.info(f"程序启动参数{program.STARTUP_ARGUMENT}!")
+logging.debug(f"程序运行信息{Program.__dict__}{program.__dict__}!")
 
 program.detectRepeatRun()
 

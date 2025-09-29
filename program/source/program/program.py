@@ -26,7 +26,7 @@ class Program:
     程序信息
     """
     NAME = "zb小程序"  # 程序名称
-    VERSION = "5.3.2"  # 程序版本
+    VERSION = "5.3.3"  # 程序版本
     CORE_VERSION = "5.3.4"  # 内核版本
     TITLE = f"{NAME} {VERSION}"  # 程序标题
     URL = "https://ianzb.github.io/project/program.html"  # 程序网址
@@ -68,7 +68,7 @@ class Program:
 
         # 开发者插件目录切换
         if not self.isExe:
-            self.ADDON_PATH = os.path.join(self.INSTALL_PATH, "../addon")
+            self.ADDON_PATH = zb.joinPath(self.INSTALL_PATH, "../addon")
 
         # 添加插件路径
         sys.path.append(self.ADDON_PATH)
@@ -139,12 +139,14 @@ class Program:
                 pid = file.read().strip()
             if pid and "zbProgram.exe" in zb.easyCmd(f"tasklist |findstr {pid}", True):
                 open(zb.joinPath(self.DATA_PATH, "zb.unlock"), "w").close()
+                logging.info(f"检测到重复PID{pid}，程序重复运行，自动关闭！")
                 self.close()
             else:
                 if zb.existPath(zb.joinPath(self.DATA_PATH, "zb.unlock")):
                     os.remove(zb.joinPath(self.DATA_PATH, "zb.unlock"))
                 with open(zb.joinPath(self.DATA_PATH, "zb.lock"), "w+", encoding="utf-8") as file:
                     file.write(str(self.PID))
+                logging.info(f"程序运行锁创建成功，PID{self.PID}！")
 
     def addToStartup(self, mode: bool = True):
         """
