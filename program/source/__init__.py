@@ -4,9 +4,6 @@ import traceback
 from .interface import *
 
 
-
-
-
 class Window(zbw.Window):
     """
     主窗口
@@ -23,19 +20,6 @@ class Window(zbw.Window):
     def __init__(self):
         super().__init__()
 
-        # 进度中心按钮
-        self.progressCenterButton = TransparentToolButton(ZBF.apps_list, self)
-        self.progressCenterButton.setFixedSize(46, 32)
-        self.progressCenter = ProgressCenter()
-        self.progressCenterButton.clicked.connect(lambda: Flyout.make(self.progressCenter, self.progressCenterButton, self, aniType=FlyoutAnimationType.DROP_DOWN, isDeleteOnClose=False))
-
-        self.titleBar.buttonLayout.insertWidget(0, self.progressCenterButton)
-
-        card = self.progressCenter.addTask(False)
-        card.setImg(FIF.DOWNLOAD)
-        card.setTitle("下载")
-        card.setText("testtesttesttest")
-        card.setProgress(50)
         # 托盘组件
         self.tray = Tray(self)
 
@@ -75,6 +59,23 @@ class Window(zbw.Window):
         desktop = QApplication.screens()[0].size()
         w, h = desktop.width(), desktop.height()
         self.move(w // 2 - self.width() // 2, h // 2 - self.height() // 2)
+
+        # 任务中心
+        self.progressCenter = ProgressCenter(self)
+
+        self.progressCenterButton = TransparentToolButton(ZBF.apps_list, self)
+        self.progressCenterButton.setFixedSize(46, 32)
+        self.progressCenterButton.clicked.connect(lambda: Flyout.make(self.progressCenter, self.progressCenterButton, self, aniType=FlyoutAnimationType.DROP_DOWN, isDeleteOnClose=False))
+
+        self.titleBar.buttonLayout.insertWidget(0, self.progressCenterButton)
+
+        # DEMO部分
+
+        card = self.progressCenter.addTask(False, False, True, True)
+        card.setTitle("任务")
+        card.setText("这是任务卡片的描述")
+        card.setIcon(FIF.INFO)
+        card.setProgress(50)
 
         # 设置数据异常提醒
         if setting.errorState:

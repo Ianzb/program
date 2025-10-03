@@ -28,4 +28,4 @@ urllib3==2.5.0
 winshell==0.6
 xmltodict==1.0.2
 zbToolLib==2.0.4
-zbWidgetLib==2.7.1
+zbWidgetLib==2.7.2
