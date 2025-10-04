@@ -124,9 +124,30 @@ def extract_release_notes():
 def ensure_requirements():
     if not REQS.exists():
         print('WARN: requirements.txt 不存在，跳过依赖安装')
-        return
+        return True
     print('Installing requirements...')
-    subprocess.check_call([sys.executable, '-m', 'pip', 'install', '-r', str(REQS)])
+    try:
+        subprocess.check_call([sys.executable, '-m', 'pip', 'install', '-r', str(REQS)])
+        return True
+    except subprocess.CalledProcessError as e:
+        print('安装依赖失败:', e)
+        return False
+
+
+def is_pyinstaller_available():
+    # Check if PyInstaller module can be imported
+    try:
+        import importlib
+        if importlib.util.find_spec('PyInstaller') is not None:
+            return True
+    except Exception:
+        pass
+    # Fallback: try 'pyinstaller' command
+    try:
+        subprocess.check_call([sys.executable, '-m', 'PyInstaller', '--version'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        return True
+    except Exception:
+        return False
 
 
 def run_pyinstaller():
@@ -234,28 +255,37 @@ if __name__ == '__main__':
     replace_index_json(version)
 
     if not args.skip_requirements:
-        try:
-            ensure_requirements()
-        except Exception as e:
-            print('安装依赖失败:', e)
+        req_ok = ensure_requirements()
+    else:
+        req_ok = True
 
     installer_path = None
     zip_path = None
-    if not args.skip_pyinstaller:
+    # Decide whether to run pyinstaller: skip if user requested or if requirements failed or PyInstaller missing
+    should_run_pyinstaller = not args.skip_pyinstaller and req_ok
+    if should_run_pyinstaller:
+        if not is_pyinstaller_available():
+            print('PyInstaller 未安装或不可用，跳过打包')
+            should_run_pyinstaller = False
+
+    if should_run_pyinstaller:
         try:
             run_pyinstaller()
         except Exception as e:
             print('PyInstaller 失败:', e)
-            sys.exit(2)
+            # don't abort; continue to write output
+            should_run_pyinstaller = False
         try:
             zip_path = make_zip(version)
         except Exception as e:
             print('打包 zip 失败:', e)
-        if not args.no_inno:
+        if not args.no_inno and should_run_pyinstaller:
             try:
                 installer_path = run_inno_setup()
             except Exception as e:
                 print('Inno Setup 失败:', e)
+    else:
+        print('已跳过 PyInstaller 步骤')
 
     # 尝试提交版本变更
     try:
