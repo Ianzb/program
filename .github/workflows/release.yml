@@ -46,11 +46,17 @@ jobs:
           WEB_DAV_USER: ${{ secrets.WEB_DAV_USER }}
           WEB_DAV_PASSWORD: ${{ secrets.WEB_DAV_PASSWORD }}
 
-      - name: Compile .ISS to .EXE Installer
-        uses: Minionguyjpro/Inno-Setup-Action@v1.2.7
-        with:
-          path: script/setup.iss
-          options: /O+
+      - name: Compile .ISS with ISCC (direct)
+        if: steps.check_iscc.outputs.iscc != ''
+        shell: pwsh
+        run: |
+          $iscc = '${{ steps.check_iscc.outputs.iscc }}'
+          Write-Host "Running ISCC: $iscc"
+          Push-Location ${{ github.workspace }}\script
+          & "$iscc" "setup.iss"
+          $exit = $LASTEXITCODE
+          Pop-Location
+          if ($exit -ne 0) { Write-Host "ISCC returned exit code $exit"; exit $exit }
 
       - name: Read build output
         id: read_output
