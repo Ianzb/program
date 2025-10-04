@@ -13,10 +13,12 @@ addonBase = AddonBase()
 
 
 def addonInit():
-    global program, setting, window
+    global program, setting, window, progressCenter
     program = addonBase.program
     setting = addonBase.setting
     window = addonBase.window
+    progressCenter = addonBase.progressCenter
+
     setting.adds({"messageTitle": "",
                   "messageContent": "",
                   "messageEnabled": False,
@@ -166,11 +168,14 @@ class DetectFolderEditMessageBox(MessageBoxBase):
 class SeewoPage(zbw.BasicTab):
     showMessageSignal = pyqtSignal()
     setHistoryText = pyqtSignal(str)
+    copySignal = pyqtSignal(str, str, str)
 
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setIcon(FIF.CLIPPING_TOOL)
         self.setTitle("Seewo工具箱")
+
+        self.copy_stat = {}
 
         self.card1 = zbw.GrayCard("自动弹窗", self)
 
@@ -247,6 +252,8 @@ class SeewoPage(zbw.BasicTab):
         setting.signalConnect(self.set)
         self.setHistoryText.connect(self.addHistory)
 
+        self.copySignal.connect(self.copyFile)
+
     def addHistory(self, text: str):
         full_text = f"{time.strftime("%Y-%m-%d %H:%M:%S")} {text}\n" + self.historyLabel.text()
         self.historyLabel.setText(full_text)
@@ -320,29 +327,46 @@ class SeewoPage(zbw.BasicTab):
                 logging.error(f"获取盘符 {drive_letter} 的硬盘名称失败: {traceback.print_exc()}")
             return None
 
-        copy = {}
         while True:
-            time.sleep(5)
+            time.sleep(1)
             if setting.read("autoCopy") and setting.read("copyPath") and zb.isDir(setting.read("copyPath")):
                 self.statusLabel.setText("当前状态：监视中...")
                 for name in setting.read("monitorPath"):
                     path = name + r":/"
                     if zb.existPath(path):
-                        if copy.get(name):
-                            return
+                        if self.copy_stat.get(name):
+                            continue
                         disc_name = get_disk_name(name) or "UnknownDisk"
                         target_path = zb.joinPath(setting.read("copyPath"), name, disc_name)
                         try:
-                            self.setHistoryText.emit(f"正在复制{name}盘...")
-                            self.statusLabel.setText(f"当前状态：正在复制{name}盘...")
                             logging.info(f"正在复制{path}到{target_path}！")
-                            zb.copyPath(path, target_path)
-                            copy[name] = True
+                            self.copySignal.emit(name, path, target_path)
                         except:
                             logging.warning(f"复制{path}到{setting.read("copyPath")}失败，报错信息：{traceback.format_exc()}！")
-                        self.setHistoryText.emit(f"复制{name}盘到{target_path}成功！")
-                        self.statusLabel.setText(f"当前状态：复制{name}盘成功！")
+
                     else:
-                        copy[name] = False
+                        self.copy_stat[name] = False
             else:
                 self.statusLabel.setText("当前状态：空闲。")
+
+    def copyFile(self, name, src, dst):
+        card = progressCenter.addTask(True, True, False, False, False)
+        card.setTitle(f"复制")
+        card.setContent(f"正在复制{name}到{dst}...")
+        card.start()
+        program.THREAD_POOL.submit(self._copyFile, name, src, dst, card)
+
+    def _copyFile(self, name, src, dst, card):
+        self.copy_stat[name] = True
+        self.setHistoryText.emit(f"正在复制{name}盘...")
+        self.statusLabel.setText(f"当前状态：正在复制{name}盘...")
+        try:
+            zb.copyPath(src, dst)
+            card.setContentSignal.emit(f"复制{src}到{dst}成功！")
+            card.finish(True)
+        except:
+            card.finish(False)
+            card.setContentSignal.emit(f"复制{src}到{dst}成功！")
+            logging.warning(f"复制{src}到{dst}失败，报错信息：{traceback.format_exc()}！")
+        self.setHistoryText.emit(f"复制{name}盘到{dst}成功！")
+        self.statusLabel.setText(f"当前状态：复制{name}盘成功！")

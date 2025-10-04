@@ -10,10 +10,11 @@ addonBase = AddonBase()
 
 
 def addonInit():
-    global program, setting, window
+    global program, setting, window, progressCenter
     program = addonBase.program
     setting = addonBase.setting
     window = addonBase.window
+    progressCenter = addonBase.progressCenter
 
 
 def addonWidget():
@@ -87,6 +88,7 @@ class AppInfoCard(zbw.SmallInfoCard):
 
         self.data = data
         self.source = source
+        self.card = None
 
         self.mainButton.setText("下载")
         self.mainButton.setIcon(FIF.DOWNLOAD)
@@ -102,7 +104,21 @@ class AppInfoCard(zbw.SmallInfoCard):
         self.setText(f"更新日期：{self.data["更新日期"]}", 3)
 
     def mainButtonClicked(self):
-        self.download = self.window().downloadPage.startDownload(self.data["下载链接"], zb.joinPath(setting.read("downloadPath"), self.data["文件名称"]), True)
+        self.mainButton.setEnabled(False)
+        self.card = progressCenter.downloadTask(self.data["下载链接"], zb.joinPath(setting.read("downloadPath"), self.data["文件名称"]), True, True)
+        self.card.setTitle(self.data["名称"])
+        self.card.setImg(program.cache(f"{self.source}/{zb.clearIllegalPathName(self.data["名称"])}.png"), self.data["图标"])
+        self.card.finishSignal.connect(self.downloadFinished)
+
+    def downloadFinished(self, stat):
+        self.mainButton.setEnabled(True)
+
+    def deleteLater(self):
+        try:
+            self.card.finishSignal.disconnect(self.downloadFinished)
+        except:
+            pass
+        super().deleteLater()
 
 
 class AddonPage(zbw.BasicTab):
@@ -146,7 +162,7 @@ class AddonPage(zbw.BasicTab):
         self.vBoxLayout.addWidget(self.card)
         self.vBoxLayout.addWidget(self.loadingCard, 0, Qt.AlignCenter)
 
-        self.cardGroup = zbw.CardGroup(self.view)
+        self.cardGroup = zbw.CardGroup(self.view, True)
         self.vBoxLayout.addWidget(self.cardGroup)
 
         self.signalList.connect(self.thread1)

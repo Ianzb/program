@@ -3,7 +3,7 @@
   "name": "文件整理",
   "author": "Ianzb",
   "description": "一款简易的文件整理清理插件。",
-  "version": "1.1.8",
+  "version": "1.1.9",
   "icon": "filemanager.png",
   "file": "http://123pan.ianzb.cn/code/addon/filemanager/filemanager.zip",
   "history": {
@@ -62,6 +62,10 @@
     "1.1.8": {
       "time": "2025年9月24日",
       "log": "适配最新版本。"
+    },
+    "1.1.9": {
+      "time": "2025年10月4日",
+      "log": "适配最新版本任务中心。"
     }
   },
   "url": "http://123pan.ianzb.cn/code/addon/filemanager/addon.json"

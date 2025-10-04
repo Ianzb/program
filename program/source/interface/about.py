@@ -49,8 +49,6 @@ class UpdateSettingCard(SettingCard):
         self.infoBar.addWidget(self.button2)
         self.infoBar.show()
 
-        self.button1.setEnabled(True)
-
     def threadEvent1_2(self, msg):
         if msg:
             self.infoBar = InfoBar(InfoBarIcon.INFORMATION, "提示", f"{program.VERSION}已为最新版本！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.window().aboutPage)
@@ -58,21 +56,18 @@ class UpdateSettingCard(SettingCard):
             self.infoBar = InfoBar(InfoBarIcon.WARNING, "警告", "服务器连接失败，无法检查更新！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.window().aboutPage)
         self.infoBar.show()
 
-        self.button1.setEnabled(True)
-
     def button2Clicked(self):
-        self.button1.setEnabled(False)
-
         self.infoBar.close()
         zb.deletePath(program.cache("zbProgramUpdate.exe"))
-        self.download = self.window().downloadPage.startDownload(program.UPDATE_INSTALLER_URL, program.cache("zbProgramUpdate.exe"), True)
-        self.download.connect(self.updateProgram)
+        self.card = self.window().progressCenter.downloadTask(program.UPDATE_INSTALLER_URL, program.cache("zbProgramUpdate.exe"), True, True)
+        self.card.setTitle("程序更新")
+        self.card.setText("正在下载更新安装包...")
+        self.card.downloadFinishedSignal.connect(self.updateProgram)
 
-    def updateProgram(self, msg):
+    def updateProgram(self, stat: bool, path: str):
         self.button1.setEnabled(True)
-
-        if msg:
-            zb.startFile(program.cache("zbProgramUpdate.exe"))
+        if stat:
+            zb.startFile(path)
         else:
             self.infoBar = InfoBar(InfoBarIcon.WARNING, "警告", "安装包下载失败，无法更新！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.window().aboutPage)
             self.infoBar.show()

@@ -61,21 +61,14 @@ class Window(zbw.Window):
         self.move(w // 2 - self.width() // 2, h // 2 - self.height() // 2)
 
         # 任务中心
+        self.progressCenterFlyout = None
         self.progressCenter = ProgressCenter(self)
 
         self.progressCenterButton = TransparentToolButton(ZBF.apps_list, self)
         self.progressCenterButton.setFixedSize(46, 32)
-        self.progressCenterButton.clicked.connect(lambda: Flyout.make(self.progressCenter, self.progressCenterButton, self, aniType=FlyoutAnimationType.DROP_DOWN, isDeleteOnClose=False))
+        self.progressCenterButton.clicked.connect(lambda: self.showProgressCenter(FlyoutAnimationType.DROP_DOWN))
 
         self.titleBar.buttonLayout.insertWidget(0, self.progressCenterButton)
-
-        # DEMO部分
-
-        card = self.progressCenter.addTask(False, False, True, True)
-        card.setTitle("任务")
-        card.setText("这是任务卡片的描述")
-        card.setIcon(FIF.INFO)
-        card.setProgress(50)
 
         # 设置数据异常提醒
         if setting.errorState:
@@ -87,6 +80,15 @@ class Window(zbw.Window):
         data = program.getInstalledAddonInfo()
         for i in data.keys():
             self.addAddon(data[i])
+
+    def showProgressCenter(self, aniType=FlyoutAnimationType.DROP_DOWN):
+        if self.progressCenterFlyout is None:
+            self.progressCenterFlyout = Flyout.make(self.progressCenter, self.progressCenterButton, self, aniType=aniType, isDeleteOnClose=False)
+        else:
+            self.progressCenterFlyout.close()
+            # 注：使用deleteLater会导致ToolTip被删除，进而报错，并且此处有内存泄露
+            del self.progressCenterFlyout
+            self.progressCenterFlyout = Flyout.make(self.progressCenter, self.progressCenterButton, self, aniType=aniType, isDeleteOnClose=False)
 
     def keyPressEvent(self, QKeyEvent):
         """
@@ -146,7 +148,7 @@ class Window(zbw.Window):
                 self.infoBar.show()
             else:
                 lib = importlib.import_module(data.get("id", ""))
-                lib.addonBase.set(program, setting, self)
+                lib.addonBase.set(program, setting, self, self.progressCenter)
                 lib.addonInit()
                 widget = lib.addonWidget()
                 widget.setObjectName(data.get("name", ""))

@@ -24,7 +24,8 @@ class AddonBase:
         self.log = None
         self.setting = None
 
-    def set(self, __program, __setting, __window):
+    def set(self, __program, __setting, __window, __progress_center):
         self.program = __program
         self.setting = __setting
         self.window = __window
+        self.progressCenter = __progress_center
