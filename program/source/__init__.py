@@ -24,11 +24,9 @@ class Window(zbw.Window):
         self.tray = Tray(self)
 
         self.mainPage = MainPage(self)
-        self.downloadPage = DownloadPage(self)
         self.settingPage = SettingPage(self)
         self.aboutPage = AboutPage(self)
         self.addPage(self.mainPage, self.mainPage.title(), self.mainPage.icon(), "top")
-        self.addPage(self.downloadPage, self.downloadPage.title(), self.downloadPage.icon(), "top")
         self.addSeparator("top")
         self.addSeparator("bottom")
         self.addPage(self.settingPage, self.settingPage.title(), self.settingPage.icon(), "bottom")

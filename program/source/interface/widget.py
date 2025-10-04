@@ -417,7 +417,6 @@ class ProgressCenter(FlyoutViewBase):
         self.scrollArea.vBoxLayout.setContentsMargins(0, 0, 0, 0)
         self.scrollArea.vBoxLayout.setSpacing(0)
         self.scrollArea.setWidgetResizable(True)
-        # self.scrollArea.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         self.scrollArea.hide()
 
         self.cardGroup = zbw.CardGroup(self, show_title=False)
