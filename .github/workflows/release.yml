@@ -112,30 +112,33 @@ jobs:
           $installer = '${{ steps.find_installer.outputs.installer }}'
           if (Test-Path $installer) { Write-Output "exists=true" >> $env:GITHUB_OUTPUT } else { Write-Output "exists=false" >> $env:GITHUB_OUTPUT }
 
-      # Build the list of files to include in the Release (zip + installer if exists)
-      - name: Build release files list
-        id: set_release_files
-        shell: pwsh
-        env:
-          ZIP_PATH: ${{ steps.read_output.outputs.zip }}
-          INSTALLER_PATH: ${{ steps.find_installer.outputs.installer }}
-        run: |
-          $files = @()
-          if ($Env:ZIP_PATH -and (Test-Path $Env:ZIP_PATH)) { $files += $Env:ZIP_PATH }
-          if ($Env:INSTALLER_PATH -and (Test-Path $Env:INSTALLER_PATH)) { $files += $Env:INSTALLER_PATH }
-          # softprops/action-gh-release accepts newline-separated file paths
-          $filesArg = $files -join "`n"
-          Write-Host "Files to upload: $filesArg"
-          Write-Output "files=$filesArg" >> $env:GITHUB_OUTPUT
-
-      - name: Upload to GitHub Release (softprops)
-        if: steps.set_release_files.outputs.files != ''
-        uses: softprops/action-gh-release@v2
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
         with:
-          name: zbProgram_${{ github.event.inputs.version }}
-          tag_name: ${{ github.event.inputs.version }}
-          files: ${{ steps.set_release_files.outputs.files }}
           token: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: ${{ github.event.inputs.version }}
+          release_name: ${{ github.event.inputs.version }}
+          body: ${{ steps.read_output.outputs.notes }}
+          draft: false
+          prerelease: false
+
+      - name: Upload zip to Release
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ steps.read_output.outputs.zip }}
+          asset_name: zbProgram_${{ github.event.inputs.version }}.zip
+          asset_content_type: application/zip
+
+      - name: Upload installer to Release (only if real installer exists)
+        if: steps.check_installer_exists.outputs.exists == 'true'
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ steps.find_installer.outputs.installer }}
+          asset_name: zbProgram_setup.exe
+          asset_content_type: application/octet-stream
 
       # If installer missing, create placeholder only for WebDAV upload (do not publish placeholder in Release)
       - name: Ensure installer exists for WebDAV (create stub if missing)
