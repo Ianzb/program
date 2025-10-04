@@ -296,10 +296,16 @@ if __name__ == '__main__':
     out = {
         'version': version,
         'release_notes': release_notes,
-        'zip': str((ROOT / f'zbProgram_{version}.zip').resolve())
+        'zip': ''
     }
+    if zip_path:
+        zipp = Path(zip_path)
+        if zipp.exists():
+            out['zip'] = str(zipp.resolve())
     if installer_path:
-        out['installer'] = str(Path(installer_path).resolve())
+        instp = Path(installer_path)
+        if instp.exists():
+            out['installer'] = str(instp.resolve())
 
     out_path = ROOT / 'script' / 'release_output.json'
     try:

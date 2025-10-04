@@ -25,10 +25,21 @@ jobs:
         run: |
           python -m pip install --upgrade pip
 
+      - name: Install Python dependencies (exclude pyinstaller/pefile)
+        shell: pwsh
+        run: |
+          Write-Host "Filtering requirements.txt to exclude pyinstaller and pefile..."
+          $req = Get-Content requirements.txt | Where-Object { $_ -and $_ -notmatch '^(?i)(pyinstaller==|pefile==)' }
+          $req | Set-Content -Path req_no_pyinstaller.txt -Encoding utf8
+          Write-Host "Installing filtered requirements..."
+          python -m pip install -r req_no_pyinstaller.txt
+          Write-Host "Installing PyInstaller pinned version separately..."
+          python -m pip install pyinstaller==6.16.0
+
       - name: Run release build script
         id: run_build
         run: |
-          python script\release_build.py -v ${{ github.event.inputs.version }} --no-inno
+          python script\release_build.py -v ${{ github.event.inputs.version }} --no-inno --skip-requirements
         env:
           # we do the WebDAV upload later after Inno setup step so release_build doesn't upload prematurely
           WEB_DAV_URL: ${{ secrets.WEB_DAV_URL }}
