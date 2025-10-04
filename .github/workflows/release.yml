@@ -49,6 +49,33 @@ jobs:
           WEB_DAV_USER: ${{ secrets.WEB_DAV_USER }}
           WEB_DAV_PASSWORD: ${{ secrets.WEB_DAV_PASSWORD }}
 
+      - name: Install Inno Setup (Chocolatey)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Write-Host 'Installing Inno Setup via Chocolatey (if not already installed)'
+          choco feature enable -n allowGlobalConfirmation || true
+          choco install innosetup -y || choco upgrade innosetup -y || true
+
+      - name: Check ISCC path
+        id: check_iscc
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $candidate = 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe'
+          if (Test-Path $candidate) {
+            Write-Host "ISCC found at $candidate"
+            Write-Output "iscc=$candidate" >> $env:GITHUB_OUTPUT
+            exit 0
+          }
+          $cmd = Get-Command iscc.exe -ErrorAction SilentlyContinue
+          if ($cmd) {
+            Write-Host "ISCC found in PATH: $($cmd.Source)"
+            Write-Output "iscc=$($cmd.Source)" >> $env:GITHUB_OUTPUT
+            exit 0
+          }
+          Write-Host 'ISCC not found after Chocolatey install' ; exit 1
+
       - name: Compile .ISS with ISCC (direct)
         if: steps.check_iscc.outputs.iscc != ''
         shell: pwsh
@@ -85,7 +112,49 @@ jobs:
           $installer = '${{ steps.find_installer.outputs.installer }}'
           if (Test-Path $installer) { Write-Output "exists=true" >> $env:GITHUB_OUTPUT } else { Write-Output "exists=false" >> $env:GITHUB_OUTPUT }
 
-      - name: Upload index.json, zip and installer to WebDAV
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: ${{ github.event.inputs.version }}
+          release_name: ${{ github.event.inputs.version }}
+          body: ${{ steps.read_output.outputs.notes }}
+          draft: false
+          prerelease: false
+
+      - name: Upload zip to Release
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ steps.read_output.outputs.zip }}
+          asset_name: zbProgram_${{ github.event.inputs.version }}.zip
+          asset_content_type: application/zip
+
+      - name: Upload installer to Release (only if real installer exists)
+        if: steps.check_installer_exists.outputs.exists == 'true'
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ steps.find_installer.outputs.installer }}
+          asset_name: zbProgram_setup.exe
+          asset_content_type: application/octet-stream
+
+      # If installer missing, create placeholder only for WebDAV upload (do not publish placeholder in Release)
+      - name: Ensure installer exists for WebDAV (create stub if missing)
+        shell: pwsh
+        run: |
+          $installer = '${{ steps.find_installer.outputs.installer }}'
+          $dir = Split-Path $installer -Parent
+          if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Path $dir -Force | Out-Null }
+          if (-not (Test-Path $installer)) {
+            Write-Host "Installer not found at $installer, creating placeholder for WebDAV upload"
+            "Placeholder installer created by CI for WebDAV upload because real installer was missing." | Out-File -FilePath $installer -Encoding utf8
+          } else {
+            Write-Host "Installer exists at $installer"
+          }
+
+      - name: Upload index.json, zip and installer to WebDAV (after release)
         shell: pwsh
         env:
           WEB_DAV_URL: ${{ secrets.WEB_DAV_URL }}
@@ -114,49 +183,8 @@ jobs:
             & curl --show-error --silent --user "$($user):$($pass)" --upload-file "$zip" "$webdav/program/zbProgram.zip"
             Write-Host "zip uploaded"
           } catch { Write-Host "zip upload failed: $_" }
-          # Always attempt to upload installer (best-effort); failures are logged but don't fail the job
           Write-Host "Uploading installer $installer to $webdav/program/zbProgram_setup.exe..."
           try {
             & curl --show-error --silent --user "$($user):$($pass)" --upload-file "$installer" "$webdav/program/zbProgram_setup.exe"
             Write-Host "installer uploaded"
           } catch { Write-Host "installer upload failed (ignored): $_" }
-
-      - name: Create GitHub Release
-        id: create_release
-        uses: actions/create-release@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          tag_name: ${{ github.event.inputs.version }}
-          release_name: ${{ github.event.inputs.version }}
-          body: ${{ steps.read_output.outputs.notes }}
-          draft: false
-          prerelease: false
-
-      - name: Upload zip to Release
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ steps.read_output.outputs.zip }}
-          asset_name: zbProgram_${{ github.event.inputs.version }}.zip
-          asset_content_type: application/zip
-
-      - name: Ensure installer exists (create stub if missing)
-        shell: pwsh
-        run: |
-          $installer = '${{ steps.find_installer.outputs.installer }}'
-          $dir = Split-Path $installer -Parent
-          if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Path $dir -Force | Out-Null }
-          if (-not (Test-Path $installer)) {
-            Write-Host "Installer not found at $installer, creating placeholder"
-            "Placeholder installer created by CI because real installer was missing." | Out-File -FilePath $installer -Encoding utf8
-          } else {
-            Write-Host "Installer exists at $installer"
-          }
-
-      - name: Upload installer to Release
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ steps.find_installer.outputs.installer }}
-          asset_name: zbProgram_setup.exe
-          asset_content_type: application/octet-stream
