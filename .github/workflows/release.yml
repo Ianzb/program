@@ -93,13 +93,13 @@ jobs:
           $zip = $env:ZIP_PATH
           $installer = $env:INSTALLER_PATH
           $index = Join-Path $Env:GITHUB_WORKSPACE 'index.json'
-          Write-Host "Uploading index.json to $webdav/Code/program/index.json..."
-          curl --fail --show-error --silent --user "$($user):$($pass)" --upload-file "$index" "$webdav/Code/program/index.json"
-          Write-Host "Uploading zip $zip to $webdav/Code/program/zbProgram.zip..."
-          curl --fail --show-error --silent --user "$($user):$($pass)" --upload-file "$zip" "$webdav/Code/program/zbProgram.zip"
+          Write-Host "Uploading index.json to $webdav/program/index.json..."
+          curl --fail --show-error --silent --user "$($user):$($pass)" --upload-file "$index" "$webdav/program/index.json"
+          Write-Host "Uploading zip $zip to $webdav/program/zbProgram.zip..."
+          curl --fail --show-error --silent --user "$($user):$($pass)" --upload-file "$zip" "$webdav/program/zbProgram.zip"
           if ($installer -and $installer -ne '') {
-            Write-Host "Uploading installer $installer to $webdav/Code/program/zbProgram_setup.exe..."
-            curl --fail --show-error --silent --user "$($user):$($pass)" --upload-file "$installer" "$webdav/Code/program/zbProgram_setup.exe"
+            Write-Host "Uploading installer $installer to $webdav/program/zbProgram_setup.exe..."
+            curl --fail --show-error --silent --user "$($user):$($pass)" --upload-file "$installer" "$webdav/program/zbProgram_setup.exe"
           } else {
             Write-Host "No installer found to upload"
           }
