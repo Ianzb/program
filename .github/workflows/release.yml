@@ -58,7 +58,6 @@ jobs:
           if ($installer) { Write-Output "installer=$($installer.FullName)" >> $env:GITHUB_OUTPUT } else { Write-Output "installer=" >> $env:GITHUB_OUTPUT }
 
       - name: Upload index.json, zip and installer to WebDAV
-        if: ${{ secrets.WEB_DAV_URL != '' && secrets.WEB_DAV_USER != '' && secrets.WEB_DAV_PASSWORD != '' }}
         shell: pwsh
         env:
           WEB_DAV_URL: ${{ secrets.WEB_DAV_URL }}
@@ -67,6 +66,10 @@ jobs:
           ZIP_PATH: ${{ steps.read_output.outputs.zip }}
           INSTALLER_PATH: ${{ steps.find_installer.outputs.installer }}
         run: |
+          if (-not $Env:WEB_DAV_URL -or -not $Env:WEB_DAV_USER -or -not $Env:WEB_DAV_PASSWORD) {
+            Write-Host 'WEB_DAV_URL/WEB_DAV_USER/WEB_DAV_PASSWORD not set in secrets, skipping WebDAV upload'
+            exit 0
+          }
           $webdav = $env:WEB_DAV_URL.TrimEnd('/')
           $user = $env:WEB_DAV_USER
           $pass = $env:WEB_DAV_PASSWORD
