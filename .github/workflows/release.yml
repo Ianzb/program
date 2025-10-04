@@ -1,0 +1,112 @@
+name: Release Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: '版本号，例如 5.4.1'
+        required: true
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Upgrade pip
+        run: |
+          python -m pip install --upgrade pip
+
+      - name: Run release build script
+        id: run_build
+        run: |
+          python script\release_build.py -v ${{ github.event.inputs.version }} --no-inno
+        env:
+          # we do the WebDAV upload later after Inno setup step so release_build doesn't upload prematurely
+          WEB_DAV_URL: ${{ secrets.WEB_DAV_URL }}
+          WEB_DAV_USER: ${{ secrets.WEB_DAV_USER }}
+          WEB_DAV_PASSWORD: ${{ secrets.WEB_DAV_PASSWORD }}
+
+      - name: Compile .ISS to .EXE Installer
+        uses: Minionguyjpro/Inno-Setup-Action@v1.2.2
+        with:
+          path: script/setup.iss
+          options: /O+
+
+      - name: Read build output
+        id: read_output
+        shell: pwsh
+        run: |
+          $json = Get-Content -Raw -Path script\release_output.json | ConvertFrom-Json
+          if ($json.zip) { Write-Output "zip=$($json.zip)" >> $env:GITHUB_OUTPUT }
+          $notes = $json.release_notes -replace "`r`n","\n"
+          Write-Output "notes=$notes" >> $env:GITHUB_OUTPUT
+
+      - name: Find installer
+        id: find_installer
+        shell: pwsh
+        run: |
+          $installer = Get-ChildItem -Path $Env:GITHUB_WORKSPACE -Filter zbProgram_setup.exe -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+          if ($installer) { Write-Output "installer=$($installer.FullName)" >> $env:GITHUB_OUTPUT } else { Write-Output "installer=" >> $env:GITHUB_OUTPUT }
+
+      - name: Upload index.json, zip and installer to WebDAV
+        if: ${{ secrets.WEB_DAV_URL != '' && secrets.WEB_DAV_USER != '' && secrets.WEB_DAV_PASSWORD != '' }}
+        shell: pwsh
+        env:
+          WEB_DAV_URL: ${{ secrets.WEB_DAV_URL }}
+          WEB_DAV_USER: ${{ secrets.WEB_DAV_USER }}
+          WEB_DAV_PASSWORD: ${{ secrets.WEB_DAV_PASSWORD }}
+          ZIP_PATH: ${{ steps.read_output.outputs.zip }}
+          INSTALLER_PATH: ${{ steps.find_installer.outputs.installer }}
+        run: |
+          $webdav = $env:WEB_DAV_URL.TrimEnd('/')
+          $user = $env:WEB_DAV_USER
+          $pass = $env:WEB_DAV_PASSWORD
+          $zip = $env:ZIP_PATH
+          $installer = $env:INSTALLER_PATH
+          $index = Join-Path $Env:GITHUB_WORKSPACE 'index.json'
+          Write-Host "Uploading index.json to $webdav/Code/program/index.json..."
+          curl --fail --show-error --silent --user "$($user):$($pass)" --upload-file "$index" "$webdav/Code/program/index.json"
+          Write-Host "Uploading zip $zip to $webdav/Code/program/zbProgram.zip..."
+          curl --fail --show-error --silent --user "$($user):$($pass)" --upload-file "$zip" "$webdav/Code/program/zbProgram.zip"
+          if ($installer -and $installer -ne '') {
+            Write-Host "Uploading installer $installer to $webdav/Code/program/zbProgram_setup.exe..."
+            curl --fail --show-error --silent --user "$($user):$($pass)" --upload-file "$installer" "$webdav/Code/program/zbProgram_setup.exe"
+          } else {
+            Write-Host "No installer found to upload"
+          }
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ github.event.inputs.version }}
+          release_name: ${{ github.event.inputs.version }}
+          body: ${{ steps.read_output.outputs.notes }}
+          draft: false
+          prerelease: false
+
+      - name: Upload zip to Release
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ steps.read_output.outputs.zip }}
+          asset_name: zbProgram_${{ github.event.inputs.version }}.zip
+          asset_content_type: application/zip
+
+      - name: Upload installer to Release (if exists)
+        if: ${{ steps.find_installer.outputs.installer != '' }}
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ steps.find_installer.outputs.installer }}
+          asset_name: zbProgram_setup.exe
+          asset_content_type: application/octet-stream
