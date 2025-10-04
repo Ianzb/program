@@ -218,11 +218,11 @@ def upload_webdav(webdav_url, user, password, zip_path: Path, installer_path: Pa
         return
     webdav_url = webdav_url.rstrip('/')
     targets = [
-        (INDEX_JSON, f'{webdav_url}/Code/program/index.json'),
-        (zip_path, f'{webdav_url}/Code/program/zbProgram.zip'),
+        (INDEX_JSON, f'{webdav_url}/program/index.json'),
+        (zip_path, f'{webdav_url}/program/zbProgram.zip'),
     ]
     if installer_path:
-        targets.append((installer_path, f'{webdav_url}/Code/program/zbProgram_setup.exe'))
+        targets.append((installer_path, f'{webdav_url}/program/zbProgram_setup.exe'))
     for src, dest in targets:
         try:
             print(f'Uploading {src} -> {dest}')
