@@ -96,7 +96,7 @@ class AddonInfoCard(zbw.SmallInfoCard):
             version = data.get("version", "")
             history = data.get("history", {}).get(version, {})
             info = (
-                f"ID：{data.get("id", "")}\n版本：{version} ({data.get("version_code", 0)})\n作者：{data.get("author", "")}\n介绍：{data.get("description", "")}\n"
+                f"ID：{data.get("id", "")}\n版本：{version} ({data.get("version_code", 0)}, API {data.get("api_verison", 0)})\n作者：{data.get("author", "")}\n介绍：{data.get("description", "")}\n"
                 f"更新日期：{history.get("time", "")}\n更新内容：{history.get("log", "")}\n"
             )
             self.messageBox.setData(data)

@@ -156,9 +156,11 @@ class Window(zbw.Window):
                 self.infoBar.show()
             logging.info(f"插件{data.get("name", "")}安装成功")
         except:
-            self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", f"插件{data.get("name", "")}安装失败！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.mainPage)
+            if data.get("api_version", 0) == program.ADDON_API_VERSION:
+                self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", f"插件{data.get("name", "")}安装失败！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.mainPage)
+            else:
+                self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", f"插件{data.get("name", "")}与当前程序版本不兼容！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.mainPage)
             self.infoBar.show()
-
             logging.warning(f"插件{data.get("name", "")}安装失败{traceback.format_exc()}")
 
     def removeAddon(self, data: dict):

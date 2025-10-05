@@ -168,7 +168,7 @@ class AboutSettingCard(SettingCard):
     """
 
     def __init__(self, parent=None):
-        super().__init__(FIF.INFO, "关于", f"{program.INFO}\nVersion {program.VERSION} ({program.VERSION_CODE}). Powered by zbGuiTemplate {program.CORE_VERSION}.", parent)
+        super().__init__(FIF.INFO, "关于", f"{program.INFO}\nVersion {program.VERSION} ({program.VERSION_CODE}). Powered by zbGuiTemplate {program.CORE_VERSION}. Addon API {program.ADDON_API_VERSION}.", parent)
         self.button1 = HyperlinkButton(program.URL, "程序官网", self, FIF.LINK)
         self.button1.setNewToolTip("打开程序官网")
 
