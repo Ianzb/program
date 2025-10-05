@@ -155,17 +155,14 @@ def run_pyinstaller():
 
 
 def make_zip(version: str):
-    zip_name = ROOT / f'zbProgram_{version}.zip'
-    print(f'Creating zip {zip_name} ...')
-    with zipfile.ZipFile(zip_name, 'w', zipfile.ZIP_DEFLATED) as zf:
-        if BUILD_DIR.exists():
-            for root, dirs, files in os.walk(BUILD_DIR):
-                for f in files:
-                    full = Path(root) / f
-                    rel = full.relative_to(BUILD_DIR)  # 这里改为相对于 BUILD_DIR
-                    zf.write(full, rel)
-    print('Zip created:', zip_name)
-    return zip_name
+    zip_name = ROOT / f'zbProgram_{version}'
+    print(f'Creating zip {zip_name}.zip ...')
+    # shutil.make_archive 的第一个参数是输出文件路径（不带扩展名）
+    # 第二个参数是格式，这里用 'zip'
+    # 第三个参数是要压缩的目录
+    zip_path = shutil.make_archive(str(zip_name), 'zip', root_dir=BUILD_DIR / "zbProgram")
+    print('Zip created:', zip_path)
+    return zip_path
 
 
 if __name__ == '__main__':
