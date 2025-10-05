@@ -12,7 +12,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           persist-credentials: true
 
@@ -63,7 +63,7 @@ jobs:
         with:
           name: ${{ github.event.inputs.version }}
           tag_name: ${{ github.event.inputs.version }}
-          files: zbProgram_${{ github.event.inputs.version }}.zip,zbProgram_setup.exe
+          files: zbProgram_${{ github.event.inputs.version }}.zip, steps.check_output.outputs.installer
           token: ${{ secrets.GITHUB_TOKEN }}
           body: ${{ steps.check_output.outputs.notes }}
           draft: false
