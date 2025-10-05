@@ -181,25 +181,6 @@ def make_zip(version: str):
     return zip_name
 
 
-def run_inno_setup():
-    inno = os.environ.get('INNO_SETUP_PATH', r'C:\Program Files (x86)\Inno Setup 6\ISCC.exe')
-    if not Path(inno).exists():
-        print(f'INNO Setup (ISCC.exe) not found at {inno}, skipping installer build')
-        return None
-    print('Running Inno Setup:', inno)
-    cmd = [inno, str(SETUP_ISS)]
-    subprocess.check_call(cmd)
-    out_exe = BUILD_DIR / 'zbProgram_setup.exe'
-    if out_exe.exists():
-        print('Inno Setup produced:', out_exe)
-        return out_exe
-    alt = BUILD_DIR / 'zbProgram' / 'zbProgram_setup.exe'
-    if alt.exists():
-        return alt
-    print('WARN: 未找到生成的安装包，可能 ISCC 的 OutputDir 与 setup.iss 不一致')
-    return None
-
-
 def git_commit_and_push(version: str):
     try:
         subprocess.check_call(['git', 'add', str(PROG_PY), str(SETUP_ISS), str(INDEX_JSON)])
@@ -210,39 +191,11 @@ def git_commit_and_push(version: str):
         print('Git push failed or no changes to commit:', e)
 
 
-def upload_webdav(webdav_url, user, password, zip_path: Path, installer_path: Path):
-    try:
-        import requests
-    except Exception:
-        print('requests not available, skip webdav upload')
-        return
-    webdav_url = webdav_url.rstrip('/')
-    targets = [
-        (INDEX_JSON, f'{webdav_url}/program/index.json'),
-        (zip_path, f'{webdav_url}/program/zbProgram.zip'),
-    ]
-    if installer_path:
-        targets.append((installer_path, f'{webdav_url}/program/zbProgram_setup.exe'))
-    for src, dest in targets:
-        try:
-            print(f'Uploading {src} -> {dest}')
-            with open(src, 'rb') as f:
-                r = requests.put(dest, data=f, auth=(user, password), timeout=60)
-            if r.status_code in (200, 201, 204):
-                print('Uploaded', dest)
-            else:
-                print('Upload failed', dest, r.status_code, r.text)
-        except Exception as e:
-            print('Upload error', e)
-
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-v', '--version', required=True, help='版本号，例如 5.4.1')
     parser.add_argument('--skip-requirements', action='store_true')
     parser.add_argument('--skip-pyinstaller', action='store_true')
-    parser.add_argument('--no-inno', action='store_true')
-    parser.add_argument('--upload-webdav', action='store_true', help='上传生成的 zip 和安装包到 WebDAV，需在环境变量中设置 WEB_DAV_URL/WEB_DAV_USER/WEB_DAV_PASSWORD')
     args = parser.parse_args()
     version = args.version
 
@@ -279,11 +232,6 @@ if __name__ == '__main__':
             zip_path = make_zip(version)
         except Exception as e:
             print('打包 zip 失败:', e)
-        if not args.no_inno and should_run_pyinstaller:
-            try:
-                installer_path = run_inno_setup()
-            except Exception as e:
-                print('Inno Setup 失败:', e)
     else:
         print('已跳过 PyInstaller 步骤')
 
@@ -314,17 +262,5 @@ if __name__ == '__main__':
         print(json.dumps(out, ensure_ascii=False, indent=2))
     except Exception as e:
         print('写出 release_output.json 失败:', e)
-
-    if getattr(args, 'upload_webdav', False):
-        webdav_url = os.environ.get('WEB_DAV_URL')
-        webdav_user = os.environ.get('WEB_DAV_USER')
-        webdav_password = os.environ.get('WEB_DAV_PASSWORD')
-        if webdav_url and webdav_user and webdav_password:
-            try:
-                upload_webdav(webdav_url, webdav_user, webdav_password, Path(out['zip']), Path(out.get('installer')) if out.get('installer') else None)
-            except Exception as e:
-                print('WebDAV 上传失败:', e)
-        else:
-            print('WEB_DAV_URL/WEB_DAV_USER/WEB_DAV_PASSWORD 未全部设置，跳过 WebDAV 上传')
 
     print('Done')

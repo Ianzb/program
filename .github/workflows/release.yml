@@ -16,16 +16,16 @@ jobs:
         with:
           persist-credentials: true
 
-      - name: Setup Python
+      - name: 安装Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.12'
+          python-version: "3.12"
 
-      - name: Upgrade pip
+      - name: 更新pip
         run: |
           python -m pip install --upgrade pip
 
-      - name: Install Python dependencies (exclude pyinstaller/pefile)
+      - name: 安装Python运行库
         shell: pwsh
         run: |
           Write-Host "Filtering requirements.txt to exclude pyinstaller and pefile..."
@@ -36,76 +36,76 @@ jobs:
           Write-Host "Installing PyInstaller pinned version separately..."
           python -m pip install pyinstaller==6.16.0
 
-      - name: Run release build script
+      - name: 编译程序
         id: run_build
         run: |
           python script\release_build.py -v ${{ github.event.inputs.version }} --no-inno --skip-requirements
-        env:
-          # we do the WebDAV upload later after Inno setup step so release_build doesn't upload prematurely
-          WEB_DAV_URL: ${{ secrets.WEB_DAV_URL }}
-          WEB_DAV_USER: ${{ secrets.WEB_DAV_USER }}
-          WEB_DAV_PASSWORD: ${{ secrets.WEB_DAV_PASSWORD }}
 
-      - name: Compile .ISS to .EXE Installer
+      - name: 编译安装程序
         uses: Minionguyjpro/Inno-Setup-Action@v1.2.7
         with:
           path: script/setup.iss
           options: /O+
 
-      - name: Read build output
-        id: read_output
+      - name: 校验输出
+        id: check_output
         shell: pwsh
         run: |
           $json = Get-Content -Raw -Path script\release_output.json | ConvertFrom-Json
           if ($json.zip) { Write-Output "zip=$($json.zip)" >> $env:GITHUB_OUTPUT }
           $notes = $json.release_notes -replace "`r`n","\n"
           Write-Output "notes=$notes" >> $env:GITHUB_OUTPUT
-
-      - name: Find installer
-        id: find_installer
-        shell: pwsh
-        run: |
           $installer = Get-ChildItem -Path $Env:GITHUB_WORKSPACE -Filter zbProgram_setup.exe -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
           if ($installer) { Write-Output "installer=$($installer.FullName)" >> $env:GITHUB_OUTPUT } else { Write-Output "installer=" >> $env:GITHUB_OUTPUT }
 
-
-
-      - name: Create GitHub Release
-        id: create_release
-        uses: actions/create-release@v1
+      - name: 发布Release
+        uses: softprops/action-gh-release@v2
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          name: ${{ github.event.inputs.version }}
           tag_name: ${{ github.event.inputs.version }}
-          release_name: ${{ github.event.inputs.version }}
-          body: ${{ steps.read_output.outputs.notes }}
+          files: zbProgram_${{ github.event.inputs.version }}.zip,zbProgram_setup.exe
+          token: ${{ secrets.GITHUB_TOKEN }}
+          body: ${{ steps.check_output.outputs.notes }}
           draft: false
           prerelease: false
 
-      - name: Upload zip to Release
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ steps.read_output.outputs.zip }}
-          asset_name: zbProgram_${{ github.event.inputs.version }}.zip
-          asset_content_type: application/zip
+      #      - name: Create GitHub Release
+      #        id: create_release
+      #        uses: actions/create-release@v1
+      #        env:
+      #          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #        with:
+      #          tag_name: ${{ github.event.inputs.version }}
+      #          release_name: ${{ github.event.inputs.version }}
+      #          body: ${{ steps.check_output.outputs.notes }}
+      #          draft: false
+      #          prerelease: false
+      #
+      #      - name: Upload zip to Release
+      #        uses: actions/upload-release-asset@v1
+      #        with:
+      #          upload_url: ${{ steps.create_release.outputs.upload_url }}
+      #          asset_path: ${{ steps.check_output.outputs.zip }}
+      #          asset_name: zbProgram_${{ github.event.inputs.version }}.zip
+      #          asset_content_type: application/zip
+      #
+      #      - name: Upload installer to Release (if exists)
+      #        if: ${{ steps.check_output.outputs.installer != '' }}
+      #        uses: actions/upload-release-asset@v1
+      #        with:
+      #          upload_url: ${{ steps.create_release.outputs.upload_url }}
+      #          asset_path: ${{ steps.check_output.outputs.installer }}
+      #          asset_name: zbProgram_setup.exe
+      #          asset_content_type: application/octet-stream
 
-      - name: Upload installer to Release (if exists)
-        if: ${{ steps.find_installer.outputs.installer != '' }}
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ steps.find_installer.outputs.installer }}
-          asset_name: zbProgram_setup.exe
-          asset_content_type: application/octet-stream
-
-      - name: Upload index.json, zip and installer to WebDAV
+      - name: 上传到WebDAV
         shell: pwsh
         env:
           WEB_DAV_URL: ${{ secrets.WEB_DAV_URL }}
           WEB_DAV_USER: ${{ secrets.WEB_DAV_USER }}
           WEB_DAV_PASSWORD: ${{ secrets.WEB_DAV_PASSWORD }}
-          ZIP_PATH: ${{ steps.read_output.outputs.zip }}
-          INSTALLER_PATH: ${{ steps.find_installer.outputs.installer }}
+          ZIP_PATH: ${{ steps.check_output.outputs.zip }}
+          INSTALLER_PATH: ${{ steps.check_output.outputs.installer }}
         run: |
           if (-not $Env:WEB_DAV_URL -or -not $Env:WEB_DAV_USER -or -not $Env:WEB_DAV_PASSWORD) {
             Write-Host 'WEB_DAV_URL/WEB_DAV_USER/WEB_DAV_PASSWORD not set in secrets, skipping WebDAV upload'
