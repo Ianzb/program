@@ -4,7 +4,8 @@
   "author": "Ianzb",
   "description": "为学校希沃白板设计的实用功能。",
   "version": "1.1.2",
-  "icon": "seewokit.png",
+  "version_code": 5,
+  "icon": "http://123pan.ianzb.cn/code/addon/seewokit/seewokit.png",
   "file": "http://123pan.ianzb.cn/code/addon/seewokit/seewokit.zip",
   "history": {
     "1.0.0": {

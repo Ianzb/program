@@ -4,7 +4,8 @@
   "author": "Ianzb",
   "description": "一款简易的应用商店插件，支持360和腾讯应用中心的应用。",
   "version": "1.5.6",
-  "icon": "appstore.png",
+  "version_code": 8,
+  "icon": "http://123pan.ianzb.cn/code/addon/appstore/appstore.png",
   "file": "http://123pan.ianzb.cn/code/addon/appstore/appstore.zip",
   "history": {
     "1.4.3": {

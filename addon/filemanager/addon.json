@@ -4,7 +4,8 @@
   "author": "Ianzb",
   "description": "一款简易的文件整理清理插件。",
   "version": "1.1.9",
-  "icon": "filemanager.png",
+  "version_code": 15,
+  "icon": "http://123pan.ianzb.cn/code/addon/filemanager/filemanager.png",
   "file": "http://123pan.ianzb.cn/code/addon/filemanager/filemanager.zip",
   "history": {
     "0.0.1": {

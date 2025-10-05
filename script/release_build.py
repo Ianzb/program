@@ -124,9 +124,9 @@ def replace_version_code_in_index(version_code: int):
             data = json.loads(INDEX_JSON.read_text(encoding='utf-8'))
         except Exception:
             print('WARN: 解析 index.json 失败，尝试覆盖写入')
-    data['versionCode'] = version_code
+    data['version_code'] = version_code
     INDEX_JSON.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding='utf-8')
-    print(f'Updated {INDEX_JSON} versionCode -> {version_code}')
+    print(f'Updated {INDEX_JSON} version_code -> {version_code}')
 
 
 def extract_release_notes():
@@ -197,7 +197,7 @@ def get_current_version_code():
     if INDEX_JSON.exists():
         try:
             data = json.loads(INDEX_JSON.read_text(encoding='utf-8'))
-            return data.get('versionCode', 0)
+            return data.get('version_code', 0)
         except Exception:
             pass
     return 0

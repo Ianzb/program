@@ -1,20 +1,27 @@
 import time
+import traceback
 
 from .widget import *
 
 
-class AddonInfoMessageBox(MessageBox):
+class AddonInfoMessageBox(zbw.ScrollMessageBox):
     """
     插件信息消息框
     """
 
     def __init__(self, parent=None):
         super().__init__(title="", content="", parent=parent)
+        self.widget.setFixedSize(600, 400)
+
         self.image = zbw.WebImage(self)
+
+        self.contentLabel.setSelectable()
 
         self.yesButton.deleteLater()
         self.cancelButton.setText("关闭")
         self.cancelButton.clicked.connect(self.closeMessageBox)
+
+        self.widget.adjustSize()
 
     def closeMessageBox(self):
         self.accept()
@@ -23,12 +30,12 @@ class AddonInfoMessageBox(MessageBox):
     def setData(self, data: dict):
         if data.get("icon"):
             if zb.isUrl(data.get("icon")):
-                self.image.setImg(program.cache(zb.joinPath("addon", zb.getFileNameFromUrl(data.get("icon")))), data.get("icon"))
-                self.textLayout.insertWidget(1, self.image)
+                self.image.setImg(zb.joinPath(program.ADDON_PATH, data.get("id", ""), zb.getFileNameFromUrl(data.get("icon"))), data.get("icon"))
+                self.scrollLayout.insertWidget(0, self.image)
             else:
                 if zb.existPath(zb.joinPath(program.ADDON_PATH, data.get("id", ""), data.get("icon"))):
                     self.image.setImg(zb.joinPath(program.ADDON_PATH, data.get("id", ""), data.get("icon")))
-                    self.textLayout.insertWidget(1, self.image)
+                    self.scrollLayout.insertWidget(0, self.image)
 
 
 class AddonInfoCard(zbw.SmallInfoCard):
@@ -89,15 +96,14 @@ class AddonInfoCard(zbw.SmallInfoCard):
     def showInfo(self):
         if self.offlineData or self.onlineData:
             data = self.onlineData if self.onlineData else self.offlineData
-            title = f"{data.get("name", "")}插件信息"
-            ver = data.get("version", "")
-            hist = data.get("history", {}).get(ver, {})
+            version = data.get("version", "")
+            history = data.get("history", {}).get(version, {})
             info = (
-                f"ID：{data.get("id", "")}\n版本：{ver}\n作者：{data.get("author", "")}\n介绍：{data.get("description", "")}\n"
-                f"更新日期：{hist.get("time", "")}\n更新内容：{hist.get("log", "")}\n"
+                f"ID：{data.get("id", "")}\n版本：{version} ({data.get("version_code", 0)})\n作者：{data.get("author", "")}\n介绍：{data.get("description", "")}\n"
+                f"更新日期：{history.get("time", "")}\n更新内容：{history.get("log", "")}\n"
             )
             self.messageBox.setData(data)
-            self.messageBox.titleLabel.setText(title)
+            self.messageBox.titleLabel.setText(f"{data.get("name", "")} 插件信息")
             self.messageBox.contentLabel.setText(info)
             self.messageBox.show()
 
@@ -107,7 +113,7 @@ class AddonInfoCard(zbw.SmallInfoCard):
         if self.offlineData.get("icon"):
             if zb.isUrl(self.offlineData.get("icon")):
                 self.setImg(
-                    program.cache(zb.joinPath("addon", zb.getFileNameFromUrl(self.offlineData.get("icon")))),
+                    zb.joinPath(program.ADDON_PATH, self.offlineData.get("id", ""), zb.getFileNameFromUrl(self.offlineData.get("icon"))),
                     self.offlineData.get("icon"),
                     program.THREAD_POOL,
                 )
@@ -133,7 +139,7 @@ class AddonInfoCard(zbw.SmallInfoCard):
         if self.onlineData.get("icon"):
             if zb.isUrl(self.onlineData.get("icon")):
                 self.setImg(
-                    program.cache(zb.joinPath("addon", zb.getFileNameFromUrl(self.onlineData.get("icon")))),
+                    zb.joinPath(program.ADDON_PATH, self.onlineData.get("id", ""), zb.getFileNameFromUrl(self.onlineData.get("icon"))),
                     self.onlineData.get("icon"),
                     program.THREAD_POOL,
                 )
@@ -239,8 +245,8 @@ class MainPage(zbw.BasicTab):
         try:
             info = program.getAddonInfoFromUrl(info)
             self.signalAddCardOnline.emit(info)
-        except Exception as ex:
-            logging.error(f"程序发生异常，无法获取插件{info}的在线信息，报错信息：{ex}！")
+        except:
+            logging.error(f"程序发生异常，无法获取插件{info}的在线信息，报错信息：{traceback.format_exc()}！")
         self.onlineCount += 1
 
     def addCardOffline(self, info):
@@ -250,8 +256,8 @@ class MainPage(zbw.BasicTab):
                 card.setInstalledData(info)
                 self.cardGroup1.addCard(card, info["id"])
                 card.show()
-            except Exception as ex:
-                logging.error(f"程序发生异常，插件{info.get("name", "")}的卡片组件无法加载，报错信息：{ex}！")
+            except:
+                logging.error(f"程序发生异常，插件{info.get("name", "")}的卡片组件无法加载，报错信息：{traceback.format_exc()}！")
         else:
             try:
                 self.cardGroup1.getCard(info["id"]).setInstalledData(info)
@@ -265,8 +271,8 @@ class MainPage(zbw.BasicTab):
                 card.setOnlineData(info)
                 self.cardGroup1.addCard(card, info["id"])
                 card.show()
-            except Exception as ex:
-                logging.error(f"程序发生异常，插件{info.get("name", "")}的卡片组件无法加载，报错信息：{ex}！")
+            except:
+                logging.error(f"程序发生异常，插件{info.get("name", "")}的卡片组件无法加载，报错信息：{traceback.format_exc()}！")
         else:
             try:
                 self.cardGroup1.getCard(info["id"]).setOnlineData(info)
