@@ -57,6 +57,7 @@ jobs:
           Write-Output "notes=$notes" >> $env:GITHUB_OUTPUT
           $installer = Get-ChildItem -Path $Env:GITHUB_WORKSPACE -Filter zbProgram_setup.exe -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
           if ($installer) { Write-Output "installer=$($installer.FullName)" >> $env:GITHUB_OUTPUT } else { Write-Output "installer=" >> $env:GITHUB_OUTPUT }
+          Write-Output "version_code=$($json.version_code)" >> $env:GITHUB_OUTPUT
       - name: 提交更改
         shell: pwsh
         run: |
@@ -64,7 +65,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add -u
           if (-not (git diff --cached --quiet)) {
-            git commit -m "Bump version to ${{ github.event.inputs.version }} [ci skip]"
+            git commit -m "Bump version to ${{ github.event.inputs.version }} and versionCode to ${{ steps.check_output.outputs.version_code }} [ci skip]"
             git push origin main
           } else {
             Write-Host "No changes to commit"

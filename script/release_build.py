@@ -71,6 +71,21 @@ def replace_version_in_program(version: str):
         print(f'Updated {PROG_PY} VERSION -> {version}')
 
 
+def replace_version_code_in_program(version_code: int):
+    if not PROG_PY.exists():
+        print(f'WARN: {PROG_PY} not found, skip')
+        return
+    text = PROG_PY.read_text(encoding='utf-8')
+    # Match VERSION_CODE assignment
+    pattern = re.compile(r"(\bVERSION_CODE\s*=\s*)(\d+)", flags=re.M)
+    new_text, n = pattern.subn(lambda m: m.group(1) + str(version_code), text, count=1)
+    if n == 0:
+        print('WARN: 未在 program.py 中找到 VERSION_CODE 字段，跳过替换')
+    else:
+        PROG_PY.write_text(new_text, encoding='utf-8')
+        print(f'Updated {PROG_PY} VERSION_CODE -> {version_code}')
+
+
 def replace_version_in_setup(version: str):
     if not SETUP_ISS.exists():
         print(f'WARN: {SETUP_ISS} not found, skip')
@@ -102,6 +117,18 @@ def replace_index_json(version: str):
     print(f'Updated {INDEX_JSON} version -> {version}')
 
 
+def replace_version_code_in_index(version_code: int):
+    data = {}
+    if INDEX_JSON.exists():
+        try:
+            data = json.loads(INDEX_JSON.read_text(encoding='utf-8'))
+        except Exception:
+            print('WARN: 解析 index.json 失败，尝试覆盖写入')
+    data['versionCode'] = version_code
+    INDEX_JSON.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding='utf-8')
+    print(f'Updated {INDEX_JSON} versionCode -> {version_code}')
+
+
 def extract_release_notes():
     if not INDEX_HTML.exists():
         return ''
@@ -124,7 +151,7 @@ def extract_release_notes():
 def is_pyinstaller_available():
     # Check if PyInstaller module can be imported
     try:
-        import importlib
+        import importlib.util
         if importlib.util.find_spec('PyInstaller') is not None:
             return True
     except Exception:
@@ -165,6 +192,28 @@ def make_zip(version: str):
     return zip_path
 
 
+def get_current_version_code():
+    """获取当前的版本代码"""
+    if INDEX_JSON.exists():
+        try:
+            data = json.loads(INDEX_JSON.read_text(encoding='utf-8'))
+            return data.get('versionCode', 0)
+        except Exception:
+            pass
+    return 0
+
+
+def get_current_version():
+    """获取当前的版本号"""
+    if INDEX_JSON.exists():
+        try:
+            data = json.loads(INDEX_JSON.read_text(encoding='utf-8'))
+            return data.get('version', '')
+        except Exception:
+            pass
+    return ''
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-v', '--version', required=True, help='版本号，例如 5.4.1')
@@ -176,9 +225,23 @@ if __name__ == '__main__':
     # print in a safe way; release_notes may contain non-ASCII
     print('Release notes:', release_notes)
 
+    # 获取当前版本和版本代码
+    current_version = get_current_version()
+    current_version_code = get_current_version_code()
+
+    # 如果版本号发生变化，则增加版本代码
+    if current_version != version:
+        new_version_code = current_version_code + 1
+        print(f'版本号从 {current_version} 变为 {version}, 增加版本代码到 {new_version_code}')
+    else:
+        new_version_code = current_version_code
+        print(f'版本号未变化，保持版本代码为 {new_version_code}')
+
     replace_version_in_program(version)
+    replace_version_code_in_program(new_version_code)
     replace_version_in_setup(version)
     replace_index_json(version)
+    replace_version_code_in_index(new_version_code)
 
     installer_path = None
     zip_path = None
@@ -195,6 +258,7 @@ if __name__ == '__main__':
 
     out = {
         'version': version,
+        'version_code': new_version_code,
         'release_notes': release_notes,
         'zip': ''
     }

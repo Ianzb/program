@@ -26,8 +26,10 @@ class Program:
     程序信息
     """
     NAME = "zb小程序"  # 程序名称
-    VERSION = "5.4.1"  # 程序版本
-    CORE_VERSION = "5.3.4"  # 内核版本
+    VERSION = "5.5.0"  # 程序版本
+    VERSION_CODE = 53  # 版本序数
+    ADDON_VERSION = 1  # 插件版本序数
+    CORE_VERSION = "5.3.5"  # 内核版本
     TITLE = f"{NAME} {VERSION}"  # 程序标题
     URL = "https://ianzb.github.io/project/program.html"  # 程序网址
     LICENSE = "GPLv3"  # 程序许可协议
@@ -186,7 +188,7 @@ class Program:
         @return: 程序最新版本
         """
         response = zb.getUrl(self.UPDATE_URL, headers=zb.REQUEST_HEADER)
-        data = json.loads(response.text)["version"]
+        data = json.loads(response.text)
         logging.info(f"服务器最新版本：{data}")
         return data
 
