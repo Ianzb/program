@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: '版本号，例如 5.4.1'
+        description: '版本号'
         required: true
 
 jobs:
