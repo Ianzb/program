@@ -121,19 +121,6 @@ def extract_release_notes():
     return last.strip()
 
 
-def ensure_requirements():
-    if not REQS.exists():
-        print('WARN: requirements.txt 不存在，跳过依赖安装')
-        return True
-    print('Installing requirements...')
-    try:
-        subprocess.check_call([sys.executable, '-m', 'pip', 'install', '-r', str(REQS)])
-        return True
-    except subprocess.CalledProcessError as e:
-        print('安装依赖失败:', e)
-        return False
-
-
 def is_pyinstaller_available():
     # Check if PyInstaller module can be imported
     try:
@@ -194,7 +181,6 @@ def git_commit_and_push(version: str):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-v', '--version', required=True, help='版本号，例如 5.4.1')
-    parser.add_argument('--skip-requirements', action='store_true')
     parser.add_argument('--skip-pyinstaller', action='store_true')
     args = parser.parse_args()
     version = args.version
@@ -207,33 +193,18 @@ if __name__ == '__main__':
     replace_version_in_setup(version)
     replace_index_json(version)
 
-    if not args.skip_requirements:
-        req_ok = ensure_requirements()
-    else:
-        req_ok = True
-
     installer_path = None
     zip_path = None
-    # Decide whether to run pyinstaller: skip if user requested or if requirements failed or PyInstaller missing
-    should_run_pyinstaller = not args.skip_pyinstaller and req_ok
-    if should_run_pyinstaller:
-        if not is_pyinstaller_available():
-            print('PyInstaller 未安装或不可用，跳过打包')
-            should_run_pyinstaller = False
 
-    if should_run_pyinstaller:
-        try:
-            run_pyinstaller()
-        except Exception as e:
-            print('PyInstaller 失败:', e)
-            # don't abort; continue to write output
-            should_run_pyinstaller = False
-        try:
-            zip_path = make_zip(version)
-        except Exception as e:
-            print('打包 zip 失败:', e)
-    else:
-        print('已跳过 PyInstaller 步骤')
+    try:
+        run_pyinstaller()
+    except Exception as e:
+        print('PyInstaller 失败:', e)
+        # don't abort; continue to write output
+    try:
+        zip_path = make_zip(version)
+    except Exception as e:
+        print('打包 zip 失败:', e)
 
     # 尝试提交版本变更
     try:
