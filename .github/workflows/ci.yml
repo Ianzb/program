@@ -1,0 +1,88 @@
+name: CI Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - 'program/**'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'program/**'
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: true
+
+      - name: 安装Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+
+      - name: 更新pip
+        run: |
+          python -m pip install --upgrade pip
+
+      - name: 安装Python运行库
+        shell: pwsh
+        run: |
+          Write-Host "Filtering requirements.txt to exclude pyinstaller and pefile..."
+          $req = Get-Content requirements.txt | Where-Object { $_ -and $_ -notmatch '^(?i)(pyinstaller==|pefile==)' }
+          $req | Set-Content -Path req_no_pyinstaller.txt -Encoding utf8
+          Write-Host "Installing filtered requirements..."
+          python -m pip install -r req_no_pyinstaller.txt
+          Write-Host "Installing PyInstaller pinned version separately..."
+          python -m pip install pyinstaller==6.16.0
+
+      - name: 获取当前版本号
+        id: get_version
+        shell: pwsh
+        run: |
+          # 从index.json读取当前版本号
+          $indexContent = Get-Content -Raw -Path index.json | ConvertFrom-Json
+          $currentVersion = $indexContent.version
+          Write-Output "current_version=$currentVersion" >> $env:GITHUB_OUTPUT
+
+      - name: 生成CI版本号
+        id: generate_ci_version
+        shell: pwsh
+        run: |
+          $currentVersion = "${{ steps.get_version.outputs.current_version }}"
+          $runNumber = $env:GITHUB_RUN_NUMBER
+          $ciVersion = "${currentVersion}+ci${runNumber}"
+          Write-Output "ci_version=$ciVersion" >> $env:GITHUB_OUTPUT
+          Write-Host "CI Version: $ciVersion"
+
+      - name: 编译程序
+        id: run_build
+        run: |
+          python script\release_build.py -v ${{ steps.generate_ci_version.outputs.ci_version }}
+
+      - name: 编译安装程序
+        uses: Minionguyjpro/Inno-Setup-Action@v1.2.7
+        with:
+          path: script/setup.iss
+          options: /O+
+
+      - name: 上传构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: zbProgram-build-${{ steps.generate_ci_version.outputs.ci_version }}
+          path: |
+            zbProgram_${{ steps.generate_ci_version.outputs.ci_version }}.zip
+            build/zbProgram/zbProgram_setup.exe
+          retention-days: 7
+
+      - name: 显示构建信息
+        shell: pwsh
+        run: |
+          Write-Host "构建完成!"
+          Write-Host "版本号: ${{ steps.generate_ci_version.outputs.ci_version }}"
+          Write-Host "构建产物已上传到GitHub Actions Artifacts"
+          Write-Host "可在Actions页面下载构建文件"
