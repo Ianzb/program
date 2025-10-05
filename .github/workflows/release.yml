@@ -39,7 +39,7 @@ jobs:
       - name: 编译程序
         id: run_build
         run: |
-          python script\release_build.py -v ${{ github.event.inputs.version }} --no-inno --skip-requirements
+          python script\release_build.py -v ${{ github.event.inputs.version }}
 
       - name: 编译安装程序
         uses: Minionguyjpro/Inno-Setup-Action@v1.2.7
