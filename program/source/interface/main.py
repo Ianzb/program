@@ -159,12 +159,16 @@ class AddonInfoCard(zbw.SmallInfoCard):
 
     def setButtonStatement(self):
         if self.onlineData and self.offlineData:
-            if self.onlineData.get("version") != self.offlineData.get("version"):
+            if self.onlineData.get("version_code", 0) > self.offlineData.get("version_code", 0):
                 self.mainButton.setText("更新")
                 self.mainButton.setIcon(FIF.UPDATE)
                 self.mainButton.setEnabled(True)
-            elif self.onlineData.get("version") == self.offlineData.get("version"):
+            elif self.onlineData.get("version_code", 0) == self.offlineData.get("version_code", 0):
                 self.mainButton.setText("重新安装")
+                self.mainButton.setIcon(FIF.DOWNLOAD)
+                self.mainButton.setEnabled(True)
+            else:
+                self.mainButton.setText("降级")
                 self.mainButton.setIcon(FIF.DOWNLOAD)
                 self.mainButton.setEnabled(True)
         elif not self.onlineData and self.offlineData:
