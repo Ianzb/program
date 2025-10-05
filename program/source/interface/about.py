@@ -55,6 +55,7 @@ class UpdateSettingCard(SettingCard):
         else:
             self.infoBar = InfoBar(InfoBarIcon.WARNING, "警告", "服务器连接失败，无法检查更新！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.window().aboutPage)
         self.infoBar.show()
+        self.button1.setEnabled(True)
 
     def button2Clicked(self):
         self.infoBar.close()
