@@ -1,6 +1,3 @@
-import importlib
-import traceback
-
 from .interface import *
 
 
@@ -158,7 +155,7 @@ class Window(zbw.Window):
                 self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{data.get("name", "")}安装成功！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.mainPage)
                 self.infoBar.show()
             logging.info(f"插件{data.get("name", "")}安装成功")
-        except Exception as ex:
+        except:
             self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", f"插件{data.get("name", "")}安装失败！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.mainPage)
             self.infoBar.show()
 

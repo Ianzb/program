@@ -32,8 +32,8 @@ class UpdateSettingCard(SettingCard):
     def checkUpdate(self):
         try:
             version = program.getNewestVersion()
-        except Exception as ex:
-            logging.error(f"检测更新失败，报错信息：{ex}！")
+        except:
+            logging.error(f"检测更新失败，报错信息：{traceback.format_exc()}！")
             self.updateSignal.emit(False)
             return
         if version.get("v", 0) <= program.VERSION_CODE:

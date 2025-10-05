@@ -1,6 +1,3 @@
-import time
-import traceback
-
 from .widget import *
 
 

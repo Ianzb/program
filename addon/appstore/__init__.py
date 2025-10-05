@@ -1,5 +1,3 @@
-import logging
-
 from source.addon import *
 
 try:
@@ -74,8 +72,8 @@ def searchSoftware(name: str, source: str):
                              "下载链接": i["soft_download"],
                              })
         return list
-    except Exception as ex:
-        logging.error(f"在{source}应用商店搜索应用{name}失败，报错信息{ex}！")
+    except:
+        logging.error(f"在{source}应用商店搜索应用{name}失败，报错信息{traceback.format_exc()}！")
 
 
 class AppInfoCard(zbw.SmallInfoCard):
@@ -191,7 +189,7 @@ class AddonPage(zbw.BasicTab):
         try:
             data = searchSoftware(self.lineEdit.text(), self.comboBox.currentText())
             self.signalList.emit(data)
-        except Exception as ex:
+        except:
             self.signalBool.emit(False)
 
     def thread1(self, msg):

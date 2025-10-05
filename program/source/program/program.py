@@ -1,5 +1,8 @@
 import logging
 import subprocess
+import traceback
+import importlib
+import time
 from concurrent.futures import ThreadPoolExecutor
 
 import functools
@@ -28,7 +31,7 @@ class Program:
     NAME = "zb小程序"  # 程序名称
     VERSION = "5.4.1"  # 程序版本
     VERSION_CODE = 53  # 版本序数
-    ADDON_VERSION = 1  # 插件版本序数
+    ADDON_API_VERSION = 1  # 插件版本序数
     CORE_VERSION = "5.3.5"  # 内核版本
     TITLE = f"{NAME} {VERSION}"  # 程序标题
     URL = "https://ianzb.github.io/project/program.html"  # 程序网址
@@ -165,8 +168,8 @@ class Program:
                 win32api.RegDeleteValue(key, self.NAME)
                 win32api.RegCloseKey(key)
                 logging.info("启动项删除成功")
-        except Exception as ex:
-            logging.warning(f"启动项编辑失败{ex}")
+        except:
+            logging.warning(f"启动项编辑失败{traceback.format_exc()}")
 
     def checkStartup(self):
         """
@@ -202,8 +205,8 @@ class Program:
             data = json.loads(response.text)
             logging.info("插件信息获取成功！")
             return data
-        except Exception as ex:
-            logging.warning(f"插件信息获取失败，报错信息：{ex}！")
+        except:
+            logging.warning(f"插件信息获取失败，报错信息：{traceback.format_exc()}！")
 
     def getAddonInfoFromUrl(self, url: str):
         """
@@ -217,8 +220,8 @@ class Program:
             data["url"] = url
             logging.info(f"插件{data.get("name", "")}信息获取成功")
             return data
-        except Exception as ex:
-            logging.error(f"插件{url}信息获取失败，报错信息：{ex}！")
+        except:
+            logging.error(f"插件{url}信息获取失败，报错信息：{traceback.format_exc()}！")
             return False
 
     def downloadAddonFromInfo(self, data: dict):
@@ -241,8 +244,8 @@ class Program:
             else:
                 logging.error(f"插件{data.get("name", "")}下载失败！")
                 return False
-        except Exception as ex:
-            logging.error(f"插件{data.get("name", "")}在下载与解压过程中发生错误，报错信息：{ex}！")
+        except:
+            logging.error(f"插件{data.get("name", "")}在下载与解压过程中发生错误，报错信息：{traceback.format_exc()}！")
             return False
 
     def getInstalledAddonInfo(self):
@@ -260,8 +263,8 @@ class Program:
                         if key:
                             data[key] = addon_data
             return data
-        except Exception as ex:
-            logging.error(f"获取本地插件信息失败，报错信息：{ex}！")
+        except:
+            logging.error(f"获取本地插件信息失败，报错信息：{traceback.format_exc()}！")
 
 
 program = Program()

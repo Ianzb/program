@@ -45,11 +45,11 @@ class SettingFunctions(QObject):
         try:
             with open(program.SETTING_FILE_PATH, "r", encoding="utf-8") as file:
                 self.last_setting = json.load(file)
-        except Exception as ex:
+        except:
             self.last_setting = deepcopy(self.DEFAULT_SETTING)
             self.reset()
             self.errorState = True
-            logging.error(f"设置文件数据错误，已自动恢复至默认选项，错误信息：{ex}！")
+            logging.error(f"设置文件数据错误，已自动恢复至默认选项，错误信息：{traceback.format_exc()}！")
 
     def set(self, name: str, data):
         """
@@ -143,8 +143,8 @@ class SettingFunctions(QObject):
                     self.last_setting = self.current_setting
                     for i in l:
                         self.changeEvent(i)
-            except Exception as ex:
-                logging.error(f"设置文件数据数据错误，错误信息：{ex}！")
+            except:
+                logging.error(f"设置文件数据数据错误，错误信息：{traceback.format_exc()}！")
 
     def __compare(self, old: dict, new: dict):
         keys = []

@@ -1,6 +1,3 @@
-import logging
-import traceback
-
 from source.addon import *
 
 try:
@@ -99,8 +96,8 @@ class SortFunctions:
             self.clearEmptyDir(path)
             self.clearRepeatFile(path)
             logging.debug(f"成功清理{path}文件夹")
-        except Exception as ex:
-            logging.warning(f"无法清理{path}文件夹，报错信息：{ex}！")
+        except:
+            logging.warning(f"无法清理{path}文件夹，报错信息：{traceback.format_exc()}！")
 
     def belongDir(self, path: str, parent: str) -> bool:
         """
@@ -146,8 +143,8 @@ class SortFunctions:
                             continue
                         zb.movePath(i, zb.joinPath(new, "文件夹", zb.getFileName(i)))
             logging.debug(f"成功整理{old}文件夹！")
-        except Exception as ex:
-            logging.warning(f"无法整理{old}文件夹，报错信息：{ex}！")
+        except:
+            logging.warning(f"无法整理{old}文件夹，报错信息：{traceback.format_exc()}！")
 
     def sortWechatFiles(self):
         """
@@ -170,8 +167,8 @@ class SortFunctions:
             for i in list1:
                 self.sortDir(i, setting.read("sortGoalPath"), 1)
             logging.debug("成功整理微信文件！")
-        except Exception as ex:
-            logging.warning(f"无法整理微信文件，报错信息：{ex}！")
+        except:
+            logging.warning(f"无法整理微信文件，报错信息：{traceback.format_exc()}！")
 
     def clearSystemCache(self):
         """
@@ -190,8 +187,8 @@ class SortFunctions:
             from winshell import recycle_bin
             recycle_bin().empty(confirm=False, show_progress=False, sound=False)
             logging.debug("成功清空回收站！")
-        except Exception as ex:
-            logging.warning(f"无法清空回收站，报错信息：{ex}！")
+        except:
+            logging.warning(f"无法清空回收站，报错信息：{traceback.format_exc()}！")
 
     def getSortNameBlacklist(self):
         """
