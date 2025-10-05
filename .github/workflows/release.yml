@@ -63,7 +63,8 @@ jobs:
         with:
           name: ${{ github.event.inputs.version }}
           tag_name: ${{ github.event.inputs.version }}
-          files: zbProgram_${{ github.event.inputs.version }}.zip
+          files: |
+            zbProgram_${{ github.event.inputs.version }}.zip
             zbProgram_setup.exe
           token: ${{ secrets.GITHUB_TOKEN }}
           body: ${{ steps.check_output.outputs.notes }}
