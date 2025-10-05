@@ -162,20 +162,10 @@ def make_zip(version: str):
             for root, dirs, files in os.walk(BUILD_DIR):
                 for f in files:
                     full = Path(root) / f
-                    rel = full.relative_to(BUILD_DIR.parent)
-                    zf.write(full, arcname=str(rel))
+                    rel = full.relative_to(BUILD_DIR)  # 这里改为相对于 BUILD_DIR
+                    zf.write(full, rel)
     print('Zip created:', zip_name)
     return zip_name
-
-
-def git_commit_and_push(version: str):
-    try:
-        subprocess.check_call(['git', 'add', str(PROG_PY), str(SETUP_ISS), str(INDEX_JSON)])
-        subprocess.check_call(['git', 'commit', '-m', f'Bump version to {version} [ci skip]'])
-        subprocess.check_call(['git', 'push', 'origin', 'HEAD:main'])
-        print('Pushed version changes to main')
-    except subprocess.CalledProcessError as e:
-        print('Git push failed or no changes to commit:', e)
 
 
 if __name__ == '__main__':
@@ -205,12 +195,6 @@ if __name__ == '__main__':
         zip_path = make_zip(version)
     except Exception as e:
         print('打包 zip 失败:', e)
-
-    # 尝试提交版本变更
-    try:
-        git_commit_and_push(version)
-    except Exception as e:
-        print('git 提交或推送出错:', e)
 
     out = {
         'version': version,
