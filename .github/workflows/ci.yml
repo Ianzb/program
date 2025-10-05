@@ -70,13 +70,18 @@ jobs:
           path: script/setup.iss
           options: /O+
 
-      - name: 上传构建产物
+      - name: 上传ZIP构建产物
         uses: actions/upload-artifact@v4
         with:
-          name: zbProgram-build-${{ steps.generate_ci_version.outputs.ci_version }}
-          path: |
-            zbProgram_${{ steps.generate_ci_version.outputs.ci_version }}.zip
-            build/zbProgram/zbProgram_setup.exe
+          name: zbProgram_${{ steps.generate_ci_version.outputs.ci_version }}.zip
+          path: zbProgram_${{ steps.generate_ci_version.outputs.ci_version }}.zip
+          retention-days: 7
+
+      - name: 上传安装程序
+        uses: actions/upload-artifact@v4
+        with:
+          name: zbProgram_setup.exe
+          path: build/zbProgram/zbProgram_setup.exe
           retention-days: 7
 
       - name: 显示构建信息
@@ -84,5 +89,5 @@ jobs:
         run: |
           Write-Host "构建完成!"
           Write-Host "版本号: ${{ steps.generate_ci_version.outputs.ci_version }}"
-          Write-Host "构建产物已上传到GitHub Actions Artifacts"
+          Write-Host "构建产物已分别上传到GitHub Actions Artifacts"
           Write-Host "可在Actions页面下载构建文件"
