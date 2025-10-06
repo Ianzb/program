@@ -1,4 +1,4 @@
-name: Addon Release - ${{ github.event.inputs.addon_id }} ${{ github.event.inputs.version }}
+name: Addon Release
 
 on:
   workflow_dispatch:
@@ -21,6 +21,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+
+      - name: 显示发布信息
+        shell: pwsh
+        run: |
+          Write-Host "=== 插件发布信息 ==="
+          Write-Host "插件ID: ${{ github.event.inputs.addon_id }}"
+          Write-Host "版本号: ${{ github.event.inputs.version }}"
+          Write-Host "更新日志: ${{ github.event.inputs.changelog }}"
+          Write-Host "===================="
 
       - name: 处理插件发布
         env:
