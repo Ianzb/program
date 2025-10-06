@@ -3,8 +3,8 @@
   "name": "Seewo工具箱",
   "author": "Ianzb",
   "description": "为学校希沃白板设计的实用功能。",
-  "version": "1.1.2",
-  "version_code": 5,
+  "version": "1.1.3",
+  "version_code": 6,
   "api_version": 1,
   "icon": "http://123pan.ianzb.cn/code/addon/seewokit/seewokit.png",
   "file": "http://123pan.ianzb.cn/code/addon/seewokit/seewokit.zip",
@@ -28,6 +28,10 @@
     "1.1.2": {
       "time": "2025年10月4日",
       "log": "适配最新版本任务中心，降低复制延迟，修复复制文件后进程意外退出的Bug。"
+    },
+    "1.1.3": {
+      "time": "2025年10月6日",
+      "log": "适配API 1，优化代码。"
     }
   },
   "url": "http://123pan.ianzb.cn/code/addon/seewokit/addon.json"
