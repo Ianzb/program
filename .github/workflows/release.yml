@@ -91,6 +91,8 @@ jobs:
             } else {
               git commit -m "Update version to ${{ github.event.inputs.version }} and versionCode to ${{ steps.check_output.outputs.version_code }} [ci skip]"
             }
+            # Pull remote changes first to avoid conflicts
+            git pull --rebase origin main
             git push origin main
           } else {
             Write-Host "No changes to commit"
