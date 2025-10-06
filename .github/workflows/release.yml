@@ -4,8 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: '版本号'
-        required: true
+        description: '版本号 (留空则使用index.json中的版本号)'
+        required: false
+        default: ''
 
 jobs:
   build:
@@ -36,10 +37,27 @@ jobs:
           Write-Host "Installing PyInstaller pinned version separately..."
           python -m pip install pyinstaller==6.16.0
 
+      - name: 读取index.json版本
+        id: get_index_version
+        shell: pwsh
+        run: |
+          $index_json = Get-Content -Path "index.json" -Raw | ConvertFrom-Json
+          Write-Output "index_version=$($index_json.version)" >> $env:GITHUB_OUTPUT
+          Write-Output "index_version_code=$($index_json.version_code)" >> $env:GITHUB_OUTPUT
+
       - name: 编译程序
         id: run_build
+        shell: pwsh
         run: |
-          python script\release_build.py -v ${{ github.event.inputs.version }}
+          $version = "${{ github.event.inputs.version }}"
+          if ([string]::IsNullOrEmpty($version)) {
+            $index_version = "${{ steps.get_index_version.outputs.index_version }}"
+            Write-Host "版本号未提供，使用index.json中的版本号: $index_version"
+            python script\release_build.py -v $index_version
+          } else {
+            Write-Host "使用指定版本号: $version"
+            python script\release_build.py -v $version
+          }
 
       - name: 编译安装程序
         uses: Minionguyjpro/Inno-Setup-Action@v1.2.7
@@ -58,6 +76,7 @@ jobs:
           $installer = Get-ChildItem -Path $Env:GITHUB_WORKSPACE -Filter zbProgram_setup.exe -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
           if ($installer) { Write-Output "installer=$($installer.FullName)" >> $env:GITHUB_OUTPUT } else { Write-Output "installer=" >> $env:GITHUB_OUTPUT }
           Write-Output "version_code=$($json.version_code)" >> $env:GITHUB_OUTPUT
+
       - name: 提交更改
         shell: pwsh
         run: |
@@ -65,11 +84,18 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add -u
           if (-not (git diff --cached --quiet)) {
-            git commit -m "Bump version to ${{ github.event.inputs.version }} and versionCode to ${{ steps.check_output.outputs.version_code }} [ci skip]"
+            $version = "${{ github.event.inputs.version }}"
+            if ([string]::IsNullOrEmpty($version)) {
+              $index_version = "${{ steps.get_index_version.outputs.index_version }}"
+              git commit -m "Update version to $index_version and versionCode to ${{ steps.check_output.outputs.version_code }} [ci skip]"
+            } else {
+              git commit -m "Update version to ${{ github.event.inputs.version }} and versionCode to ${{ steps.check_output.outputs.version_code }} [ci skip]"
+            }
             git push origin main
           } else {
             Write-Host "No changes to commit"
           }
+
       - name: 发布Release
         uses: softprops/action-gh-release@v2
         with:
