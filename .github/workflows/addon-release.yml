@@ -86,7 +86,11 @@ jobs:
             # 版本号相同，版本序数不变
           }
           
-          # 创建ZIP压缩包
+          # 更新插件配置文件（包含版本信息和历史记录）
+          $addonConfig | ConvertTo-Json -Depth 10 | Set-Content $addonJsonPath -Encoding UTF8
+          Write-Host "已更新插件配置文件，包含版本信息和历史记录"
+          
+          # 创建ZIP压缩包（在配置文件更新后）
           $zipFileName = "$($addonConfig.id).zip"
           $zipPath = Join-Path $Env:GITHUB_WORKSPACE $zipFileName
           
