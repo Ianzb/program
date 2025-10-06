@@ -84,13 +84,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add -u
           if (-not (git diff --cached --quiet)) {
-            $version = "${{ github.event.inputs.version }}"
-            if ([string]::IsNullOrEmpty($version)) {
-              $index_version = "${{ steps.get_index_version.outputs.index_version }}"
-              git commit -m "Update version to $index_version and versionCode to ${{ steps.check_output.outputs.version_code }} [ci skip]"
-            } else {
-              git commit -m "Update version to ${{ github.event.inputs.version }} and versionCode to ${{ steps.check_output.outputs.version_code }} [ci skip]"
-            }
+            git commit -m "Update version to ${{ steps.get_index_version.outputs.index_version }} and versionCode to ${{ steps.check_output.outputs.version_code }} [ci skip]"
             # Pull remote changes first to avoid conflicts
             git pull --rebase origin main
             git push origin main
@@ -101,10 +95,10 @@ jobs:
       - name: 发布Release
         uses: softprops/action-gh-release@v2
         with:
-          name: ${{ github.event.inputs.version }}
-          tag_name: ${{ github.event.inputs.version }}
+          name: ${{ steps.get_index_version.outputs.index_version }}
+          tag_name: ${{ steps.get_index_version.outputs.index_version }}
           files: |
-            zbProgram_${{ github.event.inputs.version }}.zip
+            zbProgram_${{ steps.get_index_version.outputs.index_version }}.zip
             ${{ steps.check_output.outputs.installer }}
           token: ${{ secrets.GITHUB_TOKEN }}
           body: ${{ steps.check_output.outputs.notes }}
