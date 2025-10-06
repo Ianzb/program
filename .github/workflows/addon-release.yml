@@ -1,0 +1,170 @@
+name: Addon Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      addon_id:
+        description: '插件ID (如: appstore, filemanager, seewokit)'
+        required: true
+      version:
+        description: '版本号 (可选，留空则不更新版本)'
+        required: false
+        default: ''
+      changelog:
+        description: '更新日志 (可选)'
+        required: false
+        default: ''
+
+jobs:
+  deploy-addon:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: 设置Python环境
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+
+      - name: 安装依赖
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install requests
+
+      - name: 处理插件发布
+        env:
+          ADDON_ID: ${{ github.event.inputs.addon_id }}
+          VERSION: ${{ github.event.inputs.version }}
+          CHANGELOG: ${{ github.event.inputs.changelog }}
+          WEB_DAV_URL: ${{ secrets.WEB_DAV_URL }}
+          WEB_DAV_USER: ${{ secrets.WEB_DAV_USER }}
+          WEB_DAV_PASSWORD: ${{ secrets.WEB_DAV_PASSWORD }}
+        shell: pwsh
+        run: |
+          # 导入必要的模块
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          
+          # 检查插件目录是否存在
+          $addonPath = Join-Path $Env:GITHUB_WORKSPACE "addon" $Env:ADDON_ID
+          if (-not (Test-Path $addonPath)) {
+            Write-Error "插件目录不存在: $addonPath"
+            exit 1
+          }
+          
+          # 读取插件配置文件
+          $addonJsonPath = Join-Path $addonPath "addon.json"
+          if (-not (Test-Path $addonJsonPath)) {
+            Write-Error "插件配置文件不存在: $addonJsonPath"
+            exit 1
+          }
+          
+          $addonConfig = Get-Content $addonJsonPath -Raw | ConvertFrom-Json
+          
+          # 处理版本号更新
+          $shouldUpdateVersion = $false
+          if ($Env:VERSION -and $Env:VERSION -ne '') {
+            if ($addonConfig.version -ne $Env:VERSION) {
+              # 版本号变化，版本序数+1
+              $addonConfig.version = $Env:VERSION
+              $addonConfig.version_code = [int]$addonConfig.version_code + 1
+              $shouldUpdateVersion = $true
+          
+              # 检查是否需要添加历史记录
+              if (-not $addonConfig.history.PSObject.Properties[$Env:VERSION]) {
+                $currentTime = Get-Date -Format "yyyy年M月d日"
+                $logText = if ($Env:CHANGELOG -and $Env:CHANGELOG -ne '') { $Env:CHANGELOG } else { "版本更新" }
+          
+                if (-not $addonConfig.history) {
+                  $addonConfig.history = @{}
+                }
+                $addonConfig.history | Add-Member -NotePropertyName $Env:VERSION -NotePropertyValue @{
+                  time = $currentTime
+                  log = $logText
+                }
+              }
+            }
+            # 版本号相同，版本序数不变
+          }
+          
+          # 更新插件配置文件
+          if ($shouldUpdateVersion) {
+            $addonConfig | ConvertTo-Json -Depth 10 | Set-Content $addonJsonPath -Encoding UTF8
+            Write-Host "已更新插件版本: $($addonConfig.version) (version_code: $($addonConfig.version_code))"
+          }
+          
+          # 创建ZIP压缩包
+          $zipFileName = "$($addonConfig.id).zip"
+          $zipPath = Join-Path $Env:GITHUB_WORKSPACE $zipFileName
+          
+          if (Test-Path $zipPath) {
+            Remove-Item $zipPath
+          }
+          
+          Write-Host "创建压缩包: $zipFileName"
+          [System.IO.Compression.ZipFile]::CreateFromDirectory($addonPath, $zipPath)
+          
+          # 上传到WebDAV
+          if (-not $Env:WEB_DAV_URL -or -not $Env:WEB_DAV_USER -or -not $Env:WEB_DAV_PASSWORD) {
+            Write-Host 'WEB_DAV配置未设置，跳过上传'
+            exit 0
+          }
+          
+          $webdavBase = $Env:WEB_DAV_URL.TrimEnd('/')
+          $addonWebdavPath = "$webdavBase/addon/$($addonConfig.id)"
+          
+          # 上传插件文件
+          Write-Host "上传插件文件到WebDAV..."
+          
+          # 上传ZIP文件
+          $zipWebdavPath = "$addonWebdavPath/$zipFileName"
+          curl --fail --show-error --silent --user "$($Env:WEB_DAV_USER):$($Env:WEB_DAV_PASSWORD)" --upload-file "$zipPath" "$zipWebdavPath"
+          
+          # 上传图标文件（如果存在）
+          $iconFileName = [System.IO.Path]::GetFileName($addonConfig.icon)
+          if ($iconFileName -and $iconFileName -ne '') {
+            $iconPath = Join-Path $addonPath $iconFileName
+            if (Test-Path $iconPath) {
+              $iconWebdavPath = "$addonWebdavPath/$iconFileName"
+              curl --fail --show-error --silent --user "$($Env:WEB_DAV_USER):$($Env:WEB_DAV_PASSWORD)" --upload-file "$iconPath" "$iconWebdavPath"
+            }
+          }
+          
+          # 上传JSON配置文件
+          $jsonWebdavPath = "$addonWebdavPath/addon.json"
+          curl --fail --show-error --silent --user "$($Env:WEB_DAV_USER):$($Env:WEB_DAV_PASSWORD)" --upload-file "$addonJsonPath" "$jsonWebdavPath"
+          
+          # 更新主索引文件
+          $mainIndexPath = Join-Path $Env:GITHUB_WORKSPACE "addon" "addon.json"
+          $mainIndex = Get-Content $mainIndexPath -Raw | ConvertFrom-Json
+          
+          $addonUrl = "$addonWebdavPath/addon.json"
+          if ($mainIndex.PSObject.Properties[$addonConfig.id]) {
+            $mainIndex.$($addonConfig.id) = $addonUrl
+          } else {
+            $mainIndex | Add-Member -NotePropertyName $addonConfig.id -NotePropertyValue $addonUrl
+          }
+          
+          $mainIndex | ConvertTo-Json | Set-Content $mainIndexPath -Encoding UTF8
+          
+          # 上传主索引文件
+          $mainIndexWebdavPath = "$webdavBase/addon/addon.json"
+          curl --fail --show-error --silent --user "$($Env:WEB_DAV_USER):$($Env:WEB_DAV_PASSWORD)" --upload-file "$mainIndexPath" "$mainIndexWebdavPath"
+          
+          Write-Host "插件发布完成!"
+          Write-Host "插件URL: $addonUrl"
+          Write-Host "ZIP文件: $zipWebdavPath"
+
+      - name: 提交更改
+        if: success()
+        shell: pwsh
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -u
+          if (-not (git diff --cached --quiet)) {
+            git commit -m "Update addon ${{ github.event.inputs.addon_id }} configuration [ci skip]"
+            git push origin main
+          } else {
+            Write-Host "No changes to commit"
+          }
