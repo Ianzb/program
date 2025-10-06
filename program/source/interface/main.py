@@ -27,7 +27,7 @@ class AddonInfoMessageBox(zbw.ScrollMessageBox):
     def setData(self, data: dict):
         if data.get("icon"):
             if zb.isUrl(data.get("icon")):
-                self.image.setImg(zb.joinPath(program.ADDON_PATH, data.get("id", ""), zb.getFileNameFromUrl(data.get("icon"))), data.get("icon"))
+                self.image.setImg(zb.joinPath(program.ADDON_PATH, data.get("id", ""), zb.getFileNameFromUrl(data.get("icon"))), data.get("icon"), program.THREAD_POOL)
                 self.scrollLayout.insertWidget(0, self.image)
             else:
                 if zb.existPath(zb.joinPath(program.ADDON_PATH, data.get("id", ""), data.get("icon"))):
