@@ -1,5 +1,5 @@
 {
-  "appstore": "http://123pan.ianzb.cn/code/addon/appstore/addon.json",
+  "appstore": "https://webdav.123pan.cn/webdav/addon/appstore/addon.json",
   "filemanager": "http://123pan.ianzb.cn/code/addon/filemanager/addon.json",
   "seewokit": "http://123pan.ianzb.cn/code/addon/seewokit/addon.json"
 }
