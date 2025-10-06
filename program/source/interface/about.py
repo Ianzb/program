@@ -25,6 +25,9 @@ class UpdateSettingCard(SettingCard):
         self.updateVersionSignal.connect(self.updateVersionSignalFinished)
         self.updateSignal.connect(self.updateSignalFinished)
 
+        if "ci" in program.VERSION:
+            self.setEnabled(False)
+
     def button1Clicked(self):
         self.button1.setEnabled(False)
         program.THREAD_POOL.submit(self.checkUpdate)
