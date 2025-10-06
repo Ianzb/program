@@ -465,7 +465,7 @@ class ProgressCenter(FlyoutViewBase):
         self.cardGroup.adjustSize()
         self.count()
         if show_center:
-            if not self.isVisible() and self.window.isVisible():
+            if not self.isVisible() and self.window.isVisible() and not self.window.isMinimized():
                 self.window.showProgressCenter()
         return card
 
@@ -484,7 +484,7 @@ class ProgressCenter(FlyoutViewBase):
         self.cardGroup.adjustSize()
         self.count()
         if show_center:
-            if not self.isVisible() and self.window.isVisible():
+            if not self.isVisible() and self.window.isVisible() and not self.window.isMinimized():
                 self.window.showProgressCenter()
         return card
 
