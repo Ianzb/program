@@ -77,12 +77,6 @@ jobs:
             # 版本号相同，版本序数不变
           }
           
-          # 更新插件配置文件
-          if ($shouldUpdateVersion) {
-            $addonConfig | ConvertTo-Json -Depth 10 | Set-Content $addonJsonPath -Encoding UTF8
-            Write-Host "已更新插件版本: $($addonConfig.version) (version_code: $($addonConfig.version_code))"
-          }
-          
           # 创建ZIP压缩包
           $zipFileName = "$($addonConfig.id).zip"
           $zipPath = Join-Path $Env:GITHUB_WORKSPACE $zipFileName
@@ -120,7 +114,27 @@ jobs:
             }
           }
           
-          # 上传JSON配置文件
+          # 将WebDAV URL转换为直链URL
+          $directLinkBase = "http://123pan.ianzb.cn/code"
+          $zipDirectLink = $zipWebdavPath -replace [regex]::Escape($webdavBase), $directLinkBase
+          $iconDirectLink = if ($iconFileName -and $iconFileName -ne '') {
+            $iconWebdavPath -replace [regex]::Escape($webdavBase), $directLinkBase
+          } else {
+            $null
+          }
+          
+          # 更新插件配置中的URL为直链
+          $addonConfig.file = $zipDirectLink
+          if ($iconDirectLink) {
+            $addonConfig.icon = $iconDirectLink
+          }
+          $addonConfig.url = "$directLinkBase/addon/$($addonConfig.id)/addon.json"
+          
+          # 更新插件配置文件
+          $addonConfig | ConvertTo-Json -Depth 10 | Set-Content $addonJsonPath -Encoding UTF8
+          Write-Host "已更新插件配置文件，URL已转换为直链格式"
+          
+          # 上传JSON配置文件（使用直链URL的版本）
           $jsonWebdavPath = "$addonWebdavPath/addon.json"
           curl --fail --show-error --silent --user "$($Env:WEB_DAV_USER):$($Env:WEB_DAV_PASSWORD)" --upload-file "$addonJsonPath" "$jsonWebdavPath"
           
@@ -128,11 +142,11 @@ jobs:
           $mainIndexPath = Join-Path $Env:GITHUB_WORKSPACE "addon" "addon.json"
           $mainIndex = Get-Content $mainIndexPath -Raw | ConvertFrom-Json
           
-          $addonUrl = "$addonWebdavPath/addon.json"
+          $addonDirectUrl = "$directLinkBase/addon/$($addonConfig.id)/addon.json"
           if ($mainIndex.PSObject.Properties[$addonConfig.id]) {
-            $mainIndex.$($addonConfig.id) = $addonUrl
+            $mainIndex.$($addonConfig.id) = $addonDirectUrl
           } else {
-            $mainIndex | Add-Member -NotePropertyName $addonConfig.id -NotePropertyValue $addonUrl
+            $mainIndex | Add-Member -NotePropertyName $addonConfig.id -NotePropertyValue $addonDirectUrl
           }
           
           $mainIndex | ConvertTo-Json | Set-Content $mainIndexPath -Encoding UTF8
@@ -142,8 +156,8 @@ jobs:
           curl --fail --show-error --silent --user "$($Env:WEB_DAV_USER):$($Env:WEB_DAV_PASSWORD)" --upload-file "$mainIndexPath" "$mainIndexWebdavPath"
           
           Write-Host "插件发布完成!"
-          Write-Host "插件URL: $addonUrl"
-          Write-Host "ZIP文件: $zipWebdavPath"
+          Write-Host "插件URL: $addonDirectUrl"
+          Write-Host "ZIP文件: $zipDirectLink"
 
       - name: 提交更改
         if: success()
