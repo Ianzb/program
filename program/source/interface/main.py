@@ -268,7 +268,6 @@ class MainPage(zbw.BasicTab):
     def addCardOnline(self, info):
         if info.get("id") not in self.cardGroup1._cardMap:
             try:
-                print(info)
                 card = AddonInfoCard(self)
                 card.setOnlineData(info)
                 self.cardGroup1.addCard(card, info["id"])
