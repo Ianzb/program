@@ -3,11 +3,11 @@
   "name": "应用商店",
   "author": "Ianzb",
   "description": "一款简易的应用商店插件，支持360和腾讯应用中心的应用。",
-  "version": "1.5.7",
-  "version_code": 9,
+  "version": "1.5.8",
+  "version_code": 10,
   "api_version": 1,
-  "icon": "https://drive.ianzb.cn/code/program/addon/appstore/appstore.png",
-  "file": "https://drive.ianzb.cn/code/program/addon/appstore/appstore.zip",
+  "icon": "http://123pan.ianzb.cn/code/code/program/addon/appstore/appstore.png",
+  "file": "http://123pan.ianzb.cn/code/code/program/addon/appstore/appstore.zip",
   "history": {
     "1.4.3": {
       "time": "暂无",
@@ -44,7 +44,11 @@
     "1.5.7": {
       "time": "2025年10月6日",
       "log": "适配API 1，优化代码。"
+    },
+    "1.5.8": {
+      "time": "2025年10月7日",
+      "log": "迁移插件服务器。"
     }
   },
-  "url": "https://drive.ianzb.cn/code/program/addon/appstore/addon.json"
+  "url": "http://123pan.ianzb.cn/code/code/program/addon/appstore/addon.json"
 }
