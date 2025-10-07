@@ -186,6 +186,8 @@ jobs:
             git pull --rebase origin main
             # Restore stashed changes
             git stash pop
+            # Add all modified files (including those restored from stash)
+            git add -u
             git commit -m "Update addon ${{ github.event.inputs.addon_id }} to version ${{ github.event.inputs.version }} [ci skip]"
             git push origin main
           } else {

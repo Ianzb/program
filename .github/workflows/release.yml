@@ -90,6 +90,8 @@ jobs:
             git pull --rebase origin main
             # Restore stashed changes
             git stash pop
+            # Add all modified files (including those restored from stash)
+            git add -u
             git commit -m "Update version to ${{ steps.get_index_version.outputs.index_version }} and versionCode to ${{ steps.check_output.outputs.version_code }} [ci skip]"
             git push origin main
           } else {
