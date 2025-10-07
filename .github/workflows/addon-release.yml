@@ -128,10 +128,11 @@ jobs:
           }
           
           # 将DUFS URL转换为直链URL
-          $directLinkBase = "http://123pan.ianzb.cn/"
-          $zipDirectLink = $zipDufsPath -replace [regex]::Escape($dufsBase), $directLinkBase
+          $directLinkBase = "https://drive.ianzb.cn"
+          # 正确转换路径：移除DUFS基础URL部分，保留相对路径
+          $zipDirectLink = "$directLinkBase$($zipDufsPath -replace [regex]::Escape($dufsBase), '')"
           $iconDirectLink = if ($iconFileName -and $iconFileName -ne '') {
-            $iconDufsPath -replace [regex]::Escape($dufsBase), $directLinkBase
+            "$directLinkBase$($iconDufsPath -replace [regex]::Escape($dufsBase), '')"
           } else {
             $null
           }
