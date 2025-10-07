@@ -128,7 +128,7 @@ jobs:
           }
           
           # 将DUFS URL转换为直链URL
-          $directLinkBase = "$($Env:DUFS_URL)"
+          $directLinkBase = "http://123pan.ianzb.cn/code"
           $zipDirectLink = $zipDufsPath -replace [regex]::Escape($dufsBase), $directLinkBase
           $iconDirectLink = if ($iconFileName -and $iconFileName -ne '') {
             $iconDufsPath -replace [regex]::Escape($dufsBase), $directLinkBase
