@@ -6,8 +6,8 @@
   "version": "1.1.4",
   "version_code": 7,
   "api_version": 1,
-  "icon": "http://123pan.ianzb.cn/code/code/program/addon/seewokit/seewokit.png",
-  "file": "http://123pan.ianzb.cn/code/code/program/addon/seewokit/seewokit.zip",
+  "icon": "https://drive.ianzb.cn/code/program/addon/seewokit/seewokit.png",
+  "file": "https://drive.ianzb.cn/code/program/addon/seewokit/seewokit.zip",
   "history": {
     "1.0.0": {
       "time": "2025年9月23日",
@@ -38,5 +38,5 @@
       "time": "2025年10月7日"
     }
   },
-  "url": "http://123pan.ianzb.cn/code/code/program/addon/seewokit/addon.json"
+  "url": "https://drive.ianzb.cn/code/program/addon/seewokit/addon.json"
 }
