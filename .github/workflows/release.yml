@@ -125,15 +125,15 @@ jobs:
           $installer = $env:INSTALLER_PATH
           $index = Join-Path $Env:GITHUB_WORKSPACE 'index.json'
           
-          Write-Host "Uploading index.json to $dufs/program/index.json..."
-          curl --fail --show-error --silent --user "$($user):$($pass)" -T "$index" "$dufs/program/index.json"
+          Write-Host "Uploading index.json to $dufs/code/program/index.json..."
+          curl --fail --show-error --silent --user "$($user):$($pass)" -T "$index" "$dufs/code/program/index.json"
           
-          Write-Host "Uploading zip $zip to $dufs/program/zbProgram.zip..."
-          curl --fail --show-error --silent --user "$($user):$($pass)" -T "$zip" "$dufs/program/zbProgram.zip"
+          Write-Host "Uploading zip $zip to $dufs/code/program/zbProgram.zip..."
+          curl --fail --show-error --silent --user "$($user):$($pass)" -T "$zip" "$dufs/code/program/zbProgram.zip"
           
           if ($installer -and $installer -ne '') {
-            Write-Host "Uploading installer $installer to $dufs/program/zbProgram_setup.exe..."
-            curl --fail --show-error --silent --user "$($user):$($pass)" -T "$installer" "$dufs/program/zbProgram_setup.exe"
+            Write-Host "Uploading installer $installer to $dufs/code/program/zbProgram_setup.exe..."
+            curl --fail --show-error --silent --user "$($user):$($pass)" -T "$installer" "$dufs/code/program/zbProgram_setup.exe"
           } else {
             Write-Host "No installer found to upload"
           }

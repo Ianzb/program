@@ -1,5 +1,5 @@
 {
-  "appstore": "http://123pan.ianzb.cn/code/addon/appstore/addon.json",
-  "filemanager": "http://123pan.ianzb.cn/code/addon/filemanager/addon.json",
-  "seewokit": "http://123pan.ianzb.cn/code/addon/seewokit/addon.json"
+  "appstore": "https://drive.ianzb.cn/code/program/addon/appstore/addon.json",
+  "filemanager": "https://drive.ianzb.cn/code/program/addon/filemanager/addon.json",
+  "seewokit": "https://drive.ianzb.cn/code/program/addon/seewokit/addon.json"
 }

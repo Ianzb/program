@@ -6,8 +6,8 @@
   "version": "1.1.10",
   "version_code": 16,
   "api_version": 1,
-  "icon": "http://123pan.ianzb.cn/code/addon/filemanager/filemanager.png",
-  "file": "http://123pan.ianzb.cn/code/addon/filemanager/filemanager.zip",
+  "icon": "https://drive.ianzb.cn/code/program/addon/filemanager/filemanager.png",
+  "file": "https://drive.ianzb.cn/code/program/addon/filemanager/filemanager.zip",
   "history": {
     "0.0.1": {
       "time": "暂无",
@@ -74,5 +74,5 @@
       "log": "适配API 1，优化代码。"
     }
   },
-  "url": "http://123pan.ianzb.cn/code/addon/filemanager/addon.json"
+  "url": "https://drive.ianzb.cn/code/program/addon/filemanager/addon.json"
 }
