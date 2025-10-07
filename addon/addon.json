@@ -1,5 +1,10 @@
 {
   "appstore": "https://drive.ianzb.cn/code/program/addon/appstore/addon.json",
+<<<<<<< Updated upstream
   "filemanager": "http://123pan.ianzb.cn/code/code/program/addon/filemanager/addon.json",
   "seewokit": "https://drive.ianzb.cn/code/program/addon/seewokit/addon.json"
+=======
+  "filemanager": "https://drive.ianzb.cn/code/program/addon/filemanager/addon.json",
+  "seewokit": "http://123pan.ianzb.cn/code/code/program/addon/seewokit/addon.json"
+>>>>>>> Stashed changes
 }
