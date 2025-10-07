@@ -27,8 +27,8 @@ zb小程序是一款使用Python开发，基于PyQt5和PyQt-Fluent-Widgets开发
 
 ## 下载
 
-<a href="http://123pan.ianzb.cn/code/program/zbProgram_setup.exe" class="btn btn-light">安装包</a>  
-<a href="http://123pan.ianzb.cn/code/program/zbProgram.zip" class="btn btn-light">压缩包</a>
+<a href="https://drive.ianzb.cn/code/program/zbProgram_setup.exe" class="btn btn-light">安装包</a>  
+<a href="https://drive.ianzb.cn/code/program/zbProgram.zip" class="btn btn-light">压缩包</a>
 
 ## 运行环境
 
