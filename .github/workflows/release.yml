@@ -105,32 +105,35 @@ jobs:
           draft: false
           prerelease: false
 
-      - name: 上传到WebDAV
+      - name: 上传到DUFS服务器
         shell: pwsh
         env:
-          WEB_DAV_URL: ${{ secrets.WEB_DAV_URL }}
-          WEB_DAV_USER: ${{ secrets.WEB_DAV_USER }}
-          WEB_DAV_PASSWORD: ${{ secrets.WEB_DAV_PASSWORD }}
+          DUFS_URL: ${{ secrets.DUFS_URL }}
+          DUFS_USER: ${{ secrets.DUFS_USER }}
+          DUFS_PASSWORD: ${{ secrets.DUFS_PASSWORD }}
           ZIP_PATH: ${{ steps.check_output.outputs.zip }}
           INSTALLER_PATH: ${{ steps.check_output.outputs.installer }}
         run: |
-          if (-not $Env:WEB_DAV_URL -or -not $Env:WEB_DAV_USER -or -not $Env:WEB_DAV_PASSWORD) {
-            Write-Host 'WEB_DAV_URL/WEB_DAV_USER/WEB_DAV_PASSWORD not set in secrets, skipping WebDAV upload'
+          if (-not $Env:DUFS_URL -or -not $Env:DUFS_USER -or -not $Env:DUFS_PASSWORD) {
+            Write-Host 'DUFS_URL/DUFS_USER/DUFS_PASSWORD not set in secrets, skipping DUFS upload'
             exit 0
           }
-          $webdav = $env:WEB_DAV_URL.TrimEnd('/')
-          $user = $env:WEB_DAV_USER
-          $pass = $env:WEB_DAV_PASSWORD
+          $dufs = $env:DUFS_URL.TrimEnd('/')
+          $user = $env:DUFS_USER
+          $pass = $env:DUFS_PASSWORD
           $zip = $env:ZIP_PATH
           $installer = $env:INSTALLER_PATH
           $index = Join-Path $Env:GITHUB_WORKSPACE 'index.json'
-          Write-Host "Uploading index.json to $webdav/program/index.json..."
-          curl --fail --show-error --silent --user "$($user):$($pass)" --upload-file "$index" "$webdav/program/index.json"
-          Write-Host "Uploading zip $zip to $webdav/program/zbProgram.zip..."
-          curl --fail --show-error --silent --user "$($user):$($pass)" --upload-file "$zip" "$webdav/program/zbProgram.zip"
+          
+          Write-Host "Uploading index.json to $dufs/program/index.json..."
+          curl --fail --show-error --silent --user "$($user):$($pass)" -T "$index" "$dufs/program/index.json"
+          
+          Write-Host "Uploading zip $zip to $dufs/program/zbProgram.zip..."
+          curl --fail --show-error --silent --user "$($user):$($pass)" -T "$zip" "$dufs/program/zbProgram.zip"
+          
           if ($installer -and $installer -ne '') {
-            Write-Host "Uploading installer $installer to $webdav/program/zbProgram_setup.exe..."
-            curl --fail --show-error --silent --user "$($user):$($pass)" --upload-file "$installer" "$webdav/program/zbProgram_setup.exe"
+            Write-Host "Uploading installer $installer to $dufs/program/zbProgram_setup.exe..."
+            curl --fail --show-error --silent --user "$($user):$($pass)" -T "$installer" "$dufs/program/zbProgram_setup.exe"
           } else {
             Write-Host "No installer found to upload"
           }

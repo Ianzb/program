@@ -36,9 +36,9 @@ jobs:
           ADDON_ID: ${{ github.event.inputs.addon_id }}
           VERSION: ${{ github.event.inputs.version }}
           CHANGELOG: ${{ github.event.inputs.changelog }}
-          WEB_DAV_URL: ${{ secrets.WEB_DAV_URL }}
-          WEB_DAV_USER: ${{ secrets.WEB_DAV_USER }}
-          WEB_DAV_PASSWORD: ${{ secrets.WEB_DAV_PASSWORD }}
+          DUFS_URL: ${{ secrets.DUFS_URL }}
+          DUFS_USER: ${{ secrets.DUFS_USER }}
+          DUFS_PASSWORD: ${{ secrets.DUFS_PASSWORD }}
         shell: pwsh
         run: |
           # 导入必要的模块
@@ -101,37 +101,37 @@ jobs:
           Write-Host "创建压缩包: $zipFileName"
           [System.IO.Compression.ZipFile]::CreateFromDirectory($addonPath, $zipPath)
           
-          # 上传到WebDAV
-          if (-not $Env:WEB_DAV_URL -or -not $Env:WEB_DAV_USER -or -not $Env:WEB_DAV_PASSWORD) {
-            Write-Host 'WEB_DAV配置未设置，跳过上传'
+          # 上传到DUFS服务器
+          if (-not $Env:DUFS_URL -or -not $Env:DUFS_USER -or -not $Env:DUFS_PASSWORD) {
+            Write-Host 'DUFS配置未设置，跳过上传'
             exit 0
           }
           
-          $webdavBase = $Env:WEB_DAV_URL.TrimEnd('/')
-          $addonWebdavPath = "$webdavBase/addon/$($addonConfig.id)"
+          $dufsBase = $Env:DUFS_URL.TrimEnd('/')
+          $addonDufsPath = "$dufsBase/addon/$($addonConfig.id)"
           
           # 上传插件文件
-          Write-Host "上传插件文件到WebDAV..."
+          Write-Host "上传插件文件到DUFS服务器..."
           
           # 上传ZIP文件
-          $zipWebdavPath = "$addonWebdavPath/$zipFileName"
-          curl --fail --show-error --silent --user "$($Env:WEB_DAV_USER):$($Env:WEB_DAV_PASSWORD)" --upload-file "$zipPath" "$zipWebdavPath"
+          $zipDufsPath = "$addonDufsPath/$zipFileName"
+          curl --fail --show-error --silent --user "$($Env:DUFS_USER):$($Env:DUFS_PASSWORD)" -T "$zipPath" "$zipDufsPath"
           
           # 上传图标文件（如果存在）
           $iconFileName = [System.IO.Path]::GetFileName($addonConfig.icon)
           if ($iconFileName -and $iconFileName -ne '') {
             $iconPath = Join-Path $addonPath $iconFileName
             if (Test-Path $iconPath) {
-              $iconWebdavPath = "$addonWebdavPath/$iconFileName"
-              curl --fail --show-error --silent --user "$($Env:WEB_DAV_USER):$($Env:WEB_DAV_PASSWORD)" --upload-file "$iconPath" "$iconWebdavPath"
+              $iconDufsPath = "$addonDufsPath/$iconFileName"
+              curl --fail --show-error --silent --user "$($Env:DUFS_USER):$($Env:DUFS_PASSWORD)" -T "$iconPath" "$iconDufsPath"
             }
           }
           
-          # 将WebDAV URL转换为直链URL
+          # 将DUFS URL转换为直链URL
           $directLinkBase = "http://123pan.ianzb.cn/code"
-          $zipDirectLink = $zipWebdavPath -replace [regex]::Escape($webdavBase), $directLinkBase
+          $zipDirectLink = $zipDufsPath -replace [regex]::Escape($dufsBase), $directLinkBase
           $iconDirectLink = if ($iconFileName -and $iconFileName -ne '') {
-            $iconWebdavPath -replace [regex]::Escape($webdavBase), $directLinkBase
+            $iconDufsPath -replace [regex]::Escape($dufsBase), $directLinkBase
           } else {
             $null
           }
@@ -148,8 +148,8 @@ jobs:
           Write-Host "已更新插件配置文件，URL已转换为直链格式"
           
           # 上传JSON配置文件（使用直链URL的版本）
-          $jsonWebdavPath = "$addonWebdavPath/addon.json"
-          curl --fail --show-error --silent --user "$($Env:WEB_DAV_USER):$($Env:WEB_DAV_PASSWORD)" --upload-file "$addonJsonPath" "$jsonWebdavPath"
+          $jsonDufsPath = "$addonDufsPath/addon.json"
+          curl --fail --show-error --silent --user "$($Env:DUFS_USER):$($Env:DUFS_PASSWORD)" -T "$addonJsonPath" "$jsonDufsPath"
           
           # 更新主索引文件
           $mainIndexPath = Join-Path $Env:GITHUB_WORKSPACE "addon" "addon.json"
@@ -165,8 +165,8 @@ jobs:
           $mainIndex | ConvertTo-Json | Set-Content $mainIndexPath -Encoding UTF8
           
           # 上传主索引文件
-          $mainIndexWebdavPath = "$webdavBase/addon/addon.json"
-          curl --fail --show-error --silent --user "$($Env:WEB_DAV_USER):$($Env:WEB_DAV_PASSWORD)" --upload-file "$mainIndexPath" "$mainIndexWebdavPath"
+          $mainIndexDufsPath = "$dufsBase/addon/addon.json"
+          curl --fail --show-error --silent --user "$($Env:DUFS_USER):$($Env:DUFS_PASSWORD)" -T "$mainIndexPath" "$mainIndexDufsPath"
           
           Write-Host "插件发布完成!"
           Write-Host "插件URL: $addonDirectUrl"
