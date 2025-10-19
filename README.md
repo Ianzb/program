@@ -36,7 +36,7 @@ zb小程序是一款使用Python开发，基于PyQt5和PyQt-Fluent-Widgets开发
 
 ## 开发环境
 
-- Python 3.14.X（支持3.12+）
+- Python 3.13（支持3.12+）
 - 运行库详见requirements.txt
 
 ## 目录介绍
