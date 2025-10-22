@@ -54,7 +54,7 @@ class MainPage(QWidget):
         return "排座工具"
 
     def icon(self):
-        return FIF.CLIPPING_TOOL
+        return FIF.LAYOUT
 
 class TableInterface(HeaderCardWidget):
     def __init__(self, parent=None):
