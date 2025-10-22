@@ -78,6 +78,7 @@ class Program:
 
         # 添加插件路径
         sys.path.append(self.ADDON_PATH)
+        sys.path.append(self.PACKAGE_PATH)
 
         # 打包后资源路径切换
         if self.isExe:
