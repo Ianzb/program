@@ -1,0 +1,17 @@
+{
+  "id": "pySeatShuffle",
+  "name": "排座工具",
+  "author": "Hz6826 & Ianzb",
+  "description": "一个随机排座工具。",
+  "version": "1.0.0",
+  "version_code": 1,
+  "api_version": 2,
+  "icon": "https://drive.ianzb.cn/code/program/addon/pySeatShuffle/pySeatShuffle.png",
+  "file": "https://drive.ianzb.cn/code/program/addon/pySeatShuffle/pySeatShuffle.zip",
+  "history": {
+  },
+  "packages": [
+    "openpyxl==3.1.5"
+  ],
+  "url": "https://drive.ianzb.cn/code/program/addon/pySeatShuffle/addon.json"
+}

@@ -1,0 +1,6 @@
+XLSX_SEAT_PLACEHOLDER = "{{SEAT}}"
+XLSX_GEN_TIME_PLACEHOLDER = "{{GENERATED_TIME}}"
+
+F_JSON = "json"
+F_XLSX = "xlsx"
+F_XLS = "xls"
