@@ -8,8 +8,7 @@
   "api_version": 2,
   "icon": "https://drive.ianzb.cn/code/program/addon/pySeatShuffle/pySeatShuffle.png",
   "file": "https://drive.ianzb.cn/code/program/addon/pySeatShuffle/pySeatShuffle.zip",
-  "history": {
-  },
+  "history": {},
   "packages": [
     "openpyxl==3.1.5"
   ],
