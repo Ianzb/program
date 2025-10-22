@@ -1,7 +1,6 @@
 import datetime
 import json
 
-from Demos.mmapfile_demo import offset
 from openpyxl.styles import NamedStyle
 
 from ..model import *
