@@ -8,7 +8,12 @@
   "api_version": 2,
   "icon": "https://drive.ianzb.cn/code/program/addon/pySeatShuffle/pySeatShuffle.png",
   "file": "https://drive.ianzb.cn/code/program/addon/pySeatShuffle/pySeatShuffle.zip",
-  "history": {},
+  "history": {
+    "1.0.0": {
+      "time": "2025年10月22日",
+      "log": "迁移至zb小程序。"
+    }
+  },
   "packages": [
     "openpyxl==3.1.5"
   ],
