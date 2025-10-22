@@ -20,6 +20,10 @@ def addonInit():
                   })
 
 
+def addonWidget():
+    return MainPage(window)
+
+
 class MainPage(QWidget):
     """
     主页
@@ -34,6 +38,10 @@ class MainPage(QWidget):
         self.editInterface = EditInterface(self)
         self.tableInterface = TableInterface(self)
 
+        manager.shuffleInterface = self.shuffleInterface
+        manager.editInterface = self.editInterface
+        manager.tableInterface = self.tableInterface
+
         self.rightVBoxLayout = QVBoxLayout(self)
         self.rightVBoxLayout.addWidget(self.shuffleInterface)
         self.rightVBoxLayout.addWidget(self.editInterface)
@@ -42,6 +50,11 @@ class MainPage(QWidget):
 
         self.setLayout(self.hBoxLayout)
 
+    def title(self):
+        return "排座工具"
+
+    def icon(self):
+        return FIF.CLIPPING_TOOL
 
 class TableInterface(HeaderCardWidget):
     def __init__(self, parent=None):
@@ -196,6 +209,9 @@ class EditInterface(HeaderCardWidget):
 
         self.listInterface = ListInterface(self)
         self.rulesInterface = RulesInterface(self)
+
+        manager.listInterface = self.listInterface
+        manager.rulesInterface = self.rulesInterface
 
         self.listInterface.vBoxLayout.insertWidget(0, self.importFileChooser2, 0, Qt.AlignCenter)
 

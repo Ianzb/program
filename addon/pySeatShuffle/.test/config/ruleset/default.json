@@ -1,0 +1,11 @@
+{
+  "rules": [
+    {
+      "t": "identical_in_group",
+      "prop": [
+        "gender"
+      ],
+      "reversed": false
+    }
+  ]
+}

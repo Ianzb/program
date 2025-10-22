@@ -281,25 +281,11 @@ class Manager(QWidget):
         self.people: dict = {}  # {name:{"people":Person, "widget": PeopleWidget}}
         self.table_widget: dict = {}
 
-    @property
-    def editInterface(self):
-        return self.parent().mainPage.editInterface
-
-    @property
-    def shuffleInterface(self):
-        return self.parent().mainPage.shuffleInterface
-
-    @property
-    def tableInterface(self):
-        return self.parent().mainPage.tableInterface
-
-    @property
-    def listInterface(self):
-        return self.parent().mainPage.editInterface.listInterface
-
-    @property
-    def rulesInterface(self):
-        return self.parent().mainPage.editInterface.rulesInterface
+        self.editInterface = None
+        self.shuffleInterface = None
+        self.tableInterface = None
+        self.listInterface = None
+        self.rulesInterface = None
 
     def getTable(self):
         """
