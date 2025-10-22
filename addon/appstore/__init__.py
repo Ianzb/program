@@ -25,7 +25,7 @@ def xmlToJson(data: str):
     :param data: xml字符串
     @return: 字典格式json数据
     """
-    from .xmltodict import parse
+    from xmltodict import parse
     data = parse(data)
     return data
 

@@ -223,13 +223,13 @@ class MainPage(zbw.BasicTab):
         program.THREAD_POOL.submit(self.getInstalledAddonList)
 
     def getInstalledAddonList(self):
-        info = program.getInstalledAddonInfo()
+        info = addonManager.getInstalledAddonInfo()
         for k, v in info.items():
             self.signalAddCardOffline.emit(v)
         program.THREAD_POOL.submit(self.getOnlineAddonList)
 
     def getOnlineAddonList(self):
-        self.addon_list = program.getOnlineAddonDict()
+        self.addon_list = addonManager.getOnlineAddonDict()
 
         self.onlineCount = 0
         for k, v in self.addon_list.items():
@@ -244,7 +244,7 @@ class MainPage(zbw.BasicTab):
 
     def getOnlineAddonInfo(self, info: str):
         try:
-            info = program.getAddonInfoFromUrl(info)
+            info = addonManager.getAddonInfoFromUrl(info)
             self.signalAddCardOnline.emit(info)
         except:
             logging.error(f"程序发生异常，无法获取插件{info}的在线信息，报错信息：{traceback.format_exc()}！")

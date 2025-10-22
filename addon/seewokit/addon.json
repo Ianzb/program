@@ -5,7 +5,7 @@
   "description": "为学校希沃白板设计的实用功能。",
   "version": "1.1.4",
   "version_code": 7,
-  "api_version": 1,
+  "api_version": 2,
   "icon": "https://drive.ianzb.cn/code/program/addon/seewokit/seewokit.png",
   "file": "https://drive.ianzb.cn/code/program/addon/seewokit/seewokit.zip",
   "history": {
@@ -38,5 +38,6 @@
       "time": "2025年10月7日"
     }
   },
+  "packages": [],
   "url": "https://drive.ianzb.cn/code/program/addon/seewokit/addon.json"
 }

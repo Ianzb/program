@@ -31,7 +31,7 @@ class Program:
     NAME = "zb小程序"  # 程序名称
     VERSION = "5.5.1"  # 程序版本
     VERSION_CODE = 55  # 版本序数
-    ADDON_API_VERSION = 1  # 插件版本序数
+    ADDON_API_VERSION = 2  # 插件版本序数
     CORE_VERSION = "5.3.5"  # 内核版本
     TITLE = f"{NAME} {VERSION}"  # 程序标题
     URL = "https://ianzb.github.io/project/program.html"  # 程序网址
@@ -55,6 +55,7 @@ class Program:
     SETTING_FILE_PATH = zb.joinPath(DATA_PATH, "settings.json")  # 程序设置文件路径
     LOGGING_FILE_PATH = zb.joinPath(DATA_PATH, "logging.log")  # 程序日志文件路径
     ADDON_PATH = zb.joinPath(DATA_PATH, "addon")  # 程序插件路径
+    PACKAGE_PATH = zb.joinPath(DATA_PATH, "package")
 
     STARTUP_ARGUMENT = sys.argv[1:]  # 程序启动参数
     THREAD_POOL = ThreadPoolExecutor()  # 程序公用线程池
@@ -194,77 +195,6 @@ class Program:
         data = json.loads(response.text)
         logging.info(f"服务器最新版本：{data}")
         return data
-
-    def getOnlineAddonDict(self):
-        """
-        获取插件字典
-        @return: 字典
-        """
-        try:
-            response = zb.getUrl(self.ADDON_URL, headers=zb.REQUEST_HEADER)
-            data = json.loads(response.text)
-            logging.info("插件信息获取成功！")
-            return data
-        except:
-            logging.warning(f"插件信息获取失败，报错信息：{traceback.format_exc()}！")
-
-    def getAddonInfoFromUrl(self, url: str):
-        """
-        通过自述文件链接获取指定插件信息
-        @param url: 自述文件链接
-        @return: 信息
-        """
-        try:
-            response = zb.getUrl(url, headers=zb.REQUEST_HEADER)
-            data = json.loads(response.text)
-            data["url"] = url
-            logging.info(f"插件{data.get("name", "")}信息获取成功")
-            return data
-        except:
-            logging.error(f"插件{url}信息获取失败，报错信息：{traceback.format_exc()}！")
-            return False
-
-    def downloadAddonFromInfo(self, data: dict):
-        """
-        通过插件自述文件数据链接获取指定插件信息
-        @param data: 插件信息
-        @param general_data: 基础链接（addon.json链接，仅文件为相对路径的时候需要）
-        """
-
-        try:
-            dir_path = zb.joinPath(self.ADDON_PATH, data.get("id", ""))
-            zb.createDir(dir_path)
-            with open(zb.joinPath(dir_path, "addon.json"), "w+", encoding="utf-8") as file:
-                file.write(json.dumps(data, indent=2, ensure_ascii=False))
-            result = zb.singleDownload(data.get("file", ""), dir_path, True, True)
-            if result:
-                zb.extractZip(result, dir_path, True)
-                logging.info(f"插件{data.get("name", "")}下载成功！")
-                return True
-            else:
-                logging.error(f"插件{data.get("name", "")}下载失败！")
-                return False
-        except:
-            logging.error(f"插件{data.get("name", "")}在下载与解压过程中发生错误，报错信息：{traceback.format_exc()}！")
-            return False
-
-    def getInstalledAddonInfo(self):
-        """
-        获取本地插件信息，格式为 {“插件id”:{自述文件字典数据}...}
-        @return: 信息
-        """
-        try:
-            data = {}
-            for i in zb.walkDir(self.ADDON_PATH, True):
-                if zb.isFile(zb.joinPath(i, "addon.json")):
-                    with open(zb.joinPath(i, "addon.json"), encoding="utf-8") as file:
-                        addon_data = json.load(file)
-                        key = addon_data.get("id", "")
-                        if key:
-                            data[key] = addon_data
-            return data
-        except:
-            logging.error(f"获取本地插件信息失败，报错信息：{traceback.format_exc()}！")
 
 
 program = Program()

@@ -10,4 +10,4 @@ else:
     logging.info("程序主窗口展示！")
 app.exec()
 
-from source.addon import *
+import source.addon

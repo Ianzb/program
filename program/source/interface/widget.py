@@ -210,6 +210,10 @@ class TaskCard(CardWidget):
             self.resumeButton.hide()
             self.pauseButton.hide()
         self.stopButton.show()
+        if self.use_indeterminate:
+            self.setProgress(100)
+            self.setIndeterminate(False)
+            self.progressLabel.hide()
         self.finishSignal.emit(success)
 
     def cancel(self):
@@ -219,6 +223,10 @@ class TaskCard(CardWidget):
             self.resumeButton.hide()
             self.pauseButton.hide()
         self.stopButton.show()
+        if self.use_indeterminate:
+            self.setProgress(0)
+            self.setIndeterminate(False)
+            self.progressLabel.hide()
         self.cancelSignal.emit()
 
     def stop(self):

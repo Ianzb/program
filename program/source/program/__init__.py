@@ -1,7 +1,6 @@
 from logging.config import dictConfig
 
-from .program import *
-from .setting import *
+from .addon import *
 
 QApplication.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
 QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
