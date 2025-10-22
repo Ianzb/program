@@ -80,6 +80,16 @@ jobs:
           if ($installer) { Write-Output "installer=$($installer.FullName)" >> $env:GITHUB_OUTPUT } else { Write-Output "installer=" >> $env:GITHUB_OUTPUT }
           Write-Output "version_code=$($json.version_code)" >> $env:GITHUB_OUTPUT
 
+      - name: 读取修改后的index.json版本
+        id: get_new_index_version
+        shell: pwsh
+        run: |
+          $index_json = Get-Content -Path "index.json" -Raw | ConvertFrom-Json
+          Write-Output "index_version=$($index_json.version)" >> $env:GITHUB_OUTPUT
+          Write-Output "index_version_code=$($index_json.version_code)" >> $env:GITHUB_OUTPUT
+
+
+
       - name: 提交更改
         shell: pwsh
         run: |
@@ -95,7 +105,7 @@ jobs:
             git stash pop
             # Add all modified files (including those restored from stash)
             git add -u
-            git commit -m "Update version to ${{ steps.get_index_version.outputs.index_version }} and versionCode to ${{ steps.check_output.outputs.version_code }} [ci skip]"
+            git commit -m "Update version to ${{ steps.get_new_index_version.outputs.index_version }} and versionCode to ${{ steps.check_output.outputs.version_code }} [ci skip]"
             git push origin main
           } else {
             Write-Host "No changes to commit"
@@ -104,10 +114,10 @@ jobs:
       - name: 发布Release
         uses: softprops/action-gh-release@v2
         with:
-          name: ${{ steps.get_index_version.outputs.index_version }}
-          tag_name: ${{ steps.get_index_version.outputs.index_version }}
+          name: ${{ steps.get_new_index_version.outputs.index_version }}
+          tag_name: ${{ steps.get_new_index_version.outputs.index_version }}
           files: |
-            zbProgram_${{ steps.get_index_version.outputs.index_version }}.zip
+            zbProgram_${{ steps.get_new_index_version.outputs.index_version }}.zip
             ${{ steps.check_output.outputs.installer }}
           token: ${{ secrets.GITHUB_TOKEN }}
           body: ${{ steps.check_output.outputs.notes }}
