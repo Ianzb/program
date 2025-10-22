@@ -3,7 +3,7 @@ Seat Table Model
 """
 import logging
 
-from core.constants import *
+from ..core.constants import *
 
 
 class Seat:

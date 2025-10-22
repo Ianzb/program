@@ -9,7 +9,7 @@ from openpyxl.cell import Cell
 
 from .constants import *
 
-from model import *
+from ..model import *
 
 
 class PeopleParser:

@@ -4,7 +4,7 @@ import json
 from Demos.mmapfile_demo import offset
 from openpyxl.styles import NamedStyle
 
-from model import *
+from ..model import *
 from .constants import *
 
 import zbToolLib as zbt

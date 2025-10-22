@@ -3,7 +3,7 @@ Shuffler
 """
 import logging
 
-from model import *
+from ..model import *
 
 import random
 
