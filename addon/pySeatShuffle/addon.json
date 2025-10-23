@@ -15,7 +15,8 @@
     }
   },
   "packages": [
-    "openpyxl==3.1.5"
+    "openpyxl",
+    "et_xmlfile"
   ],
   "url": "https://drive.ianzb.cn/code/program/addon/pySeatShuffle/addon.json"
 }
