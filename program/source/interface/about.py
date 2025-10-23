@@ -39,7 +39,7 @@ class UpdateSettingCard(SettingCard):
             logging.error(f"检测更新失败，报错信息：{traceback.format_exc()}！")
             self.updateSignal.emit(False)
             return
-        if version.get("v", 0) <= program.VERSION_CODE:
+        if version.get("version_code", 0) <= program.VERSION_CODE:
             self.updateSignal.emit(True)
         else:
             self.updateVersionSignal.emit(version)
