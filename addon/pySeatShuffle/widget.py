@@ -15,16 +15,6 @@ def addonInit():
     window = addonBase.window
     progressCenter = addonBase.progressCenter
 
-    setting.adds({"messageTitle": "",
-                  "messageContent": "",
-                  "messageEnabled": False,
-                  "canCloseMessage": True,
-                  "messageMove": False,
-                  "monitorPath": [],
-                  "autoCopy": False,
-                  "copyPath": zb.joinPath(program.DATA_PATH, "复制"),
-                  })
-
 
 class PeopleWidget(QFrame):
     def __init__(self, parent=None):
