@@ -66,8 +66,8 @@ class UpdateSettingCard(SettingCard):
             self.infoBar.close()
         except:
             pass
-        zb.deletePath(program.cache("zbProgramUpdate.exe"))
-        self.card = self.window().progressCenter.downloadTask(program.UPDATE_INSTALLER_URL, program.cache("zbProgramUpdate.exe"), True, True)
+        zb.deletePath(program.cache("zbProgram_setup.exe"))
+        self.card = self.window().progressCenter.downloadTask(program.UPDATE_INSTALLER_URL, program.cache("zbProgram_setup.exe"), True, True)
         self.card.setTitle("程序更新")
         self.card.setText("正在下载更新安装包...")
         self.card.downloadFinishedSignal.connect(self.updateFinished)
