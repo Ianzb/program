@@ -4,6 +4,7 @@ from .setting import *
 class AddonManager:
     ADDON_OBJECT = {}  # 导入的插件的对象
     ADDON_MAINPAGE = {}
+
     def getOnlineAddonDict(self):
         """
         获取插件字典
@@ -96,8 +97,14 @@ class AddonManager:
             logging.info(f"正在安装 {package_name}...")
 
         from pypi_simple import PyPISimple
-        PYPI_SIMPLE_ENDPOINT = "https://mirrors.aliyun.com/pypi/simple/"
-        with PyPISimple() as client:
+        class NewPyPISimple(PyPISimple):
+            def __init__(self):
+                super().__init__()
+
+            def get_project_url(self, project: str) -> str:
+                return super().get_project_url(project).replace("https://pypi.org/simple/", "https://mirrors.aliyun.com/pypi/simple/")
+
+        with NewPyPISimple() as client:
             requests_page = client.get_project_page(package_name)
         packages = requests_page.packages
         print(packages)
@@ -106,19 +113,16 @@ class AddonManager:
             for package in packages:
                 if package.package_type == "wheel":
                     url = package.url
-                    break
         else:
             url = None
             for package in packages:
                 if package.version == version and package.package_type == "wheel":
                     url = package.url
-                    break
             if not url:
                 url = None
                 for package in packages:
                     if package.package_type == "wheel":
                         url = package.url
-                        break
         if not url:
             logging.error(f"未找到{package_name}的安装包！")
             return False
