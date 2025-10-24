@@ -9,8 +9,7 @@ from openpyxl.cell import Cell
 
 from .constants import *
 
-from ..model import *
-
+from model import *
 
 class PeopleParser:
     """
@@ -18,7 +17,6 @@ class PeopleParser:
     File Format: csv
     with table head: name,prop_name_1,prop_name_2,...
     """
-
     def __init__(self):
         pass
 
@@ -34,7 +32,6 @@ class PeopleParser:
                     properties[head[i]] = row[i]
                 people.append(Person(row[0], properties))
         return people
-
 
 class SeatTableParser:
     # noinspection PyMethodMayBeStatic
@@ -193,7 +190,6 @@ class SeatTableParserJson(SeatTableParser):
         ]
     }
     """
-
     # noinspection PyMethodMayBeStatic
     def parse(self, file_path):
         metadata = SeatTableMetadataJson(file_path)
@@ -228,7 +224,6 @@ class RulesetParser:
         ],
         "relations": WIP
     """
-
     def __init__(self):
         pass
 
@@ -247,10 +242,8 @@ default_seat_table_parser_json = SeatTableParserJson()
 default_seat_table_parser_xlsx = SeatTableParserXlsx()
 default_ruleset_parser = RulesetParser()
 
-
 def parse_people(file_path):
     return default_people_parser.parse(file_path)
-
 
 def parse_seat_table(file_path):
     if file_path.endswith('.json'):
@@ -259,7 +252,6 @@ def parse_seat_table(file_path):
         return default_seat_table_parser_xlsx.parse(file_path)
     else:
         raise ValueError('Unsupported file format')
-
 
 def parse_ruleset(file_path):
     return default_ruleset_parser.parse(file_path)

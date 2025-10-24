@@ -1,19 +1,4 @@
-from source.addon import *
-from .core import *
-
-try:
-    from program.source.addon import *
-except:
-    pass
-addonBase = AddonBase()
-
-
-def addonInit():
-    global program, setting, window, progressCenter
-    program = addonBase.program
-    setting = addonBase.setting
-    window = addonBase.window
-    progressCenter = addonBase.progressCenter
+from ..program import *
 
 
 class PeopleWidget(QFrame):
@@ -31,6 +16,8 @@ class PeopleWidget(QFrame):
         self.vBoxLayout.addWidget(self.label)
 
         self.setLayout(self.vBoxLayout)
+
+        self.setStyleSheet("background: transparent;")
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
@@ -64,7 +51,7 @@ class PeopleWidget(QFrame):
     def getPeople(self):
         return self.people
 
-    def setPeople(self, people: Person):
+    def setPeople(self, people: core.Person):
         self.people = people
         self.label.setText(self.getPeople().get_name())
 
@@ -82,10 +69,7 @@ class PeopleWidget(QFrame):
     def moveAnimation(self, old_pos: QPoint, new_pos: QPoint):
         self.stopAnimation()
 
-        self.temp_widget = QWidget(self.window())
-        self.temp_widget.setWindowFlags(Qt.FramelessWindowHint | Qt.Tool | Qt.WindowTransparentForInput)
-        self.temp_widget.setAttribute(Qt.WA_TranslucentBackground)
-        self.temp_widget.setStyleSheet("background: transparent;")
+
 
         # 创建组件的副本用于动画
         drag_pixmap = QPixmap(self.size())
@@ -93,9 +77,10 @@ class PeopleWidget(QFrame):
         self.render(drag_pixmap)
         self.hide()
 
-        pixmap_label = QLabel(self.temp_widget)
-        pixmap_label.setPixmap(drag_pixmap)
-        pixmap_label.move(0, 0)
+        self.temp_widget = QLabel(self.window())
+        self.temp_widget.setAttribute(Qt.WA_TranslucentBackground)
+        self.temp_widget.setPixmap(drag_pixmap)
+        self.temp_widget.move(0, 0)
 
         # 设置临时窗口的位置和大小
         self.temp_widget.resize(self.size())
@@ -172,7 +157,7 @@ class PeopleWidgetTableBase(CardWidget):
 
     def setPeople(self, people: PeopleWidget):
         people.stopAnimation()
-        old_pos = people.mapToGlobal(QPoint(0, 0))
+        old_pos = people.mapToGlobal(QPoint(0, 0)) - self.window().pos()
         old_people = self.people
         old_parent = people.parent()
 
@@ -197,13 +182,14 @@ class PeopleWidgetTableBase(CardWidget):
         self.layout().activate()  # 强制布局更新
         QApplication.processEvents()  # 处理 pending 事件
 
-        new_pos = self.mapToGlobal(self.people.pos())
+        new_pos = self.mapToGlobal(self.people.pos()) - self.window().pos()
 
         self.people.moveAnimation(old_pos, new_pos)
 
         self.setNewToolTip("\n".join([self.people.people.get_name()] + [f"{k}：{v}" for k, v in self.people.people.get_properties().items()]))
 
     def removePeople(self):
+        self.removeNewToolTip()
         self.vBoxLayout.removeWidget(self.people)
         self.people, people = None, self.people
         return people
@@ -260,22 +246,36 @@ class PeopleWidgetBase(CardWidget):
 
 
 class Manager(QWidget):
-    PEOPLE_PARSER = PeopleParser()
-    XLSX_PARSER = SeatTableParserXlsx()
-    JSON_PARSER = SeatTableParserJson()
-    EXPORTER = SeatTableExporter()
+    PEOPLE_PARSER = core.PeopleParser()
+    XLSX_PARSER = core.SeatTableParserXlsx()
+    JSON_PARSER = core.SeatTableParserJson()
+    EXPORTER = core.SeatTableExporter()
 
     def __init__(self):
         super().__init__()
-        self.table: SeatTable = None
-        self.people: dict = {}  # {name:{"people":Person, "widget": PeopleWidget}}
+        self.table: core.SeatTable = None
+        self.people: dict = {}  # {name:{"people":core.Person, "widget": PeopleWidget}}
         self.table_widget: dict = {}
 
-        self.editInterface = None
-        self.shuffleInterface = None
-        self.tableInterface = None
-        self.listInterface = None
-        self.rulesInterface = None
+    @property
+    def editInterface(self):
+        return self.parent().mainPage.editInterface
+
+    @property
+    def shuffleInterface(self):
+        return self.parent().mainPage.shuffleInterface
+
+    @property
+    def tableInterface(self):
+        return self.parent().mainPage.tableInterface
+
+    @property
+    def listInterface(self):
+        return self.parent().mainPage.editInterface.listInterface
+
+    @property
+    def rulesInterface(self):
+        return self.parent().mainPage.editInterface.rulesInterface
 
     def getTable(self):
         """
@@ -311,7 +311,7 @@ class Manager(QWidget):
                 self.tableInterface.gridLayout.setRowStretch(r, 1)
                 self.tableInterface.gridLayout.setColumnStretch(c, 1)
 
-    def getPeople(self, name: str | Person | PeopleWidget):
+    def getPeople(self, name: str | core.Person | PeopleWidget):
         """
         获取指定person
         :param name:
@@ -319,13 +319,13 @@ class Manager(QWidget):
         """
         if isinstance(name, str):
             return self.people.get(name, {}).get("people", None)
-        elif isinstance(name, Person):
+        elif isinstance(name, core.Person):
             return name
         elif isinstance(name, PeopleWidget):
             return name.getPeople()
         return None
 
-    def getPeopleWidget(self, name: str | Person | PeopleWidget):
+    def getPeopleWidget(self, name: str | core.Person | PeopleWidget):
         """
         获取指定PeopleWidget
         :param name:
@@ -333,7 +333,7 @@ class Manager(QWidget):
         """
         if isinstance(name, str):
             return self.people.get(name, {}).get("widget", None)
-        elif isinstance(name, Person):
+        elif isinstance(name, core.Person):
             return self.people.get(name.get_name(), {}).get("widget", None)
         elif isinstance(name, PeopleWidget):
             return name
@@ -341,7 +341,7 @@ class Manager(QWidget):
 
     def getPeoples(self):
         """
-        获取所有Person
+        获取所有core.Person
         :return:
         """
         return [p["people"] for p in self.people.values()]
@@ -353,12 +353,12 @@ class Manager(QWidget):
         """
         return [p["widget"] for p in self.people.values()]
 
-    def setPeople(self, people: Person | PeopleWidget):
+    def setPeople(self, people: core.Person | PeopleWidget):
         """
         通过Person对象或PeopleWidget对象向people列表新增People
         :param people:
         """
-        if isinstance(people, Person):
+        if isinstance(people, core.Person):
             people_widget = PeopleWidget()
             people_widget.setPeople(people)
             name = people.get_name()
@@ -381,7 +381,7 @@ class Manager(QWidget):
                 existing_widget.deleteLater()
             self.people[name] = {"people": people.getPeople(), "widget": people}
 
-    def setPeoples(self, peoples: list[Person | PeopleWidget]):
+    def setPeoples(self, peoples: list[core.Person | PeopleWidget]):
         """
         设置多个people
         :param peoples:
@@ -389,7 +389,7 @@ class Manager(QWidget):
         for people in peoples:
             self.setPeople(people)
 
-    def hasPeople(self, name: str | Person | PeopleWidget):
+    def hasPeople(self, name: str | core.Person | PeopleWidget):
         """
         是否有指定people
         :param name:
@@ -397,13 +397,13 @@ class Manager(QWidget):
         """
         if isinstance(name, str):
             return name in self.people.keys()
-        elif isinstance(name, Person):
+        elif isinstance(name, core.Person):
             return name.get_name() in self.people.keys()
         elif isinstance(name, PeopleWidget):
             return name.getPeople().get_name() in self.people.keys()
         return False
 
-    def removePeople(self, name: str | Person | PeopleWidget):
+    def removePeople(self, name: str | core.Person | PeopleWidget):
         """
         移除指定people，并从ui上移除
         :param name: people
@@ -412,7 +412,7 @@ class Manager(QWidget):
         if isinstance(name, str):
             if name in self.people.keys():
                 name = name
-        elif isinstance(name, Person):
+        elif isinstance(name, core.Person):
             if name.get_name() in self.people.keys():
                 name = name.get_name()
         elif isinstance(name, PeopleWidget):
@@ -490,7 +490,7 @@ class Manager(QWidget):
         """
         return {k: v.getPeople().getPeople() for k, v in self.table_widget.items() if v.getPeople() is not None and v.getPeople().getPeople() is not None}
 
-    def setTablePeople(self, pos: (int, int), name: str | Person | PeopleWidget):
+    def setTablePeople(self, pos: (int, int), name: str | core.Person | PeopleWidget):
         """
         设置表格指定位置的人
         :param name: 人的名字，可以为字符串，Person对象或People组件
@@ -521,7 +521,8 @@ class Manager(QWidget):
         清空表格中的所有人，并放回列表
         """
         self.setListPeoples()
-        self.table.clear_all_users()
+        if self.table:
+            self.table.clear_all_users()
 
     def removeTable(self):
         """

@@ -17,6 +17,9 @@ class Person:
     def get_name(self):
         return self.name
 
+    def is_dummy(self):
+        return False
+
     def __str__(self):
         return f"Person(name={self.name}, properties={self.properties})"
 
@@ -31,3 +34,11 @@ class Person:
             return self.name
         else:
             return self.properties[item]
+
+
+class DummyPerson(Person):
+    def __init__(self):
+        super().__init__("Dummy", {})
+
+    def is_dummy(self):
+        return True

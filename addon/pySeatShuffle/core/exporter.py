@@ -3,7 +3,7 @@ import json
 
 from openpyxl.styles import NamedStyle
 
-from ..model import *
+from model import *
 from .constants import *
 
 import zbToolLib as zbt
@@ -30,6 +30,7 @@ class SeatTableExporter:
                 self.export(table, table.metadata.format, path, template)
             else:
                 self.export(table, F_JSON, path)
+
 
     def export_json(self, table: SeatTable, path, create_dir):
         path = self.generate_path(table, path, ".json")

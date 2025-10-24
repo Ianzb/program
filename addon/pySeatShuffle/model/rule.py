@@ -2,7 +2,6 @@
 Rule Model
 """
 
-
 class Rule:
     """
     Available rule types:
@@ -13,7 +12,6 @@ class Rule:
     :param prop: list of property names to check
     :param reversed: if True, reverses the rule logic
     """
-
     def __init__(self, t, prop: list, reversed=False):
         self.t = t
         self.prop = prop

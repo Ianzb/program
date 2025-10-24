@@ -4,7 +4,6 @@ Ruleset Model
 
 from .rule import *
 
-
 class Ruleset:
     def __init__(self, rules: list[Rule], relations=None):  # TODO: relations
         self.rules = rules
@@ -15,3 +14,4 @@ class Ruleset:
             if not rule.check(seat_groups):
                 return False
         return True
+

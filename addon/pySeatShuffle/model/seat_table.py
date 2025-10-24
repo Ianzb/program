@@ -2,8 +2,9 @@
 Seat Table Model
 """
 import logging
+import random
 
-from ..core.constants import *
+from core.constants import *
 
 
 class Seat:
@@ -12,6 +13,9 @@ class Seat:
         self.name = name
         self.user = None
         self.parent = None  # SeatGroup
+
+    def is_empty(self):
+        return self.user is None or self.user.is_dummy()
 
     def is_available(self):
         return self.user is None
@@ -84,7 +88,7 @@ class SeatGroup:
 
 
 class SeatTable:
-    def __init__(self, seat_groups: list[SeatGroup], size, name=None, metadata=None):
+    def __init__(self, seat_groups: list[SeatGroup], size, name=None, metadata=None, create_cache=True):
         """
         :param seat_groups: list of SeatGroup
         :param size: row, column
@@ -101,6 +105,10 @@ class SeatTable:
             self.metadata = SeatTableMetadata("unknown", "")
         else:
             self.metadata = metadata
+
+        self.cache = None
+        if create_cache:
+            self._create_cache()
 
         self._cursor = 0
 
@@ -119,6 +127,10 @@ class SeatTable:
         :param user: User object
         :return: True if successful, False otherwise
         """
+        if self.cache is not None and pos in self.cache:
+            self.cache[pos] = user
+            return True
+
         for seat_group in self.seat_groups:
             for seat in seat_group.get_seats():
                 if seat.get_pos() == pos:
@@ -132,6 +144,10 @@ class SeatTable:
         :param pos: (row, column)
         :return: True if successful, False otherwise
         """
+        if self.cache is not None and pos in self.cache:
+            self.cache[pos] = None
+            return True
+
         for seat_group in self.seat_groups:
             for seat in seat_group.get_seats():
                 if seat.get_pos() == pos:
@@ -182,6 +198,21 @@ class SeatTable:
             return candidate
         self._cursor = 0
         return None
+
+    def _create_cache(self):
+        for seat_group in self.seat_groups:
+            for seat in seat_group.get_seats():
+                self.cache[seat.get_pos()] = seat
+
+    def get_random_seat(self, available=True):
+        return random.choice([seat for seat_group in self.seat_groups
+                              for seat in seat_group.get_seats()
+                              if (seat.is_available() if available else True)])
+
+    def get_random_group(self, not_full=True):
+        return random.choice([seat_group for seat_group in self.seat_groups
+                              if (seat_group.count_available_seats() < seat_group.count_seats() if not_full else True)])
+
 
     def __str__(self):
         return f"SeatTable({self.name}, {self.size}, \n" + "\n".join([str(seat_group) for seat_group in self.seat_groups]) + "\n)"
