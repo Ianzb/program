@@ -3,8 +3,10 @@ Shuffler
 """
 import logging
 
-from model import *
-
+try:
+    from model import *
+except:
+    from addon.pySeatShuffle.model import *
 import random
 
 
@@ -55,6 +57,7 @@ class IterationResult:
         self.seat = seat
         self.person = person
         self.seat_table = seat_table
+
 
 class NoValidArrangementError(Exception):
     pass

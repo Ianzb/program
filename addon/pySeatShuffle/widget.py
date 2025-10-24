@@ -1,4 +1,24 @@
-from ..program import *
+try:
+    from source.addon import *
+    import addon.pySeatShuffle.core as core
+
+    addonBase = AddonBase()
+
+
+    def addonInit():
+        global program, setting, window, progressCenter
+        program = addonBase.program
+        setting = addonBase.setting
+        window = addonBase.window
+        progressCenter = addonBase.progressCenter
+except:
+    import core
+    from ..program import *
+
+try:
+    from program.source.addon import *
+except:
+    pass
 
 
 class PeopleWidget(QFrame):
@@ -62,48 +82,84 @@ class PeopleWidget(QFrame):
         super().setParent(a0)
 
     def stopAnimation(self):
-        if hasattr(self, "animation") and self.animation.state() == QPropertyAnimation.Running:
-            self.animation.stop()
+        if hasattr(self, "animation") and self.animation_group.state() == QPropertyAnimation.Running:
+            self.animation_group.stop()
             self.moveAnimationFinished()
 
-    def moveAnimation(self, old_pos: QPoint, new_pos: QPoint):
+    def moveAnimation(self, old_pixmap: QPixmap, old_pos: QPoint, new_pos: QPoint):
+        print(old_pos, new_pos)
+
         self.stopAnimation()
-
-
-
-        # 创建组件的副本用于动画
-        drag_pixmap = QPixmap(self.size())
-        drag_pixmap.fill(Qt.transparent)
-        self.render(drag_pixmap)
         self.hide()
 
-        self.temp_widget = QLabel(self.window())
-        self.temp_widget.setAttribute(Qt.WA_TranslucentBackground)
-        self.temp_widget.setPixmap(drag_pixmap)
-        self.temp_widget.move(0, 0)
+        # 创建旧位置的临时控件
+        self.old_temp_widget = QLabel(self.window())
+        self.old_temp_widget.setAttribute(Qt.WA_TranslucentBackground)
+        self.old_temp_widget.setPixmap(old_pixmap)
+        self.old_temp_widget.resize(old_pixmap.size())
+        self.old_temp_widget.move(old_pos)
 
-        # 设置临时窗口的位置和大小
-        self.temp_widget.resize(self.size())
-        self.temp_widget.move(old_pos)
-        self.temp_widget.show()
+        # 创建新位置的临时控件（使用当前状态渲染）
+        new_pixmap = QPixmap(self.size())
+        new_pixmap.fill(Qt.transparent)
+        self.render(new_pixmap)
 
-        # 创建动画
-        self.animation = QPropertyAnimation(self.temp_widget, b"pos")
-        self.animation.setStartValue(old_pos)
-        self.animation.setEndValue(new_pos)
-        self.animation.setDuration(300)  # 300ms 动画
-        self.animation.setEasingCurve(QEasingCurve.OutCubic)
+        self.new_temp_widget = QLabel(self.window())
+        self.new_temp_widget.setAttribute(Qt.WA_TranslucentBackground)
+        self.new_temp_widget.setPixmap(new_pixmap)
+        self.new_temp_widget.resize(new_pixmap.size())
+        self.new_temp_widget.move(old_pos)  # 从相同位置开始
 
-        # 动画完成后的回调
+        # 设置初始透明度
+        old_opacity_effect = QGraphicsOpacityEffect()
+        old_opacity_effect.setOpacity(1.0)  # 旧pixmap初始完全不透明
+        self.old_temp_widget.setGraphicsEffect(old_opacity_effect)
 
-        self.animation.finished.connect(self.moveAnimationFinished)
+        self.old_temp_widget.show()
+        self.new_temp_widget.show()
 
-        self.animation.start()
+        # 创建位置动画（两个控件同时移动）
+        self.pos_animation = QPropertyAnimation()
+        self.pos_animation.setDuration(300)
+        self.pos_animation.setEasingCurve(QEasingCurve.OutCubic)
+
+        # 创建透明度动画
+        self.old_opacity_animation = QPropertyAnimation(old_opacity_effect, b"opacity")
+        self.old_opacity_animation.setDuration(100)
+        self.old_opacity_animation.setStartValue(1.0)
+        self.old_opacity_animation.setEndValue(0.0)
+
+        # 使用动画组同时执行所有动画
+        self.animation_group = QParallelAnimationGroup(self.window())
+
+        # 为两个控件分别创建位置动画
+        old_pos_animation = QPropertyAnimation(self.old_temp_widget, b"pos")
+        old_pos_animation.setDuration(300)
+        old_pos_animation.setStartValue(old_pos)
+        old_pos_animation.setEndValue(new_pos)
+        old_pos_animation.setEasingCurve(QEasingCurve.OutCubic)
+
+        new_pos_animation = QPropertyAnimation(self.new_temp_widget, b"pos")
+        new_pos_animation.setDuration(300)
+        new_pos_animation.setStartValue(old_pos)
+        new_pos_animation.setEndValue(new_pos)
+        new_pos_animation.setEasingCurve(QEasingCurve.OutCubic)
+
+        self.animation_group.addAnimation(old_pos_animation)
+        self.animation_group.addAnimation(new_pos_animation)
+        self.animation_group.addAnimation(self.old_opacity_animation)
+
+        self.animation_group.finished.connect(self.moveAnimationFinished)
+        self.animation_group.start()
 
     def moveAnimationFinished(self):
         self.show()
-        self.temp_widget.hide()
-        self.temp_widget.deleteLater()
+        if hasattr(self, 'old_temp_widget'):
+            self.old_temp_widget.hide()
+            self.old_temp_widget.deleteLater()
+        if hasattr(self, 'new_temp_widget'):
+            self.new_temp_widget.hide()
+            self.new_temp_widget.deleteLater()
 
 
 class PeopleWidgetTableBase(CardWidget):
@@ -157,7 +213,17 @@ class PeopleWidgetTableBase(CardWidget):
 
     def setPeople(self, people: PeopleWidget):
         people.stopAnimation()
-        old_pos = people.mapToGlobal(QPoint(0, 0)) - self.window().pos()
+
+        # 在移动前获取旧位置的pixmap
+        old_pixmap = QPixmap(people.size())
+        old_pixmap.fill(Qt.transparent)
+        people.render(old_pixmap)
+
+        if self.window().isMaximized():
+            old_pos = people.mapToGlobal(people.pos()) - self.window().pos() + QPoint(-8, -8) * QApplication.primaryScreen().devicePixelRatio()
+        else:
+            old_pos = people.mapToGlobal(people.pos()) - self.window().pos()
+
         old_people = self.people
         old_parent = people.parent()
 
@@ -182,17 +248,23 @@ class PeopleWidgetTableBase(CardWidget):
         self.layout().activate()  # 强制布局更新
         QApplication.processEvents()  # 处理 pending 事件
 
-        new_pos = self.mapToGlobal(self.people.pos()) - self.window().pos()
+        if self.window().isMaximized():
+            new_pos = self.mapToGlobal(self.people.pos()) - self.window().pos() + QPoint(-8, -8) * QApplication.primaryScreen().devicePixelRatio()
+        else:
+            new_pos = self.mapToGlobal(self.people.pos()) - self.window().pos()
 
-        self.people.moveAnimation(old_pos, new_pos)
+        # 传入旧位置的pixmap进行动画
+        self.people.moveAnimation(old_pixmap, old_pos, new_pos)
 
         self.setNewToolTip("\n".join([self.people.people.get_name()] + [f"{k}：{v}" for k, v in self.people.people.get_properties().items()]))
 
     def removePeople(self):
         self.removeNewToolTip()
-        self.vBoxLayout.removeWidget(self.people)
-        self.people, people = None, self.people
-        return people
+        if self.people:
+            self.vBoxLayout.removeWidget(self.people)
+            self.people, people = None, self.people
+            return people
+        return None
 
     def deletePeople(self):
         self.removePeople()
@@ -257,25 +329,14 @@ class Manager(QWidget):
         self.people: dict = {}  # {name:{"people":core.Person, "widget": PeopleWidget}}
         self.table_widget: dict = {}
 
-    @property
-    def editInterface(self):
-        return self.parent().mainPage.editInterface
-
-    @property
-    def shuffleInterface(self):
-        return self.parent().mainPage.shuffleInterface
-
-    @property
-    def tableInterface(self):
-        return self.parent().mainPage.tableInterface
-
-    @property
-    def listInterface(self):
-        return self.parent().mainPage.editInterface.listInterface
-
-    @property
-    def rulesInterface(self):
-        return self.parent().mainPage.editInterface.rulesInterface
+        try:
+            self.editInterface = self.parent().mainPage.editInterface
+            self.shuffleInterface = self.parent().mainPage.shuffleInterface
+            self.tableInterface = self.parent().mainPage.tableInterface
+            self.listInterface = self.parent().mainPage.editInterface.listInterface
+            self.rulesInterface = self.parent().mainPage.editInterface.rulesInterface
+        except:
+            pass
 
     def getTable(self):
         """

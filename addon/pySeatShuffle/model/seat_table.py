@@ -4,7 +4,10 @@ Seat Table Model
 import logging
 import random
 
-from core.constants import *
+try:
+    from core.constants import *
+except:
+    from addon.pySeatShuffle.core.constants import *
 
 
 class Seat:
@@ -106,7 +109,7 @@ class SeatTable:
         else:
             self.metadata = metadata
 
-        self.cache = None
+        self.cache = {}
         if create_cache:
             self._create_cache()
 
@@ -127,7 +130,7 @@ class SeatTable:
         :param user: User object
         :return: True if successful, False otherwise
         """
-        if self.cache is not None and pos in self.cache:
+        if self.cache and pos in self.cache:
             self.cache[pos] = user
             return True
 
@@ -202,7 +205,7 @@ class SeatTable:
     def _create_cache(self):
         for seat_group in self.seat_groups:
             for seat in seat_group.get_seats():
-                self.cache[seat.get_pos()] = seat
+                self.cache[tuple(seat.get_pos())] = seat
 
     def get_random_seat(self, available=True):
         return random.choice([seat for seat_group in self.seat_groups
@@ -212,7 +215,6 @@ class SeatTable:
     def get_random_group(self, not_full=True):
         return random.choice([seat_group for seat_group in self.seat_groups
                               if (seat_group.count_available_seats() < seat_group.count_seats() if not_full else True)])
-
 
     def __str__(self):
         return f"SeatTable({self.name}, {self.size}, \n" + "\n".join([str(seat_group) for seat_group in self.seat_groups]) + "\n)"

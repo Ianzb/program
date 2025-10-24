@@ -1,6 +1,18 @@
 from .widget import *
 
 
+def addonInit():
+    global program, setting, window, progressCenter
+    program = addonBase.program
+    setting = addonBase.setting
+    window = addonBase.window
+    progressCenter = addonBase.progressCenter
+
+
+def addonWidget():
+    return MainPage(window)
+
+
 class MainPage(QWidget):
     """
     主页
@@ -15,6 +27,10 @@ class MainPage(QWidget):
         self.editInterface = EditInterface(self)
         self.tableInterface = TableInterface(self)
 
+        manager.shuffleInterface = self.shuffleInterface
+        manager.editInterface = self.editInterface
+        manager.tableInterface = self.tableInterface
+
         self.rightVBoxLayout = QVBoxLayout(self)
         self.rightVBoxLayout.addWidget(self.shuffleInterface)
         self.rightVBoxLayout.addWidget(self.editInterface)
@@ -22,6 +38,12 @@ class MainPage(QWidget):
         self.hBoxLayout.addLayout(self.rightVBoxLayout, 0)
 
         self.setLayout(self.hBoxLayout)
+
+    def title(self):
+        return "排座工具"
+
+    def icon(self):
+        return FIF.LAYOUT
 
 
 class TableInterface(HeaderCardWidget):
@@ -133,12 +155,11 @@ class ShuffleInterface(HeaderCardWidget):
             return
         manager.clearTablePeople()
         shuffler = core.Shuffler(manager.getPeoples(), table, core.Ruleset([core.Rule("identical_in_group", ["gender"])]))
-        self.shuffle(shuffler)
+        program.THREAD_POOL.submit(self.shuffle, shuffler)
 
     def _shuffle(self, pos, person):
         manager.setTablePeople(pos, person)
 
-    @zb.threadPoolDecorator(program.THREAD_POOL)
     def shuffle(self, shuffler):
         import time
         try:
@@ -247,6 +268,9 @@ class EditInterface(HeaderCardWidget):
 
         self.listInterface = ListInterface(self)
         self.rulesInterface = RulesInterface(self)
+
+        manager.listInterface = self.listInterface
+        manager.rulesInterface = self.rulesInterface
 
         self.listInterface.vBoxLayout.insertWidget(0, self.importFileChooser2, 0, Qt.AlignCenter)
 
