@@ -219,10 +219,7 @@ class PeopleWidgetTableBase(CardWidget):
         old_pixmap.fill(Qt.transparent)
         people.render(old_pixmap)
 
-        if self.window().isMaximized():
-            old_pos = people.mapToGlobal(people.pos()) - self.window().pos() + QPoint(-8, -8) * QApplication.primaryScreen().devicePixelRatio()
-        else:
-            old_pos = people.mapToGlobal(people.pos()) - self.window().pos()
+        old_pos = people.mapToGlobal(people.pos()) - self.window().mapToGlobal(QPoint(0, 0))
 
         old_people = self.people
         old_parent = people.parent()
@@ -248,10 +245,7 @@ class PeopleWidgetTableBase(CardWidget):
         self.layout().activate()  # 强制布局更新
         QApplication.processEvents()  # 处理 pending 事件
 
-        if self.window().isMaximized():
-            new_pos = self.mapToGlobal(self.people.pos()) - self.window().pos() + QPoint(-8, -8) * QApplication.primaryScreen().devicePixelRatio()
-        else:
-            new_pos = self.mapToGlobal(self.people.pos()) - self.window().pos()
+        new_pos = self.mapToGlobal(self.people.pos()) - self.window().mapToGlobal(QPoint(0, 0))
 
         # 传入旧位置的pixmap进行动画
         self.people.moveAnimation(old_pixmap, old_pos, new_pos)
