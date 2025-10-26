@@ -111,7 +111,7 @@ class PeopleWidget(QFrame):
             del self.new_temp_widget
 
         # 创建旧位置的临时控件
-        self.old_temp_widget = QLabel(self.window())
+        self.old_temp_widget = QLabel(manager.mainPage)
         self.old_temp_widget.setAttribute(Qt.WA_TranslucentBackground)
         self.old_temp_widget.setPixmap(old_pixmap)
         self.old_temp_widget.resize(old_pixmap.size())
@@ -124,7 +124,7 @@ class PeopleWidget(QFrame):
         self.render(new_pixmap)
         self.setTransparent(0.0)
 
-        self.new_temp_widget = QLabel(self.window())
+        self.new_temp_widget = QLabel(manager.mainPage)
         self.new_temp_widget.setAttribute(Qt.WA_TranslucentBackground)
         self.new_temp_widget.setPixmap(new_pixmap)
         self.new_temp_widget.resize(new_pixmap.size())
@@ -263,7 +263,7 @@ class PeopleWidgetTableBase(CardWidget):
         people.render(old_pixmap)
         people.setTransparent(0.0)
 
-        old_pos = people.mapToGlobal(QPoint(0, 0)) - self.window().mapToGlobal(QPoint(0, 0))
+        old_pos = people.mapToGlobal(QPoint(0, 0)) - manager.mainPage.mapToGlobal(QPoint(0, 0))
 
         if old_people:
             if isinstance(old_parent, PeopleWidgetTableBase):
@@ -286,7 +286,7 @@ class PeopleWidgetTableBase(CardWidget):
         self.layout().activate()  # 强制布局更新
         QApplication.processEvents()  # 处理 pending 事件
 
-        new_pos = self.people.mapToGlobal(QPoint(0, 0)) - self.window().mapToGlobal(QPoint(0, 0))
+        new_pos = self.people.mapToGlobal(QPoint(0, 0)) - manager.mainPage.mapToGlobal(QPoint(0, 0))
 
         # 传入旧位置的pixmap进行动画
         self.people.moveAnimation(old_pixmap, old_pos, new_pos)
@@ -346,7 +346,7 @@ class PeopleWidgetBase(CardWidget):
             people.render(old_pixmap)
             people.setTransparent(0.0)
 
-            old_pos = people.mapToGlobal(QPoint(0, 0)) - self.window().mapToGlobal(QPoint(0, 0))
+            old_pos = people.mapToGlobal(QPoint(0, 0)) - manager.mainPage.mapToGlobal(QPoint(0, 0))
 
         people.setParent(self)
 
@@ -358,7 +358,7 @@ class PeopleWidgetBase(CardWidget):
         QApplication.processEvents()  # 处理 pending 事件
 
         if animation:
-            new_pos = self.people.mapToGlobal(QPoint(0, 0)) - self.window().mapToGlobal(QPoint(0, 0))
+            new_pos = self.people.mapToGlobal(QPoint(0, 0)) - manager.mainPage.mapToGlobal(QPoint(0, 0))
 
             self.people.moveAnimation(old_pixmap, old_pos, new_pos)
 
