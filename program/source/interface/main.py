@@ -202,7 +202,7 @@ class MainPage(zbw.BasicTab):
         self.onlineCount = 0
 
         self.image = ImageLabel(program.source("title.png"))
-        self.image.setFixedSize(410, 135)
+        self.image.setFixedSize(self.image.size() / 4)
 
         self.card1 = zbw.GrayCard("插件管理", self)
 
