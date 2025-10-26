@@ -1,3 +1,4 @@
+aenum==3.1.16
 altgraph==0.17.4
 annotated-types==0.7.0
 attrs==25.4.0
@@ -37,4 +38,4 @@ typing_extensions==4.15.0
 urllib3==2.5.0
 winshell==0.6
 zbToolLib==2.0.6.1
-zbWidgetLib==2.7.4
+zbWidgetLib==2.8.0

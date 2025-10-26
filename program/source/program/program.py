@@ -84,6 +84,11 @@ class Program:
         if self.isExe:
             self.SOURCE_PATH = sys._MEIPASS + r"\img"
 
+        ZBF.setPath(self.source("icon"))
+        for i in zb.walkFile(self.source("icon"), True):
+            name = "_".join(zb.getFileName(i).split("_")[:-1])
+            ZBF.add(name)
+
     @property
     def ICON(self):
         return self.source("program.png")

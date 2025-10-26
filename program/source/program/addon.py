@@ -107,7 +107,6 @@ class AddonManager:
         with NewPyPISimple() as client:
             requests_page = client.get_project_page(package_name)
         packages = requests_page.packages
-        print(packages)
         if not version:
             url = None
             for package in packages:

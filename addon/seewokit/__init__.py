@@ -1,4 +1,5 @@
 import string
+import traceback
 
 from source.addon import *
 
@@ -321,7 +322,7 @@ class SeewoPage(zbw.BasicTab):
                 #                     if partition.DeviceID in physical_disk.DeviceID:
                 #                         return physical_disk.Model
             except Exception as e:
-                logging.error(f"获取盘符 {drive_letter} 的硬盘名称失败: {traceback.print_exc()}")
+                logging.error(f"获取盘符 {drive_letter} 的硬盘名称失败: {traceback.format_exc()}")
             return None
 
         while True:
