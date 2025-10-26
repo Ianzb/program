@@ -6,7 +6,7 @@ from openpyxl.styles import NamedStyle
 try:
     from model import *
 except:
-    from addon.pySeatShuffle.model import *
+    from pySeatShuffle.model import *
 from .constants import *
 
 import zbToolLib as zbt

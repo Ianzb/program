@@ -12,7 +12,7 @@ from .constants import *
 try:
     from model import *
 except:
-    from addon.pySeatShuffle.model import *
+    from pySeatShuffle.model import *
 
 
 class PeopleParser:

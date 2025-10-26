@@ -7,7 +7,7 @@ import random
 try:
     from core.constants import *
 except:
-    from addon.pySeatShuffle.core.constants import *
+    from pySeatShuffle.core.constants import *
 
 
 class Seat:

@@ -6,7 +6,7 @@ import logging
 try:
     from model import *
 except:
-    from addon.pySeatShuffle.model import *
+    from pySeatShuffle.model import *
 import random
 
 

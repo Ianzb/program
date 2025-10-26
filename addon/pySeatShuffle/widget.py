@@ -1,6 +1,6 @@
 try:
     from source.addon import *
-    import addon.pySeatShuffle.core as core
+    import pySeatShuffle.core as core
 
     addonBase = AddonBase()
 
@@ -26,6 +26,8 @@ class PeopleWidget(QFrame):
         super().__init__(parent)
         self.setMinimumSize(30, 20)
         self.people = None
+
+        self.move_back = False
 
         self.vBoxLayout = QVBoxLayout(self)
         self.vBoxLayout.setAlignment(Qt.AlignCenter)
@@ -87,10 +89,16 @@ class PeopleWidget(QFrame):
             self.moveAnimationFinished()
 
     def moveAnimation(self, old_pixmap: QPixmap, old_pos: QPoint, new_pos: QPoint):
-        print(old_pos, new_pos)
-
         self.stopAnimation()
         self.hide()
+        if hasattr(self, 'old_temp_widget'):
+            self.old_temp_widget.hide()
+            self.old_temp_widget.deleteLater()
+            del self.old_temp_widget
+        if hasattr(self, 'new_temp_widget'):
+            self.new_temp_widget.hide()
+            self.new_temp_widget.deleteLater()
+            del self.new_temp_widget
 
         # 创建旧位置的临时控件
         self.old_temp_widget = QLabel(self.window())
@@ -102,7 +110,9 @@ class PeopleWidget(QFrame):
         # 创建新位置的临时控件（使用当前状态渲染）
         new_pixmap = QPixmap(self.size())
         new_pixmap.fill(Qt.transparent)
+        self.show()
         self.render(new_pixmap)
+        self.hide()
 
         self.new_temp_widget = QLabel(self.window())
         self.new_temp_widget.setAttribute(Qt.WA_TranslucentBackground)
@@ -115,6 +125,10 @@ class PeopleWidget(QFrame):
         old_opacity_effect.setOpacity(1.0)  # 旧pixmap初始完全不透明
         self.old_temp_widget.setGraphicsEffect(old_opacity_effect)
 
+        new_opacity_effect = QGraphicsOpacityEffect()
+        new_opacity_effect.setOpacity(0.0)
+        self.new_temp_widget.setGraphicsEffect(new_opacity_effect)
+
         self.old_temp_widget.show()
         self.new_temp_widget.show()
 
@@ -124,10 +138,19 @@ class PeopleWidget(QFrame):
         self.pos_animation.setEasingCurve(QEasingCurve.OutCubic)
 
         # 创建透明度动画
-        self.old_opacity_animation = QPropertyAnimation(old_opacity_effect, b"opacity")
-        self.old_opacity_animation.setDuration(100)
-        self.old_opacity_animation.setStartValue(1.0)
-        self.old_opacity_animation.setEndValue(0.0)
+        old_opacity_animation = QPropertyAnimation(old_opacity_effect, b"opacity")
+        old_opacity_animation.setDuration(300)
+        old_opacity_animation.setStartValue(1.0)
+        old_opacity_animation.setKeyValueAt(0.5, 1.0)
+        old_opacity_animation.setKeyValueAt(0.9, 0.0)
+        old_opacity_animation.setEndValue(0.0)
+
+        new_opacity_animation = QPropertyAnimation(new_opacity_effect, b"opacity")
+        new_opacity_animation.setDuration(300)
+        new_opacity_animation.setStartValue(0.0)
+        new_opacity_animation.setKeyValueAt(0.1, 0.0)
+        new_opacity_animation.setKeyValueAt(0.5, 1.0)
+        new_opacity_animation.setEndValue(1.0)
 
         # 使用动画组同时执行所有动画
         self.animation_group = QParallelAnimationGroup(self.window())
@@ -147,7 +170,8 @@ class PeopleWidget(QFrame):
 
         self.animation_group.addAnimation(old_pos_animation)
         self.animation_group.addAnimation(new_pos_animation)
-        self.animation_group.addAnimation(self.old_opacity_animation)
+        self.animation_group.addAnimation(old_opacity_animation)
+        self.animation_group.addAnimation(new_opacity_animation)
 
         self.animation_group.finished.connect(self.moveAnimationFinished)
         self.animation_group.start()
@@ -157,9 +181,11 @@ class PeopleWidget(QFrame):
         if hasattr(self, 'old_temp_widget'):
             self.old_temp_widget.hide()
             self.old_temp_widget.deleteLater()
+            del self.old_temp_widget
         if hasattr(self, 'new_temp_widget'):
             self.new_temp_widget.hide()
             self.new_temp_widget.deleteLater()
+            del self.new_temp_widget
 
 
 class PeopleWidgetTableBase(CardWidget):
@@ -219,10 +245,13 @@ class PeopleWidgetTableBase(CardWidget):
         old_pixmap.fill(Qt.transparent)
         people.render(old_pixmap)
 
-        old_pos = people.mapToGlobal(people.pos()) - self.window().mapToGlobal(QPoint(0, 0))
+        old_pos = people.mapToGlobal(QPoint(0, 0)) - self.window().mapToGlobal(QPoint(0, 0))
 
         old_people = self.people
         old_parent = people.parent()
+
+        if old_parent is self:
+            return
 
         if old_people:
             if isinstance(old_parent, PeopleWidgetTableBase):
@@ -245,7 +274,7 @@ class PeopleWidgetTableBase(CardWidget):
         self.layout().activate()  # 强制布局更新
         QApplication.processEvents()  # 处理 pending 事件
 
-        new_pos = self.mapToGlobal(self.people.pos()) - self.window().mapToGlobal(QPoint(0, 0))
+        new_pos = self.people.mapToGlobal(QPoint(0, 0)) - self.window().mapToGlobal(QPoint(0, 0))
 
         # 传入旧位置的pixmap进行动画
         self.people.moveAnimation(old_pixmap, old_pos, new_pos)
@@ -280,9 +309,10 @@ class PeopleWidgetTableBase(CardWidget):
 
 
 class PeopleWidgetBase(CardWidget):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, card_group=None):
         super().__init__(parent)
         self.people = None
+        self.card_group = card_group
 
         self.setMaximumHeight(40)
 
@@ -295,9 +325,31 @@ class PeopleWidgetBase(CardWidget):
     def getPeople(self):
         return self.people
 
-    def setPeople(self, people: PeopleWidget):
+    def setPeople(self, people: PeopleWidget, animation: bool = True):
+        people.stopAnimation()
+
+        # 在移动前获取旧位置的pixmap
+        old_pixmap = QPixmap(people.size())
+        old_pixmap.fill(Qt.transparent)
+        people.render(old_pixmap)
+
+        old_pos = people.mapToGlobal(people.pos()) - self.window().mapToGlobal(QPoint(0, 0))
+
+        people.setParent(self)
+
         self.people = people
         self.vBoxLayout.addWidget(people)
+
+        self.layout().activate()  # 强制布局更新
+        self.card_group.layout().activate()
+        QApplication.processEvents()  # 处理 pending 事件
+
+        new_pos = self.mapToGlobal(self.people.pos()) - self.window().mapToGlobal(QPoint(0, 0))
+
+        # 传入旧位置的pixmap进行动画
+        if animation:
+            self.people.moveAnimation(old_pixmap, old_pos, new_pos)
+
         self.setNewToolTip("\n".join([self.people.people.get_name()] + [f"{k}：{v}" for k, v in self.people.people.get_properties().items()]))
 
     def removePeople(self):
@@ -346,8 +398,8 @@ class Manager(QWidget):
         """
         if widget is None:
             widget = {}
-        self.table = table
         self.removeTable()
+        self.table = table
 
         self.table_widget = widget
 
@@ -506,12 +558,15 @@ class Manager(QWidget):
         for k, v in self.people.items():
             people_widget: PeopleWidget = v["widget"]
             parent = people_widget.parent()
-            if move or not isinstance(parent, PeopleWidgetTableBase):
-                people_widget.setParent(self.listInterface)
-                widget = PeopleWidgetBase(self.listInterface)
-                widget.setPeople(people_widget)
+            if move or not isinstance(parent, PeopleWidgetTableBase) or people_widget.move_back:
+                widget = PeopleWidgetBase(self.listInterface, self.listInterface.cardGroup)
+                people_widget.move_back = False
                 self.listInterface.cardGroup.addCard(widget, k)
                 widget.layout()
+                if isinstance(parent, PeopleWidgetTableBase) or not parent:
+                    widget.setPeople(people_widget, True)
+                else:
+                    widget.setPeople(people_widget, False)
 
     def getTableWidgets(self):
         """
@@ -567,15 +622,15 @@ class Manager(QWidget):
         """
         widget = self.table_widget.get(tuple(pos), None)
         if widget:
-            people = widget.removePeople()
-            people.setParent(None)
+            people = widget.getPeople()
+            people.move_back = True
             self.setListPeoples(False)
 
     def clearTablePeople(self):
         """
         清空表格中的所有人，并放回列表
         """
-        self.setListPeoples()
+        self.setListPeoples(True)
         if self.table:
             self.table.clear_all_users()
 
@@ -588,12 +643,13 @@ class Manager(QWidget):
             widget = item.widget()
             if widget is not None:
                 widget.deleteLater()
-        self.setListPeoples()
+        self.setListPeoples(True)
         for r in range(self.tableInterface.gridLayout.rowCount()):
             self.tableInterface.gridLayout.setRowStretch(r, 0)
         for c in range(self.tableInterface.gridLayout.columnCount()):
             self.tableInterface.gridLayout.setColumnStretch(c, 0)
         self.table_widget = {}
+        self.table = None
 
 
 manager = Manager()

@@ -149,12 +149,16 @@ class ShuffleInterface(HeaderCardWidget):
         self.shuffleSignal.connect(self._shuffle)
 
     def shuffleButtonClicked(self):
-        self.shuffleButton.setEnabled(False)
         table = manager.getTable()
-        if not table:
+        peoples = manager.getPeoples()
+        if not table or not peoples:
             return
+        self.shuffleButton.setEnabled(False)
+        manager.tableInterface.closeButton.setEnabled(False)
+        table = manager.getTable()
+
         manager.clearTablePeople()
-        shuffler = core.Shuffler(manager.getPeoples(), table, core.Ruleset([core.Rule("identical_in_group", ["gender"])]))
+        shuffler = core.Shuffler(peoples, table, core.Ruleset([core.Rule("identical_in_group", ["gender"])]))
         program.THREAD_POOL.submit(self.shuffle, shuffler)
 
     def _shuffle(self, pos, person):
@@ -177,6 +181,7 @@ class ShuffleInterface(HeaderCardWidget):
             logging.error("没有有效的排座方案！")  # TODO
         time.sleep(0.25)
         self.shuffleButton.setEnabled(True)
+        manager.tableInterface.closeButton.setEnabled(True)
 
     def handleClearButtonClicked(self):
         if not manager.table:
@@ -291,7 +296,7 @@ class EditInterface(HeaderCardWidget):
                 return
             people = manager.PEOPLE_PARSER.parse(get[0])
             manager.setPeoples(people)
-            manager.setListPeoples()
+            manager.setListPeoples(True)
             setting.save("downloadPath", zb.getFileDir(get[0]))
             logging.info(f"导入名单表格文件{get[0]}成功！")
             infoBar = InfoBar(InfoBarIcon.SUCCESS, "成功", f"导入名单表格文件{zb.getFileName(get[0])}成功！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.BOTTOM, self.window().mainPage)
