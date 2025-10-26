@@ -175,7 +175,7 @@ class ShuffleInterface(HeaderCardWidget):
         self.settingButton.clicked.connect(self.settingButtonClicked)
 
         self.clearButton = PushButton("清空", self, FIF.DELETE)
-        self.clearButton.clicked.connect(self.handleClearButtonClicked)
+        self.clearButton.clicked.connect(self.clearButtonClicked)
 
         self.exportButton = PushButton("导出", self, FIF.UP)
         self.exportButton.clicked.connect(self.export)
@@ -241,7 +241,7 @@ class ShuffleInterface(HeaderCardWidget):
         infoBar.show()
         manager.mainPage.setEnabled(True)
 
-    def handleClearButtonClicked(self):
+    def clearButtonClicked(self):
         if not manager.table:
             return
 
@@ -277,18 +277,19 @@ class ShuffleInterface(HeaderCardWidget):
 
     def export(self):
         try:
-            if not manager.getTable():
+            table = manager.getTable()
+            if not table:
                 return
             presets = manager.getTablePeoples()
-            manager.getTable().clear_all_users()
+            table.clear_all_users()
             for k, v in presets.items():
-                manager.getTable().set_user_in_pos(k, v)
+                table.set_user_in_pos(k, v)
             path, _ = QFileDialog.getSaveFileName(self, "导出座位表格文件", setting.read("downloadPath"), "Excel 文件 (*.xlsx *.xls);;JSON 文件 (*.json)")
             if not path:
                 return
             if not zb.getFileSuffix(path, True, False):
                 path += ".xlsx"
-            manager.EXPORTER.export(manager.getTable(), format=zb.getFileSuffix(path, True, False), path=path)
+            manager.EXPORTER.export(table, format=zb.getFileSuffix(path, True, False), path=path)
             logging.info(f"导出座位表格文件{path}成功！")
             infoBar = InfoBar(InfoBarIcon.SUCCESS, "成功", f"导出座位表格文件{zb.getFileName(path)}成功！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.BOTTOM, manager.mainPage)
             showFileButton = PushButton("打开", self, FIF.FOLDER)

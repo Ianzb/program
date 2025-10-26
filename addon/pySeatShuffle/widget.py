@@ -291,8 +291,6 @@ class PeopleWidgetTableBase(CardWidget):
         # 传入旧位置的pixmap进行动画
         self.people.moveAnimation(old_pixmap, old_pos, new_pos)
 
-        self.setNewToolTip("\n".join([self.people.people.get_name()] + [f"{k}：{v}" for k, v in self.people.people.get_properties().items()]))
-
     def removePeople(self):
         self.removeNewToolTip()
         if self.people:
@@ -363,8 +361,6 @@ class PeopleWidgetBase(CardWidget):
             new_pos = self.people.mapToGlobal(QPoint(0, 0)) - self.window().mapToGlobal(QPoint(0, 0))
 
             self.people.moveAnimation(old_pixmap, old_pos, new_pos)
-
-        self.setNewToolTip("\n".join([self.people.people.get_name()] + [f"{k}：{v}" for k, v in self.people.people.get_properties().items()]))
 
     def removePeople(self):
         self.parent().removeCard(self.people.people.get_name())
