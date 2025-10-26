@@ -12,117 +12,11 @@ def addonInit():
                   "shuffleAnimationDelay": 0.1,
                   "shuffleRetryTime": 200,
                   })
+    addonInit1()
 
 
 def addonWidget():
     return MainPage(window)
-
-
-class AnimationLengthSettingCard(SettingCard):
-
-    def __init__(self, parent=None):
-        super().__init__(FIF.SPEED_HIGH, "动画时长", "名称标签移动动画的时长", parent)
-        self.lineEdit = AcrylicLineEdit(self)
-        self.lineEdit.setPlaceholderText("时长秒数")
-        self.lineEdit.setNewToolTip("名称标签移动动画的时长")
-        self.lineEdit.textEdited.connect(self.textChanged)
-        self.lineEdit.returnPressed.connect(self.textChanged)
-        self.lineEdit.setValidator(QDoubleValidator(0.0, 10.0, 3))
-
-        self.hBoxLayout.addWidget(self.lineEdit, 0, Qt.AlignRight)
-        self.hBoxLayout.addSpacing(16)
-
-        setting.signalConnect(self.setEvent)
-        self.window().initFinished.connect(self.set)
-
-        self.set()
-
-    def set(self):
-        self.lineEdit.blockSignals(True)
-        self.lineEdit.setText(str(setting.read("shuffleAnimationLength")))
-        self.lineEdit.blockSignals(False)
-
-    def setEvent(self, msg):
-        if msg == "shuffleAnimationLength":
-            self.set()
-
-    def textChanged(self):
-        try:
-            setting.save("shuffleAnimationLength", float(self.lineEdit.text()))
-        except:
-            return
-
-
-class AnimationDelaySettingCard(SettingCard):
-
-    def __init__(self, parent=None):
-        super().__init__(FIF.SPEED_HIGH, "动画延迟", "名称标签移动动画之间的延迟", parent)
-        self.lineEdit = AcrylicLineEdit(self)
-        self.lineEdit.setPlaceholderText("延迟秒数")
-        self.lineEdit.setNewToolTip("名称标签移动动画之间的延迟")
-        self.lineEdit.textEdited.connect(self.textChanged)
-        self.lineEdit.returnPressed.connect(self.textChanged)
-        self.lineEdit.setValidator(QDoubleValidator(0.0, 10.0, 3))
-
-        self.hBoxLayout.addWidget(self.lineEdit, 0, Qt.AlignRight)
-        self.hBoxLayout.addSpacing(16)
-
-        setting.signalConnect(self.setEvent)
-        self.window().initFinished.connect(self.set)
-
-        self.set()
-
-    def set(self):
-        self.lineEdit.blockSignals(True)
-        self.lineEdit.setText(str(setting.read("shuffleAnimationDelay")))
-        self.lineEdit.blockSignals(False)
-
-    def setEvent(self, msg):
-        if msg == "shuffleAnimationDelay":
-            self.set()
-
-    def textChanged(self):
-        try:
-            setting.save("shuffleAnimationDelay", float(self.lineEdit.text()))
-        except:
-            return
-
-
-class RetrySettingCard(SettingCard):
-
-    def __init__(self, parent=None):
-        super().__init__(FIF.DATE_TIME, "重试次数", "排座失败后重试的次数，设置更高的次数会提高成功概率，\n过高的次数可能会导致程序卡顿", parent)
-        self.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Expanding)
-
-        self.lineEdit = AcrylicLineEdit(self)
-        self.lineEdit.setPlaceholderText("重试次数")
-        self.lineEdit.setNewToolTip("排座失败后重试的次数")
-        self.lineEdit.textEdited.connect(self.textChanged)
-        self.lineEdit.returnPressed.connect(self.textChanged)
-        self.lineEdit.setValidator(QIntValidator(1, 100000))
-
-        self.hBoxLayout.addWidget(self.lineEdit, 0, Qt.AlignRight)
-        self.hBoxLayout.addSpacing(16)
-
-        setting.signalConnect(self.setEvent)
-        self.window().initFinished.connect(self.set)
-
-        self.set()
-
-    def set(self):
-        self.lineEdit.blockSignals(True)
-        self.lineEdit.setText(str(setting.read("shuffleRetryTime")))
-        self.lineEdit.blockSignals(False)
-
-    def setEvent(self, msg):
-        if msg == "shuffleRetryTime":
-            self.set()
-
-    def textChanged(self):
-        try:
-            setting.save("shuffleRetryTime", float(self.lineEdit.text()))
-        except:
-            return
 
 
 class MainPage(QWidget):
