@@ -3,8 +3,8 @@
   "name": "Seewo工具箱",
   "author": "Ianzb",
   "description": "为学校希沃白板设计的实用功能。",
-  "version": "1.1.4",
-  "version_code": 7,
+  "version": "1.2.0",
+  "version_code": 8,
   "api_version": 3,
   "icon": "https://drive.ianzb.cn/code/program/addon/seewokit/seewokit.png",
   "file": "https://drive.ianzb.cn/code/program/addon/seewokit/seewokit.zip",
@@ -36,6 +36,10 @@
     "1.1.4": {
       "log": "迁移插件服务器。",
       "time": "2025年10月7日"
+    },
+    "1.2.0": {
+      "log": "新增安全密码功能，修复关闭自动弹窗后程序卡死的Bug。",
+      "time": "2025年11月1日"
     }
   },
   "packages": [],
