@@ -13,6 +13,7 @@ class SettingFunctions(QObject):
                        "micaEffect": True,
                        "showTray": True,
                        "hideWhenClose": True,
+                       "addonSettings": {},
                        }
     changeSignal = pyqtSignal(str)
     errorState = False  # 错误信息
@@ -42,7 +43,9 @@ class SettingFunctions(QObject):
         # 先尝试插件命名空间
         try:
             if addon_id:
-                addon_section = self.last_setting.get(addon_id)
+                if not "addonSettings" in self.last_setting:
+                    self.last_setting["addonSettings"] = {}
+                addon_section = self.last_setting["addonSettings"].get(addon_id)
                 if isinstance(addon_section, dict) and name in addon_section:
                     return addon_section.get(name)
         except Exception:
@@ -87,9 +90,11 @@ class SettingFunctions(QObject):
         logging.debug(f"保存设置{name}：{data} (addon_id={addon_id})")
         if addon_id:
             # 确保插件顶级键存在且为 dict
-            if addon_id not in self.last_setting or not isinstance(self.last_setting.get(addon_id), dict):
-                self.last_setting[addon_id] = {}
-            self.last_setting[addon_id][name] = data
+            if not "addonSettings" in self.last_setting:
+                self.last_setting["addonSettings"] = {}
+            if addon_id not in self.last_setting["addonSettings"] or not isinstance(self.last_setting["addonSettings"].get(addon_id), dict):
+                self.last_setting["addonSettings"][addon_id] = {}
+            self.last_setting["addonSettings"][addon_id][name] = data
         else:
             self.last_setting[name] = data
         # 触发变更事件并写入文件
@@ -114,11 +119,13 @@ class SettingFunctions(QObject):
             # 仅重置单个键
             if addon_id:
                 # 确保插件命名空间存在
-                if addon_id not in self.last_setting or not isinstance(self.last_setting.get(addon_id), dict):
-                    self.last_setting[addon_id] = {}
+                if not "addonSettings" in self.last_setting:
+                    self.last_setting["addonSettings"] = {}
+                if addon_id not in self.last_setting["addonSettings"] or not isinstance(self.last_setting["addonSettings"].get(addon_id), dict):
+                    self.last_setting["addonSettings"][addon_id] = {}
                 # 如果 DEFAULT_SETTING 中存在默认值，则写入默认值；否则删除该键（避免写入 None）
-                if name in self.DEFAULT_SETTING.get(addon_id, {}):
-                    self.save(name, self.DEFAULT_SETTING.get(addon_id).get(name), addon_id=addon_id)
+                if name in self.DEFAULT_SETTING["addonSettings"].get(addon_id, {}):
+                    self.save(name, self.DEFAULT_SETTING["addonSettings"].get(addon_id).get(name), addon_id=addon_id)
                 # 触发变更事件
                 try:
                     self.changeEvent(name)
@@ -149,14 +156,16 @@ class SettingFunctions(QObject):
         """
         if addon_id:
             # 在插件空间中添加默认值（但不覆盖已有的）
-            if addon_id not in self.last_setting or not isinstance(self.last_setting.get(addon_id), dict):
-                self.last_setting[addon_id] = {}
-            if name not in self.last_setting[addon_id].keys():
-                self.last_setting[addon_id][name] = data
+            if not "addonSettings" in self.last_setting:
+                self.last_setting["addonSettings"] = {}
+            if addon_id not in self.last_setting["addonSettings"] or not isinstance(self.last_setting["addonSettings"].get(addon_id), dict):
+                self.last_setting["addonSettings"][addon_id] = {}
+            if name not in self.last_setting["addonSettings"][addon_id].keys():
+                self.last_setting["addonSettings"][addon_id][name] = data
                 self.__save()
-            if addon_id not in self.DEFAULT_SETTING.keys():
-                self.DEFAULT_SETTING[addon_id] = {}
-            self.DEFAULT_SETTING[addon_id][name] = data
+            if addon_id not in self.DEFAULT_SETTING["addonSettings"]:
+                self.DEFAULT_SETTING["addonSettings"][addon_id] = {}
+            self.DEFAULT_SETTING["addonSettings"][addon_id][name] = data
         else:
             self.DEFAULT_SETTING[name] = data
             if name not in self.last_setting.keys():
