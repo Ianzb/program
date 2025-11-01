@@ -140,17 +140,22 @@ class EnterPasswordMessageBox(MessageBoxBase):
         self.cancelButton.clicked.connect(self.closeButtonClicked)
 
     def yesButtonClicked(self):
+
         if self.lineEdit.text() == setting.read("password"):
+
+            self.page.enterPassWordMessageBox = None
             self.splashScreen.close()
             self.splashScreen.deleteLater()
 
             del self.splashScreen
-            self.page.enterPassWordMessageBox = None
-
         else:
             self.closeButtonClicked()
 
     def closeButtonClicked(self):
+        self.splashScreen.close()
+        self.splashScreen.deleteLater()
+
+        del self.splashScreen
         self.window().hide()
         self.page.enterPassWordMessageBox = None
         self.deleteLater()
