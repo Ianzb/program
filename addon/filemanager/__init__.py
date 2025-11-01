@@ -8,12 +8,13 @@ addonBase = AddonBase()
 
 
 def addonInit():
-    global program, setting, window, sf, progressCenter
+    global program, setting, window, sf, progressCenter, addonInfo
 
     program = addonBase.program
     setting = addonBase.setting
     window = addonBase.window
     progressCenter = addonBase.progressCenter
+    addonInfo = addonBase.addon_info
 
     setting.adds({"sortGoalPath": "",
                   "wechatPath": "",
@@ -309,7 +310,10 @@ class SortFolderEditMessageBox(MessageBoxBase):
 
         self.textEdit = TextEdit(self)
         self.textEdit.setPlaceholderText("输入文件夹完整路径\n一行一个")
-        self.textEdit.setText("\n".join(setting.read("sortFolder")))
+        try:
+            self.textEdit.setText("\n".join(setting.read("sortFolder")))
+        except:
+            logging.error(f"处理整理目录设置选项失败，报错信息：{traceback.format_exc()}！")
         self.textEdit.setNewToolTip("输入文件夹完整路径\n一行一个")
 
         self.viewLayout.addWidget(self.titleLabel)
@@ -372,11 +376,13 @@ class SortFormatEditMessageBox(MessageBoxBase):
 
         self.tableView.setNewToolTip("后缀名逗号（中英文均可）分割，加不加分割点均可")
 
-        self.tableView.setRowCount(len(setting.read("sortFormat").keys()))
-        for i in range(len(setting.read("sortFormat").keys())):
-            self.tableView.setItem(i, 0, QTableWidgetItem(list(setting.read("sortFormat").keys())[i]))
-            self.tableView.setItem(i, 1, QTableWidgetItem(",".join(sorted(list(setting.read("sortFormat").values())[i])).replace(".", "")))
-
+        try:
+            self.tableView.setRowCount(len(setting.read("sortFormat").keys()))
+            for i in range(len(setting.read("sortFormat").keys())):
+                self.tableView.setItem(i, 0, QTableWidgetItem(list(setting.read("sortFormat").keys())[i]))
+                self.tableView.setItem(i, 1, QTableWidgetItem(",".join(sorted(list(setting.read("sortFormat").values())[i])).replace(".", "")))
+        except:
+            logging.error(f"处理整理格式设置选项失败，报错信息：{traceback.format_exc()}！")
         self.viewLayout.addWidget(self.titleLabel)
         self.viewLayout.addWidget(self.tableView)
 
