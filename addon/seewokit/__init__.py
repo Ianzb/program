@@ -16,7 +16,7 @@ def addonInit():
     setting = addonBase.setting
     window = addonBase.window
     progressCenter = addonBase.progressCenter
-    addonInfo = addonBase.addon_info
+    addonInfo = addonBase.addonInfo
 
     setting.adds({"messageTitle": "",
                   "password": "",

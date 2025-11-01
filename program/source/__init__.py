@@ -11,7 +11,7 @@ class Window(zbw.Window):
     removeAddonEvent = pyqtSignal(dict)
     addAddonFinishEvent = pyqtSignal(str)
     downloadAddonFailedSignal = pyqtSignal(dict)
-
+    showSignal = pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -69,6 +69,7 @@ class Window(zbw.Window):
             self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", "设置文件数据错误，已自动恢复至默认选项，具体错误原因请查看程序日志！", Qt.Orientation.Vertical, True, -1, InfoBarPosition.TOP_RIGHT, self.mainPage)
             self.infoBar.show()
         self.initFinished.emit()
+        self.showSignal.emit()
 
         # 插件安装
         data = addonManager.getInstalledAddonInfo()
@@ -92,6 +93,10 @@ class Window(zbw.Window):
         if QKeyEvent.key() == Qt.Key.Key_Escape:
             if setting.read("hideWhenClose"):
                 self.hide()
+
+    def showEvent(self, a0):
+        self.showSignal.emit()
+        super().showEvent(a0)
 
     def closeEvent(self, QCloseEvent):
         """
@@ -143,7 +148,7 @@ class Window(zbw.Window):
                 self.infoBar.show()
             else:
                 lib = importlib.import_module(data.get("id", ""))
-                lib.addonBase.set(program, setting, self, self.progressCenter)
+                lib.addonBase.set(program, setting, self, self.progressCenter, data)
                 lib.addonInit()
                 widget = lib.addonWidget()
                 widget.setObjectName(data.get("name", ""))
