@@ -11,13 +11,15 @@ addonBase = AddonBase()
 
 
 def addonInit():
-    global program, setting, window, progressCenter
+    global program, setting, window, sf, progressCenter, addonInfo
     program = addonBase.program
     setting = addonBase.setting
     window = addonBase.window
     progressCenter = addonBase.progressCenter
+    addonInfo = addonBase.addon_info
 
     setting.adds({"messageTitle": "",
+                  "password": "",
                   "messageContent": "",
                   "messageEnabled": False,
                   "canCloseMessage": True,
@@ -62,6 +64,96 @@ class SetMessageMessageBox(MessageBoxBase):
     def yesButtonClicked(self):
         setting.save("messageTitle", self.lineEdit.text())
         setting.save("messageContent", self.textEdit.toPlainText())
+
+
+class SetPasswordMessageBox(MessageBoxBase):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        self.titleLabel = TitleLabel("设置程序密码锁", self)
+
+        self.lineEdit = LineEdit(self)
+        self.lineEdit.setPlaceholderText("在此处输入密码！")
+        self.lineEdit.setNewToolTip("在此处输入密码！")
+        self.lineEdit.setText(setting.read("password"))
+        self.lineEdit.setEchoMode(QtWidgets.QLineEdit.Password)
+
+        self.viewLayout.addWidget(self.titleLabel)
+        self.viewLayout.addWidget(self.lineEdit)
+        self.widget.setMinimumSize(300, 100)
+
+        self.yesButton.setText("确认")
+        self.cancelButton.setText("取消")
+
+        self.yesButton.clicked.connect(self.yesButtonClicked)
+
+    def yesButtonClicked(self):
+        setting.save("password", self.lineEdit.text())
+
+
+class EmptySplashScreen(QWidget):
+    """ Splash screen """
+
+    def __init__(self, parent=None):
+        super().__init__(parent=parent)
+
+        parent.installEventFilter(self)
+
+    def eventFilter(self, obj, e: QEvent):
+        if obj is self.parent():
+            if e.type() == QEvent.Resize:
+                self.setFixedSize(e.size())
+
+        return super().eventFilter(obj, e)
+
+    def paintEvent(self, e):
+        painter = QPainter(self)
+        painter.setPen(Qt.NoPen)
+
+        # draw background
+        c = 32 if isDarkTheme() else 255
+        painter.setBrush(QColor(c, c, c))
+        painter.drawRect(self.rect())
+
+
+class EnterPasswordMessageBox(MessageBoxBase):
+    def __init__(self, parent=None, splashScreen=None, page=None):
+        super().__init__(parent)
+        self.splashScreen = splashScreen
+        self.page = page
+
+        self.titleLabel = TitleLabel("请输入Seewo安全密码！", self)
+
+        self.lineEdit = LineEdit(self)
+        self.lineEdit.setPlaceholderText("在此处输入密码！")
+        self.lineEdit.setNewToolTip("在此处输入密码！")
+        self.lineEdit.setEchoMode(QtWidgets.QLineEdit.Password)
+
+        self.viewLayout.addWidget(self.titleLabel)
+        self.viewLayout.addWidget(self.lineEdit)
+        self.widget.setMinimumSize(300, 100)
+
+        self.yesButton.setText("确认")
+        self.cancelButton.setText("取消")
+
+        self.yesButton.clicked.connect(self.yesButtonClicked)
+        self.cancelButton.clicked.connect(self.closeButtonClicked)
+
+    def yesButtonClicked(self):
+        if self.lineEdit.text() == setting.read("password"):
+            self.splashScreen.close()
+            self.splashScreen.deleteLater()
+
+            del self.splashScreen
+            self.page.enterPassWordMessageBox = None
+
+        else:
+            self.closeButtonClicked()
+
+    def closeButtonClicked(self):
+        self.window().hide()
+        self.page.enterPassWordMessageBox = None
+        self.deleteLater()
 
 
 class FakeDialog(Dialog):
@@ -121,8 +213,8 @@ class MessageDialog(zbw.ScrollDialog):
         if setting.read("canCloseMessage"):
             if hasattr(self, '_timer'):
                 self._timer.stop()
-            self.accept()
             self.yesSignal.emit()
+            self.deleteLater()
         else:
             messageBox = FakeDialog(self)
             messageBox.show()
@@ -175,7 +267,14 @@ class SeewoPage(zbw.BasicTab):
 
         self.copy_stat = {}
 
-        self.card1 = zbw.GrayCard("自动弹窗", self)
+        self.card1 = zbw.GrayCard("程序安全锁", self)
+
+        self.passwordButton = PrimaryPushButton("设置安全密码", self, FIF.VPN)
+        self.passwordButton.clicked.connect(self.passwordButtonClicked)
+
+        self.card1.addWidget(self.passwordButton)
+
+        self.card2 = zbw.GrayCard("自动弹窗", self)
 
         self.setMessageButton = PrimaryPushButton("设置弹窗文本", self, FIF.EDIT)
         self.setMessageButton.clicked.connect(self.messageButtonClicked)
@@ -195,13 +294,13 @@ class SeewoPage(zbw.BasicTab):
         self.canCloseCheckBox.setChecked(setting.read("canCloseMessage"))
         self.canCloseCheckBox.clicked.connect(self.canCloseCheckBoxClicked)
 
-        self.card1.addWidget(self.setMessageButton)
-        self.card1.addWidget(self.testMessageButton)
-        self.card1.addWidget(self.messageCheckBox, 0, Qt.AlignCenter)
-        self.card1.addWidget(self.moveCheckBox, 0, Qt.AlignCenter)
-        self.card1.addWidget(self.canCloseCheckBox, 0, Qt.AlignCenter)
+        self.card2.addWidget(self.setMessageButton)
+        self.card2.addWidget(self.testMessageButton)
+        self.card2.addWidget(self.messageCheckBox, 0, Qt.AlignCenter)
+        self.card2.addWidget(self.moveCheckBox, 0, Qt.AlignCenter)
+        self.card2.addWidget(self.canCloseCheckBox, 0, Qt.AlignCenter)
 
-        self.card2 = zbw.GrayCard("文件复制", self)
+        self.card3 = zbw.GrayCard("文件复制", self)
 
         self.detectButton = PrimaryPushButton("监视盘符", self, FIF.FOLDER)
         self.detectButton.clicked.connect(self.detectButtonClicked)
@@ -215,10 +314,10 @@ class SeewoPage(zbw.BasicTab):
         self.autoCopyButton.setChecked(setting.read("autoCopy"))
         self.autoCopyButton.checkedChanged.connect(self.autoCopyButtonClicked)
 
-        self.card2.addWidget(self.detectButton)
-        self.card2.addWidget(self.showButton)
-        self.card2.addWidget(self.label1, 0, Qt.AlignCenter)
-        self.card2.addWidget(self.autoCopyButton, 0, Qt.AlignCenter)
+        self.card3.addWidget(self.detectButton)
+        self.card3.addWidget(self.showButton)
+        self.card3.addWidget(self.label1, 0, Qt.AlignCenter)
+        self.card3.addWidget(self.autoCopyButton, 0, Qt.AlignCenter)
 
         self.label2 = StrongBodyLabel(f"复制路径：{setting.read("copyPath") or "无"}", self)
 
@@ -237,6 +336,7 @@ class SeewoPage(zbw.BasicTab):
 
         self.vBoxLayout.addWidget(self.card1)
         self.vBoxLayout.addWidget(self.card2)
+        self.vBoxLayout.addWidget(self.card3)
         self.vBoxLayout.addWidget(self.label2)
         self.vBoxLayout.addWidget(self.fileChooser, 0, Qt.AlignCenter)
         self.vBoxLayout.addWidget(self.statusLabel)
@@ -251,6 +351,24 @@ class SeewoPage(zbw.BasicTab):
         self.setHistoryText.connect(self.addHistory)
 
         self.copySignal.connect(self.copyFile)
+
+        self.enterPassWordMessageBox = None
+
+        self.window().showSignal.connect(self.onWindowShow)
+
+        self.onWindowShow()
+
+    def onWindowShow(self):
+        if not setting.read("password"):
+            return
+        if self.enterPassWordMessageBox:
+            return
+        self.splashScreen = EmptySplashScreen(self.window())
+        self.splashScreen.setFixedSize(self.window().size())
+        self.splashScreen.show()
+        self.enterPassWordMessageBox = EnterPasswordMessageBox(self.window(), self.splashScreen, self)
+        self.enterPassWordMessageBox.show()
+        self.enterPassWordMessageBox.widget.raise_()
 
     def addHistory(self, text: str):
         full_text = f"{time.strftime("%Y-%m-%d %H:%M:%S")} {text}\n" + self.historyLabel.text()
@@ -276,6 +394,10 @@ class SeewoPage(zbw.BasicTab):
 
     def autoCopyButtonClicked(self, checked):
         setting.save("autoCopy", self.autoCopyButton.isChecked())
+
+    def passwordButtonClicked(self):
+        messageBox = SetPasswordMessageBox(self.window())
+        messageBox.show()
 
     def messageButtonClicked(self):
         messageBox = SetMessageMessageBox(self.window())
