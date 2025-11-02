@@ -25,17 +25,29 @@ class PeopleParser:
     def __init__(self):
         pass
 
-    # noinspection PyMethodMayBeStatic
-    def parse(self, file_path):
-        people = []
+    def get_keys(self, file_path: str):
         with open(file_path, 'r') as f:
             reader = csv.reader(f)
             head = next(reader)
             for row in reader:
                 properties = {}
-                for i in range(1, len(row)):
+                for i in range(0, len(row)):
                     properties[head[i]] = row[i]
-                people.append(Person(row[0], properties))
+                return list(properties.keys())
+
+    # noinspection PyMethodMayBeStatic
+    def parse(self, file_path: str, key: str):
+        people = []
+        with open(file_path, 'r') as f:
+            reader = csv.reader(f)
+            head = next(reader)
+            id = 1
+            for row in reader:
+                properties = {}
+                for i in range(0, len(row)):
+                    properties[head[i]] = row[i]
+                people.append(Person(id, properties, key))
+                id += 1
         return people
 
 
@@ -251,8 +263,8 @@ default_seat_table_parser_xlsx = SeatTableParserXlsx()
 default_ruleset_parser = RulesetParser()
 
 
-def parse_people(file_path):
-    return default_people_parser.parse(file_path)
+def parse_people(file_path, key: str):
+    return default_people_parser.parse(file_path, key)
 
 
 def parse_seat_table(file_path):

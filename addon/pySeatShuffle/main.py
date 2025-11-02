@@ -215,7 +215,7 @@ class ShuffleInterface(HeaderCardWidget):
         try:
             for i in shuffler:
                 if i.success:
-                    self.shuffleSignal.emit(i.seat.pos, i.person)
+                    self.shuffleSignal.emit(tuple(i.seat.pos), i.person)
                     logging.info(f"成功将{i.person.get_name()}（属性：{i.person.get_properties()}）放置于座位{i.seat}。")
                     time.sleep(setting.read("shuffleAnimationDelay"))
                 else:
@@ -231,12 +231,15 @@ class ShuffleInterface(HeaderCardWidget):
         except core.NoValidArrangementError:
             logging.error(f"没有有效的排座方案，报错信息：{traceback.format_exc()}！")
             self.shuffleFinishedSignal.emit(False)
+        except:
+            logging.error(f"排座失败，报错信息：{traceback.format_exc()}！")
+            self.shuffleFinishedSignal.emit(False)
 
     def shuffleFinished(self, msg):
         if msg:
             infoBar = InfoBar(InfoBarIcon.SUCCESS, "成功", "自动排座成功！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.BOTTOM, manager.mainPage)
         else:
-            infoBar = InfoBar(InfoBarIcon.ERROR, "失败", "自动排座成功！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.BOTTOM, manager.mainPage)
+            infoBar = InfoBar(InfoBarIcon.ERROR, "失败", "自动排座失败！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.BOTTOM, manager.mainPage)
 
         infoBar.show()
         manager.mainPage.setEnabled(True)
@@ -280,10 +283,6 @@ class ShuffleInterface(HeaderCardWidget):
             table = manager.getTable()
             if not table:
                 return
-            presets = manager.getTablePeoples()
-            table.clear_all_users()
-            for k, v in presets.items():
-                table.set_user_in_pos(k, v)
             path, _ = QFileDialog.getSaveFileName(self, "导出座位表格文件", setting.read("downloadPath"), "Excel 文件 (*.xlsx *.xls);;JSON 文件 (*.json)")
             if not path:
                 return
@@ -353,7 +352,14 @@ class EditInterface(HeaderCardWidget):
         try:
             if not get:
                 return
-            people = manager.PEOPLE_PARSER.parse(get[0])
+            keys = manager.PEOPLE_PARSER.get_keys(get[0])
+
+            setKeyMessageBox = SetKeyMessageBox(self.window(), keys)
+            try:
+                key = keys[setKeyMessageBox.exec()]
+            except:
+                return
+            people = manager.PEOPLE_PARSER.parse(get[0], key)
             manager.setPeoples(people)
             manager.setListPeoples(True)
             setting.save("downloadPath", zb.getFileDir(get[0]))
@@ -380,7 +386,9 @@ class ListInterface(zbw.BasicTab):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
 
-        self.cardGroup = zbw.CardGroup(self)
+        self.cardGroup = zbw.CardGroup("当前人数(0/0)", self)
+        self.cardGroup.boxLayout.insertSpacing(1, -12)
+        self.cardGroup.cardCountChanged.connect(manager.peopleNumberChanged)
 
         self.vBoxLayout.setContentsMargins(0, 0, 0, 0)
         self.vBoxLayout.setSpacing(8)
