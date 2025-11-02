@@ -3,8 +3,8 @@
   "name": "排座工具",
   "author": "Hz6826 & Ianzb",
   "description": "一个随机排座工具。",
-  "version": "0.0.2",
-  "version_code": 2,
+  "version": "0.0.3",
+  "version_code": 3,
   "api_version": 2,
   "icon": "https://drive.ianzb.cn/code/program/addon/pySeatShuffle/pySeatShuffle.png",
   "file": "https://drive.ianzb.cn/code/program/addon/pySeatShuffle/pySeatShuffle.zip",
@@ -16,6 +16,10 @@
     "0.0.2": {
       "time": "2025年10月26日",
       "log": "优化动画，修复交换动画的Bug，优化透明度渐变曲线，支持导入动画和返回动画，优化关闭表格按钮的行为。"
+    },
+    "0.0.3": {
+      "log": "现在会通过id方式索引person，支持自定义显示的项目名称，支持显示未排座和总人数。",
+      "time": "2025年11月2日"
     }
   },
   "packages": [
