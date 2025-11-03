@@ -5,7 +5,7 @@
   "description": "一个随机排座工具。",
   "version": "0.0.2",
   "version_code": 2,
-  "api_version": 2,
+  "api_version": 3,
   "icon": "https://drive.ianzb.cn/code/program/addon/pySeatShuffle/pySeatShuffle.png",
   "file": "https://drive.ianzb.cn/code/program/addon/pySeatShuffle/pySeatShuffle.zip",
   "history": {
@@ -20,7 +20,8 @@
   },
   "packages": [
     "openpyxl",
-    "et_xmlfile"
+    "et_xmlfile",
+    "bidict"
   ],
   "url": "https://drive.ianzb.cn/code/program/addon/pySeatShuffle/addon.json"
 }

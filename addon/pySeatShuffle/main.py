@@ -199,12 +199,13 @@ class ShuffleInterface(HeaderCardWidget):
         peoples = manager.getPeoples()
         if not table or not peoples:
             return
+        manager.editInterface.pivot.setCurrentItem("名单")
         manager.mainPage.setEnabled(False)
         table = manager.getTable()
 
         wait_back: bool = any(isinstance(i.parent(), PeopleWidgetTableBase) for i in manager.getPeopleWidgets())
         manager.clearTablePeople()
-        shuffler = core.Shuffler(peoples, table, core.Ruleset([core.Rule("identical_in_group", ["gender"])]))
+        shuffler = core.Shuffler(peoples, table, manager.getRuleSet())
         program.THREAD_POOL.submit(self.shuffle, shuffler, wait_back)
 
     def shuffle(self, shuffler, wait_back: bool):
@@ -313,14 +314,6 @@ class EditInterface(HeaderCardWidget):
         self.vBoxLayout2.setContentsMargins(0, 0, 0, 0)
         self.viewLayout.addLayout(self.vBoxLayout2)
 
-        self.importFileChooser2 = zbw.FileChooser(self)
-        self.importFileChooser2.setSuffix({"名单文件": [".csv"]})
-        self.importFileChooser2.setOnlyOne(True)
-        self.importFileChooser2.setDefaultPath(setting.read("downloadPath"))
-        self.importFileChooser2.setDescription("名单")
-        self.importFileChooser2.setFixedHeight(100)
-        self.importFileChooser2.fileChoosedSignal.connect(self.importPeople)
-
         self.pivot = SegmentedWidget(self)
         self.stackedWidget = QStackedWidget(self)
 
@@ -335,18 +328,71 @@ class EditInterface(HeaderCardWidget):
         manager.listInterface = self.listInterface
         manager.rulesInterface = self.rulesInterface
 
-        self.listInterface.vBoxLayout.insertWidget(0, self.importFileChooser2, 0, Qt.AlignCenter)
-
         self.addSubInterface(self.listInterface, "名单", "名单")
         self.addSubInterface(self.rulesInterface, "规则", "规则")
 
         self.pivot.setCurrentItem("名单")
 
+    def addSubInterface(self, widget, objectName, text):
+        widget.setObjectName(objectName)
+        self.stackedWidget.addWidget(widget)
+        self.pivot.addItem(routeKey=objectName, text=text)
+
+
+class RulesInterface(zbw.BasicTab):
+    def __init__(self, parent=None):
+        super().__init__(parent=parent)
+
+        self.cardGroup = zbw.CardGroup("当前规则数 (0)", self)
+        self.cardGroup.boxLayout.insertSpacing(1, -12)
+
+        self.addButton = PushButton("新增规则", self, FIF.ADD)
+        self.addButton.clicked.connect(self.addButtonClicked)
+
+        self.vBoxLayout.setContentsMargins(0, 0, 0, 0)
+        self.vBoxLayout.setSpacing(8)
+        self.vBoxLayout.addWidget(self.addButton)
+        self.vBoxLayout.addWidget(self.cardGroup)
+
+    def addButtonClicked(self):
+        if not manager.people_keys:
+            return
+
+        messageBox = AddRuleMessageBox(self.window())
+        messageBox.exec()
+        result = messageBox.result
+        if not result:
+            return
+
+        manager.addRule(result.get("id"), result.get("key"))
+
+
+class ListInterface(zbw.BasicTab):
+    def __init__(self, parent=None):
+        super().__init__(parent=parent)
+
+        self.listChooser = zbw.FileChooser(self)
+        self.listChooser.setSuffix({"名单文件": [".csv"]})
+        self.listChooser.setOnlyOne(True)
+        self.listChooser.setDefaultPath(setting.read("downloadPath"))
+        self.listChooser.setDescription("名单")
+        self.listChooser.setFixedHeight(100)
+        self.listChooser.fileChoosedSignal.connect(self.importPeople)
+
+        self.cardGroup = zbw.CardGroup("当前人数 (0/0)", self)
+        self.cardGroup.boxLayout.insertSpacing(1, -12)
+        self.cardGroup.cardCountChanged.connect(manager.peopleNumberChanged)
+
+        self.vBoxLayout.setContentsMargins(0, 0, 0, 0)
+        self.vBoxLayout.setSpacing(8)
+        self.vBoxLayout.addWidget(self.listChooser, 0, Qt.AlignCenter)
+        self.vBoxLayout.addWidget(self.cardGroup)
+
         setting.signalConnect(self.settingChanged)
 
     def settingChanged(self, name):
         if name == "downloadPath":
-            self.importFileChooser2.setDefaultPath(setting.read("downloadPath"))
+            self.listChooser.setDefaultPath(setting.read("downloadPath"))
 
     def importPeople(self, get):
         try:
@@ -356,12 +402,18 @@ class EditInterface(HeaderCardWidget):
 
             setKeyMessageBox = SetKeyMessageBox(self.window(), keys)
             try:
-                key = keys[setKeyMessageBox.exec()]
+                result = setKeyMessageBox.exec()
+                if not setKeyMessageBox.result:
+                    return
+                else:
+                    key = keys[result]
             except:
                 return
+            manager.people_keys = keys
             people = manager.PEOPLE_PARSER.parse(get[0], key)
             manager.setPeoples(people)
             manager.setListPeoples(True)
+            manager.removeRules()
             setting.save("downloadPath", zb.getFileDir(get[0]))
             logging.info(f"导入名单表格文件{get[0]}成功！")
             infoBar = InfoBar(InfoBarIcon.SUCCESS, "成功", f"导入名单表格文件{zb.getFileName(get[0])}成功！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.BOTTOM, manager.mainPage)
@@ -369,27 +421,3 @@ class EditInterface(HeaderCardWidget):
             logging.error(f"导入名单表格文件{get[0]}失败，报错信息：{traceback.format_exc()}！")
             infoBar = InfoBar(InfoBarIcon.ERROR, "失败", f"导入名单表格文件{zb.getFileName(get[0])}失败！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.BOTTOM, manager.mainPage)
         infoBar.show()
-
-    def addSubInterface(self, widget, objectName, text):
-        widget.setObjectName(objectName)
-        self.stackedWidget.addWidget(widget)
-        self.pivot.addItem(routeKey=objectName, text=text)
-
-
-class RulesInterface(zbw.BasicPage):
-    def __init__(self, parent=None):
-        super().__init__(parent=parent)
-        self.vBoxLayout.setContentsMargins(0, 0, 0, 0)
-
-
-class ListInterface(zbw.BasicTab):
-    def __init__(self, parent=None):
-        super().__init__(parent=parent)
-
-        self.cardGroup = zbw.CardGroup("当前人数(0/0)", self)
-        self.cardGroup.boxLayout.insertSpacing(1, -12)
-        self.cardGroup.cardCountChanged.connect(manager.peopleNumberChanged)
-
-        self.vBoxLayout.setContentsMargins(0, 0, 0, 0)
-        self.vBoxLayout.setSpacing(8)
-        self.vBoxLayout.addWidget(self.cardGroup)

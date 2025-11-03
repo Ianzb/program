@@ -1,3 +1,5 @@
+import json
+
 try:
     from source.addon import *
     import pySeatShuffle.core as core
@@ -494,10 +496,10 @@ class SetKeyMessageBox(MessageBoxBase):
     def __init__(self, parent=None, keys: list = None):
         super().__init__(parent)
 
-        self.titleLabel = TitleLabel("请选择索引项目！", self)
+        self.titleLabel = TitleLabel("选择索引项目", self)
 
         self.comboBox = ComboBox(self)
-        self.comboBox.setPlaceholderText("在此处输入密码！")
+        self.comboBox.setPlaceholderText("请选择索引项目！")
         self.comboBox.addItems(keys)
         self.comboBox.setNewToolTip("请选择索引项目，将作为标签文本显示！")
 
@@ -507,12 +509,82 @@ class SetKeyMessageBox(MessageBoxBase):
 
         self.yesButton.setText("确认")
         self.cancelButton.setText("取消")
-        self.cancelButton.hide()
 
         self.yesButton.clicked.connect(self.yesButtonClicked)
 
+        self.result = None
+
     def yesButtonClicked(self):
+        self.result = self.comboBox.currentText()
         self.done(self.comboBox.currentIndex())
+
+
+class AddRuleMessageBox(MessageBoxBase):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        self.titleLabel = TitleLabel("新增规则", self)
+
+        self.comboBox1 = ComboBox(self)
+        self.comboBox1.setPlaceholderText("请选择匹配项目名称！")
+        self.comboBox1.addItems(manager.people_keys)
+        self.comboBox1.setNewToolTip("请选择匹配项目名称！")
+
+        self.comboBox2 = ComboBox(self)
+        self.comboBox2.setPlaceholderText("请选择匹配规则！")
+        self.comboBox2.addItems(list(core.Rule.rule_names.values()))
+        self.comboBox2.setNewToolTip("请选择匹配规则！")
+
+        self.viewLayout.addWidget(self.titleLabel)
+        self.viewLayout.addWidget(self.comboBox1)
+        self.viewLayout.addWidget(self.comboBox2)
+        self.widget.setMinimumSize(300, 100)
+
+        self.yesButton.setText("确认")
+        self.cancelButton.setText("取消")
+
+        self.yesButton.clicked.connect(self.yesButtonClicked)
+
+        self.result = None
+
+    def yesButtonClicked(self):
+        self.result = {"id": core.Rule.rule_names.inverse.get(self.comboBox2.currentText()), "key": self.comboBox1.currentText()}
+
+
+class RuleCard(CardWidget):
+    def __init__(self, parent, name: str, id: str, key: str):
+        super().__init__(parent)
+        self.setFixedHeight(40)
+        self.name = name
+        self.rule_id = id
+        self.rule_key = key
+
+        self.contentLabel = BodyLabel(self)
+
+        self.removeButton = ToolButton(FIF.CLOSE, self)
+        self.removeButton.setFixedSize(24, 24)
+        self.removeButton.clicked.connect(self.removeButtonClicked)
+
+        self.hBoxLayout = QHBoxLayout(self)
+        self.hBoxLayout.setSpacing(8)
+
+        self.hBoxLayout.addWidget(self.contentLabel, 0)
+        self.hBoxLayout.addWidget(self.removeButton, 0)
+
+        self.setLayout(self.hBoxLayout)
+
+        self.setText()
+
+    def setText(self):
+        rule_name = core.Rule.rule_names.get(self.rule_id)
+        self.contentLabel.setText(f"{self.rule_key} {rule_name}")
+        self.setNewToolTip(self.name)
+
+    def getRule(self):
+        return core.Rule(self.rule_id, [self.rule_key])
+
+    def removeButtonClicked(self):
+        manager.removeRule(self.name)
 
 
 class Manager(QWidget):
@@ -524,8 +596,10 @@ class Manager(QWidget):
     def __init__(self):
         super().__init__()
         self.table: core.SeatTable = None
-        self.people: dict = {}  # {name:{"people":core.Person, "widget": PeopleWidget}}
+        self.people: dict = {}  # {id:{"people":core.Person, "widget": PeopleWidget}}
         self.table_widget: dict = {}
+        self.people_keys: list = []  # 名单表头列表
+        self.rules: dict = {}
 
         try:
             self.mainPage = self.parent().mainPage
@@ -536,6 +610,81 @@ class Manager(QWidget):
             self.rulesInterface = self.parent().mainPage.editInterface.rulesInterface
         except:
             pass
+
+    def getRuleJson(self, id: str, key: str):
+        """
+        获取Json格式的规则名称
+        :param id: 规则id
+        :param key: 匹配键
+        :return:
+        """
+        return json.dumps({"id": id, "key": key}, indent=4, ensure_ascii=False)
+
+    def addRule(self, id: str, key: str):
+        """
+        添加规则
+        :param id: 规则id
+        :param key: 匹配键
+        :return:
+        """
+        name = self.getRuleJson(id, key)
+        if name in self.rules:
+            return
+
+        self.rules[name] = {"id": id, "key": key}
+        card = RuleCard(self, name, id, key)
+        self.rulesInterface.cardGroup.addCard(card, name)
+
+        self.rulesInterface.cardGroup.setTitle(f"当前规则数 ({len(self.rules)})")
+
+    def removeRules(self):
+        """
+        删除所有规则
+        """
+        self.rules = {}
+        self.rulesInterface.cardGroup.clearCard()
+        self.rulesInterface.cardGroup.setTitle(f"当前规则数 (0)")
+
+    def getRule(self, name: str):
+        """
+        获取规则信息
+        :param name: 规则名称（Json）
+        :return:
+        """
+        return self.rules.get(name, {})
+
+    def getRuleCard(self, name: str):
+        """
+        获取规则卡片
+        :param name: 规则名称（Json）
+        :return:
+        """
+        return self.rulesInterface.cardGroup.getCard(name)
+
+    def getRuleSet(self):
+        """
+        获取规则集
+        :return:
+        """
+        rule_list = []
+
+        for i in self.rulesInterface.cardGroup._cards:
+            rule_list.append(i.getRule())
+
+        return core.Ruleset(rule_list)
+
+    def removeRule(self, name: str):
+        """
+        移除规则
+        :param name: 规则名称（Json）
+        :return:
+        """
+        if name not in self.rules:
+            return
+        manager.rulesInterface.cardGroup.removeCard(name)
+        del self.rules[name]
+
+        self.rulesInterface.cardGroup.setTitle(f"当前规则数 ({len(self.rules)})")
 
     def getTable(self):
         """
@@ -725,8 +874,7 @@ class Manager(QWidget):
         self.listInterface.cardGroup.blockSignals(False)
 
     def peopleNumberChanged(self, number: int):
-
-        self.listInterface.cardGroup.setTitle(f"当前人数({number}/{len(self.people)})")
+        self.listInterface.cardGroup.setTitle(f"当前人数 ({number}/{len(self.people)})")
 
     def getTableWidgets(self):
         """

@@ -2,6 +2,9 @@
 Rule Model
 """
 
+import bidict
+
+
 class Rule:
     """
     Available rule types:
@@ -12,6 +15,9 @@ class Rule:
     :param prop: list of property names to check
     :param reversed: if True, reverses the rule logic
     """
+    rule_names = bidict.bidict({"identical_in_group": "相同",
+                                "unique_in_group": "不同"})
+
     def __init__(self, t, prop: list, reversed=False):
         self.t = t
         self.prop = prop
