@@ -40,7 +40,6 @@ class PeopleWidget(QFrame):
         self.vBoxLayout.setAlignment(Qt.AlignCenter)
 
         self.label = SubtitleLabel("", self)
-        self.label.setWordWrap(True)
 
         self.vBoxLayout.addWidget(self.label)
 
@@ -487,7 +486,7 @@ class RetrySettingCard(SettingCard):
 
     def textChanged(self):
         try:
-            setting.save("shuffleRetryTime", float(self.lineEdit.text()))
+            setting.save("shuffleRetryTime", int(self.lineEdit.text()))
         except:
             return
 
