@@ -10,7 +10,9 @@ def addonInit():
 
     setting.adds({"shuffleAnimationLength": 1.0,
                   "shuffleAnimationDelay": 0.1,
-                  "shuffleRetryTime": 200,
+                  "shuffleRetryTime": 5000,
+                  "randomSeatGroup": False,
+                  "skipUnavailable": True,
                   })
     addonInit1()
 
@@ -136,16 +138,20 @@ class SettingMessageBox(zbw.ScrollMessageBoxBase):
         self.animationDelaySettingCard = AnimationDelaySettingCard(self)
 
         self.retrySettingCard = RetrySettingCard(self)
+        self.randomSeatGroupSettingCard = RandomSeatGroupSettingCard(self)
+        self.skipUnavailableSettingCard = SkipUnavailableSettingCard(self)
 
         self.cardGroup1.addCard(self.animationLengthSettingCard, "animationLengthSettingCard")
         self.cardGroup1.addCard(self.animationDelaySettingCard, "animationDelaySettingCard")
 
         self.cardGroup2.addCard(self.retrySettingCard, "retrySettingCard")
+        self.cardGroup2.addCard(self.randomSeatGroupSettingCard, "randomSeatGroupSettingCard")
+        self.cardGroup2.addCard(self.skipUnavailableSettingCard, "skipUnavailableSettingCard")
 
         self.scrollLayout.addWidget(self.cardGroup1, 0, Qt.AlignTop)
         self.scrollLayout.addWidget(self.cardGroup2, 0, Qt.AlignTop)
 
-        self.widget.setFixedSize(600, 400)
+        self.widget.setFixedSize(600, 500)
 
 
 class ShuffleInterface(HeaderCardWidget):
@@ -187,7 +193,7 @@ class ShuffleInterface(HeaderCardWidget):
         self.vBoxLayout2.addLayout(self.hBoxLayout1)
         self.vBoxLayout2.addLayout(self.hBoxLayout2)
 
-        self.shuffleSignal.connect(lambda pos, person: manager.setTablePeople(pos, person))
+        self.shuffleSignal.connect(lambda pos, person: manager.setTablePerson(pos, person))
         self.shuffleFinishedSignal.connect(self.shuffleFinished)
 
     def settingButtonClicked(self):
@@ -196,16 +202,25 @@ class ShuffleInterface(HeaderCardWidget):
 
     def shuffleButtonClicked(self):
         table = manager.getTable()
-        peoples = manager.getPeoples()
-        if not table or not peoples:
+        person = manager.getPeople()
+        if not table or not person:
             return
         manager.editInterface.pivot.setCurrentItem("名单")
         manager.mainPage.setEnabled(False)
         table = manager.getTable()
 
-        wait_back: bool = any(isinstance(i.parent(), PeopleWidgetTableBase) for i in manager.getPeopleWidgets())
-        manager.clearTablePeople()
-        shuffler = core.Shuffler(peoples, table, manager.getRuleSet())
+        wait_back: bool = any(isinstance(i.parent(), PersonWidgetTableBase) for i in manager.getPersonWidgets())
+        manager.clearTablePerson()
+        shuffler = core.Shuffler(
+            person,
+            table,
+            manager.getRuleSet(),
+            core.ShufflerConfig(
+                int(setting.read("randomSeatGroup")),
+                setting.read("skipUnavailable")
+            )
+        )
+
         program.THREAD_POOL.submit(self.shuffle, shuffler, wait_back)
 
     def shuffle(self, shuffler, wait_back: bool):
@@ -216,9 +231,10 @@ class ShuffleInterface(HeaderCardWidget):
         try:
             for i in shuffler:
                 if i.success:
-                    self.shuffleSignal.emit(tuple(i.seat.pos), i.person)
-                    logging.info(f"成功将{i.person.get_name()}（属性：{i.person.get_properties()}）放置于座位{i.seat}。")
-                    time.sleep(setting.read("shuffleAnimationDelay"))
+                    if not isinstance(i.person, core.FakePerson):
+                        self.shuffleSignal.emit(tuple(i.seat.pos), i.person)
+                        logging.info(f"成功将{i.person.get_name()}（属性：{i.person.get_properties()}）放置于座位{i.seat}。")
+                        time.sleep(setting.read("shuffleAnimationDelay"))
                 else:
                     if i.seat:
                         logging.warning(f"无法将{i.person.get_name()}（属性：{i.person.get_properties()}）放置于座位{i.seat}！")
@@ -261,7 +277,7 @@ class ShuffleInterface(HeaderCardWidget):
         )
 
         def confirm():
-            manager.clearTablePeople()
+            manager.clearTablePerson()
             self.clearButton.setEnabled(True)
             infoBar.close()
             InfoBar.info("成功！", "已清空预览区所有人员！", parent=manager.mainPage)
@@ -355,7 +371,7 @@ class RulesInterface(zbw.BasicTab):
         self.vBoxLayout.addWidget(self.cardGroup)
 
     def addButtonClicked(self):
-        if not manager.people_keys:
+        if not manager.person_keys:
             return
 
         messageBox = AddRuleMessageBox(self.window())
@@ -377,11 +393,11 @@ class ListInterface(zbw.BasicTab):
         self.listChooser.setDefaultPath(setting.read("downloadPath"))
         self.listChooser.setDescription("名单")
         self.listChooser.setFixedHeight(100)
-        self.listChooser.fileChoosedSignal.connect(self.importPeople)
+        self.listChooser.fileChoosedSignal.connect(self.importPerson)
 
         self.cardGroup = zbw.CardGroup("当前人数 (0/0)", self)
         self.cardGroup.boxLayout.insertSpacing(1, -12)
-        self.cardGroup.cardCountChanged.connect(manager.peopleNumberChanged)
+        self.cardGroup.cardCountChanged.connect(manager.personNumberChanged)
 
         self.vBoxLayout.setContentsMargins(0, 0, 0, 0)
         self.vBoxLayout.setSpacing(8)
@@ -394,11 +410,11 @@ class ListInterface(zbw.BasicTab):
         if name == "downloadPath":
             self.listChooser.setDefaultPath(setting.read("downloadPath"))
 
-    def importPeople(self, get):
+    def importPerson(self, get):
         try:
             if not get:
                 return
-            keys = manager.PEOPLE_PARSER.get_keys(get[0])
+            keys = manager.PERSON_PARSER.get_keys(get[0])
 
             setKeyMessageBox = SetKeyMessageBox(self.window(), keys)
             try:
@@ -409,10 +425,10 @@ class ListInterface(zbw.BasicTab):
                     key = keys[result]
             except:
                 return
-            manager.people_keys = keys
-            people = manager.PEOPLE_PARSER.parse(get[0], key)
-            manager.setPeoples(people)
-            manager.setListPeoples(True)
+            manager.person_keys = keys
+            person = manager.PERSON_PARSER.parse(get[0], key)
+            manager.setPeople(person)
+            manager.setListPeople(True)
             manager.removeRules()
             setting.save("downloadPath", zb.getFileDir(get[0]))
             logging.info(f"导入名单表格文件{get[0]}成功！")

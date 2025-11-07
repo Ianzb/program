@@ -34,6 +34,7 @@ class PeopleParser:
                 for i in range(0, len(row)):
                     properties[head[i]] = row[i]
                 return list(properties.keys())
+            return None
 
     # noinspection PyMethodMayBeStatic
     def parse(self, file_path: str, key: str):

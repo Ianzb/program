@@ -1,7 +1,7 @@
 """
 Shuffler
 """
-import logging
+from enum import IntEnum
 
 try:
     from model import *
@@ -10,11 +10,28 @@ except:
 import random
 
 
+class SequenceMode(IntEnum):
+    SEQUENTIAL = 0
+    RANDOM = 1
+
+
+class ShufflerConfig:
+    def __init__(self,
+                 sequence_mode=SequenceMode.SEQUENTIAL,
+                 skip_unavailable=False):
+        self.sequence_mode = sequence_mode
+        self.skip_unavailable = skip_unavailable
+
+
 class Shuffler:
-    def __init__(self, people: list[Person], seat_table: SeatTable, ruleset: Ruleset):
+    def __init__(self, people: list[Person], seat_table: SeatTable, ruleset: Ruleset, config: ShufflerConfig = None):
         self.people = people
         self.seat_table = seat_table
         self.ruleset = ruleset
+        if config is None:
+            self.config = ShufflerConfig()
+        else:
+            self.config = config
 
         self.candidates = people.copy()
 
@@ -31,16 +48,35 @@ class Shuffler:
     def shuffle_people(self):
         random.shuffle(self.people)
 
-    def try_arranging_one(self):
+    def _get_next_seat(self):
+        if self.config.sequence_mode == SequenceMode.SEQUENTIAL:
+            return self.seat_table.get_next_available_seat()
+        elif self.config.sequence_mode == SequenceMode.RANDOM:
+            return self.seat_table.get_random_seat(True)
+        else:
+            raise ValueError
+
+    def _choose_person(self):
         if len(self.candidates) <= 0:
+            if self.config.skip_unavailable:
+                return get_fake_person()
             raise NoValidArrangementError
 
         person = random.choice(self.candidates)
         self.candidates.remove(person)
+        return person
+
+    def try_arranging_one(self):
+        person = self._choose_person()
 
         if self.seat_table.count_available_seats() > 0:
             seat: Seat = self.seat_table.get_next_available_seat()
             seat.set_user(person)
+
+            if person.is_dummy():
+                self.candidates = self.people.copy()
+                return IterationResult(True, self.seat_table, seat, person, True)
+
             if self.ruleset.check(self.seat_table.seat_groups):  # if this arrange PASS the rules
                 self.people.remove(person)
                 self.candidates = self.people.copy()
@@ -51,12 +87,40 @@ class Shuffler:
             return IterationResult(False, self.seat_table, None, person)
 
 
+class ShufflerBuilder:
+    def __init__(self):
+        self.people = []
+        self.seat_table = None
+        self.ruleset = None
+        self.config = ShufflerConfig()
+
+    def set_people(self, people: list[Person]):
+        self.people = people
+        return self
+
+    def set_seat_table(self, seat_table: SeatTable):
+        self.seat_table = seat_table
+        return self
+
+    def set_ruleset(self, ruleset: Ruleset):
+        self.ruleset = ruleset
+        return self
+
+    def set_config(self, config: ShufflerConfig):
+        self.config = config
+        return self
+
+    def build(self):
+        return Shuffler(self.people, self.seat_table, self.ruleset, self.config)
+
+
 class IterationResult:
-    def __init__(self, success, seat_table: SeatTable, seat: Seat | None = None, person: Person | None = None):
+    def __init__(self, success, seat_table: SeatTable, seat: Seat | None = None, person: Person | None = None, skipped=False):
         self.success = success
         self.seat = seat
         self.person = person
         self.seat_table = seat_table
+        self.skipped = skipped
 
 
 class NoValidArrangementError(Exception):
