@@ -18,7 +18,9 @@ try:
                       "shuffleAnimationDelay": 0.1,
                       "shuffleRetryTime": 5000,
                       "randomSeatGroup": False,
+                      "randomSeat": False,
                       "skipUnavailable": True,
+                      "fontSize": 20,
                       })
 except:
     import core
@@ -48,6 +50,18 @@ class PersonWidget(QFrame):
         self.setLayout(self.vBoxLayout)
 
         self.setStyleSheet("background: transparent;")
+
+        setting.signalConnect(self.setFontSize)
+        self.setFontSize()
+
+    def setFontSize(self, msg="fontSize"):
+        if msg == "fontSize":
+            self.label.getFont = lambda: getFont(setting.read("fontSize"), QFont.DemiBold)
+            self.label.setFont(self.label.getFont())
+
+    def deleteLater(self):
+        setting.changeSignal.disconnect(self.setFontSize)
+        super().deleteLater()
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
@@ -493,10 +507,83 @@ class RetrySettingCard(SettingCard):
             return
 
 
+class FontSizeSettingCard(SettingCard):
+
+    def __init__(self, parent=None):
+        super().__init__(FIF.FONT_SIZE, "字体大小", "名单字体大小", parent)
+        self.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Expanding)
+
+        self.lineEdit = AcrylicLineEdit(self)
+        self.lineEdit.setPlaceholderText("字体大小")
+        self.lineEdit.setNewToolTip("名单字体大小")
+        self.lineEdit.textEdited.connect(self.textChanged)
+        self.lineEdit.returnPressed.connect(self.textChanged)
+        self.lineEdit.setValidator(QIntValidator(1, 100))
+
+        self.hBoxLayout.addWidget(self.lineEdit, 0, Qt.AlignRight)
+        self.hBoxLayout.addSpacing(16)
+
+        setting.signalConnect(self.setEvent)
+        self.window().initFinished.connect(self.set)
+
+        self.set()
+
+    def set(self):
+        self.lineEdit.blockSignals(True)
+        self.lineEdit.setText(str(setting.read("fontSize")))
+        self.lineEdit.blockSignals(False)
+
+    def setEvent(self, msg):
+        if msg == "fontSize":
+            self.set()
+
+    def textChanged(self):
+        try:
+            num = int(self.lineEdit.text())
+            if 0 < num < 100:
+                setting.save("fontSize", num)
+        except:
+            return
+
+
+class RandomSeatSettingCard(SettingCard):
+
+    def __init__(self, parent=None):
+        super().__init__(ZBF.contact_card, "随机组内座位排座", "开启后将随机组内座位排座，增加随机性", parent)
+        self.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Expanding)
+
+        self.switchButton = SwitchButton(self)
+        self.switchButton.setNewToolTip("随机组内座位排座")
+        self.switchButton.checkedChanged.connect(self.checkChanged)
+
+        self.hBoxLayout.addWidget(self.switchButton, 0, Qt.AlignRight)
+        self.hBoxLayout.addSpacing(16)
+
+        setting.signalConnect(self.setEvent)
+        self.window().initFinished.connect(self.set)
+
+        self.set()
+
+    def set(self):
+        self.switchButton.blockSignals(True)
+        self.switchButton.setChecked(setting.read("randomSeat"))
+        self.switchButton.blockSignals(False)
+
+    def setEvent(self, msg):
+        if msg == "randomSeat":
+            self.set()
+
+    def checkChanged(self):
+        try:
+            setting.save("randomSeat", self.switchButton.checked)
+        except:
+            return
+
+
 class RandomSeatGroupSettingCard(SettingCard):
 
     def __init__(self, parent=None):
-        super().__init__(FIF.DATE_TIME, "随机小组排座", "开启后将随机选择小组排座，而非按照排列顺序排座，增加随机性", parent)
+        super().__init__(ZBF.contact_card_group, "随机小组排座", "开启后将随机选择小组排座，增加随机性", parent)
         self.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Expanding)
 
         self.switchButton = SwitchButton(self)
@@ -530,7 +617,7 @@ class RandomSeatGroupSettingCard(SettingCard):
 class SkipUnavailableSettingCard(SettingCard):
 
     def __init__(self, parent=None):
-        super().__init__(FIF.DATE_TIME, "跳过不可用位置", "开启后若座位无解，将跳过该座位", parent)
+        super().__init__(ZBF.skip_forward_tab, "跳过不可用位置", "开启后若座位无解，将跳过该座位", parent)
         self.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Expanding)
 
         self.switchButton = SwitchButton(self)
@@ -559,7 +646,6 @@ class SkipUnavailableSettingCard(SettingCard):
             setting.save("skipUnavailable", self.switchButton.checked)
         except:
             return
-
 
 
 class SetKeyMessageBox(MessageBoxBase):

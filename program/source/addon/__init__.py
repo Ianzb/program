@@ -23,6 +23,8 @@ import zbWidgetLib as zbw
 from zbWidgetLib import ZBF
 from qtpy import *
 
+import aenum
+
 sys.path.append(os.path.dirname(sys.argv[0]))
 
 
@@ -120,3 +122,15 @@ class AddonBase:
         self.window = __window
         self.progressCenter = __progress_center
         self.addonInfo = __addon_info
+
+    def getAddonPath(self):
+        return zb.joinPath(self.program.ADDON_PATH, self.addonInfo.get("id"))
+
+    def addIcon(self, name: str, path: str = ""):
+        if not hasattr(ZBF, name):
+            aenum.extend_enum(ZBF, name, zb.joinPath(self.getAddonPath(), path, name))
+
+    def addIcons(self, path: str):
+        for i in zb.walkFile(zb.joinPath(self.getAddonPath(), path), True):
+            name = "_".join(zb.getFileName(i).split("_")[:-1])
+            self.addIcon(name, path)

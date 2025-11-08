@@ -14,7 +14,6 @@ class SequenceMode(IntEnum):
     SEQUENTIAL = 0
     RANDOM = 1
 
-
 class ShufflerConfig:
     def __init__(self,
                  sequence_mode=SequenceMode.SEQUENTIAL,

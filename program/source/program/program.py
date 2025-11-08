@@ -31,7 +31,7 @@ class Program:
     NAME = "zb小程序"  # 程序名称
     VERSION = "5.7.0"  # 程序版本
     VERSION_CODE = 60  # 版本序数
-    ADDON_API_VERSION = 3  # 插件版本序数
+    ADDON_API_VERSION = 4  # 插件版本序数
     CORE_VERSION = "5.3.5"  # 内核版本
     TITLE = f"{NAME} {VERSION}"  # 程序标题
     URL = "https://ianzb.github.io/project/program.html"  # 程序网址
@@ -84,8 +84,8 @@ class Program:
         if self.isExe:
             self.SOURCE_PATH = sys._MEIPASS + r"\img"
 
-        ZBF.setPath(self.source("icon"))
-        for i in zb.walkFile(self.source("icon"), True):
+        ZBF.setPath(self.source("icons"))
+        for i in zb.walkFile(self.source("icons"), True):
             name = "_".join(zb.getFileName(i).split("_")[:-1])
             ZBF.add(name)
 

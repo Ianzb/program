@@ -12,8 +12,11 @@ def addonInit():
                   "shuffleAnimationDelay": 0.1,
                   "shuffleRetryTime": 5000,
                   "randomSeatGroup": False,
+                  "randomSeat": False,
                   "skipUnavailable": True,
+                  "fontSize": 20,
                   })
+    addonBase.addIcons("icons")
     addonInit1()
 
 
@@ -56,6 +59,8 @@ class MainPage(QWidget):
 
 
 class TableInterface(HeaderCardWidget):
+    importTableFinishedSignal = pyqtSignal(bool, core.SeatTable, str)
+
     def __init__(self, parent=None):
         super().__init__(parent=parent)
 
@@ -86,11 +91,12 @@ class TableInterface(HeaderCardWidget):
         self.tableChooser.setDefaultPath(setting.read("downloadPath"))
         self.tableChooser.setDescription("座位表")
         self.tableChooser.setFixedHeight(100)
-        self.tableChooser.fileChoosedSignal.connect(self.importSeat)
+        self.tableChooser.fileChoosedSignal.connect(self.importTable)
         self.tableChooser.setFixedSize(200, 120)
         self.viewLayout.addWidget(self.tableChooser, Qt.AlignCenter)
 
         setting.signalConnect(self.settingChanged)
+        self.importTableFinishedSignal.connect(self.importTableFinished)
 
     def settingChanged(self, name):
         if name == "downloadPath":
@@ -101,23 +107,41 @@ class TableInterface(HeaderCardWidget):
         self.tableChooser.show()
         self.closeButton.hide()
 
-    def importSeat(self, get):
+    def importTable(self, path):
+        if not path:
+            return
+        self.tableChooser.setEnabled(False)
+        self.loadingMessageBox = zbw.LoadingMessageBox(self.window())
+        self.loadingMessageBox.show()
+
+        program.THREAD_POOL.submit(self._importTable, path[0])
+
+    def _importTable(self, path):
         try:
-            if not get or not get[0]:
-                return
-            if zb.getFileSuffix(get[0]) == ".xlsx":
-                manager.setTable(manager.XLSX_PARSER.parse(get[0]))
-            elif zb.getFileSuffix(get[0]) == ".json":
-                manager.setTable(manager.JSON_PARSER.parse(get[0]))
-            setting.save("downloadPath", zb.getFileDir(get[0]))
-            logging.info(f"导入座位表格文件{get[0]}成功！")
-            infoBar = InfoBar(InfoBarIcon.SUCCESS, "成功", f"导入座位表格文件{zb.getFileName(get[0])}成功！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.BOTTOM, manager.mainPage)
-        except Exception:
-            logging.error(f"导入座位表格文件{get[0]}失败，报错信息：{traceback.format_exc()}！")
-            infoBar = InfoBar(InfoBarIcon.ERROR, "失败", f"导入座位表格文件{zb.getFileName(get[0])}失败！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.BOTTOM, manager.mainPage)
+            if zb.getFileSuffix(path) == ".xlsx":
+                table = manager.XLSX_PARSER.parse(path)
+            elif zb.getFileSuffix(path) == ".json":
+                table = manager.JSON_PARSER.parse(path)
+            else:
+                raise Error("文件格式不兼容！")
+            setting.save("downloadPath", zb.getFileDir(path))
+            logging.info(f"导入座位表格文件{path}成功！")
+            self.importTableFinishedSignal.emit(True, table, path)
+        except:
+            logging.error(f"导入座位表格文件{path}失败，报错信息：{traceback.format_exc()}！")
+            self.importTableFinishedSignal.emit(False, core.SeatTable([], (0, 0)), path)
+
+    def importTableFinished(self, status, table, path):
+        if status:
+            manager.setTable(table)
+            infoBar = InfoBar(InfoBarIcon.SUCCESS, "成功", f"导入座位文件{zb.getFileName(path)}成功！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.BOTTOM, manager.mainPage)
+            self.tableChooser.hide()
+            self.closeButton.show()
+        else:
+            infoBar = InfoBar(InfoBarIcon.ERROR, "失败", f"导入座位文件{zb.getFileName(path)}失败！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.BOTTOM, manager.mainPage)
         infoBar.show()
-        self.tableChooser.hide()
-        self.closeButton.show()
+        self.tableChooser.setEnabled(True)
+        self.loadingMessageBox.close()
 
 
 class SettingMessageBox(zbw.ScrollMessageBoxBase):
@@ -138,6 +162,8 @@ class SettingMessageBox(zbw.ScrollMessageBoxBase):
         self.animationDelaySettingCard = AnimationDelaySettingCard(self)
 
         self.retrySettingCard = RetrySettingCard(self)
+        self.fontSizeSettingCard = FontSizeSettingCard(self)
+        self.randomSeatSettingCard = RandomSeatSettingCard(self)
         self.randomSeatGroupSettingCard = RandomSeatGroupSettingCard(self)
         self.skipUnavailableSettingCard = SkipUnavailableSettingCard(self)
 
@@ -145,6 +171,8 @@ class SettingMessageBox(zbw.ScrollMessageBoxBase):
         self.cardGroup1.addCard(self.animationDelaySettingCard, "animationDelaySettingCard")
 
         self.cardGroup2.addCard(self.retrySettingCard, "retrySettingCard")
+        self.cardGroup2.addCard(self.fontSizeSettingCard, "fontSizeSettingCard")
+        self.cardGroup2.addCard(self.randomSeatSettingCard, "randomSeatSettingCard")
         self.cardGroup2.addCard(self.randomSeatGroupSettingCard, "randomSeatGroupSettingCard")
         self.cardGroup2.addCard(self.skipUnavailableSettingCard, "skipUnavailableSettingCard")
 
@@ -384,6 +412,9 @@ class RulesInterface(zbw.BasicTab):
 
 
 class ListInterface(zbw.BasicTab):
+    getKeyFinishedSignal = pyqtSignal(str, list)
+    importPersonFinishedSignal = pyqtSignal(bool, str, list)
+
     def __init__(self, parent=None):
         super().__init__(parent=parent)
 
@@ -405,35 +436,64 @@ class ListInterface(zbw.BasicTab):
         self.vBoxLayout.addWidget(self.cardGroup)
 
         setting.signalConnect(self.settingChanged)
+        self.getKeyFinishedSignal.connect(self.getKeyFinished)
+        self.importPersonFinishedSignal.connect(self.importPersonFinished)
 
     def settingChanged(self, name):
         if name == "downloadPath":
             self.listChooser.setDefaultPath(setting.read("downloadPath"))
 
-    def importPerson(self, get):
-        try:
-            if not get:
-                return
-            keys = manager.PERSON_PARSER.get_keys(get[0])
+    def importPerson(self, path: str):
+        if not path:
+            return
+        self.listChooser.setEnabled(False)
+        self.loadingMessageBox = zbw.LoadingMessageBox(self.window())
+        self.loadingMessageBox.show()
+        program.THREAD_POOL.submit(self._getKey, path[0])
 
-            setKeyMessageBox = SetKeyMessageBox(self.window(), keys)
-            try:
-                result = setKeyMessageBox.exec()
-                if not setKeyMessageBox.result:
-                    return
-                else:
-                    key = keys[result]
-            except:
-                return
+    def _getKey(self, path):
+        try:
+            keys = manager.PERSON_PARSER.get_keys(path)
+            setting.save("downloadPath", zb.getFileDir(path))
+            self.getKeyFinishedSignal.emit(path, keys)
+        except:
+            logging.error(f"导入名单表格文件{path}失败，报错信息：{traceback.format_exc()}！")
+            self.importPersonFinishedSignal.emit(False, path, [])
+
+    def getKeyFinished(self, path, keys):
+        self.loadingMessageBox.close()
+        setKeyMessageBox = SetKeyMessageBox(self.window(), keys)
+        try:
+            result = setKeyMessageBox.exec()
+            if not setKeyMessageBox.result:
+                self.importPersonFinishedSignal.emit(False, path, [])
+            else:
+                self.loadingMessageBox = zbw.LoadingMessageBox(self.window())
+                self.loadingMessageBox.show()
+
+                key = keys[result]
+                program.THREAD_POOL.submit(self._importPerson, key, keys, path)
+        except:
+            self.importPersonFinishedSignal.emit(False, path, [])
+
+    def _importPerson(self, key, keys, path):
+        try:
             manager.person_keys = keys
-            person = manager.PERSON_PARSER.parse(get[0], key)
+            person = manager.PERSON_PARSER.parse(path, key)
+            self.importPersonFinishedSignal.emit(True, path, person)
+            logging.info(f"导入名单表格文件{path}成功！")
+        except:
+            self.importPersonFinishedSignal.emit(False, path, [])
+            logging.error(f"导入名单表格文件{path}失败，报错信息：{traceback.format_exc()}！")
+
+    def importPersonFinished(self, status, path, person):
+        if status:
             manager.setPeople(person)
             manager.setListPeople(True)
             manager.removeRules()
-            setting.save("downloadPath", zb.getFileDir(get[0]))
-            logging.info(f"导入名单表格文件{get[0]}成功！")
-            infoBar = InfoBar(InfoBarIcon.SUCCESS, "成功", f"导入名单表格文件{zb.getFileName(get[0])}成功！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.BOTTOM, manager.mainPage)
-        except Exception:
-            logging.error(f"导入名单表格文件{get[0]}失败，报错信息：{traceback.format_exc()}！")
-            infoBar = InfoBar(InfoBarIcon.ERROR, "失败", f"导入名单表格文件{zb.getFileName(get[0])}失败！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.BOTTOM, manager.mainPage)
+            infoBar = InfoBar(InfoBarIcon.SUCCESS, "成功", f"导入名单文件{zb.getFileName(path)}成功！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.BOTTOM, manager.mainPage)
+        else:
+            infoBar = InfoBar(InfoBarIcon.ERROR, "失败", f"导入名单文件{zb.getFileName(path)}失败！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.BOTTOM, manager.mainPage)
         infoBar.show()
+        self.listChooser.setEnabled(True)
+        self.loadingMessageBox.close()

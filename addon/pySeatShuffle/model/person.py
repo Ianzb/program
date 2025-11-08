@@ -45,16 +45,13 @@ class Person:
 
 class FakePerson(Person):
     ID = -1
-
     def __init__(self):
         super().__init__(self.ID, {}, "")
 
     def is_dummy(self):
         return True
 
-
 _fake_person = FakePerson()
-
-
 def get_fake_person():
     return _fake_person
+
