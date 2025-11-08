@@ -45,6 +45,7 @@ class UpdateSettingCard(SettingCard):
             self.updateVersionSignal.emit(version)
 
     def updateVersionSignalFinished(self, version: dict):
+        self.button1.setEnabled(True)
         self.infoBar = InfoBar(InfoBarIcon.WARNING, "提示", f"检测到新版本{version.get("version")}！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.window().aboutPage)
 
         self.updateButton = PushButton("立刻更新", self, FIF.DOWNLOAD)
@@ -66,6 +67,7 @@ class UpdateSettingCard(SettingCard):
             self.infoBar.close()
         except:
             pass
+        self.button1.setEnabled(False)
         zb.deletePath(program.cache("zbProgram_setup.exe"))
         self.card = self.window().progressCenter.downloadTask(program.UPDATE_INSTALLER_URL, program.cache("zbProgram_setup.exe"), True, True)
         self.card.setTitle("程序更新")
