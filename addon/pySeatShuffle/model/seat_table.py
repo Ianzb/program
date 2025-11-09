@@ -74,8 +74,12 @@ class SeatGroup:
     def count_available_seats(self):
         return len([seat for seat in self.seats if seat.is_available()])
 
-    def get_next_available_seat(self):
-        return next((seat for seat in self.seats if seat.is_available()), None)
+    def get_next_available_seat(self, config):
+        if config.seat_sequence_mode == 0:
+            return next((seat for seat in self.seats if seat.is_available()), None)
+        elif config.seat_sequence_mode == 1:
+            availables = [seat for seat in self.seats if seat.is_available()]
+            return random.choice(availables) if availables else None
 
     def reset_cursor(self):
         self._cursor = 0
@@ -170,7 +174,7 @@ class SeatTable:
                 seat.clear_user()
 
     def reset_cursor(self):
-        self._cursor = 0
+        self._cursor = -1
         for seat_group in self.seat_groups:
             seat_group.reset_cursor()
 
@@ -192,14 +196,26 @@ class SeatTable:
     def count_available_seats(self):
         return sum([seat_group.count_available_seats() for seat_group in self.seat_groups])
 
-    def get_next_available_seat(self):
-        if self._cursor < self.count_seats():
-            candidate = self.seat_groups[self._cursor].get_next_available_seat()
-            if candidate is None:
+    def get_next_available_seat(self, config):
+        if self._cursor == -1:
+            if config.seat_group_sequence_mode == 0:
                 self._cursor += 1
-                return self.get_next_available_seat()
+            elif config.seat_group_sequence_mode == 1:
+                self._cursor = random.randrange(len(self.seat_groups))
+        if self._cursor < self.count_seats():
+            if config.seat_sequence_mode == 2:
+                candidate = self.get_random_seat(True)
+            else:
+                candidate = self.seat_groups[self._cursor].get_next_available_seat(config)
+            if candidate is None:
+                if config.seat_group_sequence_mode == 0:
+                    self._cursor += 1
+                elif config.seat_group_sequence_mode == 1:
+                    self._cursor = random.randrange(len(self.seat_groups))
+
+                return self.get_next_available_seat(config)
             return candidate
-        self._cursor = 0
+        self._cursor = -1
         return None
 
     def _create_cache(self):

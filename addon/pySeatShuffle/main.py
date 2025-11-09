@@ -12,7 +12,7 @@ def addonInit():
                   "shuffleAnimationDelay": 0.1,
                   "shuffleRetryTime": 5000,
                   "randomSeatGroup": False,
-                  "randomSeat": False,
+                  "randomSeat": 1,
                   "skipUnavailable": True,
                   "fontSize": 20,
                   })
@@ -244,6 +244,7 @@ class ShuffleInterface(HeaderCardWidget):
             table,
             manager.getRuleSet(),
             core.ShufflerConfig(
+                int(setting.read("randomSeat")),
                 int(setting.read("randomSeatGroup")),
                 setting.read("skipUnavailable")
             )

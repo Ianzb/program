@@ -10,15 +10,24 @@ except:
 import random
 
 
-class SequenceMode(IntEnum):
+class SeatSequenceMode(IntEnum):
+    SEQUENTIAL = 0
+    RANDOM_IN_GROUP = 1
+    RANDOM_IN_TABLE = 2
+
+
+class SeatGroupSequenceMode(IntEnum):
     SEQUENTIAL = 0
     RANDOM = 1
 
+
 class ShufflerConfig:
     def __init__(self,
-                 sequence_mode=SequenceMode.SEQUENTIAL,
+                 seat_sequence_mode=SeatSequenceMode.SEQUENTIAL,
+                 seat_group_sequence_mode=SeatGroupSequenceMode.SEQUENTIAL,
                  skip_unavailable=False):
-        self.sequence_mode = sequence_mode
+        self.seat_sequence_mode = seat_sequence_mode
+        self.seat_group_sequence_mode = seat_group_sequence_mode
         self.skip_unavailable = skip_unavailable
 
 
@@ -47,14 +56,6 @@ class Shuffler:
     def shuffle_people(self):
         random.shuffle(self.people)
 
-    def _get_next_seat(self):
-        if self.config.sequence_mode == SequenceMode.SEQUENTIAL:
-            return self.seat_table.get_next_available_seat()
-        elif self.config.sequence_mode == SequenceMode.RANDOM:
-            return self.seat_table.get_random_seat(True)
-        else:
-            raise ValueError
-
     def _choose_person(self):
         if len(self.candidates) <= 0:
             if self.config.skip_unavailable:
@@ -69,7 +70,7 @@ class Shuffler:
         person = self._choose_person()
 
         if self.seat_table.count_available_seats() > 0:
-            seat: Seat = self.seat_table.get_next_available_seat()
+            seat: Seat = self.seat_table.get_next_available_seat(self.config)
             seat.set_user(person)
 
             if person.is_dummy():

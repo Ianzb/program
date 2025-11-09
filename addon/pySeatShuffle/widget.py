@@ -14,14 +14,6 @@ try:
         window = addonBase.window
         progressCenter = addonBase.progressCenter
 
-        setting.adds({"shuffleAnimationLength": 1.0,
-                      "shuffleAnimationDelay": 0.1,
-                      "shuffleRetryTime": 5000,
-                      "randomSeatGroup": False,
-                      "randomSeat": False,
-                      "skipUnavailable": True,
-                      "fontSize": 20,
-                      })
 except:
     import core
     from ..program import *
@@ -420,6 +412,8 @@ class AnimationLengthSettingCard(SettingCard):
         self.set()
 
     def set(self):
+        if self.lineEdit.text() and float(self.lineEdit.text()) == setting.read("shuffleAnimationLength"):
+            return
         self.lineEdit.blockSignals(True)
         self.lineEdit.setText(str(setting.read("shuffleAnimationLength")))
         self.lineEdit.blockSignals(False)
@@ -455,6 +449,8 @@ class AnimationDelaySettingCard(SettingCard):
         self.set()
 
     def set(self):
+        if self.lineEdit.text() and float(self.lineEdit.text()) == setting.read("shuffleAnimationDelay"):
+            return
         self.lineEdit.blockSignals(True)
         self.lineEdit.setText(str(setting.read("shuffleAnimationDelay")))
         self.lineEdit.blockSignals(False)
@@ -492,6 +488,8 @@ class RetrySettingCard(SettingCard):
         self.set()
 
     def set(self):
+        if self.lineEdit.text() and int(self.lineEdit.text()) == setting.read("shuffleRetryTime"):
+            return
         self.lineEdit.blockSignals(True)
         self.lineEdit.setText(str(setting.read("shuffleRetryTime")))
         self.lineEdit.blockSignals(False)
@@ -529,6 +527,8 @@ class FontSizeSettingCard(SettingCard):
         self.set()
 
     def set(self):
+        if self.lineEdit.text() and int(self.lineEdit.text()) == setting.read("fontSize"):
+            return
         self.lineEdit.blockSignals(True)
         self.lineEdit.setText(str(setting.read("fontSize")))
         self.lineEdit.blockSignals(False)
@@ -549,14 +549,15 @@ class FontSizeSettingCard(SettingCard):
 class RandomSeatSettingCard(SettingCard):
 
     def __init__(self, parent=None):
-        super().__init__(ZBF.contact_card, "随机组内座位排座", "开启后将随机组内座位排座，增加随机性", parent)
+        super().__init__(ZBF.contact_card, "座位选择", "设置选择座位的方式", parent)
         self.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Expanding)
 
-        self.switchButton = SwitchButton(self)
-        self.switchButton.setNewToolTip("随机组内座位排座")
-        self.switchButton.checkedChanged.connect(self.checkChanged)
+        self.comboBox = ComboBox(self)
+        self.comboBox.setNewToolTip("座位选择")
+        self.comboBox.addItems(["组内顺序", "组内随机", "全局随机"])
+        self.comboBox.currentIndexChanged.connect(self.checkChanged)
 
-        self.hBoxLayout.addWidget(self.switchButton, 0, Qt.AlignRight)
+        self.hBoxLayout.addWidget(self.comboBox, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
         setting.signalConnect(self.setEvent)
@@ -565,9 +566,9 @@ class RandomSeatSettingCard(SettingCard):
         self.set()
 
     def set(self):
-        self.switchButton.blockSignals(True)
-        self.switchButton.setChecked(setting.read("randomSeat"))
-        self.switchButton.blockSignals(False)
+        self.comboBox.blockSignals(True)
+        self.comboBox.setCurrentIndex(setting.read("randomSeat"))
+        self.comboBox.blockSignals(False)
 
     def setEvent(self, msg):
         if msg == "randomSeat":
@@ -575,7 +576,7 @@ class RandomSeatSettingCard(SettingCard):
 
     def checkChanged(self):
         try:
-            setting.save("randomSeat", self.switchButton.checked)
+            setting.save("randomSeat", self.comboBox.currentIndex())
         except:
             return
 
@@ -583,7 +584,7 @@ class RandomSeatSettingCard(SettingCard):
 class RandomSeatGroupSettingCard(SettingCard):
 
     def __init__(self, parent=None):
-        super().__init__(ZBF.contact_card_group, "随机小组排座", "开启后将随机选择小组排座，增加随机性", parent)
+        super().__init__(ZBF.contact_card_group, "随机小组", "开启后将随机选择小组排座，增加随机性", parent)
         self.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Expanding)
 
         self.switchButton = SwitchButton(self)
@@ -597,6 +598,7 @@ class RandomSeatGroupSettingCard(SettingCard):
         self.window().initFinished.connect(self.set)
 
         self.set()
+        self.setEnabledSignal()
 
     def set(self):
         self.switchButton.blockSignals(True)
@@ -606,6 +608,11 @@ class RandomSeatGroupSettingCard(SettingCard):
     def setEvent(self, msg):
         if msg == "randomSeatGroup":
             self.set()
+        elif msg == "randomSeat":
+            self.setEnabledSignal()
+
+    def setEnabledSignal(self):
+        self.setEnabled(setting.read("randomSeat") != core.SeatSequenceMode.RANDOM_IN_TABLE)
 
     def checkChanged(self):
         try:
