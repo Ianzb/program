@@ -131,34 +131,27 @@ class Window(zbw.Window):
         """
         try:
             if data.get("id") in addonManager.ADDON_OBJECT:
-                try:
-                    self.navigationInterface.removeWidget(data.get("name", ""))
-                    self.stackedWidget.view.removeWidget(addonManager.ADDON_MAINPAGE.get(data.get("id")))
-                    if addonManager.ADDON_MAINPAGE.get(data.get("id")):
-                        addonManager.ADDON_MAINPAGE.get(data.get("id")).deleteLater()
-                except:
-                    pass
-
-                self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{data.get("name", "")}更新成功，重启程序生效！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.mainPage)
-                self.button1 = PushButton("重启", self, FIF.SYNC)
-                self.button1.clicked.connect(program.restart)
-                self.button1.setToolTip("重启程序")
-                self.button1.installEventFilter(ToolTipFilter(self.button1, 1000))
-                self.infoBar.addWidget(self.button1)
-                self.infoBar.show()
+                mainpage = addonManager.ADDON_MAINPAGE.get(data.get("id"))
+                self.navigationInterface.removeWidget(mainpage.objectName())
+                self.stackedWidget.view.removeWidget(addonManager.ADDON_MAINPAGE.get(data.get("id")))
+                if addonManager.ADDON_MAINPAGE.get(data.get("id")):
+                    addonManager.ADDON_MAINPAGE.get(data.get("id")).deleteLater()
+                lib = importlib.reload(addonManager.ADDON_OBJECT.get(data.get("id")))
+                addonManager.ADDON_OBJECT.pop(data.get("id"), None)
+                addonManager.ADDON_MAINPAGE.pop(data.get("id"), None)
             else:
                 lib = importlib.import_module(data.get("id", ""))
-                lib.addonBase.set(program, setting, self, self.progressCenter, data)
-                lib.addonInit()
-                widget = lib.addonWidget()
-                widget.setObjectName(data.get("name", ""))
-                self.addPage(widget, widget.title(), widget.icon(), "scroll")
+            lib.addonBase.set(program, setting, self, self.progressCenter, data)
+            lib.addonInit()
+            widget = lib.addonWidget()
+            widget.setObjectName(data.get("name", ""))
+            self.addPage(widget, widget.title(), widget.icon(), "scroll")
 
-                addonManager.ADDON_OBJECT[data.get("id")] = lib
-                addonManager.ADDON_MAINPAGE[data.get("id")] = widget
+            addonManager.ADDON_OBJECT[data.get("id")] = lib
+            addonManager.ADDON_MAINPAGE[data.get("id")] = widget
 
-                self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{data.get("name", "")}安装成功！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.mainPage)
-                self.infoBar.show()
+            self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{data.get("name", "")}安装成功！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.TOP_RIGHT, self.mainPage)
+            self.infoBar.show()
             logging.info(f"插件{data.get("name", "")}安装成功")
         except:
             if data.get("api_version", 0) == program.ADDON_API_VERSION:
@@ -173,21 +166,25 @@ class Window(zbw.Window):
         移除插件
         @param msg: 数据
         """
-        if data.get("id") in addonManager.ADDON_OBJECT:
-            self.navigationInterface.removeWidget(data.get("name", ""))
-            mainpage = addonManager.ADDON_MAINPAGE.get(data.get("id"))
-            if mainpage:
-                self.stackedWidget.view.removeWidget(mainpage)
-                mainpage.deleteLater()
-            addonManager.ADDON_OBJECT.pop(data.get("id"), None)
-            addonManager.ADDON_MAINPAGE.pop(data.get("id"), None)
-        zb.deleteDir(zb.joinPath(program.ADDON_PATH, data.get("id", "")), force=True)
-        if not zb.existPath(zb.joinPath(program.ADDON_PATH, data.get("id", ""))):
-            logging.info(f"插件{data.get("name", "")}删除成功")
+        try:
+            if data.get("id") in addonManager.ADDON_OBJECT:
+                mainpage = addonManager.ADDON_MAINPAGE.get(data.get("id"))
+                self.navigationInterface.removeWidget(mainpage.objectName())
+                if mainpage:
+                    self.stackedWidget.view.removeWidget(mainpage)
+                    mainpage.deleteLater()
+                addonManager.ADDON_OBJECT.pop(data.get("id"), None)
+                addonManager.ADDON_MAINPAGE.pop(data.get("id"), None)
+            zb.deleteDir(zb.joinPath(program.ADDON_PATH, data.get("id", "")), force=True)
+            if not zb.existPath(zb.joinPath(program.ADDON_PATH, data.get("id", ""))):
+                logging.info(f"插件{data.get("name", "")}删除成功")
 
-            self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{data.get("name", "")}删除成功！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.mainPage)
-            self.infoBar.show()
-        else:
+                self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{data.get("name", "")}删除成功！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.mainPage)
+                self.infoBar.show()
+            else:
+                raise "删除插件失败"
+
+        except:
             logging.info(f"插件{data.get("name", "")}删除失败")
 
             self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", f"插件{data.get("name", "")}删除失败！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.mainPage)
