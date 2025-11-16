@@ -136,7 +136,8 @@ class Program:
         """
         重启程序
         """
-        subprocess.Popen(self.MAIN_FILE_PATH)
+        if self.isExe:
+            subprocess.Popen(self.MAIN_FILE_PATH)
         logging.info("程序正在重启中！")
         os._exit(0)
 

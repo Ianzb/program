@@ -16,6 +16,8 @@ class Window(zbw.Window):
     def __init__(self):
         super().__init__()
 
+        sys.excepthook = self.errorHook
+
         # 托盘组件
         self.tray = Tray(self)
 
@@ -75,6 +77,10 @@ class Window(zbw.Window):
         data = addonManager.getInstalledAddonInfo()
         for i in data.keys():
             self.addAddon(data[i])
+
+    def errorHook(self, exc_type, exc_value, exc_traceback):
+        errorMessageBox = ErrorMessageBox("程序发生错误", "\n".join(traceback.format_exception(exc_type, exc_value, exc_traceback)), self)
+        errorMessageBox.show()
 
     def showProgressCenter(self, aniType=FlyoutAnimationType.DROP_DOWN):
         if self.progressCenterFlyout is None:
