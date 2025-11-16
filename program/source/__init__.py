@@ -136,11 +136,10 @@ class Window(zbw.Window):
                     addonManager.ADDON_MAINPAGE.get(data.get("id")).deleteLater()
                 if data.get("api_version") >= 5:
                     lib.addonDelete()
-                lib = importlib.reload(addonManager.ADDON_OBJECT.get(data.get("id")))
                 addonManager.ADDON_OBJECT.pop(data.get("id"), None)
                 addonManager.ADDON_MAINPAGE.pop(data.get("id"), None)
-            else:
-                lib = importlib.import_module(data.get("id", ""))
+            lib = importlib.import_module(data.get("id", ""))
+            lib = importlib.reload(lib)
             lib.addonBase.set(program, setting, self, self.progressCenter, data)
             lib.addonInit()
             widget = lib.addonWidget()
