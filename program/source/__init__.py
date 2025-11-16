@@ -91,15 +91,6 @@ class Window(zbw.Window):
             del self.progressCenterFlyout
             self.progressCenterFlyout = Flyout.make(self.progressCenter, self.progressCenterButton, self, aniType=aniType, isDeleteOnClose=False)
 
-    def keyPressEvent(self, QKeyEvent):
-        """
-        自定义按键事件
-        """
-        # Esc键
-        if QKeyEvent.key() == Qt.Key.Key_Escape:
-            if setting.read("hideWhenClose"):
-                self.hide()
-
     def showEvent(self, a0):
         self.showSignal.emit()
         super().showEvent(a0)
