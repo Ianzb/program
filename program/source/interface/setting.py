@@ -39,10 +39,10 @@ class ThemeSettingCard(ExpandSettingCard):
 
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.timerEvent)
-        self.timer.start(250)
+        self.timer.start(100)
 
     def timerEvent(self):
-        if setting.read("theme") == "Theme.AUTO":
+        if self.window().isVisible() and setting.read("theme") == "Theme.AUTO":
             t = darkdetect.theme()
             t = Theme(t) if t else Theme.LIGHT
             if qconfig._cfg._theme != t:
@@ -150,12 +150,14 @@ class ColorSettingCard(ExpandGroupSettingCard):
 
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.timerEvent)
-        self.timer.start(250)
+        self.timer.start(100)
 
     def timerEvent(self):
-        if setting.read("themeColor") == "default":
-            self.color = QColor(self.getDefaultColor())
-            setThemeColor(QColor(self.color), lazy=True)
+        if self.window().isVisible() and setting.read("themeColor") == "default":
+            color = QColor(self.getDefaultColor())
+            if self.color != color:
+                self.color = color
+                setThemeColor(QColor(self.color), lazy=True)
 
     def getDefaultColor(self):
         from qframelesswindow.utils import getSystemAccentColor
@@ -251,7 +253,7 @@ class WindowEffectSettingCard(ExpandSettingCard):
         self.viewLayout.addWidget(self.radioButton5)
 
         setting.connect(self.setEvent)
-        qconfig.themeChanged.connect(lambda x: self.set)
+        qconfig.themeChangedFinished.connect(self.set)
         self.window().initFinished.connect(self.set)
 
         self._adjustViewSize()
