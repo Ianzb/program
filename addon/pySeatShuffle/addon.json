@@ -3,8 +3,8 @@
   "name": "排座工具",
   "author": "Hz6826 & Ianzb",
   "description": "一个随机排座工具。",
-  "version": "1.1.1",
-  "version_code": 7,
+  "version": "1.1.2",
+  "version_code": 8,
   "api_version": 5,
   "icon": "https://drive.ianzb.cn/code/program/addon/pySeatShuffle/pySeatShuffle.png",
   "file": "https://drive.ianzb.cn/code/program/addon/pySeatShuffle/pySeatShuffle.zip",
@@ -36,6 +36,10 @@
     "1.1.1": {
       "log": "正式加入随机座位功能，优化设置卡片行为。",
       "time": "2025年11月9日"
+    },
+    "1.1.2": {
+      "time": "2025年11月16日",
+      "log": "适配API 5，修复导入错误座位表格可能的崩溃，修复规则失效的Bug。修复快速点击删除表格按钮导致崩溃的Bug。"
     }
   },
   "packages": [
