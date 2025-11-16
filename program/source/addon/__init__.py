@@ -25,8 +25,6 @@ from qtpy import *
 
 import aenum
 
-from program.source import SettingFunctions
-
 sys.path.append(os.path.dirname(sys.argv[0]))
 
 
@@ -38,7 +36,7 @@ class AddonSettingProxy(QObject):
     changeSignal = pyqtSignal(str)
     changeSignalWithoutAddonPath = pyqtSignal(str)
 
-    def __init__(self, setting: SettingFunctions, addon_id: str = None):
+    def __init__(self, setting, addon_id: str = None):
         super().__init__()
         self.setting = setting
         self._addon_id = addon_id
