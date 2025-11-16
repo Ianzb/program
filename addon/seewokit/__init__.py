@@ -30,6 +30,9 @@ def addonInit():
                   })
 
 
+def addonDelete():
+    pass
+
 def addonWidget():
     return SeewoPage(window)
 
@@ -352,7 +355,7 @@ class SeewoPage(zbw.BasicTab):
             self.showMessageSignal.connect(self.showMessage)
         program.THREAD_POOL.submit(self.autoCopy)
 
-        setting.signalConnect(self.set)
+        setting.connect(self.set)
         self.setHistoryText.connect(self.addHistory)
 
         self.copySignal.connect(self.copyFile)

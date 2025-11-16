@@ -39,6 +39,10 @@ def addonInit():
     sf = SortFunctions()
 
 
+def addonDelete():
+    pass
+
+
 def addonWidget():
     return AddonPage(window)
 
@@ -470,7 +474,7 @@ class SortPathSettingCard(SettingCard):
         self.setAcceptDrops(True)
 
         self.setText()
-        setting.signalConnect(self.setEvent)
+        setting.connect(self.setEvent)
 
     def setEvent(self, msg):
         if msg in ["sortGoalPath", "wechatPath"]:
@@ -578,7 +582,7 @@ class FeaturesSettingCard(SettingCard):
         self.hBoxLayout.addSpacing(16)
 
         self.set()
-        setting.signalConnect(self.setEvent)
+        setting.connect(self.setEvent)
 
     def setEvent(self, msg):
         if msg in ["sortWechat", "clearFile", "clearTrash", "deleteToTrash"]:

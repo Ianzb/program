@@ -51,6 +51,9 @@ class Seat:
             "user": self.user.to_dict() if self.user is not None else None
         }
 
+    def __hash__(self):
+        return hash((self.pos, self.name, self.user))
+
 
 class SeatGroup:
     def __init__(self, seats: list[Seat], name=None):
@@ -78,8 +81,9 @@ class SeatGroup:
         if config.seat_sequence_mode == 0:
             return next((seat for seat in self.seats if seat.is_available()), None)
         elif config.seat_sequence_mode == 1:
-            availables = [seat for seat in self.seats if seat.is_available()]
-            return random.choice(availables) if availables else None
+            available_seats = [seat for seat in self.seats if seat.is_available()]
+            return random.choice(available_seats) if available_seats else None
+        return None
 
     def reset_cursor(self):
         self._cursor = 0
@@ -92,6 +96,9 @@ class SeatGroup:
             "name": self.name,
             "seats": [seat.to_dict() for seat in self.seats]
         }
+
+    def __hash__(self):
+        return hash((self.name, tuple(self.seats)))
 
 
 class SeatTable:

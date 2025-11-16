@@ -31,7 +31,7 @@ class Program:
     NAME = "zb小程序"  # 程序名称
     VERSION = "5.7.1"  # 程序版本
     VERSION_CODE = 61  # 版本序数
-    ADDON_API_VERSION = 4  # 插件版本序数
+    ADDON_API_VERSION = 5  # 插件版本序数
     CORE_VERSION = "5.4.0"  # 内核版本
     TITLE = f"{NAME} {VERSION}"  # 程序标题
     URL = "https://ianzb.github.io/project/program.html"  # 程序网址

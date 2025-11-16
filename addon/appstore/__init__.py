@@ -15,6 +15,10 @@ def addonInit():
     progressCenter = addonBase.progressCenter
 
 
+def addonDelete():
+    pass
+
+
 def addonWidget():
     return AddonPage(window)
 

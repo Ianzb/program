@@ -16,6 +16,10 @@ def addonInit():
     addonInfo = addonBase.addonInfo
 
 
+def addonDelete():
+    pass
+
+
 def addonWidget():
     return AddonMainPage(window)
 

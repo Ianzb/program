@@ -21,47 +21,10 @@ class SettingFunctions(QObject):
     def __init__(self):
         super().__init__()
         program.THREAD_POOL.submit(self.checkFileChange)
-        self.__read()
 
-    def get(self, name: str, addon_id: str = None):
-        """
-        读取设置
-        如果传入 addon_id，则优先从对应插件的顶级键下读取。
-        @param name: 选项名称
-        @param addon_id: 可选，插件 id
-        @return: 选项内容
-        """
-        return self.read(name, addon_id=addon_id)
-
-    def read(self, name: str, addon_id: str = None):
-        """
-        读取设置
-        @param name: 选项名称
-        @param addon_id: 可选，插件 id；如果提供则优先在该插件的命名空间中查找
-        @return: 选项内容
-        """
-        # 先尝试插件命名空间
-        try:
-            if addon_id:
-                if not "addonSettings" in self.last_setting:
-                    self.last_setting["addonSettings"] = {}
-                addon_section = self.last_setting["addonSettings"].get(addon_id)
-                if isinstance(addon_section, dict) and name in addon_section:
-                    return addon_section.get(name)
-        except Exception:
-            logging.debug(f"读取插件设置时出错 addon_id={addon_id}, name={name}：{traceback.format_exc()}")
-
-        # 再尝试全局设置（已保存到文件中的顶级键）
-        if name in self.last_setting:
-            return self.last_setting.get(name)
-
-        # 最后返回默认设置
-        return self.DEFAULT_SETTING.get(name)
-
-    def __read(self):
         if not zb.existPath(program.SETTING_FILE_PATH):
             with open(program.SETTING_FILE_PATH, "w", encoding="utf-8") as file:
-                file.write(json.dumps(self.DEFAULT_SETTING, indent=2, ensure_ascii=False))
+                file.write(json.dumps(self.DEFAULT_SETTING, indent=4, ensure_ascii=False))
         try:
             with open(program.SETTING_FILE_PATH, "r", encoding="utf-8") as file:
                 self.last_setting = json.load(file)
@@ -71,132 +34,229 @@ class SettingFunctions(QObject):
             self.errorState = True
             logging.error(f"设置文件数据错误，已自动恢复至默认选项，错误信息：{traceback.format_exc()}！")
 
-    def set(self, name: str, data, addon_id: str = None):
+    def _get_by_path(self, data_dict: dict, path: str):
         """
-        保存设置；若提供 addon_id，则保存到以 addon_id 为顶级键的字典中。
-        @param name: 选项名称
-        @param data: 选项数据
-        @param addon_id: 可选，插件 id
+        通过路径获取字典中的值
+        @param data_dict: 数据字典
+        @param path: 路径，使用 "/" 分隔
+        @return: 值或 None
         """
-        self.save(name, data, addon_id=addon_id)
+        keys = path.strip("/").split("/")
+        current = data_dict
+        for key in keys:
+            if isinstance(current, dict) and key in current:
+                current = current[key]
+            else:
+                return None
+        return current
 
-    def save(self, name: str, data, addon_id: str = None):
+    def _set_by_path(self, data_dict: dict, path: str, value):
+        """
+        通过路径设置字典中的值
+        @param data_dict: 数据字典
+        @param path: 路径，使用 "/" 分隔
+        @param value: 要设置的值
+        """
+        keys = path.strip("/").split("/")
+        current = data_dict
+        # 遍历到倒数第二个键，确保路径存在
+        for key in keys[:-1]:
+            if key not in current or not isinstance(current[key], dict):
+                current[key] = {}
+            current = current[key]
+        # 设置最后一个键的值
+        current[keys[-1]] = value
+
+    def _delete_by_path(self, data_dict: dict, path: str):
+        """
+        通过路径删除字典中的键
+        @param data_dict: 数据字典
+        @param path: 路径，使用 "/" 分隔
+        @return: 是否成功删除
+        """
+        keys = path.strip("/").split("/")
+        current = data_dict
+        # 遍历到倒数第二个键
+        for key in keys[:-1]:
+            if key not in current or not isinstance(current[key], dict):
+                return False
+            current = current[key]
+        # 删除最后一个键
+        if keys[-1] in current:
+            del current[keys[-1]]
+            return True
+        return False
+
+    def _path_exists(self, data_dict: dict, path: str):
+        """
+        检查路径是否存在
+        @param data_dict: 数据字典
+        @param path: 路径，使用 "/" 分隔
+        @return: 是否存在
+        """
+        return self._get_by_path(data_dict, path) is not None
+
+    def get(self, path: str):
+        """
+        读取设置
+        @param path: 设置路径
+        @return: 选项内容
+        """
+        return self.read(path)
+
+    def read(self, path: str):
+        """
+        读取设置
+        @param path: 设置路径
+        @return: 选项内容
+        """
+        # 先从当前设置中读取
+        current_value = self._get_by_path(self.last_setting, path)
+        if current_value is not None:
+            return current_value
+
+        # 如果当前设置中没有，从默认设置中读取
+        default_value = self._get_by_path(self.DEFAULT_SETTING, path)
+        return default_value
+
+    def set(self, path: str, data):
         """
         保存设置
-        @param name: 选项名称
+        @param path: 设置路径
         @param data: 选项数据
-        @param addon_id: 可选，插件 id
         """
-        logging.debug(f"保存设置{name}：{data} (addon_id={addon_id})")
-        if addon_id:
-            # 确保插件顶级键存在且为 dict
-            if not "addonSettings" in self.last_setting:
-                self.last_setting["addonSettings"] = {}
-            if addon_id not in self.last_setting["addonSettings"] or not isinstance(self.last_setting["addonSettings"].get(addon_id), dict):
-                self.last_setting["addonSettings"][addon_id] = {}
-            self.last_setting["addonSettings"][addon_id][name] = data
-        else:
-            self.last_setting[name] = data
+        self.save(path, data)
+
+    def save(self, path: str, data):
+        """
+        保存设置
+        @param path: 设置路径
+        @param data: 选项数据
+        """
+        logging.debug(f"保存设置 {path}：{data}")
+
+        # 设置值
+        self._set_by_path(self.last_setting, path, data)
+
         # 触发变更事件并写入文件
         try:
-            self.changeEvent(name)
+            self.changeEvent(path)
         except Exception:
             logging.debug(f"触发 changeEvent 失败：{traceback.format_exc()}")
         self.__save()
 
     def __save(self):
         with open(program.SETTING_FILE_PATH, "w", encoding="utf-8") as file:
-            file.write(json.dumps(self.last_setting, indent=2, ensure_ascii=False))
+            file.write(json.dumps(self.last_setting, indent=4, ensure_ascii=False))
         self.last_timestamp = os.path.getmtime(program.SETTING_FILE_PATH)
 
-    def reset(self, name=None, addon_id: str = None):
+    def reset(self, path: str = None):
         """
         重置设置
-        @param name: 选项名称
-        @param addon_id: 可选，插件 id；若提供则仅重置该插件命名空间内的键
+        @param path: 设置路径，如为 None 则重置所有设置
         """
-        if name:
-            # 仅重置单个键
-            if addon_id:
-                # 确保插件命名空间存在
-                if not "addonSettings" in self.last_setting:
-                    self.last_setting["addonSettings"] = {}
-                if addon_id not in self.last_setting["addonSettings"] or not isinstance(self.last_setting["addonSettings"].get(addon_id), dict):
-                    self.last_setting["addonSettings"][addon_id] = {}
-                # 如果 DEFAULT_SETTING 中存在默认值，则写入默认值；否则删除该键（避免写入 None）
-                if name in self.DEFAULT_SETTING["addonSettings"].get(addon_id, {}):
-                    self.save(name, self.DEFAULT_SETTING["addonSettings"].get(addon_id).get(name), addon_id=addon_id)
-                # 触发变更事件
-                try:
-                    self.changeEvent(name)
-                except Exception:
-                    logging.debug(f"触发 changeEvent 失败：{traceback.format_exc()}")
+        if path:
+            # 重置单个路径
+            default_value = self._get_by_path(self.DEFAULT_SETTING, path)
+            if default_value is not None:
+                self.save(path, default_value)
             else:
-                # 全局键按原逻辑重置为默认（可能为 None）
-                self.save(name, self.DEFAULT_SETTING.get(name))
-                try:
-                    self.changeEvent(name)
-                except Exception:
-                    logging.debug(f"触发 changeEvent 失败：{traceback.format_exc()}")
+                # 如果默认值中没有该路径，则删除该设置
+                self._delete_by_path(self.last_setting, path)
+                self.__save()
+                self.changeEvent(path)
         else:
             logging.info("开始重置程序设置！")
-            l = self.__compare(self.DEFAULT_SETTING, self.last_setting)
+            changed_paths = self.__compare(self.DEFAULT_SETTING, self.last_setting)
             self.last_setting = deepcopy(self.DEFAULT_SETTING)
             self.__save()
-            for i in l:
-                self.changeEvent(i)
+            for path in changed_paths:
+                self.changeEvent(path)
             logging.info("程序设置重置完成！")
 
-    def add(self, name: str, data, addon_id: str = None):
+    def add(self, path: str, default_data):
         """
         添加设置项
-        @param name: 选项名称
-        @param data: 默认数据
-        @param addon_id: 可选，插件 id；若提供则把默认值放在插件命名空间下
+        @param path: 设置路径
+        @param default_data: 默认数据
         """
-        if addon_id:
-            # 在插件空间中添加默认值（但不覆盖已有的）
-            if not "addonSettings" in self.last_setting:
-                self.last_setting["addonSettings"] = {}
-            if addon_id not in self.last_setting["addonSettings"] or not isinstance(self.last_setting["addonSettings"].get(addon_id), dict):
-                self.last_setting["addonSettings"][addon_id] = {}
-            if name not in self.last_setting["addonSettings"][addon_id].keys():
-                self.last_setting["addonSettings"][addon_id][name] = data
-                self.__save()
-            if addon_id not in self.DEFAULT_SETTING["addonSettings"]:
-                self.DEFAULT_SETTING["addonSettings"][addon_id] = {}
-            self.DEFAULT_SETTING["addonSettings"][addon_id][name] = data
-        else:
-            self.DEFAULT_SETTING[name] = data
-            if name not in self.last_setting.keys():
-                self.save(name, data)
+        # 在默认设置中添加
+        self._set_by_path(self.DEFAULT_SETTING, path, default_data)
 
-    def adds(self, data: dict, addon_id: str = None):
+        # 如果当前设置中没有该路径，则添加默认值
+        if not self._path_exists(self.last_setting, path):
+            self._set_by_path(self.last_setting, path, default_data)
+            self.__save()
+
+    def adds(self, defaults: dict):
         """
         批量添加设置项
-        @param data: 数据
-        @param addon_id: 可选，插件 id
+        @param defaults: 字典，键为路径，值为默认数据
         """
-        for k, v in data.items():
-            self.add(k, v, addon_id=addon_id)
+        for path, default_data in defaults.items():
+            self.add(path, default_data)
 
-    def changeEvent(self, name: str):
+    def delete(self, path: str):
+        """
+        删除设置项
+        @param path: 设置路径
+        @return: 是否成功删除
+        """
+        success = self._delete_by_path(self.last_setting, path)
+        if success:
+            self.__save()
+            self.changeEvent(path)
+        return success
+
+    def list_paths(self, base_path: str = ""):
+        """
+        列出指定路径下的所有设置路径
+        @param base_path: 基础路径
+        @return: 路径列表
+        """
+        data = self._get_by_path(self.last_setting, base_path) if base_path else self.last_setting
+        if not isinstance(data, dict):
+            return []
+
+        paths = []
+        self._collect_paths(data, base_path, paths)
+        return paths
+
+    def _collect_paths(self, data: dict, current_path: str, paths: list):
+        """
+        递归收集所有路径
+        """
+        for key, value in data.items():
+            new_path = f"{current_path}/{key}" if current_path else key
+            if isinstance(value, dict):
+                self._collect_paths(value, new_path, paths)
+            else:
+                paths.append(new_path)
+
+    def changeEvent(self, path: str):
         """
         修改设置项事件
-        @param name: 名称
+        @param path: 设置路径
         """
-        logging.info(f"设置项{name}发生更改，已同步！")
+        logging.info(f"设置项 {path} 发生更改，已同步！")
         try:
-            self.changeSignal.emit(name)
+            self.changeSignal.emit(path)
         except Exception:
             logging.debug(f"emit changeSignal 失败：{traceback.format_exc()}")
 
-    def signalConnect(self, func):
+    def connect(self, func):
         """
         连接信号，用于动态重载设置
         @param func: 函数名
         """
         self.changeSignal.connect(func)
+
+    def disconnect(self, func):
+        """
+        取消连接信号，用于动态重载设置
+        @param func: 函数名
+        """
+        self.changeSignal.disconnect(func)
 
     def checkFileChange(self):
         """
@@ -212,49 +272,38 @@ class SettingFunctions(QObject):
                     self.last_timestamp = current_timestamp
                     with open(program.SETTING_FILE_PATH, "r", encoding="utf-8") as file:
                         self.current_setting = json.load(file)
-                    l = self.__compare(self.current_setting, self.last_setting)
+                    changed_paths = self.__compare(self.current_setting, self.last_setting)
                     self.last_setting = self.current_setting
-                    for i in l:
-                        self.changeEvent(i)
+                    for path in changed_paths:
+                        self.changeEvent(path)
             except:
                 logging.error(f"设置文件数据数据错误，错误信息：{traceback.format_exc()}！")
 
-    def __compare(self, old: dict, new: dict):
+    def __compare(self, old: dict, new: dict, current_path: str = ""):
         """
-        递归比较两个 dict，返回发生变化的最内层键名列表（不带插件 id 前缀）。
+        递归比较两个 dict，返回发生变化的路径列表
         """
-        keys = []
+        changed_paths = []
+        all_keys = set(old.keys()) | set(new.keys())
 
-        for k in old.keys():
-            if k in new.keys():
-                if isinstance(old[k], dict) and isinstance(new[k], dict):
-                    inner = self.__compare(old[k], new[k])
-                    keys.extend(inner)
-                else:
-                    if old[k] != new[k]:
-                        keys.append(k)
-            else:
-                if isinstance(old[k], dict):
-                    keys.extend(list(self.__gather_keys(old[k])))
-                else:
-                    keys.append(k)
+        for key in all_keys:
+            path = f"{current_path}/{key}" if current_path else key
 
-        for k in new.keys():
-            if k not in old.keys():
-                if isinstance(new[k], dict):
-                    keys.extend(list(self.__gather_keys(new[k])))
-                else:
-                    keys.append(k)
+            if key in old and key in new:
+                if isinstance(old[key], dict) and isinstance(new[key], dict):
+                    # 递归比较子字典
+                    changed_paths.extend(self.__compare(old[key], new[key], path))
+                elif old[key] != new[key]:
+                    # 值发生变化
+                    changed_paths.append(path)
+            elif key in old and key not in new:
+                # 键被删除
+                changed_paths.append(path)
+            elif key not in old and key in new:
+                # 新增键
+                changed_paths.append(path)
 
-        return sorted(list(set(keys)))
-
-    def __gather_keys(self, d: dict):
-        """收集嵌套 dict 的所有最内层键名"""
-        for k, v in d.items():
-            if isinstance(v, dict):
-                yield from self.__gather_keys(v)
-            else:
-                yield k
+        return changed_paths
 
 
 setting = SettingFunctions()

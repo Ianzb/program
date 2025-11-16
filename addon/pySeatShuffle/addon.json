@@ -5,7 +5,7 @@
   "description": "一个随机排座工具。",
   "version": "1.1.1",
   "version_code": 7,
-  "api_version": 4,
+  "api_version": 5,
   "icon": "https://drive.ianzb.cn/code/program/addon/pySeatShuffle/pySeatShuffle.png",
   "file": "https://drive.ianzb.cn/code/program/addon/pySeatShuffle/pySeatShuffle.zip",
   "history": {

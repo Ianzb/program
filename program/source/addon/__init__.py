@@ -25,80 +25,200 @@ from qtpy import *
 
 import aenum
 
+from program.source import SettingFunctions
+
 sys.path.append(os.path.dirname(sys.argv[0]))
 
 
-class AddonSettingProxy:
+class AddonSettingProxy(QObject):
     """
-    包装主程序的 setting 对象，对插件透明地在内部使用 addon_id 命名空间存取数据。
-    支持的方法：get/read/set/save/add/adds/reset/signalConnect/changeSignal
+    包装主程序的 setting 对象，对插件透明地在内部使用路径方式存取数据。
+    支持的方法：get/read/set/save/add/adds/reset/connect/changeSignal
     """
+    changeSignal = pyqtSignal(str)
+    changeSignalWithoutAddonPath = pyqtSignal(str)
 
-    def __init__(self, base_setting, addon_id=None):
-        self._base = base_setting
+    def __init__(self, setting: SettingFunctions, addon_id: str = None):
+        super().__init__()
+        self.setting = setting
         self._addon_id = addon_id
-        if hasattr(base_setting, 'changeSignal'):
-            self.changeSignal = getattr(base_setting, 'changeSignal')
+        self.setting.connect(self.changeEvent)
+        self.setting.connect(self.changeEvent2)
 
     def set_addon_id(self, addon_id):
         self._addon_id = addon_id
 
-    def get(self, name):
-        return self.read(name)
+    def _get_full_path(self, name, use_addon_path=True):
+        """
+        获取完整路径
+        @param name: 设置名称
+        @param use_addon_path: 是否使用插件路径
+        @return: 完整路径
+        """
+        if use_addon_path and self._addon_id:
+            return f"addonSettings/{self._addon_id}/{name}"
+        else:
+            return name
 
-    def read(self, name):
+    def get(self, name, use_addon_path=True):
+        """
+        读取设置
+        @param name: 设置名称
+        @param use_addon_path: 是否优先从插件路径查找，默认为True
+        @return: 设置值
+        """
+        return self.read(name, use_addon_path)
+
+    def read(self, name, use_addon_path=True):
+        """
+        读取设置
+        @param name: 设置名称
+        @param use_addon_path: 是否优先从插件路径查找，默认为True
+        @return: 设置值
+        """
+        if use_addon_path and self._addon_id:
+            # 优先从插件路径查找
+            addon_path = f"addonSettings/{self._addon_id}/{name}"
+            value = self.setting.read(addon_path)
+            if value is not None:
+                return value
+
+        # 如果插件路径未找到或未使用插件路径，从根目录查找
+        return self.setting.read(name)
+
+    def save(self, name, data, use_addon_path=True):
+        """
+        保存设置
+        @param name: 设置名称
+        @param data: 设置值
+        @param use_addon_path: 是否保存到插件路径，默认为True
+        @return: None
+        """
+        if use_addon_path and self._addon_id:
+            path = f"addonSettings/{self._addon_id}/{name}"
+        else:
+            path = name
+
+        self.setting.save(path, data)
+
+    def set(self, name, data, use_addon_path=True):
+        """
+        设置值（save的别名）
+        @param name: 设置名称
+        @param data: 设置值
+        @param use_addon_path: 是否保存到插件路径，默认为True
+        @return: None
+        """
+        return self.save(name, data, use_addon_path)
+
+    def add(self, name, data, use_addon_path=True):
+        """
+        添加设置项
+        @param name: 设置名称
+        @param data: 默认值
+        @param use_addon_path: 是否添加到插件路径，默认为True
+        @return: None
+        """
+        if use_addon_path and self._addon_id:
+            path = f"addonSettings/{self._addon_id}/{name}"
+        else:
+            path = name
+
+        self.setting.add(path, data)
+
+    def adds(self, data: dict, use_addon_path=True):
+        """
+        批量添加设置项
+        @param data: 设置字典
+        @param use_addon_path: 是否添加到插件路径，默认为True
+        @return: None
+        """
+        for name, value in data.items():
+            self.add(name, value, use_addon_path)
+
+    def reset(self, name=None, use_addon_path=True):
+        """
+        重置设置
+        @param name: 设置名称，为None时重置所有相关设置
+        @param use_addon_path: 是否重置插件路径的设置，默认为True
+        @return: None
+        """
+        if name is None:
+            # 重置所有相关设置
+            if use_addon_path and self._addon_id:
+                # 重置插件命名空间下的所有设置
+                base_path = f"addonSettings/{self._addon_id}"
+                paths = self.setting.list_paths(base_path)
+                for path in paths:
+                    full_path = f"{base_path}/{path}" if base_path else path
+                    self.setting.reset(full_path)
+            else:
+                # 重置全局设置（谨慎使用）
+                self.setting.reset()
+        else:
+            # 重置特定设置
+            if use_addon_path and self._addon_id:
+                path = f"addonSettings/{self._addon_id}/{name}"
+            else:
+                path = name
+
+            self.setting.reset(path)
+
+    def delete(self, name, use_addon_path=True):
+        """
+        删除设置项
+        @param name: 设置名称
+        @param use_addon_path: 是否删除插件路径的设置，默认为True
+        @return: 是否成功删除
+        """
+        if use_addon_path and self._addon_id:
+            path = f"addonSettings/{self._addon_id}/{name}"
+        else:
+            path = name
+
+        return self.setting.delete(path)
+
+    def list_settings(self, use_addon_path=True):
+        """
+        列出所有相关设置
+        @param use_addon_path: 是否列出插件路径的设置，默认为True
+        @return: 设置路径列表
+        """
+        if use_addon_path and self._addon_id:
+            base_path = f"addonSettings/{self._addon_id}"
+            return self.setting.list_paths(base_path)
+        else:
+            # 列出所有全局设置（排除插件设置）
+            all_paths = self.setting.list_paths()
+            return [path for path in all_paths]
+
+    def connect(self, func, use_addon_path=True):
+        """
+        连接信号，用于动态重载设置
+        @param func: 函数名
+        """
+        if use_addon_path:
+            self.changeSignal.connect(func)
+        else:
+            self.changeSignalWithoutAddonPath.connect(func)
+
+    def disconnect(self, func):
+        """
+        取消连接信号，用于动态重载设置
+        @param func: 函数名
+        """
         try:
-            if self._addon_id:
-                return self._base.read(name, addon_id=self._addon_id)
-        except TypeError:
-            pass
-        return self._base.read(name)
+            self.changeSignal.disconnect(func)
+        except:
+            self.changeSignalWithoutAddonPath.disconnect(func)
 
-    def save(self, name, data):
-        try:
-            if self._addon_id:
-                return self._base.save(name, data, addon_id=self._addon_id)
-        except TypeError:
-            pass
-        return self._base.save(name, data)
+    def changeEvent(self, key: str):
+        if key.startswith(f"addonSettings/{self._addon_id}/"):
+            key = key.replace(f"addonSettings/{self._addon_id}/", "", 1)
+        self.changeSignal.emit(key)
 
-    def set(self, name, data):
-        return self.save(name, data)
-
-    def add(self, name, data):
-        try:
-            if self._addon_id:
-                return self._base.add(name, data, addon_id=self._addon_id)
-        except TypeError:
-            pass
-        return self._base.add(name, data)
-
-    def adds(self, data: dict):
-        try:
-            if self._addon_id:
-                return self._base.adds(data, addon_id=self._addon_id)
-        except TypeError:
-            pass
-        return self._base.adds(data)
-
-    def reset(self, name=None):
-        try:
-            if self._addon_id:
-                return self._base.reset(name, addon_id=self._addon_id)
-        except TypeError:
-            pass
-        return self._base.reset(name)
-
-    def signalConnect(self, func):
-        try:
-            if hasattr(self._base, 'signalConnect'):
-                return self._base.signalConnect(func)
-        except Exception:
-            if hasattr(self, 'changeSignal'):
-                try:
-                    self.changeSignal.connect(func)
-                except Exception:
-                    logging.debug(f"AddonSettingProxy.bind signal failed: {traceback.format_exc()}")
+    def changeEvent2(self, key: str):
+        self.changeSignalWithoutAddonPath.emit(key)
 
 
 class AddonBase:
@@ -113,8 +233,8 @@ class AddonBase:
         try:
             addon_id = None
             if isinstance(__addon_info, dict):
-                addon_id = __addon_info.get('id')
-            proxy = AddonSettingProxy(__setting, addon_id=addon_id)
+                addon_id = __addon_info.get("id")
+            proxy = AddonSettingProxy(__setting, addon_id)
             self.setting = proxy
         except Exception:
             logging.debug(f"创建 AddonSettingProxy 失败：{traceback.format_exc()}")

@@ -42,6 +42,9 @@ class Person:
     def __getitem__(self, item):
         return self.properties[item]
 
+    def __hash__(self):
+        return hash(self.id)
+
 
 class FakePerson(Person):
     ID = -1

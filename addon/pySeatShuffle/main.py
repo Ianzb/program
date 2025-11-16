@@ -20,6 +20,10 @@ def addonInit():
     addonInit1()
 
 
+def addonDelete():
+    pass
+
+
 def addonWidget():
     return MainPage(window)
 
@@ -95,7 +99,7 @@ class TableInterface(HeaderCardWidget):
         self.tableChooser.setFixedSize(200, 120)
         self.viewLayout.addWidget(self.tableChooser, Qt.AlignCenter)
 
-        setting.signalConnect(self.settingChanged)
+        setting.connect(self.settingChanged)
         self.importTableFinishedSignal.connect(self.importTableFinished)
 
     def settingChanged(self, name):
@@ -103,9 +107,11 @@ class TableInterface(HeaderCardWidget):
             self.tableChooser.setDefaultPath(setting.read("downloadPath"))
 
     def clearTable(self):
+        self.closeButton.setEnabled(False)
         manager.removeTable()
         self.tableChooser.show()
         self.closeButton.hide()
+        self.closeButton.setEnabled(True)
 
     def importTable(self, path):
         if not path:
@@ -123,7 +129,7 @@ class TableInterface(HeaderCardWidget):
             elif zb.getFileSuffix(path) == ".json":
                 table = manager.JSON_PARSER.parse(path)
             else:
-                raise Error("文件格式不兼容！")
+                raise "文件格式不兼容！"
             setting.save("downloadPath", zb.getFileDir(path))
             logging.info(f"导入座位表格文件{path}成功！")
             self.importTableFinishedSignal.emit(True, table, path)
@@ -133,10 +139,15 @@ class TableInterface(HeaderCardWidget):
 
     def importTableFinished(self, status, table, path):
         if status:
-            manager.setTable(table)
-            infoBar = InfoBar(InfoBarIcon.SUCCESS, "成功", f"导入座位文件{zb.getFileName(path)}成功！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.BOTTOM, manager.mainPage)
-            self.tableChooser.hide()
-            self.closeButton.show()
+            try:
+                manager.setTable(table)
+                infoBar = InfoBar(InfoBarIcon.SUCCESS, "成功", f"导入座位文件{zb.getFileName(path)}成功！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.BOTTOM, manager.mainPage)
+                self.tableChooser.hide()
+                self.closeButton.show()
+            except:
+                logging.error(f"导入座位表格文件{path}失败，报错信息：{traceback.format_exc()}！")
+                self.importTableFinishedSignal.emit(False, core.SeatTable([], (0, 0)), path)
+                return
         else:
             infoBar = InfoBar(InfoBarIcon.ERROR, "失败", f"导入座位文件{zb.getFileName(path)}失败！", Qt.Orientation.Vertical, True, 5000, InfoBarPosition.BOTTOM, manager.mainPage)
         infoBar.show()
@@ -436,7 +447,7 @@ class ListInterface(zbw.BasicTab):
         self.vBoxLayout.addWidget(self.listChooser, 0, Qt.AlignCenter)
         self.vBoxLayout.addWidget(self.cardGroup)
 
-        setting.signalConnect(self.settingChanged)
+        setting.connect(self.settingChanged)
         self.getKeyFinishedSignal.connect(self.getKeyFinished)
         self.importPersonFinishedSignal.connect(self.importPersonFinished)
 

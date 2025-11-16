@@ -5,7 +5,7 @@
   "description": "一款简易的文件整理清理插件。",
   "version": "1.1.12",
   "version_code": 18,
-  "api_version": 3,
+  "api_version": 5,
   "icon": "https://drive.ianzb.cn/code/program/addon/filemanager/filemanager.png",
   "file": "https://drive.ianzb.cn/code/program/addon/filemanager/filemanager.zip",
   "history": {
