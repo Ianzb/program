@@ -5,7 +5,6 @@ class ThemeSettingCard(ExpandSettingCard):
     """
     主题设置卡片
     """
-    themeChanged = pyqtSignal(OptionsConfigItem)
 
     def __init__(self, parent=None):
         super().__init__(FIF.BRUSH, "模式", "更改显示的颜色", parent)
@@ -38,12 +37,26 @@ class ThemeSettingCard(ExpandSettingCard):
 
         self._adjustViewSize()
 
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.timerEvent)
+        self.timer.start(250)
+
+    def timerEvent(self):
+        if setting.read("theme") == "Theme.AUTO":
+            t = darkdetect.theme()
+            t = Theme(t) if t else Theme.LIGHT
+            if qconfig._cfg._theme != t:
+                setTheme(t)
+                qconfig.themeChanged.emit(t)
+
+            qconfig._cfg._theme = t
+
     def setEvent(self, msg):
         if msg == "theme":
             self.set()
 
     def set(self):
-        self.buttonGroup.buttonClicked.disconnect(self.buttonGroupClicked)
+        self.buttonGroup.blockSignals(True)
         if setting.read("theme") == "Theme.LIGHT":
             self.radioButton1.setChecked(True)
             setTheme(Theme.LIGHT, lazy=True)
@@ -57,7 +70,7 @@ class ThemeSettingCard(ExpandSettingCard):
             setTheme(Theme.AUTO, lazy=True)
             self.label.setText("跟随系统设置")
         self.label.adjustSize()
-        self.buttonGroup.buttonClicked.connect(self.buttonGroupClicked)
+        self.buttonGroup.blockSignals(False)
 
     def buttonGroupClicked(self, button: RadioButton):
         if button.text() == self.label.text():
@@ -135,6 +148,15 @@ class ColorSettingCard(ExpandGroupSettingCard):
         setting.signalConnect(self.setEvent)
         self.window().initFinished.connect(self.set)
 
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.timerEvent)
+        self.timer.start(250)
+
+    def timerEvent(self):
+        if setting.read("themeColor") == "default":
+            self.color = QColor(self.getDefaultColor())
+            setThemeColor(QColor(self.color), lazy=True)
+
     def getDefaultColor(self):
         from qframelesswindow.utils import getSystemAccentColor
         sysColor = getSystemAccentColor()
@@ -144,7 +166,7 @@ class ColorSettingCard(ExpandGroupSettingCard):
             return "#0078D4"
 
     def set(self):
-        self.buttonGroup.buttonClicked.disconnect(self.buttonGroupClicked)
+        self.buttonGroup.blockSignals(True)
         if setting.read("themeColor") == "default":
             self.button1.setChecked(True)
             self.button3.setEnabled(False)
@@ -157,7 +179,7 @@ class ColorSettingCard(ExpandGroupSettingCard):
         self.label1.setText(self.buttonGroup.checkedButton().text())
         self.label1.adjustSize()
         setThemeColor(self.color, lazy=True)
-        self.buttonGroup.buttonClicked.connect(self.buttonGroupClicked)
+        self.buttonGroup.blockSignals(False)
 
     def setEvent(self, msg):
         if msg == "themeColor":
@@ -191,37 +213,77 @@ class ColorSettingCard(ExpandGroupSettingCard):
         self.colorChanged.emit(color)
 
 
-class MicaEffectSettingCard(SettingCard):
+class WindowEffectSettingCard(ExpandSettingCard):
     """
-    云母效果设置卡片
+    背景材质设置卡片
     """
 
     def __init__(self, parent=None):
-        super().__init__(FIF.TRANSPARENT, "云母效果", "", parent)
-        self.button1 = SwitchButton(self, IndicatorPosition.RIGHT)
-        self.button1.setChecked(setting.read("micaEffect"))
-        self.button1.checkedChanged.connect(self.button1Clicked)
-        self.button1.setNewToolTip("开启 Windows 11 的窗口模糊效果")
+        super().__init__(FIF.TRANSPARENT, "背景材质", "设置窗口背景材质，需要系统支持", parent)
+        self.label = BodyLabel(self)
 
-        self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
-        self.hBoxLayout.addSpacing(16)
+        self.addWidget(self.label)
+
+        self.radioButton1 = RadioButton("无", self.view)
+
+        self.radioButton2 = RadioButton("Mica", self.view)
+
+        self.radioButton3 = RadioButton("Mica Alt", self.view)
+        self.radioButton4 = RadioButton("Acrylic", self.view)
+        self.radioButton5 = RadioButton("Aero", self.view)
+
+        self.buttonGroup = QButtonGroup(self)
+        self.buttonGroup.buttonClicked.connect(self.buttonGroupClicked)
+
+        self.buttonGroup.addButton(self.radioButton1)
+        self.buttonGroup.addButton(self.radioButton2)
+        self.buttonGroup.addButton(self.radioButton3)
+        self.buttonGroup.addButton(self.radioButton4)
+        self.buttonGroup.addButton(self.radioButton5)
+
+        self.viewLayout.setSpacing(19)
+        self.viewLayout.setContentsMargins(48, 18, 0, 18)
+
+        self.viewLayout.addWidget(self.radioButton1)
+        self.viewLayout.addWidget(self.radioButton2)
+        self.viewLayout.addWidget(self.radioButton3)
+        self.viewLayout.addWidget(self.radioButton4)
+        self.viewLayout.addWidget(self.radioButton5)
 
         setting.signalConnect(self.setEvent)
+        qconfig.themeChanged.connect(lambda x: self.set)
         self.window().initFinished.connect(self.set)
 
-    def set(self):
-        self.button1.checkedChanged.disconnect(self.button1Clicked)
-        self.button1.setChecked(setting.read("micaEffect"))
-        self.window().setMicaEffectEnabled(setting.read("micaEffect"))
-        self.button1.checkedChanged.connect(self.button1Clicked)
+        self._adjustViewSize()
 
     def setEvent(self, msg):
-        if msg == "micaEffect":
+        if msg == "windowEffect":
             self.set()
 
-    def button1Clicked(self):
-        setting.save("micaEffect", self.button1.checked)
-        self.window().setMicaEffectEnabled(self.button1.checked)
+    def set(self):
+        self.buttonGroup.blockSignals(True)
+        window_effect = setting.read("windowEffect")
+        if window_effect:
+            self.window().setEffect(window_effect)
+            self.label.setText(window_effect)
+            for i in self.buttonGroup.buttons():
+                if i.text() == window_effect:
+                    i.setChecked(True)
+        else:
+            self.window().removeEffect()
+            self.label.setText("无")
+            self.radioButton1.setChecked(True)
+        self.label.adjustSize()
+        self.buttonGroup.blockSignals(False)
+
+    def buttonGroupClicked(self, button: RadioButton):
+        text = button.text()
+        if text == self.label.text():
+            return
+        if text == "无":
+            setting.save("windowEffect", "")
+        else:
+            setting.save("windowEffect", text)
 
 
 class StartupSettingCard(SettingCard):
@@ -291,10 +353,10 @@ class TraySettingCard(SettingCard):
         setting.signalConnect(self.setEvent)
 
     def set(self):
-        self.button1.checkedChanged.disconnect(self.button1Clicked)
+        self.button1.blockSignals(True)
         self.button1.setChecked(setting.read("showTray"))
         self.window().tray.setVisible(setting.read("showTray"))
-        self.button1.checkedChanged.connect(self.button1Clicked)
+        self.button1.blockSignals(False)
 
     def setEvent(self, msg):
         if msg == "showTray":
@@ -324,9 +386,9 @@ class HideSettingCard(SettingCard):
         setting.signalConnect(self.setEvent)
 
     def set(self):
-        self.button1.checkedChanged.disconnect(self.button1Clicked)
+        self.button1.blockSignals(True)
         self.button1.setChecked(setting.read("hideWhenClose"))
-        self.button1.checkedChanged.connect(self.button1Clicked)
+        self.button1.blockSignals(False)
 
     def setEvent(self, msg):
         if msg == "hideWhenClose":
@@ -398,7 +460,7 @@ class SettingPage(zbw.BasicPage):
 
         self.themeSettingCard = ThemeSettingCard(self)
         self.colorSettingCard = ColorSettingCard(self)
-        self.micaEffectSettingCard = MicaEffectSettingCard(self)
+        self.windowEffectSettingCard = WindowEffectSettingCard(self)
 
         self.startupSettingCard = StartupSettingCard(self)
         self.traySettingCard = TraySettingCard(self)
@@ -408,7 +470,7 @@ class SettingPage(zbw.BasicPage):
 
         self.cardGroup1.addCard(self.themeSettingCard, "themeSettingCard")
         self.cardGroup1.addCard(self.colorSettingCard, "colorSettingCard")
-        self.cardGroup1.addCard(self.micaEffectSettingCard, "micaEffectSettingCard")
+        self.cardGroup1.addCard(self.windowEffectSettingCard, "windowEffectSettingCard")
 
         self.cardGroup2.addCard(self.startupSettingCard, "startupSettingCard")
         self.cardGroup2.addCard(self.traySettingCard, "traySettingCard")
@@ -419,6 +481,3 @@ class SettingPage(zbw.BasicPage):
         self.vBoxLayout.addWidget(self.cardGroup1, 0, Qt.AlignTop)
         self.vBoxLayout.addWidget(self.cardGroup2, 0, Qt.AlignTop)
         self.vBoxLayout.addWidget(self.cardGroup3, 0, Qt.AlignTop)
-
-        if not (zb.SYSTEM_VERSION[0] >= 10 and zb.SYSTEM_VERSION[2] >= 22000):
-            self.micaEffectSettingCard.hide()

@@ -10,7 +10,7 @@ class SettingFunctions(QObject):
                        "autoHide": True,
                        "downloadPath": zb.DOWNLOAD_PATH(),
                        "showWindow": False,
-                       "micaEffect": True,
+                       "windowEffect": "Mica",
                        "showTray": True,
                        "hideWhenClose": True,
                        "addonSettings": {},
