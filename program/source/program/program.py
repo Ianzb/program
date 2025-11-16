@@ -150,9 +150,9 @@ class Program:
         if zb.existPath(zb.joinPath(self.DATA_PATH, "zb.lock")):
             with open(zb.joinPath(self.DATA_PATH, "zb.lock"), "r+", encoding="utf-8") as file:
                 pid = file.read().strip()
-            if pid != self.PID and "zbProgram.exe" in zb.easyCmd(f"tasklist |findstr {pid}", True):
+            if pid and pid != self.PID and "zbProgram.exe" in zb.easyCmd(f"tasklist |findstr {pid}", True):
                 open(zb.joinPath(self.DATA_PATH, "zb.unlock"), "w").close()
-                logging.info(f"检测到重复PID{pid}，程序重复运行，自动关闭！")
+                logging.info(f"检测到重复PID {pid}，程序重复运行，自动关闭！")
                 self.close()
         if zb.existPath(zb.joinPath(self.DATA_PATH, "zb.unlock")):
             os.remove(zb.joinPath(self.DATA_PATH, "zb.unlock"))
