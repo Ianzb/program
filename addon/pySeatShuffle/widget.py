@@ -66,14 +66,16 @@ class PersonWidget(QFrame):
         setting.connect(self.setFontSize)
         self.setFontSize()
 
+    def deleteLater(self):
+        setting.changeSignal.disconnect(self.setFontSize)
+        if self.person:
+            self.person.setParent(None)
+        super().deleteLater()
+
     def setFontSize(self, msg="fontSize"):
         if msg == "fontSize":
             self.label.getFont = lambda: getFont(setting.read("fontSize"), QFont.DemiBold)
             self.label.setFont(self.label.getFont())
-
-    def deleteLater(self):
-        setting.changeSignal.disconnect(self.setFontSize)
-        super().deleteLater()
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
@@ -122,10 +124,11 @@ class PersonWidget(QFrame):
     def getProterties(self):
         return self.person.get_properties()
 
-    def setParent(self, a0):
-        old = self.parent()
-        if isinstance(old, PersonWidgetTableBase) or isinstance(old, PersonWidgetBase):
-            self.parent().removePerson()
+    def setParent(self, a0, skip: bool = False):
+        if not skip:
+            old = self.parent()
+            if isinstance(old, PersonWidgetTableBase) or isinstance(old, PersonWidgetBase):
+                self.parent().removePerson()
         super().setParent(a0)
 
     def stopAnimation(self):
@@ -134,7 +137,7 @@ class PersonWidget(QFrame):
             self.moveAnimationFinished()
 
     def setTransparent(self, value: float):
-        opacity_effect = QGraphicsOpacityEffect()
+        opacity_effect = QGraphicsOpacityEffect(self)
         opacity_effect.setOpacity(value)
         self.setGraphicsEffect(opacity_effect)
 
@@ -171,11 +174,11 @@ class PersonWidget(QFrame):
         self.new_temp_widget.move(old_pos)  # 从相同位置开始
 
         # 设置初始透明度
-        old_opacity_effect = QGraphicsOpacityEffect(self.old_temp_widget)
+        old_opacity_effect = QGraphicsOpacityEffect(self)
         old_opacity_effect.setOpacity(1.0)  # 旧pixmap初始完全不透明
         self.old_temp_widget.setGraphicsEffect(old_opacity_effect)
 
-        new_opacity_effect = QGraphicsOpacityEffect(self.new_temp_widget)
+        new_opacity_effect = QGraphicsOpacityEffect(self)
         new_opacity_effect.setOpacity(0.0)
         self.new_temp_widget.setGraphicsEffect(new_opacity_effect)
 
@@ -396,9 +399,14 @@ class PersonWidgetBase(CardWidget):
             self.person.moveAnimation(old_pixmap, old_pos, new_pos)
 
     def removePerson(self):
-        self.parent().removeCard(self.person.getID())
+        self.card_group.removeCard(self.person.getID())
 
         self.deleteLater()
+
+    def deleteLater(self):
+        if self.person:
+            self.person.setParent(None, True)
+        super().deleteLater()
 
     def deletePerson(self):
         self.removePerson()
@@ -1043,7 +1051,7 @@ class Manager(QWidget):
                 widget = PersonWidgetBase(self.listInterface, self.listInterface.cardGroup)
                 person_widget.move_back = False
                 self.listInterface.cardGroup.addCard(widget, k)
-                if isinstance(parent, PersonWidgetTableBase) or not parent:
+                if isinstance(parent, PersonWidgetTableBase):
                     widget.setPerson(person_widget, True)
                 else:
                     widget.setPerson(person_widget, False)
