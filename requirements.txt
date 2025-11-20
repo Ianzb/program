@@ -19,10 +19,10 @@ pydantic_core==2.41.5
 pyinstaller==6.16.0
 pyinstaller-hooks-contrib==2025.9
 pypi-simple==1.8.0
-PySide6==6.10.0
+PySide6==6.10.1
 PySide6-Fluent-Widgets==1.9.2
-PySide6_Addons==6.10.0
-PySide6_Essentials==6.10.0
+PySide6_Addons==6.10.1
+PySide6_Essentials==6.10.1
 PySideSix-Frameless-Window==0.7.4
 pywin32==311
 pywin32-ctypes==0.2.3
@@ -31,7 +31,7 @@ requests==2.32.5
 scipy==1.16.3
 Send2Trash==1.8.3
 setuptools==80.9.0
-shiboken6==6.10.0
+shiboken6==6.10.1
 soupsieve==2.8
 typing-inspection==0.4.2
 typing_extensions==4.15.0
