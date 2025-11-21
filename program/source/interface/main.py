@@ -81,7 +81,7 @@ class AddonInfoCard(zbw.SmallInfoCard):
             self.setInstalledData(self.onlineData)
 
     def removeAddon(self):
-        data = self.onlineData if self.onlineData else self.offlineData
+        data = self.offlineData if self.offlineData else self.onlineData
         self.window().removeAddon(data)
         self.removeButton.setEnabled(False)
         self.infoButton.setEnabled(False)
