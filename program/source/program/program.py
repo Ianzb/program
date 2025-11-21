@@ -89,8 +89,7 @@ class Program:
 
         ZBF.setPath(self.source("icons"))
         for i in zb.walkFile(self.source("icons"), True):
-            name = "_".join(zb.getFileName(i).split("_")[:-1])
-            ZBF.add(name)
+            ZBF.add(zb.getFileName(i, False))
 
     @property
     def ICON(self):
