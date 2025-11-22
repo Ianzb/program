@@ -12,7 +12,7 @@ def addonInit():
     program = addonBase.program
     setting = addonBase.setting
     window = addonBase.window
-    progressCenter = addonBase.progressCenter
+    progressCenter = addonBase.progress_center
 
 
 def addonDelete():

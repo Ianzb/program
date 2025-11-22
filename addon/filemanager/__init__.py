@@ -13,8 +13,8 @@ def addonInit():
     program = addonBase.program
     setting = addonBase.setting
     window = addonBase.window
-    progressCenter = addonBase.progressCenter
-    addonInfo = addonBase.addonInfo
+    progressCenter = addonBase.progress_center
+    addonInfo = addonBase.addon_info
 
     setting.adds({"sortGoalPath": "",
                   "wechatPath": "",

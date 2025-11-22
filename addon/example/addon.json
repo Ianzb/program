@@ -5,7 +5,7 @@
   "description": "介绍文本",
   "version": "1.0.0",
   "version_code": 1,
-  "api_version": 5,
+  "api_version": 6,
   "icon": "example.png",
   "file": "example.zip",
   "history": {

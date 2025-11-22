@@ -35,7 +35,7 @@ class Program:
     VERSION = "5.8.0"  # 程序版本
     VERSION_CODE = 62  # 版本序数
     ADDON_API_VERSION = 5  # 插件版本序数
-    CORE_VERSION = "5.4.0"  # 内核版本
+    CORE_VERSION = "5.4.1"  # 内核版本
     TITLE = f"{NAME} {VERSION}"  # 程序标题
     URL = "https://ianzb.github.io/project/program.html"  # 程序网址
     LICENSE = "GPLv3"  # 程序许可协议
@@ -87,9 +87,9 @@ class Program:
         if self.isExe:
             self.SOURCE_PATH = sys._MEIPASS + r"\img"
 
+        # 导入自定义图标
         ZBF.setPath(self.source("icons"))
-        for i in zb.walkFile(self.source("icons"), True):
-            ZBF.add(zb.getFileName(i, False))
+        ZBF.addFromPath(self.source("icons"))
 
     @property
     def ICON(self):

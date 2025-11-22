@@ -228,31 +228,33 @@ class AddonBase:
         self.program = None
         self.log = None
         self.setting = None
-        self.addonInfo = None
+        self.addon_info = None
+        self.window = None
+        self.progress_center = None
 
-    def set(self, __program, __setting, __window, __progress_center, __addon_info):
-        self.program = __program
+    def set(self, program, setting, window, progress_center, addon_info):
+        self.program = program
+        self.window = window
+        self.progress_center = progress_center
+        self.addon_info = addon_info
+
+        if addon_info.get("api_version") <= 5:
+            self.progressCenter = progress_center
+            self.addonInfo = addon_info
+
         try:
-            addon_id = None
-            if isinstance(__addon_info, dict):
-                addon_id = __addon_info.get("id")
-            proxy = AddonSettingProxy(__setting, addon_id)
-            self.setting = proxy
+            addon_id = addon_info.get("id")
+            self.setting = AddonSettingProxy(setting, addon_id)
         except Exception:
-            logging.debug(f"创建 AddonSettingProxy 失败：{traceback.format_exc()}")
-            self.setting = __setting
-        self.window = __window
-        self.progressCenter = __progress_center
-        self.addonInfo = __addon_info
+            logging.error(f"创建 AddonSettingProxy 失败：{traceback.format_exc()}")
+            self.setting = setting
+
+    @property
+    def addon_path(self):
+        return zb.joinPath(self.program.ADDON_PATH, self.addon_info.get("id"))
 
     def getAddonPath(self):
-        return zb.joinPath(self.program.ADDON_PATH, self.addonInfo.get("id"))
+        return self.addon_path
 
-    def addIcon(self, name: str, path: str = ""):
-        if not hasattr(ZBF, name):
-            aenum.extend_enum(ZBF, name, zb.joinPath(self.getAddonPath(), path, name))
-
-    def addIcons(self, path: str):
-        for i in zb.walkFile(zb.joinPath(self.getAddonPath(), path), True):
-            name = "_".join(zb.getFileName(i).split("_")[:-1])
-            self.addIcon(name, path)
+    def addonPath(self):
+        return self.addon_path

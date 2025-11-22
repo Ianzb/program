@@ -6,7 +6,7 @@ def addonInit():
     program = addonBase.program
     setting = addonBase.setting
     window = addonBase.window
-    progressCenter = addonBase.progressCenter
+    progressCenter = addonBase.progress_center
 
     setting.adds({"shuffleAnimationLength": 1.0,
                   "shuffleAnimationDelay": 0.1,
@@ -16,7 +16,7 @@ def addonInit():
                   "skipUnavailable": True,
                   "fontSize": 20,
                   })
-    addonBase.addIcons("icons")
+    ZBF.addFromPath(zb.joinPath(addonBase.getAddonPath(), "icons"))
     addonInit1()
 
 

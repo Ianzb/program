@@ -12,7 +12,7 @@ try:
         program = addonBase.program
         setting = addonBase.setting
         window = addonBase.window
-        progressCenter = addonBase.progressCenter
+        progressCenter = addonBase.progress_center
 
 except:
     import core

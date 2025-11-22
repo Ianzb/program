@@ -129,7 +129,7 @@ class Window(zbw.Window):
         try:
             if data.get("id") in addonManager.ADDON_OBJECT:
                 lib = addonManager.ADDON_OBJECT.get(data.get("id"))
-                if lib.addonBase.addonInfo.get("api_version") >= 5:
+                if lib.addonBase.addon_info.get("api_version") >= 5:
                     lib.addonDelete()
                 mainpage = addonManager.ADDON_MAINPAGE.get(data.get("id"))
                 self.navigationInterface.removeWidget(mainpage.objectName())
@@ -168,7 +168,7 @@ class Window(zbw.Window):
         try:
             if data.get("id") in addonManager.ADDON_OBJECT:
                 lib = addonManager.ADDON_OBJECT.get(data.get("id"))
-                if lib.addonBase.addonInfo.get("api_version") >= 5:
+                if lib.addonBase.addon_info.get("api_version") >= 5:
                     lib.addonDelete()
                 mainpage = addonManager.ADDON_MAINPAGE.get(data.get("id"))
                 self.navigationInterface.removeWidget(mainpage.objectName())
