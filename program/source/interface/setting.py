@@ -415,15 +415,19 @@ class DownloadSettingCard(SettingCard):
         self.hBoxLayout.addSpacing(16)
 
         self.setAcceptDrops(True)
+        setting.connect(self.setEvent)
+
+    def setText(self):
+        self.contentLabel.setText(f"当前路径：{setting.read("downloadPath")}")
 
     def setEvent(self, msg):
         if msg == "downloadPath":
-            self.contentLabel.setText(f"当前路径：{setting.read("downloadPath")}")
+            self.setText()
 
     def saveSetting(self, path: str):
         if zb.existPath(path):
             setting.save("downloadPath", path)
-        self.contentLabel.setText(f"当前路径：{setting.read("downloadPath")}")
+        self.setText()
 
     def button1Clicked(self):
         get = QFileDialog.getExistingDirectory(self, "选择下载目录", setting.read("downloadPath"))
@@ -437,7 +441,7 @@ class DownloadSettingCard(SettingCard):
                     self.contentLabel.setText("拖拽到此卡片即可快速导入目录！")
 
     def dragLeaveEvent(self, event):
-        self.contentLabel.setText(f"当前路径：{setting.read("downloadPath")}")
+        self.setText()
 
     def dropEvent(self, event):
         if event.mimeData().hasUrls():
