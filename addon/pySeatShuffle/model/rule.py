@@ -25,9 +25,9 @@ class Rule:
     """
     rule_names = bidict.bidict({"identical_in_group": "相同",
                                 "unique_in_group": "不同",
-                                "check_sum_constraint": "和满足条件",
-                                "check_average_constraint": "均值满足条件",
-                                "check_sd_constraint": "标准差满足条件"})
+                                "check_sum_constraint": "和",
+                                "check_average_constraint": "均值",
+                                "check_sd_constraint": "标准差"})
 
     def __init__(self, t, prop: list, reversed=False):
         self.t = t

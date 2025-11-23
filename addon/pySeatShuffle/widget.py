@@ -712,18 +712,31 @@ class AddRuleMessageBox(MessageBoxBase):
         self.titleLabel = TitleLabel("新增规则", self)
 
         self.comboBox1 = ComboBox(self)
-        self.comboBox1.setPlaceholderText("请选择匹配项目名称！")
-        self.comboBox1.addItems(manager.person_keys)
-        self.comboBox1.setNewToolTip("请选择匹配项目名称！")
+        self.comboBox1.setPlaceholderText("请选择匹配规则！")
+        self.comboBox1.addItems(list(core.Rule.rule_names.values()))
+        self.comboBox1.currentTextChanged.connect(self.ruleChanged)
+        self.comboBox1.setNewToolTip("请选择匹配规则！")
 
         self.comboBox2 = ComboBox(self)
-        self.comboBox2.setPlaceholderText("请选择匹配规则！")
-        self.comboBox2.addItems(list(core.Rule.rule_names.values()))
-        self.comboBox2.setNewToolTip("请选择匹配规则！")
+        self.comboBox2.setPlaceholderText("请选择匹配项目名称！")
+        self.comboBox2.addItems(manager.person_keys)
+        self.comboBox2.setNewToolTip("请选择匹配项目名称！")
+
+        self.comboBox3 = ComboBox(self)
+        self.comboBox3.setPlaceholderText("符号")
+        self.comboBox3.addItems(["==", "!=", "<", ">", "<=", ">="])
+        self.comboBox3.setNewToolTip("请选择匹配算法符号！")
+
+        self.lineEdit = AcrylicLineEdit(self)
+        self.lineEdit.setPlaceholderText("数字")
+        self.lineEdit.setNewToolTip("匹配数字")
+        self.lineEdit.setValidator(QDoubleValidator())
 
         self.viewLayout.addWidget(self.titleLabel)
         self.viewLayout.addWidget(self.comboBox1)
         self.viewLayout.addWidget(self.comboBox2)
+        self.viewLayout.addWidget(self.comboBox3)
+        self.viewLayout.addWidget(self.lineEdit)
         self.widget.setMinimumSize(300, 100)
 
         self.yesButton.setText("确认")
@@ -733,17 +746,34 @@ class AddRuleMessageBox(MessageBoxBase):
 
         self.result = None
 
+        self.ruleChanged("identical_in_group")
+
+    def ruleChanged(self, text: str):
+        id = core.Rule.rule_names.inverse.get(self.comboBox1.currentText())
+        if id in ["identical_in_group", "unique_in_group"]:
+            self.comboBox3.hide()
+            self.lineEdit.hide()
+        elif id in ["check_sum_constraint", "check_average_constraint", "check_sd_constraint"]:
+            self.comboBox3.show()
+            self.lineEdit.show()
+
     def yesButtonClicked(self):
-        self.result = {"id": core.Rule.rule_names.inverse.get(self.comboBox2.currentText()), "key": self.comboBox1.currentText()}
+        id = core.Rule.rule_names.inverse.get(self.comboBox1.currentText())
+        if id in ["identical_in_group", "unique_in_group"]:
+            self.result = {"id": id, "key": [self.comboBox2.currentText()]}
+        elif id in ["check_sum_constraint", "check_average_constraint", "check_sd_constraint"]:
+            if not self.lineEdit.text().isdigit():
+                return
+            self.result = {"id": id, "key": [self.comboBox2.currentText(), self.comboBox3.currentText(), int(self.lineEdit.text())]}
 
 
 class RuleCard(CardWidget):
-    def __init__(self, parent, name: str, id: str, key: str):
+    def __init__(self, parent, name: str, id: str, key: list):
         super().__init__(parent)
         self.setFixedHeight(40)
         self.name = name
         self.rule_id = id
-        self.rule_key = key
+        self.rule_key: list = key
 
         self.contentLabel = BodyLabel(self)
 
@@ -762,12 +792,17 @@ class RuleCard(CardWidget):
         self.setText()
 
     def setText(self):
-        rule_name = core.Rule.rule_names.get(self.rule_id)
-        self.contentLabel.setText(f"{self.rule_key} {rule_name}")
+        if self.rule_id in ["identical_in_group", "unique_in_group"]:
+            rule_name = core.Rule.rule_names.get(self.rule_id)
+            self.contentLabel.setText(f"{self.rule_key[0]} {rule_name}")
+        elif self.rule_id in ["check_sum_constraint", "check_average_constraint", "check_sd_constraint"]:
+            rule_name = core.Rule.rule_names.get(self.rule_id)
+            self.contentLabel.setText(f"{self.rule_key[0]}{rule_name} {self.rule_key[1]} {self.rule_key[2]}")
+
         self.setNewToolTip(self.name)
 
     def getRule(self):
-        return core.Rule(self.rule_id, [self.rule_key])
+        return core.Rule(self.rule_id, self.rule_key)
 
     def removeButtonClicked(self):
         manager.removeRule(self.name)
@@ -797,7 +832,7 @@ class Manager(QWidget):
         except:
             pass
 
-    def getRuleJson(self, id: str, key: str):
+    def getRuleJson(self, id: str, key: list):
         """
         获取Json格式的规则名称
         :param id: 规则id
@@ -806,7 +841,7 @@ class Manager(QWidget):
         """
         return json.dumps({"id": id, "key": key}, indent=4, ensure_ascii=False)
 
-    def addRule(self, id: str, key: str):
+    def addRule(self, id: str, key: list):
         """
         添加规则
         :param id: 规则id
