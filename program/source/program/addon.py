@@ -3,7 +3,7 @@ from .setting import *
 
 class AddonManager:
     ADDON_OBJECT = {}  # 导入的插件的对象
-    ADDON_MAINPAGE = {}
+    ADDON_MAIN_PAGE = {}
 
     def getOnlineAddonDict(self):
         """
