@@ -156,7 +156,7 @@ class Window(zbw.Window):
             logging.info(f"插件{info.get("name")}安装成功")
         except:
             if info.get("api_version", 0) == program.ADDON_API_VERSION:
-                self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", f"插件{info.get("name")}安装失败，重启软件后可能会生效！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.mainPage)
+                self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", f"插件{info.get("name")}安装失败！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.mainPage)
             else:
                 self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", f"插件{info.get("name")}与当前程序版本不兼容！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.mainPage)
             self.infoBar.show()

@@ -413,13 +413,13 @@ class ProgressCenter(FlyoutViewBase):
         self.emptyLabel.setTextColor("#909090", "#707070")
         self.emptyLabel.setAlignment(Qt.AlignCenter)
 
-        self.clearButton = PushButton("清除已完成的项目", self)
-        self.clearButton.setFixedSize(130, 24)
-        self.clearButton.setFont(QFont("SimHei", 10))
+        self.clearButton = ToolButton(FIF.BROOM, self)
+        self.clearButton.setNewToolTip("清空已完成的任务")
+        self.clearButton.setFixedSize(28, 28)
         self.clearButton.clicked.connect(self.clear)
 
-        self.titleLayout.addWidget(self.titleLabel)
-        self.titleLayout.addWidget(self.clearButton)
+        self.titleLayout.addWidget(self.titleLabel, 0)
+        self.titleLayout.addWidget(self.clearButton, 0)
 
         self.scrollArea = zbw.BetterScrollArea(self)
         self.scrollArea.vBoxLayout.setContentsMargins(0, 0, 0, 0)
