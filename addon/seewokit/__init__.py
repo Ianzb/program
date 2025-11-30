@@ -193,7 +193,7 @@ class MessageDialog(zbw.ScrollDialog):
 
         # 窗口移动功能
         if setting.read("messageMove"):
-            from PyQt5.QtCore import QTimer
+            from qtpy.QtCore import QTimer
             self._dx = 1
             self._dy = 1
             self._timer = QTimer(self)
@@ -201,7 +201,7 @@ class MessageDialog(zbw.ScrollDialog):
             self._timer.start(5)
 
     def _move_window(self):
-        from PyQt5.QtWidgets import QApplication
+        from qtpy.QtWidgets import QApplication
         desktop = QApplication.desktop()
         screen_rect = desktop.availableGeometry(self)
         current_rect = self.geometry()
