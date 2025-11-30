@@ -5,7 +5,7 @@
   "description": "一款简易的应用商店插件，支持360和腾讯应用中心的应用。",
   "version": "1.5.11",
   "version_code": 13,
-  "api_version": 6,
+  "api_version": 7,
   "icon": "https://drive.ianzb.cn/code/program/addon/appstore/appstore.png",
   "file": "https://drive.ianzb.cn/code/program/addon/appstore/appstore.zip",
   "history": {

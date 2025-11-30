@@ -238,7 +238,7 @@ class AddonBase:
         self.progress_center = progress_center
         self.addon_info = addon_info
 
-        if addon_info.get("api_version") <= 5:
+        if addon_info.get("api_version", 0) <= 5:
             self.progressCenter = progress_center
             self.addonInfo = addon_info
 

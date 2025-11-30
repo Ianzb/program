@@ -133,13 +133,14 @@ class Window(zbw.Window):
                 lib = addonManager.ADDON_OBJECT.pop(info.get("id"), None)
                 main_page = addonManager.ADDON_MAIN_PAGE.pop(info.get("id"), None)
                 old_info = lib.addonBase.addon_info
-                if old_info.get("api_version") >= 5:
+                if old_info.get("api_version", 0) >= 5:
                     lib.addonDelete()
                 if main_page:
-                    self.navigationInterface.removeWidget(old_info.get("name"))
+                    self.navigationInterface.removeWidget(main_page.title())
                     self.stackedWidget.view.removeWidget(main_page)
                     main_page.deleteLater()
             # 导入插件
+            importlib.invalidate_caches()
             lib = importlib.import_module(info.get("id"))
             lib = importlib.reload(lib)
             addonManager.ADDON_OBJECT[info.get("id")] = lib
@@ -147,7 +148,6 @@ class Window(zbw.Window):
             lib.addonBase.set(program, setting, self, self.progressCenter, info)
             lib.addonInit()
             widget = lib.addonWidget()
-            widget.setObjectName(info.get("name"))
             addonManager.ADDON_MAIN_PAGE[info.get("id")] = widget
             self.addPage(widget, widget.title(), widget.icon(), "scroll")
 
@@ -172,10 +172,10 @@ class Window(zbw.Window):
                 lib = addonManager.ADDON_OBJECT.pop(info.get("id"), None)
                 main_page = addonManager.ADDON_MAIN_PAGE.pop(info.get("id"), None)
                 old_info = lib.addonBase.addon_info
-                if old_info.get("api_version") >= 5:
+                if old_info.get("api_version", 0) >= 5:
                     lib.addonDelete()
                 if main_page:
-                    self.navigationInterface.removeWidget(old_info.get("name"))
+                    self.navigationInterface.removeWidget(main_page.title())
                     self.stackedWidget.view.removeWidget(main_page)
                     main_page.deleteLater()
             zb.deleteDir(zb.joinPath(program.ADDON_PATH, info.get("id")), force=True)

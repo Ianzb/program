@@ -192,7 +192,6 @@ class AboutPage(zbw.BasicPage):
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
-        self.setViewportMargins(0, 70, 0, 0)
         self.setTitle("关于")
         self.setIcon(FIF.INFO)
 
