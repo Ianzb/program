@@ -39,7 +39,7 @@ class AddonManager:
             return data
         except:
             logging.error(f"插件{url}信息获取失败，报错信息：{traceback.format_exc()}！")
-            return False
+            return {}
 
     def downloadAddonFromInfo(self, data: dict):
         """
@@ -78,11 +78,14 @@ class AddonManager:
             data = {}
             for i in zb.walkDir(program.ADDON_PATH, True):
                 if zb.isFile(zb.joinPath(i, "addon.json")):
-                    with open(zb.joinPath(i, "addon.json"), encoding="utf-8") as file:
-                        addon_data = json.load(file)
-                        key = addon_data.get("id", "")
-                        if key:
-                            data[key] = addon_data
+                    try:
+                        with open(zb.joinPath(i, "addon.json"), encoding="utf-8") as file:
+                            addon_data = json.load(file)
+                            key = addon_data.get("id", "")
+                            if key:
+                                data[key] = addon_data
+                    except:
+                        pass
             return data
         except:
             logging.error(f"获取本地插件信息失败，报错信息：{traceback.format_exc()}！")
