@@ -27,11 +27,13 @@ def addonInit():
                   "monitorPath": [],
                   "autoCopy": False,
                   "copyPath": zb.joinPath(program.DATA_PATH, "复制"),
+                  "lockProgram": False,
                   })
 
 
 def addonDelete():
     pass
+
 
 def addonWidget():
     return SeewoPage(window)
@@ -75,23 +77,40 @@ class SetPasswordMessageBox(MessageBoxBase):
 
         self.titleLabel = TitleLabel("设置程序密码锁", self)
 
-        self.lineEdit = LineEdit(self)
-        self.lineEdit.setPlaceholderText("在此处输入密码！")
-        self.lineEdit.setNewToolTip("在此处输入密码！")
-        self.lineEdit.setText(setting.read("password"))
-        self.lineEdit.setEchoMode(QtWidgets.QLineEdit.Password)
+        self.lineEdit1 = LineEdit(self)
+        self.lineEdit1.setPlaceholderText("在此处输入密码！")
+        self.lineEdit1.setNewToolTip("在此处输入密码！")
+        self.lineEdit1.setEchoMode(QtWidgets.QLineEdit.Password)
+
+        self.lineEdit2 = LineEdit(self)
+        self.lineEdit2.setPlaceholderText("重复输入密码！")
+        self.lineEdit2.setNewToolTip("重复输入密码！")
+        self.lineEdit2.setEchoMode(QtWidgets.QLineEdit.Password)
+
+        self.warnLabel = StrongBodyLabel("两次输入的密码不一致！", self)
+        self.warnLabel.hide()
 
         self.viewLayout.addWidget(self.titleLabel)
-        self.viewLayout.addWidget(self.lineEdit)
+        self.viewLayout.addWidget(self.lineEdit1)
+        self.viewLayout.addWidget(self.lineEdit2)
+        self.viewLayout.addWidget(self.warnLabel)
         self.widget.setMinimumSize(300, 100)
 
+        self.saveButton = PrimaryPushButton("确认", self)
+        self.saveButton.clicked.connect(self.saveButtonClicked)
+
         self.yesButton.setText("确认")
+        self.yesButton.hide()
         self.cancelButton.setText("取消")
 
-        self.yesButton.clicked.connect(self.yesButtonClicked)
+        self.buttonLayout.insertWidget(0, self.saveButton, 2)
 
-    def yesButtonClicked(self):
-        setting.save("password", self.lineEdit.text())
+    def saveButtonClicked(self):
+        if self.lineEdit1.text() == self.lineEdit2.text():
+            setting.save("password", self.lineEdit1.text())
+            self.accept()
+        else:
+            self.warnLabel.show()
 
 
 class EmptySplashScreen(QWidget):
@@ -280,7 +299,15 @@ class SeewoPage(zbw.BasicTab):
         self.passwordButton = PrimaryPushButton("设置安全密码", self, FIF.VPN)
         self.passwordButton.clicked.connect(self.passwordButtonClicked)
 
+        self.label1 = BodyLabel("锁定程序", self)
+
+        self.lockButton = SwitchButton(self)
+        self.lockButton.setChecked(setting.read("lockProgram"))
+        self.lockButton.checkedChanged.connect(self.lockButtonClicked)
+
         self.card1.addWidget(self.passwordButton)
+        self.card1.addWidget(self.label1, 0, Qt.AlignCenter)
+        self.card1.addWidget(self.lockButton, 0, Qt.AlignCenter)
 
         self.card2 = zbw.GrayCard("自动弹窗", self)
 
@@ -316,7 +343,7 @@ class SeewoPage(zbw.BasicTab):
         self.showButton = PushButton("打开复制目录", self, FIF.FOLDER)
         self.showButton.clicked.connect(lambda: zb.showFile(setting.read("copyPath")))
 
-        self.label1 = BodyLabel("自动复制", self)
+        self.label2 = BodyLabel("自动复制", self)
 
         self.autoCopyButton = SwitchButton(self)
         self.autoCopyButton.setChecked(setting.read("autoCopy"))
@@ -324,7 +351,7 @@ class SeewoPage(zbw.BasicTab):
 
         self.card3.addWidget(self.detectButton)
         self.card3.addWidget(self.showButton)
-        self.card3.addWidget(self.label1, 0, Qt.AlignCenter)
+        self.card3.addWidget(self.label2, 0, Qt.AlignCenter)
         self.card3.addWidget(self.autoCopyButton, 0, Qt.AlignCenter)
 
         self.label2 = StrongBodyLabel(f"复制路径：{setting.read("copyPath") or "无"}", self)
@@ -367,7 +394,7 @@ class SeewoPage(zbw.BasicTab):
         self.onWindowShow()
 
     def onWindowShow(self):
-        if not setting.read("password"):
+        if not setting.read("lockProgram") or not setting.read("password"):
             return
         if self.enterPassWordMessageBox:
             return
@@ -399,6 +426,11 @@ class SeewoPage(zbw.BasicTab):
         elif name == "copyPath":
             self.label2.setText(f"复制路径：{setting.read("copyPath") or "无"}")
             self.fileChooser.setDefaultPath(setting.read("copyPath"))
+        elif name == "lockProgram":
+            self.lockButton.setChecked(setting.read("lockProgram"))
+
+    def lockButtonClicked(self, checked):
+        setting.save("lockProgram", self.lockButton.isChecked())
 
     def autoCopyButtonClicked(self, checked):
         setting.save("autoCopy", self.autoCopyButton.isChecked())
@@ -442,16 +474,7 @@ class SeewoPage(zbw.BasicTab):
             """
             try:
                 return time.strftime("%Y-%m-%d %H%M%S")
-                # from .wmi import WMI
-                # c = WMI()
-                # for disk in c.Win32_LogicalDisk():
-                #     if disk.DeviceID == f"{drive_letter}:":
-                #         for partition in c.Win32_DiskPartition():
-                #             if partition.DeviceID in disk.DeviceID:
-                #                 for physical_disk in c.Win32_DiskDrive():
-                #                     if partition.DeviceID in physical_disk.DeviceID:
-                #                         return physical_disk.Model
-            except Exception as e:
+            except Exception:
                 logging.error(f"获取盘符 {drive_letter} 的硬盘名称失败: {traceback.format_exc()}")
             return None
 
