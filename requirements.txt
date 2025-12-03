@@ -2,7 +2,7 @@ aenum==3.1.16
 altgraph==0.17.5
 annotated-types==0.7.0
 attrs==25.4.0
-beautifulsoup4==4.14.2
+beautifulsoup4==4.14.3
 certifi==2025.11.12
 charset-normalizer==3.4.4
 colorthief==0.2.1
@@ -38,4 +38,4 @@ typing_extensions==4.15.0
 urllib3==2.5.0
 winshell==0.6
 zbToolLib==2.0.6.1
-zbWidgetLib==3.1.0
+zbWidgetLib==3.1.1.1
