@@ -447,8 +447,8 @@ class ProgressCenter(FlyoutViewBase):
         content_height = self.cardGroup.height()
         self.scrollArea.setMaximumHeight(min(content_height, 500))
         if self.window.progressCenterFlyout:
-            self.window.progressCenterFlyout.setFixedHeight(min(max(content_height + 52, 100), 500))
-        self.setFixedHeight(min(max(content_height + 52, 100), 500))
+            self.window.progressCenterFlyout.setFixedHeight(min(max(content_height + 60, 100), 500))
+        self.setFixedHeight(min(max(content_height + 60, 100), 500))
 
     def clear(self):
         import copy

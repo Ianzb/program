@@ -20,7 +20,7 @@ pyinstaller==6.17.0
 pyinstaller-hooks-contrib==2025.10
 pypi-simple==1.8.0
 PySide6==6.10.1
-PySide6-Fluent-Widgets==1.9.2
+PySide6-Fluent-Widgets==1.10.2
 PySide6_Addons==6.10.1
 PySide6_Essentials==6.10.1
 PySideSix-Frameless-Window==0.7.4
@@ -35,7 +35,7 @@ shiboken6==6.10.1
 soupsieve==2.8
 typing-inspection==0.4.2
 typing_extensions==4.15.0
-urllib3==2.6.0
+urllib3==2.6.2
 winshell==0.6
 zbToolLib==2.0.7
 zbWidgetLib==3.1.1.1
