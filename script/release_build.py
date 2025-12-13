@@ -15,6 +15,9 @@ config = {
     "log_index": "exe版",
 }
 
+sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 ROOT = Path(__file__).resolve().parents[1]
 PROG_PY = ROOT / "program" / "source" / "program" / "program.py"
 SETUP_ISS = ROOT / "script" / "setup.iss"
