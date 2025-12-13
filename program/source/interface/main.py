@@ -190,8 +190,9 @@ class MainPage(zbw.BasicPage):
     """
     主页
     """
-    signalAddCardOffline = pyqtSignal(dict)
-    signalAddCardOnline = pyqtSignal(dict)
+    addCardOfflineSignal = pyqtSignal(dict)
+    addCardOnlineSignal = pyqtSignal(dict)
+    loadingFinishedSignal = pyqtSignal(bool)
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
@@ -205,7 +206,7 @@ class MainPage(zbw.BasicPage):
 
         self.reloadButton = PushButton("刷新", self, FIF.SYNC)
         self.reloadButton.setEnabled(False)
-        self.reloadButton.clicked.connect(self.reload)
+        self.reloadButton.clicked.connect(self.load)
         self.card1.addWidget(self.reloadButton)
 
         self.cardGroup1 = zbw.CardGroup("插件列表", self)
@@ -213,35 +214,42 @@ class MainPage(zbw.BasicPage):
         self.vBoxLayout.addWidget(self.card1)
         self.vBoxLayout.addWidget(self.cardGroup1)
 
-        self.signalAddCardOffline.connect(self.addCardOffline)
-        self.signalAddCardOnline.connect(self.addCardOnline)
+        self.addCardOfflineSignal.connect(self.addCardOffline)
+        self.addCardOnlineSignal.connect(self.addCardOnline)
+        self.loadingFinishedSignal.connect(self.loadingFinished)
 
-        program.THREAD_POOL.submit(self.getInstalledAddonList)
+        self.load()
 
+    @zb.threadPoolDecorator(program.THREAD_POOL)
     def getInstalledAddonList(self):
         info = addonManager.getInstalledAddonInfo()
         for k, v in info.items():
-            self.signalAddCardOffline.emit(v)
-        program.THREAD_POOL.submit(self.getOnlineAddonList)
+            self.addCardOfflineSignal.emit(v)
+        self.getOnlineAddonList()
 
+    @zb.threadPoolDecorator(program.THREAD_POOL)
     def getOnlineAddonList(self):
         self.addon_list = addonManager.getOnlineAddonDict()
 
         self.onlineCount = 0
         for k, v in self.addon_list.items():
-            program.THREAD_POOL.submit(self.getOnlineAddonInfo, v)
+            self.getOnlineAddonInfo(v)
         while self.onlineCount < len(self.addon_list.keys()):
             time.sleep(0.5)
+        self.loadingFinishedSignal.emit(True)
+
+    def loadingFinished(self, stat: bool):
         for i in self.cardGroup1._cardMap.keys():
             if i not in self.addon_list.keys():
                 self.cardGroup1._cardMap[i].mainButton.setText("无数据")
                 self.cardGroup1._cardMap[i].setText("无在线数据", 2)
         self.reloadButton.setEnabled(True)
 
+    @zb.threadPoolDecorator(program.THREAD_POOL)
     def getOnlineAddonInfo(self, info: str):
         try:
             info = addonManager.getAddonInfoFromUrl(info)
-            self.signalAddCardOnline.emit(info)
+            self.addCardOnlineSignal.emit(info)
         except:
             logging.error(f"程序发生异常，无法获取插件{info}的在线信息，报错信息：{traceback.format_exc()}！")
         self.onlineCount += 1
@@ -277,7 +285,7 @@ class MainPage(zbw.BasicPage):
                 logging.warning(f"组件{info.get("id", "")}已被删除，无法设置数据了！")
         self.onlineCount += 1
 
-    def reload(self):
+    def load(self):
         self.reloadButton.setEnabled(False)
         self.cardGroup1.clearCard()
-        program.THREAD_POOL.submit(self.getInstalledAddonList)
+        self.getInstalledAddonList()
