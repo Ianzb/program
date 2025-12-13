@@ -186,7 +186,7 @@ class AddonInfoCard(zbw.SmallInfoCard):
         self.messageBox.deleteLater()
 
 
-class MainPage(zbw.BasicTab):
+class MainPage(zbw.BasicPage):
     """
     主页
     """
@@ -201,9 +201,6 @@ class MainPage(zbw.BasicTab):
         self.addon_list = {}
         self.onlineCount = 0
 
-        self.image = ImageLabel(program.source("title.png"))
-        self.image.setFixedSize(self.image.size() / 4)
-
         self.card1 = zbw.GrayCard("插件管理", self)
 
         self.reloadButton = PushButton("刷新", self, FIF.SYNC)
@@ -213,7 +210,6 @@ class MainPage(zbw.BasicTab):
 
         self.cardGroup1 = zbw.CardGroup("插件列表", self)
 
-        self.vBoxLayout.addWidget(self.image, 0, Qt.AlignCenter)
         self.vBoxLayout.addWidget(self.card1)
         self.vBoxLayout.addWidget(self.cardGroup1)
 
