@@ -190,7 +190,7 @@ class SettingMessageBox(zbw.ScrollMessageBoxBase):
         self.scrollLayout.addWidget(self.cardGroup1, 0, Qt.AlignTop)
         self.scrollLayout.addWidget(self.cardGroup2, 0, Qt.AlignTop)
 
-        self.widget.setFixedSize(600, 500)
+        self.widget.setFixedWidth(600)
 
 
 class ShuffleInterface(HeaderCardWidget):
