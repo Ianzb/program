@@ -5,6 +5,7 @@ import zbToolLib as zb
 NAME = "zbProgram"
 LOG_INDEX = "exe版"
 IS_SINGLE_FILE = False
+IS_SETUP = True
 EXTRA_FILES = []
 
 ROOT = zb.getFileDir(zb.getFileDir(sys.argv[0]))

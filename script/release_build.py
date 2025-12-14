@@ -135,7 +135,8 @@ if __name__ == "__main__":
 
     replace_index_json(version, new_version_code)
     replace_version_in_program(version, new_version_code)
-    replace_version_in_setup(version)
+    if IS_SETUP:
+        replace_version_in_setup(version)
 
     run_pyinstaller()
     if IS_SINGLE_FILE:
