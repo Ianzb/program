@@ -110,7 +110,7 @@ def get_current_version():
 
 def copy_extra_files():
     for file in EXTRA_FILES:
-        zb.copyPath(zb.joinPath(ROOT, file), zb.joinPath(BUILD_PATH, file))
+        zb.copyPath(zb.joinPath(ROOT, file), zb.joinPath(BUILD_PATH, NAME, file))
 
 
 if __name__ == "__main__":
