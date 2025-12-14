@@ -106,7 +106,6 @@ jobs:
           } else {
             Write-Host "No changes to commit"
           }
-          Copy-Item -Path steps.check_output.outputs.zip -Destination "${{ env.PROGRAM_NAME }}_${{ steps.get_new_index_version.outputs.index_version }}.zip"
 
       - name: 发布Release
         uses: softprops/action-gh-release@v2

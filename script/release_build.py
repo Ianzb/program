@@ -93,7 +93,8 @@ def run_pyinstaller():
 def make_zip(version: str):
     print(f"正在压缩...")
     zip_path = shutil.make_archive(zb.joinPath(BUILD_PATH, f"{NAME}_{version}"), "zip", root_dir=zb.joinPath(BUILD_PATH, NAME))
-    zip_path = zb.movePath(zip_path, zb.joinPath(zb.joinPath(BUILD_PATH, NAME, zb.getFileName(zip_path))))
+    zip_path = zb.copyPath(zip_path, zb.joinPath(zb.joinPath(BUILD_PATH, NAME, zb.getFileName(zip_path))))
+    zb.copyPath(zip_path, zb.joinPath(zb.joinPath(ROOT, zb.getFileName(zip_path))))
     print(f"压缩完成！")
     return zip_path
 
@@ -141,6 +142,7 @@ if __name__ == "__main__":
     run_pyinstaller()
     if IS_SINGLE_FILE:
         zip_path = zb.joinPath(BUILD_PATH, f"{NAME}_{version}.exe")
+        zb.copyPath(zip_path, zb.joinPath(zb.joinPath(ROOT, zb.getFileName(zip_path))))
     else:
         copy_extra_files()
         zip_path = make_zip(version)
