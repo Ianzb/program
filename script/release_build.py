@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from __future__ import annotations
+from config import *
+
 import argparse
 import os
 import re
@@ -8,25 +9,9 @@ import sys
 import json
 import shutil
 import subprocess
-import zbToolLib as zb
 
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 sys.stderr.reconfigure(encoding="utf-8", errors="replace")
-
-ROOT = zb.getFileDir(zb.getFileDir(sys.argv[0]))
-CODE_PATH = zb.joinPath(ROOT, "zbProgram")
-PROGRAM_PY = zb.joinPath(CODE_PATH, "app", "program", "program.py")
-RESOURCE_PATH = zb.joinPath(ROOT, "resource")
-SETUP_ISS = zb.joinPath(ROOT, "script", "setup.iss")
-INDEX_JSON = zb.joinPath(ROOT, "index.json")
-INDEX_HTML = zb.joinPath(ROOT, "index.html")
-REQUIREMENTS = zb.joinPath(ROOT, "requirements.txt")
-BUILD_PATH = zb.joinPath(ROOT, "build")
-
-config = {
-    "log_index": "exe版",
-    "extra_files": []
-}
 
 
 def read_text(path: str):
@@ -69,8 +54,8 @@ def replace_index_json(version: str, version_code: int):
 
 def extract_release_notes():
     html = read_text(INDEX_HTML)
-    if config.get("log_index"):
-        m = re.search(rf'<div\s+class="zb">\s*<h5>\s*{config.get("log_index")}\s*</h5>(.*?)</div>', html, flags=re.S)
+    if LOG_INDEX:
+        m = re.search(rf'<div\s+class="zb">\s*<h5>\s*{LOG_INDEX}\s*</h5>(.*?)</div>', html, flags=re.S)
     else:
         m = re.search(r'<div\s+class="zb">(.*?)</div>', html, flags=re.S)
     inner = m.group(1)
@@ -85,25 +70,31 @@ def extract_release_notes():
 
 
 def run_pyinstaller():
-    if BUILD_PATH.exists():
-        shutil.rmtree(BUILD_PATH)
-    BUILD_PATH.mkdir(parents=True, exist_ok=True)
-    add_data = os.pathsep.join([RESOURCE_PATH, "resource"])
-    cmd = [
-        sys.executable, "-m", "PyInstaller", "-D", "-w", zb.joinPath(CODE_PATH, "main.pyw"),
-        "-i", zb.joinPath(RESOURCE_PATH, "program.ico"),
-        "-n", "zbProgram", "--distpath", BUILD_PATH, "--workpath", zb.joinPath(BUILD_PATH, "build"),
-        "--clean", "--contents-directory", "resource", "--add-data", add_data, "-y"
-    ]
+    zb.deletePath(BUILD_PATH)
+    zb.createDir(BUILD_PATH)
+    if IS_SINGLE_FILE:
+        cmd = [
+            sys.executable, "-m", "PyInstaller", "-F", "-w", MAIN_PYW,
+            "-i", ICON_PATH,
+            "-n", f"{NAME}_{version}", "--distpath", BUILD_PATH, "--workpath", zb.joinPath(BUILD_PATH, "build"),
+            "--clean", "--contents-directory", "app", "--add-data", f"{RESOURCE_PATH}:{zb.getFileName(RESOURCE_PATH)}", "-y"
+        ]
+    else:
+        cmd = [
+            sys.executable, "-m", "PyInstaller", "-D", "-w", MAIN_PYW,
+            "-i", ICON_PATH,
+            "-n", NAME, "--distpath", BUILD_PATH, "--workpath", zb.joinPath(BUILD_PATH, "build"),
+            "--clean", "--contents-directory", "app", "--add-data", f"{RESOURCE_PATH}:{zb.getFileName(RESOURCE_PATH)}", "-y"
+        ]
     print("CMD:", " ".join(cmd))
     subprocess.check_call(cmd)
     print("打包完成")
 
 
 def make_zip(version: str):
-    zip_name = zb.joinPath(ROOT, f"zbProgram_{version}")
+    zip_name = zb.joinPath(ROOT, f"{NAME}_{version}")
     print(f"正在压缩{zip_name}.zip...")
-    zip_path = shutil.make_archive(str(zip_name), "zip", root_dir=zb.joinPath(BUILD_PATH, "zbProgram"))
+    zip_path = shutil.make_archive(str(zip_name), "zip", root_dir=zb.joinPath(BUILD_PATH, NAME))
     print(f"压缩{zip_name}.zip完成！")
     return zip_path
 
@@ -119,19 +110,17 @@ def get_current_version():
 
 
 def copy_extra_files():
-    for file in config.get("extra_files", []):
+    for file in EXTRA_FILES:
         zb.copyPath(zb.joinPath(ROOT, file), zb.joinPath(BUILD_PATH, file))
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-v", "--version", required=True, help="版本号")
-    parser.add_argument("--skip-pyinstaller", action="store_true")
     args = parser.parse_args()
     version = args.version
 
     release_notes = extract_release_notes()
-    print("Release notes:", release_notes)
 
     # 获取当前版本和版本代码
     current_version = get_current_version()
@@ -150,14 +139,17 @@ if __name__ == "__main__":
     replace_version_in_setup(version)
 
     run_pyinstaller()
-    copy_extra_files()
-    zip_path = make_zip(version)
+    if IS_SINGLE_FILE:
+        zip_path = zb.joinPath(BUILD_PATH, f"{NAME}_{version}.exe")
+    else:
+        copy_extra_files()
+        zip_path = make_zip(version)
 
     out = {
         "version": version,
         "version_code": new_version_code,
         "release_notes": release_notes,
-        "zip": zip_path
+        "output": zip_path
     }
 
     out_path = zb.joinPath(ROOT, "script", "release_output.json")
