@@ -35,7 +35,7 @@ class Program:
     VERSION = "5.9.1"  # 程序版本
     VERSION_CODE = 64  # 版本序数
     ADDON_API_VERSION = 8  # 插件版本序数
-    CORE_VERSION = "5.4.1"  # 内核版本
+    CORE_VERSION = "5.5.0"  # 内核版本
     TITLE = f"{NAME} {VERSION}"  # 程序标题
     URL = "https://ianzb.github.io/project/program.html"  # 程序网址
     LICENSE = "GPLv3"  # 程序许可协议
@@ -85,7 +85,7 @@ class Program:
 
         # 打包后资源路径切换
         if self.isExe:
-            self.RESOURCE_PATH = sys._MEIPASS + "app/resource"
+            self.RESOURCE_PATH = sys._MEIPASS + "/resource"
 
         # 导入自定义图标
         ZBF.setPath(self.resource("icons"))
