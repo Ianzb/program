@@ -1,11 +1,10 @@
-from app.addon import *
-
 try:
     from zbProgram.app.addon import *
 except:
     pass
 
 try:
+    from app.addon import *
     import pySeatShuffle.core as core
 
     addonBase = AddonBase()
