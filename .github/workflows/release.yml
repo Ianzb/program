@@ -113,7 +113,7 @@ jobs:
           name: ${{ steps.get_new_index_version.outputs.index_version }}
           tag_name: ${{ steps.get_new_index_version.outputs.index_version }}
           files: |
-            ${{ steps.check_output.outputs.zip }}
+            ${{ env.PROGRAM_NAME }}_${{ steps.get_new_index_version.outputs.index_version }}.zip
             ${{ steps.check_output.outputs.installer }}
           token: ${{ secrets.GITHUB_TOKEN }}
           body: ${{ steps.check_output.outputs.notes }}
