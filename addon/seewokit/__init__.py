@@ -1,10 +1,11 @@
 import string
 
+from app.addon import *
 
 try:
     from zbProgram.app.addon import *
 except:
-    from app.addon import *
+    pass
 
 addonBase = AddonBase()
 
