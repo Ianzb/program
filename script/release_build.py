@@ -43,11 +43,11 @@ def replace_version_in_program(version: str, version_code: int):
     text = read_text(PROGRAM_PY)
     pattern = re.compile(r"(\bVERSION\s*=\s*)([\"'])(.*?)(\2)", flags=re.M)
     new_text, n = pattern.subn(lambda m: m.group(1) + m.group(2) + version + m.group(2), text, count=1)
-    PROGRAM_PY.write_text(new_text, encoding="utf-8")
+    write_text(PROGRAM_PY, new_text)
 
     pattern = re.compile(r"(\bVERSION_CODE\s*=\s*)(\d+)", flags=re.M)
     new_text, n = pattern.subn(lambda m: m.group(1) + str(version_code), text, count=1)
-    PROGRAM_PY.write_text(new_text, encoding="utf-8")
+    write_text(PROGRAM_PY, new_text)
     print("已修改program.py版本号！")
 
 
