@@ -72,7 +72,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: $PROGRAM_NAME_${{ steps.generate_ci_version.outputs.ci_version }}.zip
-          path: $PROGRAM_NAME_${{ steps.generate_ci_version.outputs.ci_version }}.zip
+          path: build/$PROGRAM_NAME/$PROGRAM_NAME_${{ steps.generate_ci_version.outputs.ci_version }}.zip
           retention-days: 7
 
       - name: 上传安装程序
