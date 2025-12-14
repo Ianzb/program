@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "zb小程序"
-#define MyAppVersion "5.10.0"
+#define MyAppVersion "1.1.1"
 #define MyAppPublisher "Ianzb"
 #define MyAppURL "https://ianzb.github.io/"
 #define MyAppExeName "zbProgram.exe"
@@ -43,7 +43,7 @@ Name: "startupicon"; Description: "开机自启动"; Flags: unchecked
 
 [Files]
 Source: "..\build\zbProgram\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\build\zbProgram\app"; DestDir: "{app}\app"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\build\zbProgram\app\*"; DestDir: "{app}\app"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Registry]
