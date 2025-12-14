@@ -38,14 +38,13 @@ jobs:
           python -m pip install -r requirements.txt
           Write-Host "运行库安装完成。"
 
-      - name: 获取当前版本号
-        id: get_version
+      - name: 读取index.json版本
+        id: get_index_version
         shell: pwsh
         run: |
-          # 从index.json读取当前版本号
-          $indexContent = Get-Content -Raw -Path index.json | ConvertFrom-Json
-          $currentVersion = $indexContent.version
-          Write-Output "current_version=$currentVersion" >> $env:GITHUB_OUTPUT
+          $index_json = Get-Content -Path "index.json" -Raw | ConvertFrom-Json
+          Write-Output "index_version=$($index_json.version)" >> $env:GITHUB_OUTPUT
+          Write-Output "index_version_code=$($index_json.version_code)" >> $env:GITHUB_OUTPUT
 
       - name: 编译程序
         id: run_build
