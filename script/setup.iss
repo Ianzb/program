@@ -7,7 +7,6 @@
 #define MyAppURL "https://ianzb.github.io/"
 #define MyAppExeName "zbProgram.exe"
 #define MyAppAssocName MyAppName + "插件"
-#define MyAppAssocExt ".zbaddon"
 #define MyAppAssocKey StringChange(MyAppAssocName, " ", "") + MyAppAssocExt
 
 [Setup]
@@ -31,7 +30,7 @@ LicenseFile=..\LICENSE
 PrivilegesRequiredOverridesAllowed=dialog
 OutputDir=..\build\zbProgram
 OutputBaseFilename=zbProgram_setup
-SetupIconFile=..\program\source\img\program.ico
+SetupIconFile=..\zbProgram\resource\program.ico
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
@@ -45,7 +44,7 @@ Name: "startupicon"; Description: "开机自启动"; Flags: unchecked
 
 [Files]
 Source: "..\build\zbProgram\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\build\zbProgram\source\*"; DestDir: "{app}\source"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\build\zbProgram\resource\*"; DestDir: "{app}\resource"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Registry]
@@ -64,9 +63,6 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: de
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
-
-
-
 
 [Code]
 procedure ExitProcess(exitCode:integer);
