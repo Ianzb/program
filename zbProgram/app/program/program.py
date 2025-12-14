@@ -85,7 +85,7 @@ class Program:
 
         # 打包后资源路径切换
         if self.isExe:
-            self.RESOURCE_PATH = sys._MEIPASS + "resource"
+            self.RESOURCE_PATH = sys._MEIPASS + "app/resource"
 
         # 导入自定义图标
         ZBF.setPath(self.resource("icons"))
