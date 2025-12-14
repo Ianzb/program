@@ -1,7 +1,8 @@
-import json
-
 try:
-    from source.addon import *
+    from zbProgram.app.addon import *
+except:
+    from app.addon import *
+try:
     import pySeatShuffle.core as core
 
     addonBase = AddonBase()
@@ -18,10 +19,6 @@ except:
     import core
     from ..program import *
 
-try:
-    from program.source.addon import *
-except:
-    pass
 import webbrowser
 
 

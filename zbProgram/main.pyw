@@ -1,4 +1,4 @@
-from source import *
+from app import *
 
 window = Window()
 if program.isStartup and setting.read("autoHide"):
@@ -10,4 +10,4 @@ else:
     logging.info("程序主窗口展示！")
 app.exec()
 
-import source.addon
+import app.addon

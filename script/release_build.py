@@ -8,55 +8,67 @@ import sys
 import json
 import shutil
 import subprocess
-from pathlib import Path
-import zipfile
-
-config = {
-    "log_index": "exe版",
-}
+import zbToolLib as zb
 
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
-ROOT = Path(__file__).resolve().parents[1]
-PROG_PY = ROOT / "program" / "source" / "program" / "program.py"
-SETUP_ISS = ROOT / "script" / "setup.iss"
-INDEX_JSON = ROOT / "index.json"
-INDEX_HTML = ROOT / "index.html"
-REQS = ROOT / "requirements.txt"
-BUILD_DIR = ROOT / "build"
+ROOT = zb.getFileDir(sys.argv[0])
+CODE_PATH = zb.joinPath(ROOT, "zbProgram")
+PROGRAM_PY = zb.joinPath(CODE_PATH, "app", "program", "program.py")
+RESOURCE_PATH = zb.joinPath(ROOT, "resource")
+SETUP_ISS = zb.joinPath(ROOT, "script", "setup.iss")
+INDEX_JSON = zb.joinPath(ROOT, "index.json")
+INDEX_HTML = zb.joinPath(ROOT, "index.html")
+REQUIREMENTS = zb.joinPath(ROOT, "requirements.txt")
+BUILD_PATH = zb.joinPath(ROOT, "build")
+
+config = {
+    "log_index": "exe版",
+    "extra_files": []
+}
+
+
+def read_text(path: str):
+    with open(path, "r", encoding="utf-8") as file:
+        return file.read()
+
+
+def write_text(path: str, content: str):
+    with open(path, "w", encoding="utf-8") as file:
+        file.write(content)
 
 
 def replace_version_in_program(version: str, version_code: int):
-    text = PROG_PY.read_text(encoding="utf-8")
+    text = read_text(PROGRAM_PY)
     pattern = re.compile(r"(\bVERSION\s*=\s*)([\"'])(.*?)(\2)", flags=re.M)
     new_text, n = pattern.subn(lambda m: m.group(1) + m.group(2) + version + m.group(2), text, count=1)
-    PROG_PY.write_text(new_text, encoding="utf-8")
+    PROGRAM_PY.write_text(new_text, encoding="utf-8")
 
     pattern = re.compile(r"(\bVERSION_CODE\s*=\s*)(\d+)", flags=re.M)
     new_text, n = pattern.subn(lambda m: m.group(1) + str(version_code), text, count=1)
-    PROG_PY.write_text(new_text, encoding="utf-8")
+    PROGRAM_PY.write_text(new_text, encoding="utf-8")
     print("已修改program.py版本号！")
 
 
 def replace_version_in_setup(version: str):
-    text = SETUP_ISS.read_text(encoding="utf-8")
+    text = read_text(SETUP_ISS)
     pattern = re.compile(r'(#define\s+MyAppVersion\s+")([^"]*)(\")', flags=re.M)
     new_text, n = pattern.subn(lambda m: m.group(1) + version + m.group(3), text, count=1)
-    SETUP_ISS.write_text(new_text, encoding="utf-8")
+    write_text(SETUP_ISS, new_text)
     print("已修改setup.iss版本号！")
 
 
 def replace_index_json(version: str, version_code: int):
-    data = json.loads(INDEX_JSON.read_text(encoding="utf-8"))
+    data = json.loads(read_text(INDEX_JSON))
     data["version"] = version
     data["version_code"] = version_code
-    INDEX_JSON.write_text(json.dumps(data, ensure_ascii=False, indent=4), encoding="utf-8")
+    write_text(INDEX_JSON, json.dumps(data, ensure_ascii=False, indent=4))
     print("已修改index.json版本号！")
 
 
 def extract_release_notes():
-    html = INDEX_HTML.read_text(encoding="utf-8")
+    html = read_text(INDEX_HTML)
     if config.get("log_index"):
         m = re.search(rf'<div\s+class="zb">\s*<h5>\s*{config.get("log_index")}\s*</h5>(.*?)</div>', html, flags=re.S)
     else:
@@ -73,15 +85,15 @@ def extract_release_notes():
 
 
 def run_pyinstaller():
-    if BUILD_DIR.exists():
-        shutil.rmtree(BUILD_DIR)
-    BUILD_DIR.mkdir(parents=True, exist_ok=True)
-    add_data = os.pathsep.join([str(ROOT / "program" / "source" / "img"), "img"])
+    if BUILD_PATH.exists():
+        shutil.rmtree(BUILD_PATH)
+    BUILD_PATH.mkdir(parents=True, exist_ok=True)
+    add_data = os.pathsep.join([zb.joinPath(CODE_PATH, "resource"), "resource"])
     cmd = [
-        sys.executable, "-m", "PyInstaller", "-D", "-w", str(ROOT / "program" / "main.pyw"),
-        "-i", str(ROOT / "program" / "source" / "img" / "program.ico"),
-        "-n", "zbProgram", "--distpath", str(BUILD_DIR), "--workpath", str(BUILD_DIR / "build"),
-        "--clean", "--contents-directory", "source", "--add-data", add_data, "-y"
+        sys.executable, "-m", "PyInstaller", "-D", "-w", zb.joinPath(CODE_PATH, "main.pyw"),
+        "-i", zb.joinPath(CODE_PATH, "resource", "program.ico"),
+        "-n", "zbProgram", "--distpath", BUILD_PATH, "--workpath", zb.joinPath(BUILD_PATH, "build"),
+        "--clean", "--contents-directory", "resource", "--add-data", add_data, "-y"
     ]
     print("CMD:", " ".join(cmd))
     subprocess.check_call(cmd)
@@ -89,21 +101,26 @@ def run_pyinstaller():
 
 
 def make_zip(version: str):
-    zip_name = ROOT / f"zbProgram_{version}"
+    zip_name = zb.joinPath(ROOT, f"zbProgram_{version}")
     print(f"正在压缩{zip_name}.zip...")
-    zip_path = shutil.make_archive(str(zip_name), "zip", root_dir=BUILD_DIR / "zbProgram")
+    zip_path = shutil.make_archive(str(zip_name), "zip", root_dir=zb.joinPath(BUILD_PATH, "zbProgram"))
     print(f"压缩{zip_name}.zip完成！")
     return zip_path
 
 
 def get_current_version_code():
-    data = json.loads(INDEX_JSON.read_text(encoding="utf-8"))
+    data = json.loads(read_text(INDEX_JSON))
     return data.get("version_code", 0)
 
 
 def get_current_version():
-    data = json.loads(INDEX_JSON.read_text(encoding="utf-8"))
+    data = json.loads(read_text(INDEX_JSON))
     return data.get("version", "")
+
+
+def copy_extra_files():
+    for file in config.get("extra_files", []):
+        zb.copyPath(zb.joinPath(ROOT, file), zb.joinPath(BUILD_PATH, file))
 
 
 if __name__ == "__main__":
@@ -133,6 +150,7 @@ if __name__ == "__main__":
     replace_version_in_setup(version)
 
     run_pyinstaller()
+    copy_extra_files()
     zip_path = make_zip(version)
 
     out = {
@@ -142,5 +160,5 @@ if __name__ == "__main__":
         "zip": zip_path
     }
 
-    out_path = ROOT / "script" / "release_output.json"
-    out_path.write_text(json.dumps(out, ensure_ascii=False, indent=4), encoding="utf-8")
+    out_path = zb.joinPath(ROOT, "script", "release_output.json")
+    write_text(out_path, json.dumps(out, ensure_ascii=False, indent=4))

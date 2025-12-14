@@ -1,9 +1,9 @@
-from source.addon import *
 
 try:
-    from program.source.addon import *
+    from zbProgram.app.addon import *
 except:
-    pass
+    from app.addon import *
+
 addonBase = AddonBase()
 
 

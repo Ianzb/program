@@ -208,7 +208,7 @@ class AboutPage(zbw.BasicPage):
         self.cardGroup1.addCard(self.aboutSettingCard, "aboutSettingCard")
 
         self.bigInfoCard = zbw.BigInfoCard(self, data=False)
-        self.bigInfoCard.setImg(program.source("zb.png"))
+        self.bigInfoCard.setImg(program.resource("zb.png"))
         self.bigInfoCard.image.setMinimumSize(150, 150)
         self.bigInfoCard.setTitle(program.AUTHOR_NAME)
         self.bigInfoCard.setInfo("Minecraft玩家，科幻迷，编程爱好者！")

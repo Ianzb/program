@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: '版本号 (留空则使用index.json中的版本号)'
+        description: '版本号'
         required: false
         default: ''
 

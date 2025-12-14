@@ -4,14 +4,14 @@ on:
   workflow_dispatch:
     inputs:
       addon_id:
-        description: '插件ID (如: appstore, filemanager, seewokit)'
+        description: '插件ID'
         required: true
       version:
-        description: '版本号 (可选，留空则不更新版本)'
+        description: '版本号'
         required: false
         default: ''
       changelog:
-        description: '更新日志 (可选)'
+        description: '更新日志'
         required: false
         default: ''
 

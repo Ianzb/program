@@ -3,9 +3,9 @@
   "name": "文件整理",
   "author": "Ianzb",
   "description": "一款简易的文件整理清理插件。",
-  "version": "1.1.14",
-  "version_code": 20,
-  "api_version": 7,
+  "version": "1.1.15",
+  "version_code": 21,
+  "api_version": 8,
   "icon": "https://drive.ianzb.cn/code/program/addon/filemanager/filemanager.png",
   "file": "https://drive.ianzb.cn/code/program/addon/filemanager/filemanager.zip",
   "history": {
@@ -88,6 +88,10 @@
     "1.1.14": {
       "time": "2025年11月23日",
       "log": "适配API 6。"
+    },
+    "1.1.15": {
+      "log": "适配ADDON API 8。",
+      "time": "2025年12月14日"
     }
   },
   "packages": [],

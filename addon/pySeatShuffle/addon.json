@@ -3,9 +3,9 @@
   "name": "排座工具",
   "author": "Hz6826 & Ianzb",
   "description": "一个随机排座工具。",
-  "version": "1.2.3",
-  "version_code": 11,
-  "api_version": 7,
+  "version": "1.2.4",
+  "version_code": 12,
+  "api_version": 8,
   "icon": "https://drive.ianzb.cn/code/program/addon/pySeatShuffle/pySeatShuffle.png",
   "file": "https://drive.ianzb.cn/code/program/addon/pySeatShuffle/pySeatShuffle.zip",
   "history": {
@@ -52,6 +52,10 @@
     "1.2.3": {
       "log": "优化设置页面布局。",
       "time": "2025年12月13日"
+    },
+    "1.2.4": {
+      "log": "适配ADDON API 8。",
+      "time": "2025年12月14日"
     }
   },
   "packages": [

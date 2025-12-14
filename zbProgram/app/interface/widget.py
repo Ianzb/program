@@ -1,5 +1,3 @@
-import time
-
 from ..program import *
 import webbrowser
 
