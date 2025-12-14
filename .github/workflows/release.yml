@@ -75,7 +75,7 @@ jobs:
           if ($json.output) { Write-Output "zip=$($json.output)" >> $env:GITHUB_OUTPUT }
           $notes = $json.release_notes -replace "`r`n","\n"
           Write-Output "notes=$notes" >> $env:GITHUB_OUTPUT
-          $installer = Get-ChildItem -Path $Env:GITHUB_WORKSPACE -Filter zbProgram_setup.exe -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+          $installer = Get-ChildItem -Path $Env:GITHUB_WORKSPACE -Filter ${{ env.PROGRAM_NAME }}_setup.exe -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
           if ($installer) { Write-Output "installer=$($installer.FullName)" >> $env:GITHUB_OUTPUT } else { Write-Output "installer=" >> $env:GITHUB_OUTPUT }
           Write-Output "version_code=$($json.version_code)" >> $env:GITHUB_OUTPUT
 
@@ -144,12 +144,12 @@ jobs:
           Write-Host "Uploading index.json to $dufs/code/program/index.json..."
           curl --fail --show-error --silent --user "$($user):$($pass)" -T "$index" "$dufs/code/program/index.json"
           
-          Write-Host "Uploading zip $zip to $dufs/code/program/zbProgram.zip..."
-          curl --fail --show-error --silent --user "$($user):$($pass)" -T "$zip" "$dufs/code/program/zbProgram.zip"
+          Write-Host "Uploading zip $zip to $dufs/code/program/${{ env.PROGRAM_NAME }}.zip..."
+          curl --fail --show-error --silent --user "$($user):$($pass)" -T "$zip" "$dufs/code/program/${{ env.PROGRAM_NAME }}.zip"
           
           if ($installer -and $installer -ne '') {
-            Write-Host "Uploading installer $installer to $dufs/code/program/zbProgram_setup.exe..."
-            curl --fail --show-error --silent --user "$($user):$($pass)" -T "$installer" "$dufs/code/program/zbProgram_setup.exe"
+            Write-Host "Uploading installer $installer to $dufs/code/program/${{ env.PROGRAM_NAME }}_setup.exe..."
+            curl --fail --show-error --silent --user "$($user):$($pass)" -T "$installer" "$dufs/code/program/${{ env.PROGRAM_NAME }}_setup.exe"
           } else {
             Write-Host "No installer found to upload"
           }
