@@ -27,12 +27,11 @@ def write_text(path: str, content: str):
 def replace_version_in_program(version: str, version_code: int):
     text = read_text(PROGRAM_PY)
     pattern = re.compile(r"(\bVERSION\s*=\s*)([\"'])(.*?)(\2)", flags=re.M)
-    new_text, n = pattern.subn(lambda m: m.group(1) + m.group(2) + version + m.group(2), text, count=1)
-    write_text(PROGRAM_PY, new_text)
+    text, n = pattern.subn(lambda m: m.group(1) + m.group(2) + version + m.group(2), text, count=1)
 
     pattern = re.compile(r"(\bVERSION_CODE\s*=\s*)(\d+)", flags=re.M)
-    new_text, n = pattern.subn(lambda m: m.group(1) + str(version_code), text, count=1)
-    write_text(PROGRAM_PY, new_text)
+    text, n = pattern.subn(lambda m: m.group(1) + str(version_code), text, count=1)
+    write_text(PROGRAM_PY, text)
     print("已修改program.py版本号！")
 
 
@@ -92,10 +91,9 @@ def run_pyinstaller():
 
 
 def make_zip(version: str):
-    zip_name = zb.joinPath(ROOT, f"{NAME}_{version}")
-    print(f"正在压缩{zip_name}.zip...")
-    zip_path = shutil.make_archive(str(zip_name), "zip", root_dir=zb.joinPath(BUILD_PATH, NAME))
-    print(f"压缩{zip_name}.zip完成！")
+    print(f"正在压缩...")
+    zip_path = shutil.make_archive(zb.joinPath(BUILD_PATH, NAME, f"{NAME}_{version}"), "zip", root_dir=zb.joinPath(BUILD_PATH, NAME))
+    print(f"压缩完成！")
     return zip_path
 
 
