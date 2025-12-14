@@ -13,7 +13,7 @@ import zbToolLib as zb
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
-ROOT = zb.getFileDir(sys.argv[0])
+ROOT = zb.getFileDir(zb.getFileDir(sys.argv[0]))
 CODE_PATH = zb.joinPath(ROOT, "zbProgram")
 PROGRAM_PY = zb.joinPath(CODE_PATH, "app", "program", "program.py")
 RESOURCE_PATH = zb.joinPath(ROOT, "resource")
@@ -88,10 +88,10 @@ def run_pyinstaller():
     if BUILD_PATH.exists():
         shutil.rmtree(BUILD_PATH)
     BUILD_PATH.mkdir(parents=True, exist_ok=True)
-    add_data = os.pathsep.join([zb.joinPath(CODE_PATH, "resource"), "resource"])
+    add_data = os.pathsep.join([RESOURCE_PATH, "resource"])
     cmd = [
         sys.executable, "-m", "PyInstaller", "-D", "-w", zb.joinPath(CODE_PATH, "main.pyw"),
-        "-i", zb.joinPath(CODE_PATH, "resource", "program.ico"),
+        "-i", zb.joinPath(RESOURCE_PATH, "program.ico"),
         "-n", "zbProgram", "--distpath", BUILD_PATH, "--workpath", zb.joinPath(BUILD_PATH, "build"),
         "--clean", "--contents-directory", "resource", "--add-data", add_data, "-y"
     ]
