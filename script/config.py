@@ -1,3 +1,4 @@
+import os
 import sys
 
 import zbToolLib as zb
@@ -8,7 +9,7 @@ IS_SINGLE_FILE = False
 IS_SETUP = True
 EXTRA_FILES = []
 
-ROOT = zb.getFileDir(zb.getFileDir(sys.argv[0]))
+ROOT = os.path.abspath((zb.getFileDir(zb.getFileDir(sys.argv[0]))))
 CODE_PATH = zb.joinPath(ROOT, NAME)
 PROGRAM_PY = zb.joinPath(CODE_PATH, "app", "program", "program.py")
 MAIN_PYW = zb.joinPath(CODE_PATH, "main.pyw")
