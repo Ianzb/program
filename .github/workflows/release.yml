@@ -77,7 +77,6 @@ jobs:
           $installer = Get-ChildItem -Path $Env:GITHUB_WORKSPACE -Filter ${{ env.PROGRAM_NAME }}_setup.exe -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
           if ($installer) { Write-Output "installer=$($installer.FullName)" >> $env:GITHUB_OUTPUT } else { Write-Output "installer=" >> $env:GITHUB_OUTPUT }
           Write-Output "version_code=$($json.version_code)" >> $env:GITHUB_OUTPUT
-          Copy-Item -Path $json.output -Destination "${{ env.PROGRAM_NAME }}_${{ steps.get_new_index_version.outputs.index_version }}.zip"
 
       - name: 读取修改后的index.json版本
         id: get_new_index_version
@@ -107,6 +106,7 @@ jobs:
           } else {
             Write-Host "No changes to commit"
           }
+          Copy-Item -Path steps.check_output.outputs.zip -Destination "${{ env.PROGRAM_NAME }}_${{ steps.get_new_index_version.outputs.index_version }}.zip"
 
       - name: 发布Release
         uses: softprops/action-gh-release@v2
