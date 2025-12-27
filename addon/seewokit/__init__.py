@@ -23,7 +23,6 @@ def addonInit():
                   "messageContent": "",
                   "messageEnabled": False,
                   "canCloseMessage": True,
-                  "messageMove": False,
                   "monitorPath": [],
                   "autoCopy": False,
                   "copyPath": zb.joinPath(program.DATA_PATH, "复制"),
@@ -210,32 +209,6 @@ class MessageDialog(zbw.ScrollDialog):
         self.setFixedWidth(700)
         self.setMaximumHeight(300)
 
-        # 窗口移动功能
-        if setting.read("messageMove"):
-            from qtpy.QtCore import QTimer
-            self._dx = 1
-            self._dy = 1
-            self._timer = QTimer(self)
-            self._timer.timeout.connect(self._move_window)
-            self._timer.start(5)
-
-    def _move_window(self):
-        from qtpy.QtWidgets import QApplication
-        desktop = QApplication.desktop()
-        screen_rect = desktop.availableGeometry(self)
-        current_rect = self.geometry()
-
-        new_x = current_rect.x() + self._dx
-        new_y = current_rect.y() + self._dy
-
-        # 检测边缘并反弹
-        if new_x <= screen_rect.left() or new_x + current_rect.width() >= screen_rect.right():
-            self._dx = -self._dx
-        if new_y <= screen_rect.top() or new_y + current_rect.height() >= screen_rect.bottom():
-            self._dy = -self._dy
-
-        self.move(current_rect.x() + self._dx, current_rect.y() + self._dy)
-
     def closeButtonClicked(self):
         if setting.read("canCloseMessage"):
             if hasattr(self, '_timer'):
@@ -321,10 +294,6 @@ class SeewoPage(zbw.BasicTab):
         self.messageCheckBox.setChecked(setting.read("messageEnabled"))
         self.messageCheckBox.clicked.connect(self.messageCheckBoxClicked)
 
-        self.moveCheckBox = CheckBox("窗口移动", self)
-        self.moveCheckBox.setChecked(setting.read("messageMove"))
-        self.moveCheckBox.clicked.connect(self.moveCheckBoxClicked)
-
         self.canCloseCheckBox = CheckBox("允许关闭弹窗", self)
         self.canCloseCheckBox.setChecked(setting.read("canCloseMessage"))
         self.canCloseCheckBox.clicked.connect(self.canCloseCheckBoxClicked)
@@ -332,7 +301,6 @@ class SeewoPage(zbw.BasicTab):
         self.card2.addWidget(self.setMessageButton)
         self.card2.addWidget(self.testMessageButton)
         self.card2.addWidget(self.messageCheckBox, 0, Qt.AlignCenter)
-        self.card2.addWidget(self.moveCheckBox, 0, Qt.AlignCenter)
         self.card2.addWidget(self.canCloseCheckBox, 0, Qt.AlignCenter)
 
         self.card3 = zbw.GrayCard("文件复制", self)
@@ -419,8 +387,6 @@ class SeewoPage(zbw.BasicTab):
             self.autoCopyButton.setChecked(setting.read("autoCopy"))
         elif name == "messageEnabled":
             self.messageCheckBox.setChecked(setting.read("messageEnabled"))
-        elif name == "messageMove":
-            self.moveCheckBox.setChecked(setting.read("messageMove"))
         elif name == "canCloseMessage":
             self.canCloseCheckBox.setChecked(setting.read("canCloseMessage"))
         elif name == "copyPath":
@@ -445,9 +411,6 @@ class SeewoPage(zbw.BasicTab):
 
     def messageCheckBoxClicked(self):
         setting.save("messageEnabled", self.messageCheckBox.isChecked())
-
-    def moveCheckBoxClicked(self):
-        setting.save("messageMove", self.moveCheckBox.isChecked())
 
     def canCloseCheckBoxClicked(self):
         setting.save("canCloseMessage", self.canCloseCheckBox.isChecked())
