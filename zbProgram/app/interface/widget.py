@@ -497,7 +497,7 @@ class ProgressCenter(FlyoutViewBase):
     def count(self):
         count = self.cardGroup.count()
         if not self.infoBadge:
-            self.infoBadge = InfoBadge.attension(count, self.window.titleBar, self.window.progressCenterButton, position=NewInfoBadgePosition.CENTER)
+            self.infoBadge = InfoBadge.attension(count, self.window.titleBar, self.window.progressCenterButton, position=zbw.NewInfoBadgePosition.CENTER)
         self.infoBadge.setText(str(count))
         self.infoBadge.setVisible(bool(count))
         self.infoBadge.adjustSize()
@@ -513,63 +513,7 @@ class ProgressCenter(FlyoutViewBase):
         self.cardGroup.adjustSize()
         self._adjustSize()
         if self.isVisible():
-            self.window.showProgressCenter(NewFlyoutAnimationType.FADE_IN)
-
-
-class NewInfoBadgePosition(Enum):
-    """ Info badge position """
-    CENTER = 7
-
-
-@InfoBadgeManager.register(NewInfoBadgePosition.CENTER)
-class BottomCenterInfoBadgeManager(InfoBadgeManager):
-    """ Bottom left info badge manager """
-
-    def position(self):
-        x = self.target.geometry().center().x() - self.badge.width() // 2
-        y = self.target.geometry().center().y() - self.badge.height() // 2
-        return QPoint(x, y)
-
-
-class NewFlyoutAnimationType(Enum):
-    """ Flyout animation type """
-    FADE_IN = 4
-    FIXED_NONE = 6
-
-
-@FlyoutAnimationManager.register(NewFlyoutAnimationType.FADE_IN)
-class FadeInFlyoutAnimationManager(FlyoutAnimationManager):
-    """ Fade in flyout animation manager """
-
-    def position(self, target: QWidget):
-        """ return the top left position relative to the target """
-        w = self.flyout
-        pos = target.mapToGlobal(QPoint(0, target.height()))
-        x = pos.x() + target.width() // 2 - w.sizeHint().width() // 2
-        y = pos.y() - w.layout().contentsMargins().top() + 8
-        return QPoint(x, y)
-
-    def exec(self, pos: QPoint):
-        self.flyout.move(self._adjustPosition(pos))
-        self.aniGroup.removeAnimation(self.slideAni)
-        self.aniGroup.start()
-
-
-@FlyoutAnimationManager.register(NewFlyoutAnimationType.FIXED_NONE)
-class DummyFlyoutAnimationManager(FlyoutAnimationManager):
-    """ Dummy flyout animation manager """
-
-    def exec(self, pos: QPoint):
-        """ start animation """
-        self.flyout.move(self._adjustPosition(pos))
-
-    def position(self, target: QWidget):
-        """ return the top left position relative to the target """
-        w = self.flyout
-        pos = target.mapToGlobal(QPoint(0, target.height()))
-        x = pos.x() + target.width() // 2 - w.sizeHint().width() // 2
-        y = pos.y() - w.layout().contentsMargins().top() + 8
-        return QPoint(x, y)
+            self.window.showProgressCenter(zbw.NewFlyoutAnimationType.FADE_IN)
 
 
 class ErrorMessageBox(zbw.ScrollMessageBox):
