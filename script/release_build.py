@@ -71,20 +71,10 @@ def extract_release_notes():
 def run_pyinstaller():
     zb.deletePath(BUILD_PATH)
     zb.createDir(BUILD_PATH)
-    if IS_SINGLE_FILE:
-        cmd = [
-            sys.executable, "-m", "PyInstaller", "-F", "-w", MAIN_PYW,
-            "-i", ICON_PATH,
-            "-n", f"{NAME}_{version}", "--distpath", BUILD_PATH, "--workpath", zb.joinPath(BUILD_PATH, "build"),
-            "--clean", "--contents-directory", "app", "--add-data", f"{RESOURCE_PATH}:{zb.getFileName(RESOURCE_PATH)}", "-y"
-        ]
-    else:
-        cmd = [
-            sys.executable, "-m", "PyInstaller", "-D", "-w", MAIN_PYW,
-            "-i", ICON_PATH,
-            "-n", NAME, "--distpath", BUILD_PATH, "--workpath", zb.joinPath(BUILD_PATH, "build"),
-            "--clean", "--contents-directory", "app", "--add-data", f"{RESOURCE_PATH}:{zb.getFileName(RESOURCE_PATH)}", "-y"
-        ]
+    cmd = [sys.executable, "-m", "PyInstaller", SPEC_PATH,
+           "--distpath", BUILD_PATH, "--workpath", zb.joinPath(BUILD_PATH, "build"),
+           "--clean", "-y"
+           ]
     print("CMD:", " ".join(cmd))
     subprocess.check_call(cmd)
     print("打包完成")
@@ -140,8 +130,8 @@ if __name__ == "__main__":
 
     run_pyinstaller()
     if IS_SINGLE_FILE:
-        zip_path = zb.joinPath(BUILD_PATH, f"{NAME}_{version}.exe")
-        zb.copyPath(zip_path, zb.joinPath(ROOT, zb.getFileName(zip_path)))
+        zip_path = zb.joinPath(BUILD_PATH, f"{NAME}.exe")
+        zb.copyPath(zip_path, zb.joinPath(ROOT, f"{NAME}_{version}.exe"))
     else:
         copy_extra_files()
         zip_path = make_zip(version)
