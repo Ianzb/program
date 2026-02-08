@@ -6,8 +6,8 @@
   "version": "1.2.4",
   "version_code": 12,
   "api_version": 8,
-  "icon": "https://drive.ianzb.cn/code/program/addon/pySeatShuffle/pySeatShuffle.png",
-  "file": "https://drive.ianzb.cn/code/program/addon/pySeatShuffle/pySeatShuffle.zip",
+  "icon": "https://drive.ianzb.cn/code/zbProgram/addon/pySeatShuffle/pySeatShuffle.png",
+  "file": "https://drive.ianzb.cn/code/zbProgram/addon/pySeatShuffle/pySeatShuffle.zip",
   "history": {
     "0.0.1": {
       "time": "2025年10月22日",
@@ -63,5 +63,5 @@
     "et_xmlfile>=2.0.0",
     "bidict>=0.23.1"
   ],
-  "url": "https://drive.ianzb.cn/code/program/addon/pySeatShuffle/addon.json"
+  "url": "https://drive.ianzb.cn/code/zbProgram/addon/pySeatShuffle/addon.json"
 }

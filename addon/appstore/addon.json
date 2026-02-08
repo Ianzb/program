@@ -6,8 +6,8 @@
   "version": "1.5.12",
   "version_code": 14,
   "api_version": 8,
-  "icon": "https://drive.ianzb.cn/code/program/addon/appstore/appstore.png",
-  "file": "https://drive.ianzb.cn/code/program/addon/appstore/appstore.zip",
+  "icon": "https://drive.ianzb.cn/code/zbProgram/addon/appstore/appstore.png",
+  "file": "https://drive.ianzb.cn/code/zbProgram/addon/appstore/appstore.zip",
   "history": {
     "1.4.3": {
       "time": "暂无",
@@ -69,5 +69,5 @@
   "packages": [
     "xmltodict==1.0.2"
   ],
-  "url": "https://drive.ianzb.cn/code/program/addon/appstore/addon.json"
+  "url": "https://drive.ianzb.cn/code/zbProgram/addon/appstore/addon.json"
 }

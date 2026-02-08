@@ -6,8 +6,8 @@
   "version": "1.1.15",
   "version_code": 21,
   "api_version": 8,
-  "icon": "https://drive.ianzb.cn/code/program/addon/filemanager/filemanager.png",
-  "file": "https://drive.ianzb.cn/code/program/addon/filemanager/filemanager.zip",
+  "icon": "https://drive.ianzb.cn/code/zbProgram/addon/filemanager/filemanager.png",
+  "file": "https://drive.ianzb.cn/code/zbProgram/addon/filemanager/filemanager.zip",
   "history": {
     "0.0.1": {
       "time": "暂无",
@@ -95,5 +95,5 @@
     }
   },
   "packages": [],
-  "url": "https://drive.ianzb.cn/code/program/addon/filemanager/addon.json"
+  "url": "https://drive.ianzb.cn/code/zbProgram/addon/filemanager/addon.json"
 }
