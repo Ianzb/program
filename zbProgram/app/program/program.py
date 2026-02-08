@@ -32,8 +32,8 @@ class Program:
     程序信息
     """
     NAME = "zb小程序"  # 程序名称
-    VERSION = "5.10.0"  # 程序版本
-    VERSION_CODE = 65  # 版本序数
+    VERSION = "5.10.1"  # 程序版本
+    VERSION_CODE = 66  # 版本序数
     ADDON_API_VERSION = 8  # 插件版本序数
     CORE_VERSION = "5.5.3"  # 内核版本
     TITLE = f"{NAME} {VERSION}"  # 程序标题
