@@ -231,12 +231,14 @@ class AddonBase:
         self.addon_info = None
         self.window = None
         self.progress_center = None
+        self.manager = None
 
-    def set(self, program, setting, window, progress_center, addon_info):
+    def set(self, program, setting, manager, window, progress_center, addon_info):
         self.program = program
         self.window = window
         self.progress_center = progress_center
         self.addon_info = addon_info
+        self.manager = manager
 
         if addon_info.get("api_version", 0) <= 5:
             self.progressCenter = progress_center

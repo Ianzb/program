@@ -1,66 +1,65 @@
 name: CI Build
+
 env:
   PROGRAM_NAME: "zbProgram"
+
 on:
   workflow_dispatch:
   push:
     branches: [ main ]
     paths:
-      - 'zbProgram/**'
+      - "zbProgram/**"
   pull_request:
     branches: [ main ]
     paths:
-      - 'zbProgram/**'
+      - "zbProgram/**"
 
 jobs:
   build:
     runs-on: windows-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v6
         with:
           persist-credentials: true
 
-      - name: 安装Python
+      - name: 安装 Python
         uses: actions/setup-python@v6
         with:
           python-version: "3.13"
 
-      - name: 更新pip
+      - name: 更新 pip
         shell: pwsh
         run: |
           python -m pip install --upgrade pip
 
-      - name: 安装Python运行库
+      - name: 安装 Python 运行库
         shell: pwsh
         run: |
           Write-Host "正在安装运行库..."
           python -m pip install -r requirements.txt
           Write-Host "运行库安装完成。"
 
-      - name: 获取当前版本号
-        id: get_version
+      - name: 读取 index.json 版本
+        id: read_index
         shell: pwsh
         run: |
-          # 从index.json读取当前版本号
-          $indexContent = Get-Content -Raw -Path index.json | ConvertFrom-Json
-          $currentVersion = $indexContent.version
-          Write-Output "current_version=$currentVersion" >> $env:GITHUB_OUTPUT
+          $index = Get-Content -Raw index.json | ConvertFrom-Json
+          Write-Output "version=$($index.version)" >> $env:GITHUB_OUTPUT
 
-      - name: 生成CI版本号
-        id: generate_ci_version
+      - name: 生成 CI 版本号
+        id: ci_version
         shell: pwsh
         run: |
-          $currentVersion = "${{ steps.get_version.outputs.current_version }}"
-          $runNumber = $env:GITHUB_RUN_NUMBER
-          $ciVersion = "${currentVersion}+ci${runNumber}"
-          Write-Output "ci_version=$ciVersion" >> $env:GITHUB_OUTPUT
-          Write-Host "CI Version: $ciVersion"
+          $ci = "${{ steps.read_index.outputs.version }}+ci$env:GITHUB_RUN_NUMBER"
+          Write-Output "version=$ci" >> $env:GITHUB_OUTPUT
+          Write-Host "CI Version: $ci"
 
       - name: 编译程序
-        id: run_build
+        shell: pwsh
         run: |
-          python script\release_build.py -v ${{ steps.generate_ci_version.outputs.ci_version }}
+          python script\release_build.py -v "${{ steps.ci_version.outputs.version }}"
 
       - name: 编译安装程序
         uses: Minionguyjpro/Inno-Setup-Action@v1.2.7
@@ -68,11 +67,11 @@ jobs:
           path: script/setup.iss
           options: /O+
 
-      - name: 上传ZIP构建产物
+      - name: 上传 ZIP
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.PROGRAM_NAME }}_${{ steps.generate_ci_version.outputs.ci_version }}.zip
-          path: build/${{ env.PROGRAM_NAME }}/${{ env.PROGRAM_NAME }}_${{ steps.generate_ci_version.outputs.ci_version }}.zip
+          name: ${{ env.PROGRAM_NAME }}_${{ steps.ci_version.outputs.version }}.zip
+          path: build/${{ env.PROGRAM_NAME }}/${{ env.PROGRAM_NAME }}_${{ steps.ci_version.outputs.version }}.zip
           retention-days: 7
 
       - name: 上传安装程序
@@ -82,10 +81,8 @@ jobs:
           path: build/${{ env.PROGRAM_NAME }}/${{ env.PROGRAM_NAME }}_setup.exe
           retention-days: 7
 
-      - name: 显示构建信息
+      - name: 构建完成
         shell: pwsh
         run: |
-          Write-Host "构建完成!"
-          Write-Host "版本号: ${{ steps.generate_ci_version.outputs.ci_version }}"
-          Write-Host "构建产物已分别上传到GitHub Actions Artifacts"
-          Write-Host "可在Actions页面下载构建文件"
+          Write-Host "构建完成"
+          Write-Host "版本号: ${{ steps.ci_version.outputs.version }}"

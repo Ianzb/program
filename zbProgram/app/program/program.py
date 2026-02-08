@@ -35,14 +35,14 @@ class Program:
     VERSION = "5.10.0"  # 程序版本
     VERSION_CODE = 65  # 版本序数
     ADDON_API_VERSION = 8  # 插件版本序数
-    CORE_VERSION = "5.5.1"  # 内核版本
+    CORE_VERSION = "5.5.3"  # 内核版本
     TITLE = f"{NAME} {VERSION}"  # 程序标题
-    URL = "https://ianzb.github.io/project/program.html"  # 程序网址
+    URL = "https://ianzb.github.io/project/zbProgram.html"  # 程序网址
     LICENSE = "GPLv3"  # 程序许可协议
     INFO = "© 2022-2026 Ianzb. GPLv3 License."
-    UPDATE_URL = "https://drive.ianzb.cn/code/program/index.json"  # 更新网址
-    UPDATE_INSTALLER_URL = "https://drive.ianzb.cn/code/program/zbProgram_setup.exe"  # 更新安装包链接
-    ADDON_URL = "https://drive.ianzb.cn/code/program/addon/addon.json"  # 插件信息网址
+    UPDATE_URL = "https://drive.ianzb.cn/code/zbProgram/index.json"  # 更新网址
+    UPDATE_INSTALLER_URL = "https://drive.ianzb.cn/code/zbProgram/zbProgram_setup.exe"  # 更新安装包链接
+    ADDON_URL = "https://drive.ianzb.cn/code/zbProgram/addon/addon.json"  # 插件信息网址
     UNINSTALL_FILE = "unins000.exe"  # 卸载程序名称
 
     AUTHOR_NAME = "Ianzb"  # 作者名称

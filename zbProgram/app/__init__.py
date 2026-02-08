@@ -145,7 +145,7 @@ class Window(zbw.Window):
             lib = importlib.reload(lib)
             addonManager.ADDON_OBJECT[info.get("id")] = lib
             # 初始化插件
-            lib.addonBase.set(program, setting, self, self.progressCenter, info)
+            lib.addonBase.set(program, setting, manager, self, self.progressCenter, info)
             lib.addonInit()
             widget = lib.addonWidget()
             addonManager.ADDON_MAIN_PAGE[info.get("id")] = widget

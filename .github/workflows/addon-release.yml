@@ -1,37 +1,42 @@
 name: Addon Release
 
+env:
+  PROGRAM_NAME: "zbProgram"
+
 on:
   workflow_dispatch:
     inputs:
       addon_id:
-        description: '插件ID'
+        description: "插件 ID"
         required: true
       version:
-        description: '版本号'
+        description: "版本号"
         required: false
-        default: ''
+        default: ""
       changelog:
-        description: '更新日志'
+        description: "更新日志"
         required: false
-        default: ''
+        default: ""
 
 jobs:
   deploy-addon:
     runs-on: windows-latest
+
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: 显示发布信息
         shell: pwsh
         run: |
           Write-Host "=== 插件发布信息 ==="
-          Write-Host "插件ID: ${{ github.event.inputs.addon_id }}"
-          Write-Host "版本号: ${{ github.event.inputs.version }}"
+          Write-Host "插件 ID : ${{ github.event.inputs.addon_id }}"
+          Write-Host "版本号  : ${{ github.event.inputs.version }}"
           Write-Host "更新日志: ${{ github.event.inputs.changelog }}"
-          Write-Host "===================="
+          Write-Host "======================"
 
       - name: 处理插件发布
+        shell: pwsh
         env:
           ADDON_ID: ${{ github.event.inputs.addon_id }}
           VERSION: ${{ github.event.inputs.version }}
@@ -39,158 +44,126 @@ jobs:
           DUFS_URL: ${{ secrets.DUFS_URL }}
           DUFS_USER: ${{ secrets.DUFS_USER }}
           DUFS_PASSWORD: ${{ secrets.DUFS_PASSWORD }}
-        shell: pwsh
         run: |
-          # 导入必要的模块
           Add-Type -AssemblyName System.IO.Compression.FileSystem
-          
-          # 检查插件目录是否存在
+
+          # 插件目录
           $addonPath = Join-Path $Env:GITHUB_WORKSPACE "addon" $Env:ADDON_ID
           if (-not (Test-Path $addonPath)) {
             Write-Error "插件目录不存在: $addonPath"
             exit 1
           }
-          
-          # 读取插件配置文件
+
+          # 读取 addon.json
           $addonJsonPath = Join-Path $addonPath "addon.json"
           if (-not (Test-Path $addonJsonPath)) {
             Write-Error "插件配置文件不存在: $addonJsonPath"
             exit 1
           }
-          
-          $addonConfig = Get-Content $addonJsonPath -Raw | ConvertFrom-Json
-          
-          # 处理版本号更新
-          $shouldUpdateVersion = $false
+
+          $addonConfig = Get-Content -Raw $addonJsonPath | ConvertFrom-Json
+
+          # 版本处理
           if ($Env:VERSION -and $Env:VERSION -ne '') {
             if ($addonConfig.version -ne $Env:VERSION) {
-              # 版本号变化，版本序数+1
               $addonConfig.version = $Env:VERSION
               $addonConfig.version_code = [int]$addonConfig.version_code + 1
-              $shouldUpdateVersion = $true
-          
-              # 检查是否需要添加历史记录
+
+              if (-not $addonConfig.history) {
+                $addonConfig.history = @{}
+              }
+
               if (-not $addonConfig.history.PSObject.Properties[$Env:VERSION]) {
-                $currentTime = Get-Date -Format "yyyy年M月d日"
-                $logText = if ($Env:CHANGELOG -and $Env:CHANGELOG -ne '') { $Env:CHANGELOG } else { "版本更新" }
-          
-                if (-not $addonConfig.history) {
-                  $addonConfig.history = @{}
-                }
                 $addonConfig.history | Add-Member -NotePropertyName $Env:VERSION -NotePropertyValue @{
-                  time = $currentTime
-                  log = $logText
+                  time = (Get-Date -Format "yyyy年M月d日")
+                  log  = if ($Env:CHANGELOG) { $Env:CHANGELOG } else { "版本更新" }
                 }
               }
             }
-            # 版本号相同，版本序数不变
           }
-          
-          # 更新插件配置文件（包含版本信息和历史记录）
+
+          # 写回 addon.json（版本 / 历史）
           $addonConfig | ConvertTo-Json -Depth 10 | Set-Content $addonJsonPath -Encoding UTF8
-          Write-Host "已更新插件配置文件，包含版本信息和历史记录"
-          
-          # 上传到DUFS服务器
+
+          # DUFS 校验
           if (-not $Env:DUFS_URL -or -not $Env:DUFS_USER -or -not $Env:DUFS_PASSWORD) {
-            Write-Host 'DUFS配置未设置，跳过上传'
+            Write-Host "DUFS 未配置，跳过上传"
             exit 0
           }
-          
-          $dufsBase = $Env:DUFS_URL.TrimEnd('/')
-          $addonDufsPath = "$dufsBase/code/program/addon/$($addonConfig.id)"
-          
-          # 将DUFS URL转换为直链URL
-          $directLinkBase = "https://drive.ianzb.cn"
-          $zipDirectLink = "$directLinkBase/code/program/addon/$($addonConfig.id)/$($addonConfig.id).zip"
-          $iconDirectLink = if ($addonConfig.icon -and $addonConfig.icon -ne '') {
-            $iconFileName = [System.IO.Path]::GetFileName($addonConfig.icon)
-            "$directLinkBase/code/program/addon/$($addonConfig.id)/$iconFileName"
-          } else {
-            $null
+
+          $dufsBase   = $Env:DUFS_URL.TrimEnd('/')
+          $directBase = "https://drive.ianzb.cn"
+          $addonDufs  = "$dufsBase/code/${{ env.PROGRAM_NAME }}/addon/$($addonConfig.id)"
+
+          # 直链地址
+          $zipLink  = "$directBase/code/${{ env.PROGRAM_NAME }}/addon/$($addonConfig.id)/$($addonConfig.id).zip"
+          $jsonLink = "$directBase/code/${{ env.PROGRAM_NAME }}/addon/$($addonConfig.id)/addon.json"
+
+          if ($addonConfig.icon) {
+            $iconName = [System.IO.Path]::GetFileName($addonConfig.icon)
+            $addonConfig.icon = "$directBase/code/${{ env.PROGRAM_NAME }}/addon/$($addonConfig.id)/$iconName"
           }
-          
-          # 更新插件配置中的URL为直链
-          $addonConfig.file = $zipDirectLink
-          if ($iconDirectLink) {
-            $addonConfig.icon = $iconDirectLink
-          }
-          $addonConfig.url = "$directLinkBase/code/program/addon/$($addonConfig.id)/addon.json"
-          
-          # 更新插件配置文件
+
+          $addonConfig.file = $zipLink
+          $addonConfig.url  = $jsonLink
+
+          # 再次写回（直链）
           $addonConfig | ConvertTo-Json -Depth 10 | Set-Content $addonJsonPath -Encoding UTF8
-          Write-Host "已更新插件配置文件，URL已转换为直链格式"
-          
-          # 创建ZIP压缩包（包含最终的配置更新）
-          $zipFileName = "$($addonConfig.id).zip"
-          $zipPath = Join-Path $Env:GITHUB_WORKSPACE $zipFileName
-          
-          if (Test-Path $zipPath) {
-            Remove-Item $zipPath
-          }
-          
-          Write-Host "创建压缩包: $zipFileName"
+
+          # 创建 ZIP
+          $zipPath = Join-Path $Env:GITHUB_WORKSPACE "$($addonConfig.id).zip"
+          if (Test-Path $zipPath) { Remove-Item $zipPath }
           [System.IO.Compression.ZipFile]::CreateFromDirectory($addonPath, $zipPath)
-          
-          # 上传插件文件
-          Write-Host "上传插件文件到DUFS服务器..."
-          
-          # 上传ZIP文件
-          $zipDufsPath = "$addonDufsPath/$zipFileName"
-          curl --fail --show-error --silent --user "$($Env:DUFS_USER):$($Env:DUFS_PASSWORD)" -T "$zipPath" "$zipDufsPath"
-          
-          # 上传图标文件（如果存在）
-          $iconFileName = [System.IO.Path]::GetFileName($addonConfig.icon)
-          if ($iconFileName -and $iconFileName -ne '') {
-            $iconPath = Join-Path $addonPath $iconFileName
+
+          # 上传 ZIP
+          curl --fail --silent --show-error `
+            --user "$($Env:DUFS_USER):$($Env:DUFS_PASSWORD)" `
+            -T "$zipPath" "$addonDufs/$($addonConfig.id).zip"
+
+          # 上传 icon
+          if ($addonConfig.icon) {
+            $iconName = [System.IO.Path]::GetFileName($addonConfig.icon)
+            $iconPath = Join-Path $addonPath $iconName
             if (Test-Path $iconPath) {
-              $iconDufsPath = "$addonDufsPath/$iconFileName"
-              curl --fail --show-error --silent --user "$($Env:DUFS_USER):$($Env:DUFS_PASSWORD)" -T "$iconPath" "$iconDufsPath"
+              curl --fail --silent --show-error `
+                --user "$($Env:DUFS_USER):$($Env:DUFS_PASSWORD)" `
+                -T "$iconPath" "$addonDufs/$iconName"
             }
           }
-          
-          # 上传JSON配置文件（使用直链URL的版本）
-          $jsonDufsPath = "$addonDufsPath/addon.json"
-          curl --fail --show-error --silent --user "$($Env:DUFS_USER):$($Env:DUFS_PASSWORD)" -T "$addonJsonPath" "$jsonDufsPath"
-          
-          # 更新主索引文件
+
+          # 上传 addon.json
+          curl --fail --silent --show-error `
+            --user "$($Env:DUFS_USER):$($Env:DUFS_PASSWORD)" `
+            -T "$addonJsonPath" "$addonDufs/addon.json"
+
+          # 更新主索引
           $mainIndexPath = Join-Path $Env:GITHUB_WORKSPACE "addon" "addon.json"
-          $mainIndex = Get-Content $mainIndexPath -Raw | ConvertFrom-Json
-          
-          $addonDirectUrl = "$directLinkBase/code/program/addon/$($addonConfig.id)/addon.json"
-          if ($mainIndex.PSObject.Properties[$addonConfig.id]) {
-            $mainIndex.$($addonConfig.id) = $addonDirectUrl
-          } else {
-            $mainIndex | Add-Member -NotePropertyName $addonConfig.id -NotePropertyValue $addonDirectUrl
-          }
-          
+          $mainIndex = Get-Content -Raw $mainIndexPath | ConvertFrom-Json
+          $mainIndex.$($addonConfig.id) = $jsonLink
           $mainIndex | ConvertTo-Json | Set-Content $mainIndexPath -Encoding UTF8
-          
-          # 上传主索引文件
-          $mainIndexDufsPath = "$dufsBase/code/program/addon/addon.json"
-          curl --fail --show-error --silent --user "$($Env:DUFS_USER):$($Env:DUFS_PASSWORD)" -T "$mainIndexPath" "$mainIndexDufsPath"
-          
-          Write-Host "插件发布完成!"
-          Write-Host "插件URL: $addonDirectUrl"
-          Write-Host "ZIP文件: $zipDirectLink"
+
+          curl --fail --silent --show-error `
+            --user "$($Env:DUFS_USER):$($Env:DUFS_PASSWORD)" `
+            -T "$mainIndexPath" "$dufsBase/code/${{ env.PROGRAM_NAME }}/addon/addon.json"
+
+          Write-Host "插件发布完成"
+          Write-Host "插件地址: $jsonLink"
+          Write-Host "ZIP 文件: $zipLink"
 
       - name: 提交更改
-        if: success()
         shell: pwsh
         run: |
-          git config user.name "github-actions[bot]"
+          git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+
           git add -u
           if (-not (git diff --cached --quiet)) {
-            # Stash any uncommitted changes first
             git stash
-            # Pull remote changes with rebase
             git pull --rebase origin main
-            # Restore stashed changes
             git stash pop
-            # Add all modified files (including those restored from stash)
             git add -u
-            git commit -m "Update addon ${{ github.event.inputs.addon_id }} to version ${{ github.event.inputs.version }} [ci skip]"
+            git commit -m "Update addon ${{ github.event.inputs.addon_id }} to ${{ github.event.inputs.version }} [ci skip]"
             git push origin main
           } else {
-            Write-Host "No changes to commit"
+            Write-Host "无变更需要提交"
           }

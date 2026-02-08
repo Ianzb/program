@@ -1,4 +1,4 @@
-from .setting import *
+from .manager import *
 
 import shutil
 import importlib.metadata as importlib_metadata

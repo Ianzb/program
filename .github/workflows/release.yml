@@ -1,13 +1,15 @@
 name: Release Build
+
 env:
   PROGRAM_NAME: "zbProgram"
+
 on:
   workflow_dispatch:
     inputs:
       version:
-        description: '版本号'
+        description: "版本号"
         required: false
-        default: ''
+        default: ""
 
 permissions:
   contents: write
@@ -15,49 +17,48 @@ permissions:
 jobs:
   build:
     runs-on: windows-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v6
         with:
           persist-credentials: true
 
-      - name: 安装Python
+      - name: 安装 Python
         uses: actions/setup-python@v6
         with:
           python-version: "3.13"
 
-      - name: 更新pip
+      - name: 更新 pip
         shell: pwsh
         run: |
           python -m pip install --upgrade pip
 
-      - name: 安装Python运行库
+      - name: 安装 Python 运行库
         shell: pwsh
         run: |
           Write-Host "正在安装运行库..."
           python -m pip install -r requirements.txt
           Write-Host "运行库安装完成。"
 
-      - name: 读取index.json版本
-        id: get_index_version
+      - name: 读取 index.json
+        id: read_index
         shell: pwsh
         run: |
-          $index_json = Get-Content -Path "index.json" -Raw | ConvertFrom-Json
-          Write-Output "index_version=$($index_json.version)" >> $env:GITHUB_OUTPUT
-          Write-Output "index_version_code=$($index_json.version_code)" >> $env:GITHUB_OUTPUT
+          $index = Get-Content -Raw index.json | ConvertFrom-Json
+          Write-Output "version=$($index.version)" >> $env:GITHUB_OUTPUT
+          Write-Output "version_code=$($index.version_code)" >> $env:GITHUB_OUTPUT
 
       - name: 编译程序
-        id: run_build
         shell: pwsh
         run: |
-          $version = "${{ github.event.inputs.version }}"
-          if ([string]::IsNullOrEmpty($version)) {
-            $index_version = "${{ steps.get_index_version.outputs.index_version }}"
-            Write-Host "版本号未提供，使用index.json中的版本号: $index_version"
-            python script\release_build.py -v $index_version
+          $inputVersion = "${{ github.event.inputs.version }}"
+          if ([string]::IsNullOrEmpty($inputVersion)) {
+            Write-Host "未指定版本号，使用 index.json 版本"
+            python script\release_build.py -v "${{ steps.read_index.outputs.version }}"
           } else {
-            Write-Host "使用指定版本号: $version"
-            python script\release_build.py -v $version
+            Write-Host "使用指定版本号: $inputVersion"
+            python script\release_build.py -v "$inputVersion"
           }
 
       - name: 编译安装程序
@@ -66,61 +67,71 @@ jobs:
           path: script/setup.iss
           options: /O+
 
-      - name: 校验输出
+      - name: 校验构建输出
         id: check_output
         shell: pwsh
         run: |
-          $json = Get-Content -Raw -Path script\release_output.json | ConvertFrom-Json
-          if ($json.output) { Write-Output "zip=$($json.output)" >> $env:GITHUB_OUTPUT }
-          $notes = $json.release_notes -replace "`r`n","\n"
+          $out = Get-Content -Raw script\release_output.json | ConvertFrom-Json
+          Write-Output "zip=$($out.output)" >> $env:GITHUB_OUTPUT
+          Write-Output "version_code=$($out.version_code)" >> $env:GITHUB_OUTPUT
+
+          $notes = $out.release_notes -replace "`r`n", "`n"
           Write-Output "notes=$notes" >> $env:GITHUB_OUTPUT
-          $installer = Get-ChildItem -Path $Env:GITHUB_WORKSPACE -Filter ${{ env.PROGRAM_NAME }}_setup.exe -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
-          if ($installer) { Write-Output "installer=$($installer.FullName)" >> $env:GITHUB_OUTPUT } else { Write-Output "installer=" >> $env:GITHUB_OUTPUT }
-          Write-Output "version_code=$($json.version_code)" >> $env:GITHUB_OUTPUT
 
-      - name: 读取修改后的index.json版本
-        id: get_new_index_version
-        shell: pwsh
-        run: |
-          $index_json = Get-Content -Path "index.json" -Raw | ConvertFrom-Json
-          Write-Output "index_version=$($index_json.version)" >> $env:GITHUB_OUTPUT
-          Write-Output "index_version_code=$($index_json.version_code)" >> $env:GITHUB_OUTPUT
+          $installer = Get-ChildItem `
+            -Path $Env:GITHUB_WORKSPACE `
+            -Filter "${{ env.PROGRAM_NAME }}_setup.exe" `
+            -Recurse `
+            -ErrorAction SilentlyContinue |
+            Select-Object -First 1
 
-      - name: 提交更改
-        shell: pwsh
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add -u
-          if (-not (git diff --cached --quiet)) {
-            # Stash any uncommitted changes first
-            git stash
-            # Pull remote changes with rebase
-            git pull --rebase origin main
-            # Restore stashed changes
-            git stash pop
-            # Add all modified files (including those restored from stash)
-            git add -u
-            git commit -m "Update version to ${{ steps.get_new_index_version.outputs.index_version }} and versionCode to ${{ steps.check_output.outputs.version_code }} [ci skip]"
-            git push origin main
+          if ($installer) {
+            Write-Output "installer=$($installer.FullName)" >> $env:GITHUB_OUTPUT
           } else {
-            Write-Host "No changes to commit"
+            Write-Output "installer=" >> $env:GITHUB_OUTPUT
           }
 
-      - name: 发布Release
+      - name: 重新读取 index.json
+        id: read_new_index
+        shell: pwsh
+        run: |
+          $index = Get-Content -Raw index.json | ConvertFrom-Json
+          Write-Output "version=$($index.version)" >> $env:GITHUB_OUTPUT
+          Write-Output "version_code=$($index.version_code)" >> $env:GITHUB_OUTPUT
+
+      - name: 提交版本更新
+        shell: pwsh
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add -u
+          if (-not (git diff --cached --quiet)) {
+            git stash
+            git pull --rebase origin main
+            git stash pop
+            git add -u
+            git commit -m "Update version to ${{ steps.read_new_index.outputs.version }} (code ${{ steps.check_output.outputs.version_code }}) [ci skip]"
+            git push origin main
+          } else {
+            Write-Host "无版本变更"
+          }
+
+      - name: 发布 GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          name: ${{ steps.get_new_index_version.outputs.index_version }}
-          tag_name: ${{ steps.get_new_index_version.outputs.index_version }}
+          name: ${{ steps.read_new_index.outputs.version }}
+          tag_name: ${{ steps.read_new_index.outputs.version }}
           files: |
-            ${{ env.PROGRAM_NAME }}_${{ steps.get_new_index_version.outputs.index_version }}.zip
+            ${{ env.PROGRAM_NAME }}_${{ steps.read_new_index.outputs.version }}.zip
             ${{ steps.check_output.outputs.installer }}
-          token: ${{ secrets.GITHUB_TOKEN }}
           body: ${{ steps.check_output.outputs.notes }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           draft: false
           prerelease: false
+          generate_release_notes: true
 
-      - name: 上传到DUFS服务器
+      - name: 上传到 DUFS
         shell: pwsh
         env:
           DUFS_URL: ${{ secrets.DUFS_URL }}
@@ -130,25 +141,17 @@ jobs:
           INSTALLER_PATH: ${{ steps.check_output.outputs.installer }}
         run: |
           if (-not $Env:DUFS_URL -or -not $Env:DUFS_USER -or -not $Env:DUFS_PASSWORD) {
-            Write-Host 'DUFS_URL/DUFS_USER/DUFS_PASSWORD not set in secrets, skipping DUFS upload'
+            Write-Host "DUFS 未配置，跳过上传"
             exit 0
           }
-          $dufs = $env:DUFS_URL.TrimEnd('/')
-          $user = $env:DUFS_USER
-          $pass = $env:DUFS_PASSWORD
-          $zip = $env:ZIP_PATH
-          $installer = $env:INSTALLER_PATH
+
+          $base = $Env:DUFS_URL.TrimEnd('/')
+          $auth = "$($Env:DUFS_USER):$($Env:DUFS_PASSWORD)"
           $index = Join-Path $Env:GITHUB_WORKSPACE 'index.json'
-          
-          Write-Host "Uploading index.json to $dufs/code/program/index.json..."
-          curl --fail --show-error --silent --user "$($user):$($pass)" -T "$index" "$dufs/code/program/index.json"
-          
-          Write-Host "Uploading zip $zip to $dufs/code/program/${{ env.PROGRAM_NAME }}.zip..."
-          curl --fail --show-error --silent --user "$($user):$($pass)" -T "$zip" "$dufs/code/program/${{ env.PROGRAM_NAME }}.zip"
-          
-          if ($installer -and $installer -ne '') {
-            Write-Host "Uploading installer $installer to $dufs/code/program/${{ env.PROGRAM_NAME }}_setup.exe..."
-            curl --fail --show-error --silent --user "$($user):$($pass)" -T "$installer" "$dufs/code/program/${{ env.PROGRAM_NAME }}_setup.exe"
-          } else {
-            Write-Host "No installer found to upload"
+
+          curl --fail --silent --show-error --user $auth -T "$index"     "$base/code/${{ env.PROGRAM_NAME }}/index.json"
+          curl --fail --silent --show-error --user $auth -T "$Env:ZIP_PATH" "$base/code/${{ env.PROGRAM_NAME }}/${{ env.PROGRAM_NAME }}.zip"
+
+          if ($Env:INSTALLER_PATH) {
+            curl --fail --silent --show-error --user $auth -T "$Env:INSTALLER_PATH" "$base/code/${{ env.PROGRAM_NAME }}/${{ env.PROGRAM_NAME }}_setup.exe"
           }
