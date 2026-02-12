@@ -57,17 +57,18 @@ class TaskCard(CardWidget):
     resumeSignal = pyqtSignal()
     finishSignal = pyqtSignal(bool)
     cancelSignal = pyqtSignal()
-    setProgressSignal = pyqtSignal(int)
+    setValueSignal = pyqtSignal(int)
+    setIndeterminateSignal = pyqtSignal(bool)
     setTitleSignal = pyqtSignal(str)
-    setContentSignal = pyqtSignal(str)
+    setTextSignal = pyqtSignal(str)
 
-    def __init__(self, parent=None, progress_center=None, card_group: zbw.CardGroup = None, use_indeterminate: bool = True, has_image: bool = True, can_pause: bool = True, can_stop: bool = False):
+    def __init__(self, parent=None, progress_center=None, card_group: zbw.CardGroup = None, indeterminate: bool = True, has_image: bool = True, can_pause: bool = True, can_stop: bool = False):
         """
         普通信息卡片（搜索列表展示）
         :param parent: 父组件
         :param progress_center: 所属 ProgressCenter
         :param card_group: 所属 CardGroup
-        :param use_indeterminate: 如果为 True，初始使用 IndeterminateProgressBar（若可用）
+        :param indeterminate: 如果为 True，初始使用 IndeterminateProgressBar（若可用）
         :param has_image: 是否显示左侧图片
         :param can_pause: 是否可以暂停
         :param can_stop: 是否可以停止
@@ -77,7 +78,7 @@ class TaskCard(CardWidget):
         self.stat = "init"  # init, running, paused, stopped, finished, error
 
         self.wid = str(self)
-        self.use_indeterminate = bool(use_indeterminate)
+        self.indeterminate = bool(indeterminate)
         self.has_image = bool(has_image)
         self.cardGroup = card_group
         self.progressCenter = progress_center
@@ -113,18 +114,12 @@ class TaskCard(CardWidget):
         self.resumeButton.hide()
         self.stopButton.hide()
 
-        self._det_bar = ProgressBar(self)
-        self._det_bar.setRange(0, 100)
-        self._det_bar.setValue(0)
-
-        self._ind_bar = IndeterminateProgressBar(self)
-
-        self.progressBar = self._ind_bar if self.use_indeterminate else self._det_bar
+        self.progressBar = zbw.CustomProgressBar(self, useAni=False, indeterminate=self.indeterminate)
 
         self.progressLabel = BodyLabel("0%", self)
         self.progressLabel.setTextColor("#606060", "#d2d2d2")
         self.progressLabel.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
-        self.progressLabel.setHidden(self.use_indeterminate)
+        self.progressLabel.setHidden(self.indeterminate)
 
         self.leftLayout = QVBoxLayout()
         self.leftLayout.setContentsMargins(0, 0, 0, 0)
@@ -139,13 +134,9 @@ class TaskCard(CardWidget):
         self.progressLayout = QHBoxLayout()
         self.progressLayout.setContentsMargins(0, 0, 0, 0)
         self.progressLayout.setSpacing(8)
-        self.progressLayout.addWidget(self._det_bar)
-        self.progressLayout.addWidget(self._ind_bar)
-        self.progressLayout.addWidget(self.progressLabel)
+        self.progressLayout.addWidget(self.progressBar)
+        self.progressLayout.addWidget(self.progressLabel, 0)
         self.progressLayout.setAlignment(Qt.AlignVCenter)
-
-        self._det_bar.setHidden(self.use_indeterminate)
-        self._ind_bar.setVisible(self.use_indeterminate)
 
         self.centerLayout.addLayout(self.progressLayout)
 
@@ -166,10 +157,13 @@ class TaskCard(CardWidget):
         self.hBoxLayout.addWidget(self.stopButton, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(8)
 
-        self.setProgressSignal.connect(self.setProgress)
+        self.setValueSignal.connect(self._setValue)
+        self.setIndeterminateSignal.connect(self._setIndeterminate)
 
         self.setTitleSignal.connect(self.setTitle)
-        self.setContentSignal.connect(self.setContent)
+        self.setTextSignal.connect(self._setText)
+
+        self.setFixedHeight(56)
 
     def start(self):
         self.stat = "running"
@@ -208,8 +202,11 @@ class TaskCard(CardWidget):
             self.resumeButton.hide()
             self.pauseButton.hide()
         self.stopButton.show()
-        if self.use_indeterminate:
-            self.setProgress(100)
+        if success:
+            self.setValue(100)
+        else:
+            self.setValue(0)
+        if self.indeterminate:
             self.setIndeterminate(False)
             self.progressLabel.hide()
         self.finishSignal.emit(success)
@@ -221,8 +218,8 @@ class TaskCard(CardWidget):
             self.resumeButton.hide()
             self.pauseButton.hide()
         self.stopButton.show()
-        if self.use_indeterminate:
-            self.setProgress(0)
+        self.setValue(0)
+        if self.indeterminate:
             self.setIndeterminate(False)
             self.progressLabel.hide()
         self.cancelSignal.emit()
@@ -259,13 +256,16 @@ class TaskCard(CardWidget):
         """
         self.setImg(img, url)
 
-    def setText(self, text: str):
+    def _setText(self, text: str):
         """
         设置文本
         :param text: 文本
         """
         self.contentLabel.setText(text)
         self.contentLabel.adjustSize()
+
+    def setText(self, text: str):
+        self.setTextSignal.emit(text)
 
     def setContent(self, text: str):
         """
@@ -281,29 +281,32 @@ class TaskCard(CardWidget):
         """
         self.setText(text)
 
-    def setProgress(self, percent: int):
+    def _setValue(self, val: int):
         """
         更新进度条百分比（仅在确定模式下显示）
-        :param percent: 0-100
+        :param val: 0-100
         """
-        self._det_bar.setValue(percent)
-        self.progressLabel.setText(f"{int(percent)}%")
+        self.progressBar.setValue(int(val))
+        self.progressLabel.setText(f"{int(val)}%")
 
-    def setIndeterminate(self, flag: bool):
+    def setValue(self, val: int):
+        self.setValueSignal.emit(int(val))
+
+    def _setIndeterminate(self, flag: bool):
         """
         设置随机进度条
         :param flag: 是否
         :return:
         """
-        if self.use_indeterminate == flag:
+        if self.indeterminate == flag:
             return
 
-        self._det_bar.setHidden(flag)
-        self._ind_bar.setVisible(flag)
-
-        self.progressBar = self._ind_bar if flag else self._det_bar
-        self.use_indeterminate = flag
+        self.indeterminate = flag
+        self.progressBar.setIndeterminate(flag)
         self.progressLabel.setHidden(flag)
+
+    def setIndeterminate(self, flag: bool):
+        self.setIndeterminateSignal.emit(flag)
 
 
 class DownloadTaskCard(TaskCard):
@@ -351,25 +354,22 @@ class DownloadTaskCard(TaskCard):
             if self.download.isFinished():
                 match self.download.stat():
                     case "cancelled":
-                        self.setProgressSignal.emit(0)
-                        self.setContentSignal.emit("下载取消！")
+                        self.setText("下载取消！")
                         self.finish(False)
                         self.downloadFinishedSignal.emit(False, "")
                         break
                     case "failed":
-                        self.setProgressSignal.emit(0)
-                        self.setContentSignal.emit("下载失败！")
+                        self.setText("下载失败！")
                         self.finish(False)
                         self.downloadFinishedSignal.emit(False, "")
                         break
                     case "success":
-                        self.setProgressSignal.emit(100)
-                        self.setContentSignal.emit("下载完成！")
+                        self.setText("下载完成！")
                         self.finish(True)
                         self.downloadFinishedSignal.emit(True, self.download.outputPath())
                         break
             else:
-                self.setProgressSignal.emit(int(self.download.progress()))
+                self.setValue(int(self.download.progress()))
             time.sleep(0.2)
 
     def pauseDownload(self):

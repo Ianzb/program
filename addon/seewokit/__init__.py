@@ -476,11 +476,11 @@ class SeewoPage(zbw.BasicTab):
         self.statusLabel.setText(f"当前状态：正在复制{name}盘...")
         try:
             zb.copyPath(src, dst)
-            card.setContentSignal.emit(f"复制{src}到{dst}成功！")
+            card.setText(f"复制{src}到{dst}成功！")
             card.finish(True)
         except:
             card.finish(False)
-            card.setContentSignal.emit(f"复制{src}到{dst}成功！")
+            card.setText(f"复制{src}到{dst}成功！")
             logging.warning(f"复制{src}到{dst}失败，报错信息：{traceback.format_exc()}！")
         self.setHistoryText.emit(f"复制{name}盘到{dst}成功！")
         self.statusLabel.setText(f"当前状态：复制{name}盘成功！")

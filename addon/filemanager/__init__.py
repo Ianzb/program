@@ -692,30 +692,30 @@ class AddonPage(zbw.BasicTab):
 
     def sortFile(self):
         try:
-            self.card.setContentSignal.emit("正在创建目标路径...")
+            self.card.setText("正在创建目标路径...")
             zb.createDir(setting.read("sortGoalPath"))
             if setting.read("clearTrash"):
                 program.THREAD_POOL.submit(sf.clearTrash)
-            self.card.setContentSignal.emit("正在整理文件...")
+            self.card.setText("正在整理文件...")
             for i in setting.read("sortFolder"):
                 if zb.isDir(i):
                     if not (sf.belongDir(i, setting.read("sortGoalPath")) or sf.belongDir(setting.read("sortGoalPath"), i)):
                         sf.sortDir(i, setting.read("sortGoalPath"))
             if setting.read("wechatPath") and setting.read("sortWechat"):
-                self.card.setContentSignal.emit("正在整理微信文件...")
+                self.card.setText("正在整理微信文件...")
                 sf.sortWechatFiles()
             if setting.read("clearFile"):
-                self.card.setContentSignal.emit("正在清理重复文件...")
+                self.card.setText("正在清理重复文件...")
                 for i in list(setting.read("sortFormat").keys()) + ["文件夹"]:
                     sf.clearFile(zb.joinPath(setting.read("sortGoalPath"), i))
                 sf.clearFile(setting.read("sortGoalPath"))
             self.sortFileSignal.emit(True)
-            self.card.setContentSignal.emit("整理成功！")
+            self.card.setText("整理成功！")
             self.card.finish(True)
             logging.info("一键整理成功！")
         except:
             self.sortFileSignal.emit(False)
-            self.card.setContentSignal.emit("整理失败！")
+            self.card.setText("整理失败！")
             self.card.finish(False)
             logging.warning(f"一键整理失败，报错信息：{traceback.format_exc()}！")
 
