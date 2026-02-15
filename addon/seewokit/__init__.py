@@ -47,12 +47,12 @@ class SetMessageMessageBox(MessageBoxBase):
 
         self.lineEdit = LineEdit(self)
         self.lineEdit.setPlaceholderText("在此处输入弹窗标题！")
-        self.lineEdit.setNewToolTip("在此处输入弹窗标题！")
+        self.lineEdit.setToolTip("在此处输入弹窗标题！")
         self.lineEdit.setText(setting.read("messageTitle"))
 
         self.textEdit = TextEdit(self)
         self.textEdit.setPlaceholderText("在此处输入文本内容，支持HTML格式！")
-        self.textEdit.setNewToolTip("在此处输入文本内容，支持HTML格式！")
+        self.textEdit.setToolTip("在此处输入文本内容，支持HTML格式！")
         self.textEdit.setPlainText(setting.read("messageContent"))
 
         self.viewLayout.addWidget(self.titleLabel)
@@ -78,12 +78,12 @@ class SetPasswordMessageBox(MessageBoxBase):
 
         self.lineEdit1 = LineEdit(self)
         self.lineEdit1.setPlaceholderText("在此处输入密码！")
-        self.lineEdit1.setNewToolTip("在此处输入密码！")
+        self.lineEdit1.setToolTip("在此处输入密码！")
         self.lineEdit1.setEchoMode(QtWidgets.QLineEdit.Password)
 
         self.lineEdit2 = LineEdit(self)
         self.lineEdit2.setPlaceholderText("重复输入密码！")
-        self.lineEdit2.setNewToolTip("重复输入密码！")
+        self.lineEdit2.setToolTip("重复输入密码！")
         self.lineEdit2.setEchoMode(QtWidgets.QLineEdit.Password)
 
         self.warnLabel = StrongBodyLabel("两次输入的密码不一致！", self)
@@ -147,7 +147,7 @@ class EnterPasswordMessageBox(MessageBoxBase):
 
         self.lineEdit = LineEdit(self)
         self.lineEdit.setPlaceholderText("在此处输入密码！")
-        self.lineEdit.setNewToolTip("在此处输入密码！")
+        self.lineEdit.setToolTip("在此处输入密码！")
         self.lineEdit.setEchoMode(QtWidgets.QLineEdit.Password)
 
         self.viewLayout.addWidget(self.titleLabel)
@@ -229,7 +229,7 @@ class DetectFolderEditMessageBox(MessageBoxBase):
         self.textEdit = TextEdit(self)
         self.textEdit.setPlaceholderText("输入盘符名称\n一行一个")
         self.textEdit.setText("\n".join(setting.read("monitorPath")))
-        self.textEdit.setNewToolTip("输入盘符名称\n一行一个")
+        self.textEdit.setToolTip("输入盘符名称\n一行一个")
 
         self.viewLayout.addWidget(self.titleLabel)
         self.viewLayout.addWidget(self.textEdit)

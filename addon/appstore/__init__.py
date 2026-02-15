@@ -96,7 +96,7 @@ class AppInfoCard(zbw.SmallInfoCard):
         self.mainButton.setText("下载")
         self.mainButton.setIcon(FIF.DOWNLOAD)
         self.mainButton.clicked.connect(self.mainButtonClicked)
-        self.mainButton.setNewToolTip("下载软件")
+        self.mainButton.setToolTip("下载软件")
 
         self.setImg(program.cache(f"{self.source}/{zb.clearIllegalPathName(self.data["名称"])}.png"), self.data["图标"], program.THREAD_POOL)
         self.setTitle(f"{self.data["名称"]}")

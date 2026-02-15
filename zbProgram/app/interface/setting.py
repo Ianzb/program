@@ -120,7 +120,7 @@ class ColorSettingCard(ExpandGroupSettingCard):
         self.button2 = RadioButton("自定义", self.radioWidget)
 
         self.button3 = QPushButton("选择颜色", self.customColorWidget)
-        self.button3.setNewToolTip("选择自定义颜色")
+        self.button3.setToolTip("选择自定义颜色")
         self.button3.clicked.connect(self.showColorDialog)
 
         self.radioLayout.addWidget(self.button1)
@@ -299,12 +299,12 @@ class StartupSettingCard(SettingCard):
         self.checkBox1 = CheckBox("开机自启动", self)
         self.checkBox1.setChecked(program.checkStartup())
         self.checkBox1.clicked.connect(self.button1Clicked)
-        self.checkBox1.setNewToolTip("设置程序开机自启动")
+        self.checkBox1.setToolTip("设置程序开机自启动")
 
         self.checkBox2 = CheckBox("最小化启动", self)
         self.checkBox2.setChecked(setting.read("autoHide"))
         self.checkBox2.clicked.connect(self.button2Clicked)
-        self.checkBox2.setNewToolTip("设置程序在开机自启动时自动最小化窗口")
+        self.checkBox2.setToolTip("设置程序在开机自启动时自动最小化窗口")
         self.checkBox2.setEnabled(program.checkStartup())
 
         self.hBoxLayout.addWidget(self.checkBox1, 0, Qt.AlignRight)
@@ -346,7 +346,7 @@ class TraySettingCard(SettingCard):
         self.button1 = SwitchButton(self, IndicatorPosition.RIGHT)
         self.button1.setChecked(setting.read("showTray"))
         self.button1.checkedChanged.connect(self.button1Clicked)
-        self.button1.setNewToolTip("在系统托盘展示软件图标")
+        self.button1.setToolTip("在系统托盘展示软件图标")
 
         self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
@@ -379,7 +379,7 @@ class HideSettingCard(SettingCard):
         self.button1 = SwitchButton(self, IndicatorPosition.RIGHT)
         self.button1.setChecked(setting.read("hideWhenClose"))
         self.button1.checkedChanged.connect(self.button1Clicked)
-        self.button1.setNewToolTip("关闭窗口时程序自动隐藏")
+        self.button1.setToolTip("关闭窗口时程序自动隐藏")
 
         self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)
@@ -409,7 +409,7 @@ class DownloadSettingCard(SettingCard):
         super().__init__(FIF.DOWNLOAD, "下载文件", f"当前路径：{setting.read("downloadPath")}", parent)
         self.button1 = PushButton("下载目录", self, FIF.FOLDER_ADD)
         self.button1.clicked.connect(self.button1Clicked)
-        self.button1.setNewToolTip("设置下载文件夹目录")
+        self.button1.setToolTip("设置下载文件夹目录")
 
         self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(16)

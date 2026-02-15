@@ -112,7 +112,7 @@ class PersonWidget(QFrame):
         self.person = person
         self.label.setText(self.getName())
 
-        self.setNewToolTip("\n".join([str(self.getID())] + [f"{k}：{v}" for k, v in self.getProterties().items()]))
+        self.setToolTip("\n".join([str(self.getID())] + [f"{k}：{v}" for k, v in self.getProterties().items()]))
 
     def getID(self):
         return self.person.get_id()
@@ -420,7 +420,7 @@ class AnimationLengthSettingCard(SettingCard):
         super().__init__(FIF.SPEED_HIGH, "动画时长", "名称标签移动动画的时长", parent)
         self.lineEdit = AcrylicLineEdit(self)
         self.lineEdit.setPlaceholderText("时长秒数")
-        self.lineEdit.setNewToolTip("名称标签移动动画的时长")
+        self.lineEdit.setToolTip("名称标签移动动画的时长")
         self.lineEdit.textEdited.connect(self.textChanged)
         self.lineEdit.returnPressed.connect(self.textChanged)
         self.lineEdit.setValidator(QDoubleValidator(0.0, 10.0, 3))
@@ -457,7 +457,7 @@ class AnimationDelaySettingCard(SettingCard):
         super().__init__(FIF.SPEED_HIGH, "动画延迟", "名称标签移动动画之间的延迟", parent)
         self.lineEdit = AcrylicLineEdit(self)
         self.lineEdit.setPlaceholderText("延迟秒数")
-        self.lineEdit.setNewToolTip("名称标签移动动画之间的延迟")
+        self.lineEdit.setToolTip("名称标签移动动画之间的延迟")
         self.lineEdit.textEdited.connect(self.textChanged)
         self.lineEdit.returnPressed.connect(self.textChanged)
         self.lineEdit.setValidator(QDoubleValidator(0.0, 10.0, 3))
@@ -496,7 +496,7 @@ class RetrySettingCard(SettingCard):
 
         self.lineEdit = AcrylicLineEdit(self)
         self.lineEdit.setPlaceholderText("重试次数")
-        self.lineEdit.setNewToolTip("排座失败后重试的次数")
+        self.lineEdit.setToolTip("排座失败后重试的次数")
         self.lineEdit.textEdited.connect(self.textChanged)
         self.lineEdit.returnPressed.connect(self.textChanged)
         self.lineEdit.setValidator(QIntValidator(1, 100000))
@@ -535,7 +535,7 @@ class FontSizeSettingCard(SettingCard):
 
         self.lineEdit = AcrylicLineEdit(self)
         self.lineEdit.setPlaceholderText("字体大小")
-        self.lineEdit.setNewToolTip("名单字体大小")
+        self.lineEdit.setToolTip("名单字体大小")
         self.lineEdit.textEdited.connect(self.textChanged)
         self.lineEdit.returnPressed.connect(self.textChanged)
         self.lineEdit.setValidator(QIntValidator(1, 100))
@@ -575,7 +575,7 @@ class RandomSeatSettingCard(SettingCard):
         self.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Expanding)
 
         self.comboBox = ComboBox(self)
-        self.comboBox.setNewToolTip("座位选择")
+        self.comboBox.setToolTip("座位选择")
         self.comboBox.addItems(["组内顺序", "组内随机", "全局随机"])
         self.comboBox.currentIndexChanged.connect(self.checkChanged)
 
@@ -610,7 +610,7 @@ class RandomSeatGroupSettingCard(SettingCard):
         self.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Expanding)
 
         self.switchButton = SwitchButton(self)
-        self.switchButton.setNewToolTip("随机小组排座")
+        self.switchButton.setToolTip("随机小组排座")
         self.switchButton.checkedChanged.connect(self.checkChanged)
 
         self.hBoxLayout.addWidget(self.switchButton, 0, Qt.AlignRight)
@@ -650,7 +650,7 @@ class SkipUnavailableSettingCard(SettingCard):
         self.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Expanding)
 
         self.switchButton = SwitchButton(self)
-        self.switchButton.setNewToolTip("跳过不可用位置")
+        self.switchButton.setToolTip("跳过不可用位置")
         self.switchButton.checkedChanged.connect(self.checkChanged)
 
         self.hBoxLayout.addWidget(self.switchButton, 0, Qt.AlignRight)
@@ -686,7 +686,7 @@ class SetKeyMessageBox(MessageBoxBase):
         self.comboBox = ComboBox(self)
         self.comboBox.setPlaceholderText("请选择索引项目！")
         self.comboBox.addItems(keys)
-        self.comboBox.setNewToolTip("请选择索引项目，将作为标签文本显示！")
+        self.comboBox.setToolTip("请选择索引项目，将作为标签文本显示！")
 
         self.viewLayout.addWidget(self.titleLabel)
         self.viewLayout.addWidget(self.comboBox)
@@ -714,21 +714,21 @@ class AddRuleMessageBox(MessageBoxBase):
         self.comboBox1.setPlaceholderText("请选择匹配规则！")
         self.comboBox1.addItems(list(core.Rule.rule_names.values()))
         self.comboBox1.currentTextChanged.connect(self.ruleChanged)
-        self.comboBox1.setNewToolTip("请选择匹配规则！")
+        self.comboBox1.setToolTip("请选择匹配规则！")
 
         self.comboBox2 = ComboBox(self)
         self.comboBox2.setPlaceholderText("请选择匹配项目名称！")
         self.comboBox2.addItems(manager.person_keys)
-        self.comboBox2.setNewToolTip("请选择匹配项目名称！")
+        self.comboBox2.setToolTip("请选择匹配项目名称！")
 
         self.comboBox3 = ComboBox(self)
         self.comboBox3.setPlaceholderText("符号")
         self.comboBox3.addItems(["==", "!=", "<", ">", "<=", ">="])
-        self.comboBox3.setNewToolTip("请选择匹配算法符号！")
+        self.comboBox3.setToolTip("请选择匹配算法符号！")
 
         self.lineEdit = AcrylicLineEdit(self)
         self.lineEdit.setPlaceholderText("数字")
-        self.lineEdit.setNewToolTip("匹配数字")
+        self.lineEdit.setToolTip("匹配数字")
         self.lineEdit.setValidator(QDoubleValidator())
 
         self.viewLayout.addWidget(self.titleLabel)
@@ -798,7 +798,7 @@ class RuleCard(CardWidget):
             rule_name = core.Rule.rule_names.get(self.rule_id)
             self.contentLabel.setText(f"{self.rule_key[0]}{rule_name} {self.rule_key[1]} {self.rule_key[2]}")
 
-        self.setNewToolTip(self.name)
+        self.setToolTip(self.name)
 
     def getRule(self):
         return core.Rule(self.rule_id, self.rule_key)

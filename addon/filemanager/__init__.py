@@ -231,7 +231,7 @@ class NameBlacklistEditMessageBox(MessageBoxBase):
         self.textEdit = TextEdit(self)
         self.textEdit.setPlaceholderText("输入文件名称\n一行一个")
         self.textEdit.setText("\n".join(setting.read("sortNameBlacklist")))
-        self.textEdit.setNewToolTip("输入文件名称\n一行一个")
+        self.textEdit.setToolTip("输入文件名称\n一行一个")
 
         self.viewLayout.addWidget(self.titleLabel)
         self.viewLayout.addWidget(self.textEdit)
@@ -262,7 +262,7 @@ class PathBlacklistEditMessageBox(MessageBoxBase):
         self.textEdit = TextEdit(self)
         self.textEdit.setPlaceholderText("输入文件完整路径\n一行一个")
         self.textEdit.setText("\n".join(setting.read("sortPathBlacklist")))
-        self.textEdit.setNewToolTip("输入文件完整路径\n一行一个")
+        self.textEdit.setToolTip("输入文件完整路径\n一行一个")
 
         self.viewLayout.addWidget(self.titleLabel)
         self.viewLayout.addWidget(self.textEdit)
@@ -319,7 +319,7 @@ class SortFolderEditMessageBox(MessageBoxBase):
             self.textEdit.setText("\n".join(setting.read("sortFolder")))
         except:
             logging.error(f"处理整理目录设置选项失败，报错信息：{traceback.format_exc()}！")
-        self.textEdit.setNewToolTip("输入文件夹完整路径\n一行一个")
+        self.textEdit.setToolTip("输入文件夹完整路径\n一行一个")
 
         self.viewLayout.addWidget(self.titleLabel)
         self.viewLayout.addWidget(self.textEdit)
@@ -379,7 +379,7 @@ class SortFormatEditMessageBox(MessageBoxBase):
         self.tableView.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         self.tableView.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
 
-        self.tableView.setNewToolTip("后缀名逗号（中英文均可）分割，加不加分割点均可")
+        self.tableView.setToolTip("后缀名逗号（中英文均可）分割，加不加分割点均可")
 
         try:
             self.tableView.setRowCount(len(setting.read("sortFormat").keys()))
@@ -462,11 +462,11 @@ class SortPathSettingCard(SettingCard):
         super().__init__(FIF.ALIGNMENT, "路径", f"整理目标路径：{setting.read("sortGoalPath")}\n微信路径：{setting.read("wechatPath")}", parent)
         self.button1 = PushButton("整理目标目录", self, FIF.FOLDER_ADD)
         self.button1.clicked.connect(self.button1Clicked)
-        self.button1.setNewToolTip("设置整理目标目录")
+        self.button1.setToolTip("设置整理目标目录")
 
         self.button2 = PushButton("微信目录", self, FIF.FOLDER_ADD)
         self.button2.clicked.connect(self.button2Clicked)
-        self.button2.setNewToolTip("设置微信WeChat Files文件夹目录")
+        self.button2.setToolTip("设置微信WeChat Files文件夹目录")
 
         self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
         self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignRight)
@@ -512,19 +512,19 @@ class SortSettingCard(SettingCard):
         super().__init__(FIF.EDIT, "目录", "", parent)
         self.button1 = PushButton("整理文件名称黑名单", self)
         self.button1.clicked.connect(self.button1Clicked)
-        self.button1.setNewToolTip("编辑整理文件名称黑名单（填写文件名）")
+        self.button1.setToolTip("编辑整理文件名称黑名单（填写文件名）")
 
         self.button2 = PushButton("整理文件路径黑名单", self)
         self.button2.clicked.connect(self.button2Clicked)
-        self.button2.setNewToolTip("编辑整理文件路径黑名单（填写文件完整路径）")
+        self.button2.setToolTip("编辑整理文件路径黑名单（填写文件完整路径）")
 
         self.button3 = PushButton("整理目录", self)
         self.button3.clicked.connect(self.button3Clicked)
-        self.button3.setNewToolTip("自定义需要整理的文件夹（填写文件夹完整路径）")
+        self.button3.setToolTip("自定义需要整理的文件夹（填写文件夹完整路径）")
 
         self.button4 = PushButton("整理文件类型", self)
         self.button4.clicked.connect(self.button4Clicked)
-        self.button4.setNewToolTip("自定义整理文件类型")
+        self.button4.setToolTip("自定义整理文件类型")
 
         self.hBoxLayout.addWidget(self.button1, 0, Qt.AlignRight)
         self.hBoxLayout.addWidget(self.button2, 0, Qt.AlignRight)
@@ -559,19 +559,19 @@ class FeaturesSettingCard(SettingCard):
         super().__init__(FIF.DEVELOPER_TOOLS, "功能", "", parent)
         self.checkBox1 = CheckBox("整理微信", self)
         self.checkBox1.clicked.connect(lambda: setting.save("sortWechat", self.checkBox1.isChecked()))
-        self.checkBox1.setNewToolTip("是否整理微信下载文件")
+        self.checkBox1.setToolTip("是否整理微信下载文件")
 
         self.checkBox3 = CheckBox("清理文件", self)
         self.checkBox3.clicked.connect(lambda: setting.save("clearFile", self.checkBox3.isChecked()))
-        self.checkBox3.setNewToolTip("是否删除整理过程中发现的重复文件和空文件，该功能较耗费时间")
+        self.checkBox3.setToolTip("是否删除整理过程中发现的重复文件和空文件，该功能较耗费时间")
 
         self.checkBox4 = CheckBox("清理回收站", self)
         self.checkBox4.clicked.connect(lambda: setting.save("clearTrash", self.checkBox4.isChecked()))
-        self.checkBox4.setNewToolTip("是否清空回收站文件，删除后文件将不可恢复")
+        self.checkBox4.setToolTip("是否清空回收站文件，删除后文件将不可恢复")
 
         self.checkBox5 = CheckBox("删除至回收站", self)
         self.checkBox5.clicked.connect(lambda: setting.save("deleteToTrash", self.checkBox5.isChecked()))
-        self.checkBox5.setNewToolTip("是否将整理过程中的无用文件删除至回收站而非直接删除")
+        self.checkBox5.setToolTip("是否将整理过程中的无用文件删除至回收站而非直接删除")
 
         self.hBoxLayout.addWidget(self.checkBox1, 0, Qt.AlignRight)
         self.hBoxLayout.addSpacing(8)
@@ -622,15 +622,15 @@ class AddonPage(zbw.BasicTab):
 
         self.button1_1 = PrimaryPushButton("开始整理+清理", self, FIF.ALIGNMENT)
         self.button1_1.clicked.connect(self.button1_1Clicked)
-        self.button1_1.setNewToolTip("开始整理+清理文件，范围包括：\n  整理指定目录文件\n  整理微信文件\n  清空回收站\n  清理系统缓存")
+        self.button1_1.setToolTip("开始整理+清理文件，范围包括：\n  整理指定目录文件\n  整理微信文件\n  清空回收站\n  清理系统缓存")
 
         self.button1_2 = ToolButton(FIF.FOLDER, self)
         self.button1_2.clicked.connect(lambda: zb.showFile(setting.read("sortGoalPath")))
-        self.button1_2.setNewToolTip("打开整理文件所在目录")
+        self.button1_2.setToolTip("打开整理文件所在目录")
 
         self.button2_1 = PushButton("重启文件资源管理器", self, FIF.SYNC)
         self.button2_1.clicked.connect(self.button2_1Clicked)
-        self.button2_1.setNewToolTip("重启文件资源管理器")
+        self.button2_1.setToolTip("重启文件资源管理器")
 
         self.card1 = zbw.GrayCard("文件整理", self.view)
         self.card1.addWidget(self.button1_1)

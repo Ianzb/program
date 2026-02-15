@@ -34,6 +34,10 @@ class SettingFunctions(QObject):
             self.errorState = True
             logging.error(f"设置文件数据错误，已自动恢复至默认选项，错误信息：{traceback.format_exc()}！")
 
+        for path in ["downloadPath"]:
+            if self.read(path) and not zb.existPath(self.read(path)):
+                self.reset(path)
+
     def _get_by_path(self, data_dict: dict, path: str):
         """
         通过路径获取字典中的值

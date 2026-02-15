@@ -83,7 +83,7 @@ class TableInterface(HeaderCardWidget):
         self.viewLayout.addLayout(self.gridLayout)
 
         self.closeButton = ToolButton(FIF.CLOSE, self)
-        self.closeButton.setNewToolTip("关闭当前表格")
+        self.closeButton.setToolTip("关闭当前表格")
         self.closeButton.clicked.connect(self.clearTable)
         self.closeButton.hide()
 

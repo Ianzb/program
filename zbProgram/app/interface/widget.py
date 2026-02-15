@@ -326,15 +326,15 @@ class DownloadTaskCard(TaskCard):
         self.setTitle("下载")
         self.setContent(f"下载中...")
 
-        self.setNewToolTip(f"链接：{self.url}\n保存至：{self.path}")
+        self.setToolTip(f"链接：{self.url}\n保存至：{self.path}")
 
         self.openFileButton = ToolButton(FIF.PLAY, self)
-        self.openFileButton.setNewToolTip("打开文件")
+        self.openFileButton.setToolTip("打开文件")
         self.openFileButton.hide()
         self.hBoxLayout.insertWidget(5, self.openFileButton, Qt.AlignRight)
 
         self.showFileButton = ToolButton(FIF.FOLDER, self)
-        self.showFileButton.setNewToolTip("打开文件所在位置")
+        self.showFileButton.setToolTip("打开文件所在位置")
         self.showFileButton.hide()
         self.hBoxLayout.insertWidget(6, self.showFileButton, Qt.AlignRight)
 
@@ -412,7 +412,7 @@ class ProgressCenter(FlyoutViewBase):
         self.emptyLabel.setAlignment(Qt.AlignCenter)
 
         self.clearButton = ToolButton(FIF.BROOM, self)
-        self.clearButton.setNewToolTip("清空已完成的任务")
+        self.clearButton.setToolTip("清空已完成的任务")
         self.clearButton.setFixedSize(28, 28)
         self.clearButton.clicked.connect(self.clear)
 
