@@ -72,8 +72,8 @@ def run_pyinstaller():
     zb.deletePath(BUILD_PATH)
     zb.createDir(BUILD_PATH)
     if USE_NUITKA:
-        cmd = [sys.executable, "-m", "nuitka", "--zig", "--show-progress", "--lto=yes",
-               "--standalone", "--windows-console-mode=disable", "--enable-plugin=pyside6", *[f"--include-module={i}" for i in EXTRA_LIBS],
+        cmd = [sys.executable.replace("python.exe", "pythonw.exe"), "-m", "nuitka", "--zig", "--show-progress",
+               "--standalone", "--windows-console-mode=hide", "--enable-plugin=pyside6", *[f"--include-module={i}" for i in EXTRA_LIBS],
                "--remove-output", f"--output-dir={BUILD_PATH}", "--follow-imports", "--show-scons", f"--windows-icon-from-ico={ICON_PATH}",
                f"--output-folder-name={NAME}", f"--output-filename={NAME}", "--onefile" if IS_SINGLE_FILE else "",
                f"--include-data-dir={RESOURCE_PATH}={zb.getFileName(RESOURCE_PATH)}", MAIN_PYW
@@ -87,7 +87,7 @@ def run_pyinstaller():
     print("CMD:", " ".join(cmd))
     subprocess.check_call(cmd)
     if USE_NUITKA:
-        zb.movePath(zb.joinPath(BUILD_PATH, "build", f"{NAME}.dist"), zb.joinPath(BUILD_PATH, "build", NAME))
+        zb.movePath(zb.joinPath(BUILD_PATH, f"{NAME}.dist"), zb.joinPath(BUILD_PATH, NAME))
     print("打包完成")
 
 

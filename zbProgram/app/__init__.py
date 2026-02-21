@@ -53,9 +53,6 @@ class Window(zbw.Window):
         self.setWindowTitle(program.TITLE)
         self.navigationInterface.setReturnButtonVisible(False)
 
-        if program.isStartup and setting.read("autoHide"):
-            self.setWindowOpacity(0)
-
         # 任务中心
         self.progressCenterFlyout = None
         self.progressCenter = ProgressCenter(self)
