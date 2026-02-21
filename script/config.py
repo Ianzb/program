@@ -9,7 +9,7 @@ IS_SINGLE_FILE = False
 IS_SETUP = True
 USE_NUITKA = True
 EXTRA_FILES = []
-EXTRA_LIBS = ["zbWidgetLib"]
+EXTRA_LIBS = ["zbWidgetLib", "xml"]
 
 ROOT = os.path.abspath((zb.getFileDir(zb.getFileDir(sys.argv[0]))))
 CODE_PATH = zb.joinPath(ROOT, NAME)

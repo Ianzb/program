@@ -72,7 +72,7 @@ def run_pyinstaller():
     zb.deletePath(BUILD_PATH)
     zb.createDir(BUILD_PATH)
     if USE_NUITKA:
-        cmd = [sys.executable.replace("python.exe", "pythonw.exe"), "-m", "nuitka", "--zig", "--show-progress",
+        cmd = [sys.executable, "-m", "nuitka", "--zig", "--show-progress",
                "--standalone", "--windows-console-mode=hide", "--enable-plugin=pyside6", *[f"--include-module={i}" for i in EXTRA_LIBS],
                "--remove-output", f"--output-dir={BUILD_PATH}", "--follow-imports", "--show-scons", f"--windows-icon-from-ico={ICON_PATH}",
                f"--output-folder-name={NAME}", f"--output-filename={NAME}", "--onefile" if IS_SINGLE_FILE else "",
