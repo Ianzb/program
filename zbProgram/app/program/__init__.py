@@ -16,7 +16,7 @@ ssl._create_default_https_context = ssl._create_unverified_context()
 # 日志设置
 open(program.LOGGING_FILE_PATH, "w").close() if not zb.existPath(program.LOGGING_FILE_PATH) or zb.fileSize(program.LOGGING_FILE_PATH) >= 1024 * 128 else None
 
-log_config = {
+dictConfig({
     "version": 1,
     "disable_existing_loggers": False,
     "formatters": {
@@ -43,12 +43,7 @@ log_config = {
         "level": "DEBUG",
         "handlers": ["console", "log_file"],
     },
-}
-if program.isExe:
-    del log_config["handlers"]["console"]
-    log_config["root"]["handlers"].remove("console")
-
-dictConfig(log_config)
+})
 
 logging.info(f"程序启动参数{program.STARTUP_ARGUMENT}!")
 logging.debug(f"程序运行信息{Program.__dict__}{program.__dict__}!")

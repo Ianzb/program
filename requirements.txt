@@ -5,6 +5,7 @@ attrs==25.4.0
 beautifulsoup4==4.14.3
 certifi==2026.1.4
 charset-normalizer==3.4.4
+clang==21.1.7
 colorthief==0.2.1
 darkdetect==0.8.0
 idna==3.11
@@ -18,7 +19,7 @@ puremagic==2.0.0
 pydantic==2.12.5
 pydantic_core==2.41.5
 pyinstaller==6.19.0
-pyinstaller-hooks-contrib==2026.0
+pyinstaller-hooks-contrib==2026.1
 pypi-simple==1.8.0
 PySide6==6.10.2
 PySide6-Fluent-Widgets==1.11.1
@@ -40,3 +41,4 @@ urllib3==2.6.3
 winshell==0.6
 zbToolLib==2.0.8
 zbWidgetLib==3.6.0
+zstandard==0.25.0

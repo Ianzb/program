@@ -83,10 +83,6 @@ class Program:
         sys.path.append(self.ADDON_PATH)
         sys.path.append(self.PACKAGE_PATH)
 
-        # 打包后资源路径切换
-        # if self.isExe:
-        #     self.RESOURCE_PATH = sys._MEIPASS + "/resource"
-
         # 导入自定义图标
         ZBF.setPath(self.resource("icons"))
         ZBF.addFromPath(self.resource("icons"))
