@@ -42,8 +42,7 @@ Name: "desktopicon"; Description: "创建桌面快捷方式";  Flags: unchecked
 Name: "startupicon"; Description: "开机自启动"; Flags: unchecked
 
 [Files]
-Source: "..\build\zbProgram\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\build\zbProgram\app\*"; DestDir: "{app}\app"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\build\zbProgram\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Registry]
