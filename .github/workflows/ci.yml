@@ -70,14 +70,14 @@ jobs:
       - name: 上传 ZIP
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.PROGRAM_NAME }}_${{ steps.ci_version.outputs.version }}.zip
-          path: ${{ env.PROGRAM_NAME }}.zip
+          name: ${{ env.PROGRAM_NAME }}_${{ steps.ci_version.outputs.version }}_arm64.zip
+          path: ${{ steps.ci_version.outputs.build_path }}
           retention-days: 7
 
       - name: 上传安装程序
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.PROGRAM_NAME }}_setup.exe
+          name: ${{ env.PROGRAM_NAME }}_${{ steps.ci_version.outputs.version }}_arm64_setup.zip
           path: ${{ env.PROGRAM_NAME }}_setup.exe
           retention-days: 7
 

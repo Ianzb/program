@@ -153,7 +153,8 @@ if __name__ == "__main__":
         "version": version,
         "version_code": new_version_code,
         "release_notes": release_notes,
-        "output": zip_path
+        "output": zip_path,
+        "build_path": zb.joinPath(BUILD_PATH, NAME),
     }
 
     out_path = zb.joinPath(ROOT, "script", "release_output.json")
