@@ -52,7 +52,7 @@ class Program:
     MAIN_FILE_PATH = sys.argv[0]  # 程序主文件路径
     MAIN_FILE_NAME = zb.getFileName(MAIN_FILE_PATH)  # 当前程序文件名称
     INSTALL_PATH = zb.getFileDir(MAIN_FILE_PATH)  # 程序安装路径
-    RESOURCE_PATH = "resource"  # 程序资源文件路径
+    RESOURCE_PATH = zb.joinPath(INSTALL_PATH, "resource")  # 程序资源文件路径
     PID = os.getpid()  # 程序pid
     DATA_PATH = zb.joinPath(zb.USER_PATH, "zb")  # 程序数据路径
     SETTING_FILE_PATH = zb.joinPath(DATA_PATH, "settings.json")  # 程序设置文件路径
@@ -84,8 +84,8 @@ class Program:
         sys.path.append(self.PACKAGE_PATH)
 
         # 打包后资源路径切换
-        if self.isExe:
-            self.RESOURCE_PATH = sys._MEIPASS + "/resource"
+        # if self.isExe:
+        #     self.RESOURCE_PATH = sys._MEIPASS + "/resource"
 
         # 导入自定义图标
         ZBF.setPath(self.resource("icons"))
@@ -109,7 +109,7 @@ class Program:
         判断程序是否为
         @return:
         """
-        return ".exe" in self.MAIN_FILE_NAME
+        return zb.getFileSuffix(self.MAIN_FILE_NAME) == ".exe"
 
     def resource(self, *args):
         """
