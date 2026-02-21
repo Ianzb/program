@@ -63,7 +63,7 @@ jobs:
           python script\release_build.py -v "${{ steps.generate_ci_version.outputs.ci_version }}"
 
       - name: 编译安装程序
-        uses: Minionguyjpro/Inno-Setup-Action@v1
+        uses: Minionguyjpro/Inno-Setup-Action@v1.2.7
         with:
           path: script/setup.iss
           options: /O+
