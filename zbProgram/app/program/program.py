@@ -35,7 +35,7 @@ class Program:
     VERSION = "5.10.2"  # 程序版本
     VERSION_CODE = 67  # 版本序数
     ADDON_API_VERSION = 9  # 插件版本序数
-    CORE_VERSION = "5.6.0"  # 内核版本
+    CORE_VERSION = "5.7.0"  # 内核版本
     TITLE = f"{NAME} {VERSION}"  # 程序标题
     URL = "https://ianzb.github.io/project/zbProgram.html"  # 程序网址
     LICENSE = "GPLv3"  # 程序许可协议
