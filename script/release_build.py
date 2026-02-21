@@ -75,7 +75,7 @@ def run_pyinstaller():
         cmd = [sys.executable, "-m", "nuitka", "--clang", "--show-progress", f"--force-stdout-spec={zb.joinPath(zb.TEMP_PATH, NAME + ".log")}", f"--force-stderr-spec={zb.joinPath(zb.TEMP_PATH, NAME + ".log")}",
                "--standalone", "--windows-console-mode=disable", "--enable-plugin=pyside6", *[f"--include-package={i}" for i in EXTRA_LIBS],
                "--remove-output", f"--output-dir={BUILD_PATH}", "--follow-imports", "--show-scons", f"--windows-icon-from-ico={ICON_PATH}",
-               f"--output-folder-name={NAME}", f"--output-filename={NAME}", "--onefile" if IS_SINGLE_FILE else "",
+               f"--output-folder-name={NAME}", f"--output-filename={NAME}" + (" --onefile" if IS_SINGLE_FILE else ""),
                f"--include-data-dir={RESOURCE_PATH}={zb.getFileName(RESOURCE_PATH)}", MAIN_PYW
                ]
     else:
