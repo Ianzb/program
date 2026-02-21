@@ -27,7 +27,7 @@ jobs:
       - name: 安装 LLVM 和 Clang
         uses: KyleMayes/install-llvm-action@v2
         with:
-          version: "21.1.7"
+          version: "21"
 
       - name: 安装 Python
         uses: actions/setup-python@v6
