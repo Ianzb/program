@@ -68,7 +68,7 @@ def extract_release_notes():
     return last
 
 
-def run_pyinstaller():
+def compile_exe():
     zb.deletePath(BUILD_PATH)
     zb.createDir(BUILD_PATH)
     if USE_NUITKA:
@@ -141,7 +141,7 @@ if __name__ == "__main__":
     if IS_SETUP:
         replace_version_in_setup(version)
 
-    run_pyinstaller()
+    compile_exe()
     if IS_SINGLE_FILE:
         zb.copyPath(zb.joinPath(BUILD_PATH, f"{NAME}.exe"), zb.joinPath(ROOT, f"{NAME}.exe"))
         zip_path = zb.joinPath(ROOT, f"{NAME}.exe")

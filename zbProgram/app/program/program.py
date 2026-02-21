@@ -31,7 +31,7 @@ class Program:
     """
     程序信息
     """
-    NAME = "zb小程序"  # 程序名称
+    NAME = "zbProgram"  # 程序名称
     VERSION = "5.10.2"  # 程序版本
     VERSION_CODE = 67  # 版本序数
     ADDON_API_VERSION = 9  # 插件版本序数
@@ -47,7 +47,7 @@ class Program:
 
     AUTHOR_NAME = "Ianzb"  # 作者名称
     AUTHOR_URL = "https://ianzb.github.io/"  # 作者网址
-    GITHUB_URL = "https://github.com/Ianzb/program/"  # Github网址
+    GITHUB_URL = "https://github.com/Ianzb/zbProgram/"  # Github网址
 
     MAIN_FILE_PATH = sys.argv[0]  # 程序主文件路径
     MAIN_FILE_NAME = zb.getFileName(MAIN_FILE_PATH)  # 当前程序文件名称
@@ -121,7 +121,7 @@ class Program:
         @param name: 文件名
         @return: 文件路径
         """
-        return zb.joinPath(zb.TEMP_PATH, *args)
+        return zb.joinPath(zb.TEMP_PATH, self.NAME, *args)
 
     def close(self):
         """
