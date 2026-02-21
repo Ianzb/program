@@ -93,8 +93,7 @@ def run_pyinstaller():
 
 def make_zip(version: str):
     print(f"正在压缩...")
-    zip_path = shutil.make_archive(zb.joinPath(ROOT, f"{NAME}_{version}"), "zip", root_dir=zb.joinPath(BUILD_PATH, NAME))
-    zb.copyPath(zip_path, zb.joinPath(BUILD_PATH, NAME, zb.getFileName(zip_path)))
+    zip_path = shutil.make_archive(zb.joinPath(BUILD_PATH, NAME, f"{NAME}_{version}"), "zip", root_dir=zb.joinPath(BUILD_PATH, NAME))
     print(f"压缩完成！")
     return zip_path
 

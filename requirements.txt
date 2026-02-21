@@ -5,6 +5,7 @@ attrs==25.4.0
 beautifulsoup4==4.14.3
 certifi==2026.1.4
 charset-normalizer==3.4.4
+clang==21.1.7
 colorthief==0.2.1
 darkdetect==0.8.0
 idna==3.11
