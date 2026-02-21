@@ -157,4 +157,5 @@ if __name__ == "__main__":
     }
 
     out_path = zb.joinPath(ROOT, "script", "release_output.json")
+    print("打包结果：", out)
     write_text(out_path, json.dumps(out, ensure_ascii=False, indent=4))
