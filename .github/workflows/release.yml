@@ -122,8 +122,8 @@ jobs:
           name: ${{ steps.read_new_index.outputs.version }}
           tag_name: ${{ steps.read_new_index.outputs.version }}
           files: |
-            ${{ env.PROGRAM_NAME }}_${{ steps.read_new_index.outputs.version }}_arm64.zip
-            ${{ env.PROGRAM_NAME }}_${{ steps.read_new_index.outputs.version }}_arm64_setup.exe
+            ${{ env.PROGRAM_NAME }}_${{ steps.read_new_index.outputs.version }}.zip
+            ${{ env.PROGRAM_NAME }}_${{ steps.read_new_index.outputs.version }}_setup.exe
           body: ${{ steps.check_output.outputs.notes }}
           token: ${{ secrets.GITHUB_TOKEN }}
           draft: false

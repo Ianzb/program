@@ -94,7 +94,7 @@ def compile_exe():
 
 def make_zip(version: str):
     print(f"正在压缩...")
-    zip_path = shutil.make_archive(zb.joinPath(ROOT, f"{NAME}"), "zip", root_dir=zb.joinPath(BUILD_PATH, NAME))
+    zip_path = shutil.make_archive(zb.joinPath(ROOT, f"{NAME}_{version}"), "zip", root_dir=zb.joinPath(BUILD_PATH, NAME))
     print(f"压缩完成！")
     return zip_path
 
@@ -143,8 +143,8 @@ if __name__ == "__main__":
 
     compile_exe()
     if IS_SINGLE_FILE:
-        zb.copyPath(zb.joinPath(BUILD_PATH, f"{NAME}.exe"), zb.joinPath(ROOT, f"{NAME}.exe"))
-        zip_path = zb.joinPath(ROOT, f"{NAME}.exe")
+        zb.copyPath(zb.joinPath(BUILD_PATH, f"{NAME}.exe"), zb.joinPath(ROOT, f"{NAME}_{version}.exe"))
+        zip_path = zb.joinPath(ROOT, f"{NAME}_{version}.exe")
     else:
         copy_extra_files()
         zip_path = make_zip(version)
