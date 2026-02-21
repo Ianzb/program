@@ -34,7 +34,7 @@ class Program:
     NAME = "zb小程序"  # 程序名称
     VERSION = "5.10.2"  # 程序版本
     VERSION_CODE = 67  # 版本序数
-    ADDON_API_VERSION = 8  # 插件版本序数
+    ADDON_API_VERSION = 9  # 插件版本序数
     CORE_VERSION = "5.6.0"  # 内核版本
     TITLE = f"{NAME} {VERSION}"  # 程序标题
     URL = "https://ianzb.github.io/project/zbProgram.html"  # 程序网址
@@ -125,7 +125,7 @@ class Program:
         @param name: 文件名
         @return: 文件路径
         """
-        return zb.joinPath(self.DATA_PATH, "cache", *args)
+        return zb.joinPath(zb.TEMP_PATH, *args)
 
     def close(self):
         """

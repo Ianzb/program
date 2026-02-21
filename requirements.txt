@@ -37,5 +37,5 @@ typing-inspection==0.4.2
 typing_extensions==4.15.0
 urllib3==2.6.3
 winshell==0.6
-zbToolLib==2.0.7
+zbToolLib==2.0.8
 zbWidgetLib==3.6.0

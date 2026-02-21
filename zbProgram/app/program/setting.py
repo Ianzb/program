@@ -8,7 +8,7 @@ class SettingFunctions(QObject):
     DEFAULT_SETTING = {"theme": "Theme.AUTO",
                        "themeColor": "default",
                        "autoHide": True,
-                       "downloadPath": zb.DOWNLOAD_PATH(),
+                       "downloadPath": zb.DOWNLOAD_PATH,
                        "showWindow": False,
                        "windowEffect": "Mica",
                        "showTray": True,

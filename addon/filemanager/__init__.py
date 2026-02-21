@@ -21,7 +21,7 @@ def addonInit():
                   "wechatPath": "",
                   "sortNameBlacklist": [],
                   "sortPathBlacklist": [],
-                  "sortFolder": [zb.DESKTOP_PATH()],
+                  "sortFolder": [zb.DESKTOP_PATH],
                   "sortFormat": {"PPT": [".ppt", ".pptx"],
                                  "文档": [".doc", ".docx", ".txt", ".pdf"],
                                  "表格": [".xls", ".xlsx", ".xlsm", ".xlsb", ".xlt", ".csv"],
@@ -210,10 +210,10 @@ class SortFunctions:
         @return: 整理文件路径黑名单列表
         """
         data = list(setting.read("sortPathBlacklist"))
-        if zb.isSamePath(setting.read("sortGoalPath"), zb.DESKTOP_PATH()):
-            data += [zb.joinPath(zb.DESKTOP_PATH(), i) for i in list(setting.read("sortFormat").keys()) + ["文件夹"]]
-        elif self.belongDir(setting.read("sortGoalPath"), zb.DESKTOP_PATH()):
-            for i in zb.walkDir(zb.DESKTOP_PATH(), True):
+        if zb.isSamePath(setting.read("sortGoalPath"), zb.DESKTOP_PATH):
+            data += [zb.joinPath(zb.DESKTOP_PATH, i) for i in list(setting.read("sortFormat").keys()) + ["文件夹"]]
+        elif self.belongDir(setting.read("sortGoalPath"), zb.DESKTOP_PATH):
+            for i in zb.walkDir(zb.DESKTOP_PATH, True):
                 if self.belongDir(setting.read("sortGoalPath"), i):
                     data.append(i)
         return list(set(data))
