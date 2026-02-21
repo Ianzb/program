@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "zb小程序"
-#define MyAppVersion "5.10.1"
+#define MyAppVersion "5.10.2"
 #define MyAppPublisher "Ianzb"
 #define MyAppURL "https://ianzb.github.io/"
 #define MyAppExeName "zbProgram.exe"
