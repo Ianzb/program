@@ -3,8 +3,8 @@
   "name": "Seewo工具箱",
   "author": "Ianzb",
   "description": "为学校希沃白板设计的实用功能。",
-  "version": "1.3.2",
-  "version_code": 14,
+  "version": "1.3.3",
+  "version_code": 15,
   "api_version": 9,
   "icon": "https://drive.ianzb.cn/code/zbProgram/addon/seewokit/seewokit.png",
   "file": "https://drive.ianzb.cn/code/zbProgram/addon/seewokit/seewokit.zip",
@@ -64,6 +64,10 @@
     "1.3.2": {
       "log": "删除移动窗口功能。",
       "time": "2025年12月27日"
+    },
+    "1.3.3": {
+      "time": "2026年2月21日",
+      "log": "适配API 9。"
     }
   },
   "packages": [],
