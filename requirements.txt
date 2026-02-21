@@ -9,11 +9,12 @@ colorthief==0.2.1
 darkdetect==0.8.0
 idna==3.11
 mailbits==0.2.3
+Nuitka==4.0.1
 numpy==2.4.2
 packaging==26.0
 pefile==2024.8.26
 pillow==12.1.1
-puremagic==1.30
+puremagic==2.0.0
 pydantic==2.12.5
 pydantic_core==2.41.5
 pyinstaller==6.19.0
