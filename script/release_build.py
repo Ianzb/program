@@ -88,12 +88,13 @@ def run_pyinstaller():
     subprocess.check_call(cmd)
     if USE_NUITKA:
         zb.movePath(zb.joinPath(BUILD_PATH, f"{NAME}.dist"), zb.joinPath(BUILD_PATH, NAME))
+    zb.deletePath(zb.joinPath(BUILD_PATH, NAME, NAME + ".pdb"))
     print("打包完成")
 
 
 def make_zip(version: str):
     print(f"正在压缩...")
-    zip_path = shutil.make_archive(zb.joinPath(BUILD_PATH, NAME, f"{NAME}_{version}"), "zip", root_dir=zb.joinPath(BUILD_PATH, NAME))
+    zip_path = shutil.make_archive(zb.joinPath(ROOT, f"{NAME}"), "zip", root_dir=zb.joinPath(BUILD_PATH, NAME))
     print(f"压缩完成！")
     return zip_path
 
@@ -142,8 +143,8 @@ if __name__ == "__main__":
 
     run_pyinstaller()
     if IS_SINGLE_FILE:
-        zip_path = zb.joinPath(BUILD_PATH, f"{NAME}.exe")
-        zb.copyPath(zip_path, zb.joinPath(ROOT, f"{NAME}_{version}.exe"))
+        zb.copyPath(zb.joinPath(BUILD_PATH, f"{NAME}.exe"), zb.joinPath(ROOT, f"{NAME}.exe"))
+        zip_path = zb.joinPath(ROOT, f"{NAME}.exe")
     else:
         copy_extra_files()
         zip_path = make_zip(version)

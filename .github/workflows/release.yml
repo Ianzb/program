@@ -123,8 +123,8 @@ jobs:
           name: ${{ steps.read_new_index.outputs.version }}
           tag_name: ${{ steps.read_new_index.outputs.version }}
           files: |
-            ${{ env.PROGRAM_NAME }}_${{ steps.read_new_index.outputs.version }}.zip
-            ${{ steps.check_output.outputs.installer }}
+            ${{ env.PROGRAM_NAME }}.zip
+            ${{ env.PROGRAM_NAME }}_setup.exe
           body: ${{ steps.check_output.outputs.notes }}
           token: ${{ secrets.GITHUB_TOKEN }}
           draft: false
