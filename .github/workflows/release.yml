@@ -74,7 +74,6 @@ jobs:
           $out = Get-Content -Raw script\release_output.json | ConvertFrom-Json
           Write-Output "zip=$($out.output)" >> $env:GITHUB_OUTPUT
           Write-Output "version_code=$($out.version_code)" >> $env:GITHUB_OUTPUT
-
           $notes = $out.release_notes -replace "`r`n", "`n"
           Write-Output "notes=$notes" >> $env:GITHUB_OUTPUT
 
