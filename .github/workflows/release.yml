@@ -20,12 +20,12 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@latest
         with:
           persist-credentials: true
 
       - name: 安装 Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@latest
         with:
           python-version: "3.13"
 
@@ -62,7 +62,7 @@ jobs:
           }
 
       - name: 编译安装程序
-        uses: Minionguyjpro/Inno-Setup-Action@v1.2.7
+        uses: Minionguyjpro/Inno-Setup-Action@latest
         with:
           path: script/setup.iss
           options: /O+
@@ -117,7 +117,7 @@ jobs:
           }
 
       - name: 发布 GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@latest
         with:
           name: ${{ steps.read_new_index.outputs.version }}
           tag_name: ${{ steps.read_new_index.outputs.version }}
