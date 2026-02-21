@@ -24,6 +24,11 @@ jobs:
         with:
           persist-credentials: true
 
+      - name: 安装 LLVM 和 Clang
+        uses: KyleMayes/install-llvm-action@v2
+        with:
+          version: "21.1.7"
+
       - name: 安装 Python
         uses: actions/setup-python@v6
         with:

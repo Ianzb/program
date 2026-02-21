@@ -83,7 +83,7 @@ def run_pyinstaller():
                "--distpath", BUILD_PATH, "--workpath", zb.joinPath(BUILD_PATH, "build"),
                "--clean", "-y"
                ]
-    cmd.remove("")
+
     print("CMD:", " ".join(cmd))
     subprocess.check_call(cmd)
     if USE_NUITKA:
