@@ -2,10 +2,11 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "zb小程序"
+#define MyAppProjectName "zbProgram"
 #define MyAppVersion "5.11.0"
 #define MyAppPublisher "Ianzb"
 #define MyAppURL "https://ianzb.github.io/"
-#define MyAppExeName "zbProgram.exe"
+#define MyAppExeName MyAppProjectName + ".exe"
 #define MyAppAssocName MyAppName + "插件"
 
 [Setup]
@@ -19,7 +20,7 @@ AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
-DefaultDirName=C:\Program Files\zbProgram
+DefaultDirName=C:\Program Files\{#MyAppProjectName}
 ChangesAssociations=yes
 DefaultGroupName={#MyAppName}
 AllowNoIcons=yes
@@ -28,8 +29,8 @@ LicenseFile=..\LICENSE
 ;PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=dialog
 OutputDir=..\
-OutputBaseFilename=zbProgram_{#MyAppVersion}_setup
-SetupIconFile=..\zbProgram\resource\program.ico
+OutputBaseFilename={#MyAppProjectName}_{#MyAppVersion}_setup
+SetupIconFile=..\{#MyAppProjectName}\resource\program.ico
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
@@ -42,12 +43,12 @@ Name: "desktopicon"; Description: "创建桌面快捷方式";  Flags: unchecked
 Name: "startupicon"; Description: "开机自启动"; Flags: unchecked
 
 [Files]
-Source: "..\build\zbProgram\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\build\{#MyAppProjectName}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Registry]
 Root: HKA; Subkey: "Software\Classes\Applications\{#MyAppExeName}\SupportedTypes"; ValueType: string; ValueName: ".myp"; ValueData: ""
-Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: {#MyAppName}; ValueData: "{app}\{#MyAppExeName} startup"; Flags: uninsdeletevalue; Tasks: startupicon
+Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: {#MyAppProjectName}; ValueData: "{app}\{#MyAppExeName} startup"; Flags: uninsdeletevalue; Tasks: startupicon
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"

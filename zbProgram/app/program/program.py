@@ -31,12 +31,13 @@ class Program:
     """
     程序信息
     """
-    NAME = "zbProgram"  # 程序名称
+    NAME = "zb小程序"  # 程序名称
+    PROJECT_NAME = "zbProgram"  # 项目名称
     VERSION = "5.11.0"  # 程序版本
     VERSION_CODE = 68  # 版本序数
     ADDON_API_VERSION = 9  # 插件版本序数
-    CORE_VERSION = "5.7.0"  # 内核版本
-    TITLE = f"zb小程序 {VERSION}"  # 程序标题
+    CORE_VERSION = "5.7.1"  # 内核版本
+    TITLE = f"{NAME} {VERSION}"  # 程序标题
     URL = "https://ianzb.github.io/project/zbProgram.html"  # 程序网址
     LICENSE = "GPLv3"  # 程序许可协议
     INFO = "© 2022-2026 Ianzb. GPLv3 License."
@@ -73,7 +74,7 @@ class Program:
         # 设置任务栏
         import ctypes
 
-        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(self.NAME)
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(self.PROJECT_NAME)
 
         # 开发者插件目录切换
         if not self.isExe:
@@ -148,7 +149,7 @@ class Program:
         if zb.existPath(zb.joinPath(self.DATA_PATH, "zb.lock")):
             with open(zb.joinPath(self.DATA_PATH, "zb.lock"), "r+", encoding="utf-8") as file:
                 pid = file.read().strip()
-            if pid and pid != self.PID and "zbProgram.exe" in zb.easyCmd(f"tasklist |findstr {pid}", True):
+            if pid and pid != self.PID and "zbProgram.exe" in zb.easyCmd(f"tasklist |findstr {pid}", True) and not self.isStartup:
                 open(zb.joinPath(self.DATA_PATH, "zb.unlock"), "w").close()
                 logging.info(f"检测到重复PID {pid}，程序重复运行，自动关闭！")
                 self.close()
@@ -167,11 +168,11 @@ class Program:
         key = win32api.RegOpenKey(win32con.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Run", 0, win32con.KEY_ALL_ACCESS)
         try:
             if mode:
-                win32api.RegSetValueEx(key, self.NAME, 0, win32con.REG_SZ, f"{self.MAIN_FILE_PATH} startup")
+                win32api.RegSetValueEx(key, self.PROJECT_NAME, 0, win32con.REG_SZ, f"{self.MAIN_FILE_PATH} startup")
                 win32api.RegCloseKey(key)
                 logging.info("启动项添加成功")
             else:
-                win32api.RegDeleteValue(key, self.NAME)
+                win32api.RegDeleteValue(key, self.PROJECT_NAME)
                 win32api.RegCloseKey(key)
                 logging.info("启动项删除成功")
         except:
@@ -185,7 +186,7 @@ class Program:
         import win32api, win32con
         try:
             key = win32api.RegOpenKeyEx(win32con.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Run", 0, win32con.KEY_READ)
-            win32api.RegQueryValueEx(key, self.NAME)
+            win32api.RegQueryValueEx(key, self.PROJECT_NAME)
             win32api.RegCloseKey(key)
             return True
         except win32api.error:
