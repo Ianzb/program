@@ -77,19 +77,6 @@ jobs:
           $notes = $out.release_notes -replace "`r`n", "`n"
           Write-Output "notes=$notes" >> $env:GITHUB_OUTPUT
 
-          $installer = Get-ChildItem `
-            -Path $Env:GITHUB_WORKSPACE `
-            -Filter "${{ env.PROGRAM_NAME }}_setup.exe" `
-            -Recurse `
-            -ErrorAction SilentlyContinue |
-            Select-Object -First 1
-
-          if ($installer) {
-            Write-Output "installer=$($installer.FullName)" >> $env:GITHUB_OUTPUT
-          } else {
-            Write-Output "installer=" >> $env:GITHUB_OUTPUT
-          }
-
       - name: 重新读取 index.json
         id: read_new_index
         shell: pwsh
@@ -136,21 +123,10 @@ jobs:
           DUFS_URL: ${{ secrets.DUFS_URL }}
           DUFS_USER: ${{ secrets.DUFS_USER }}
           DUFS_PASSWORD: ${{ secrets.DUFS_PASSWORD }}
-          ZIP_PATH: ${{ steps.check_output.outputs.zip }}
-          INSTALLER_PATH: ${{ steps.check_output.outputs.installer }}
         run: |
-          if (-not $Env:DUFS_URL -or -not $Env:DUFS_USER -or -not $Env:DUFS_PASSWORD) {
-            Write-Host "DUFS 未配置，跳过上传"
-            exit 0
-          }
-
           $base = $Env:DUFS_URL.TrimEnd('/')
           $auth = "$($Env:DUFS_USER):$($Env:DUFS_PASSWORD)"
-          $index = Join-Path $Env:GITHUB_WORKSPACE 'index.json'
 
-          curl --fail --silent --show-error --user $auth -T "$index"     "$base/code/${{ env.PROGRAM_NAME }}/index.json"
-          curl --fail --silent --show-error --user $auth -T "$Env:ZIP_PATH" "$base/code/${{ env.PROGRAM_NAME }}/${{ env.PROGRAM_NAME }}.zip"
-
-          if ($Env:INSTALLER_PATH) {
-            curl --fail --silent --show-error --user $auth -T "$Env:INSTALLER_PATH" "$base/code/${{ env.PROGRAM_NAME }}/${{ env.PROGRAM_NAME }}_setup.exe"
-          }
+          curl --fail --silent --show-error --user $auth -T "index.json"     "$base/code/${{ env.PROGRAM_NAME }}/index.json"
+          curl --fail --silent --show-error --user $auth -T "${{ env.PROGRAM_NAME }}_${{ steps.read_new_index.outputs.version }}.zip" "$base/code/${{ env.PROGRAM_NAME }}/${{ env.PROGRAM_NAME }}.zip"
+          curl --fail --silent --show-error --user $auth -T "${{ env.PROGRAM_NAME }}_${{ steps.read_new_index.outputs.version }}_setup.exe" "$base/code/${{ env.PROGRAM_NAME }}/${{ env.PROGRAM_NAME }}_setup.exe"
