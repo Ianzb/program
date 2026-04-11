@@ -429,6 +429,7 @@ class ListInterface(zbw.BasicTab):
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
+        self._drag = False
 
         self.listChooser = zbw.FileChooser(self)
         self.listChooser.setSuffix({"名单文件": [".csv"]})
@@ -450,6 +451,61 @@ class ListInterface(zbw.BasicTab):
         setting.connect(self.settingChanged)
         self.getKeyFinishedSignal.connect(self.getKeyFinished)
         self.importPersonFinishedSignal.connect(self.importPersonFinished)
+
+        self.setTheme()
+        qconfig.themeChanged.connect(self.setTheme)
+
+        self.setAcceptDrops(True)
+
+    def setTheme(self):
+        if isDarkTheme():
+            if self._drag:
+                self.setStyleSheet(".ListInterface {border: 2px rgb(121, 121, 121); border-style: dashed; border-radius: 6px; background-color: rgba(100, 100, 100, 0.5)}")
+            else:
+                self.setStyleSheet(".ListInterface {border: none; background-color: transparent}")
+        else:
+            if self._drag:
+                self.setStyleSheet(".ListInterface {border: 2px rgb(145, 145, 145); border-style: dashed; border-radius: 6px; background-color: rgba(220, 220, 220, 0.5)}")
+            else:
+                self.setStyleSheet(".ListInterface {border: none; background-color: transparent}")
+
+    def _checkDrag(self, event):
+        if event.mimeData().hasText() and event.mimeData().hasFormat("PersonWidget"):
+            id = bytes(event.mimeData().data("PersonWidget")).decode()
+            if manager.hasPerson(id) and isinstance(manager.getPersonWidget(id).parent(), PersonWidgetTableBase):
+                return True
+        return False
+
+    def dragEnterEvent(self, event):
+        if self._checkDrag(event):
+            self._drag = True
+            self.setTheme()
+            event.accept()
+        else:
+            event.ignore()
+
+    def dragMoveEvent(self, event):
+        if self._checkDrag(event):
+            event.setDropAction(Qt.MoveAction)
+            event.accept()
+        else:
+            event.ignore()
+
+    def dropEvent(self, event):
+        if self._checkDrag(event):
+            id = bytes(event.mimeData().data("PersonWidget")).decode()
+            manager.getPersonWidget(id).parent().removeButton.click()
+            self._drag = False
+            self.setTheme()
+            event.setDropAction(Qt.MoveAction)
+
+            event.accept()
+        else:
+            event.ignore()
+
+    def dragLeaveEvent(self, event):
+        self._drag = False
+        self.setTheme()
 
     def settingChanged(self, name):
         if name == "downloadPath":

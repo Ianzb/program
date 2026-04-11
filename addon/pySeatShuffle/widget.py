@@ -67,8 +67,6 @@ class PersonWidget(QFrame):
 
     def deleteLater(self):
         setting.changeSignal.disconnect(self.setFontSize)
-        if self.person:
-            self.person.setParent(None)
         super().deleteLater()
 
     def setFontSize(self, msg="fontSize"):
@@ -263,21 +261,24 @@ class PersonWidgetTableBase(CardWidget):
         self.removeButton.setFixedSize(24, 24)
         self.removeButton.hide()
 
+    def _checkDrag(self, event):
+        return bool(event.mimeData().hasText() and event.mimeData().hasFormat("PersonWidget"))
+
     def dragEnterEvent(self, event):
-        if event.mimeData().hasText() and event.mimeData().hasFormat("PersonWidget"):
+        if self._checkDrag(event):
             event.accept()
         else:
             event.ignore()
 
     def dragMoveEvent(self, event):
-        if event.mimeData().hasText() and event.mimeData().hasFormat("PersonWidget"):
+        if self._checkDrag(event):
             event.setDropAction(Qt.MoveAction)
             event.accept()
         else:
             event.ignore()
 
     def dropEvent(self, event):
-        if event.mimeData().hasText() and event.mimeData().hasFormat("PersonWidget"):
+        if self._checkDrag(event):
             id = bytes(event.mimeData().data("PersonWidget")).decode()
             if manager.hasPerson(id) and not self.person or not isinstance(manager.getPersonWidget(id).parent(), PersonWidgetBase):
                 self.setPerson(manager.getPersonWidget(id))
