@@ -3,7 +3,7 @@
 
 #define MyAppName "zb小程序"
 #define MyAppProjectName "zbProgram"
-#define MyAppVersion "5.11.1"
+#define MyAppVersion "5.11.2"
 #define MyAppPublisher "Ianzb"
 #define MyAppURL "https://ianzb.github.io/"
 #define MyAppExeName MyAppProjectName + ".exe"
