@@ -6,11 +6,63 @@ import importlib.metadata as importlib_metadata
 from packaging.requirements import Requirement
 from packaging.specifiers import SpecifierSet
 from packaging.version import Version, InvalidVersion, parse as parse_version
+from packaging.tags import sys_tags
 
 
 class AddonManager:
     ADDON_OBJECT = {}  # 导入的插件的对象
     ADDON_MAIN_PAGE = {}
+
+    # 常见“发行名 != 导入名”映射，用于导入可用性检查
+    IMPORT_ALIASES = {
+        "pillow": "PIL",
+        "pycryptodome": "Crypto",
+        "beautifulsoup4": "bs4",
+        "pyyaml": "yaml",
+        "opencv-python": "cv2",
+        "scikit-learn": "sklearn",
+        "python-dateutil": "dateutil",
+    }
+
+    def _try_import(self, package: str) -> bool:
+        """尝试按发行名导入对应的模块，成功返回 True"""
+        module_name = self.IMPORT_ALIASES.get(package.lower(), package.replace("-", "_"))
+        try:
+            importlib.import_module(module_name)
+            return True
+        except Exception:
+            return False
+
+    def _compatible_tag_set(self) -> set:
+        """当前解释器可用的 (python tag, abi tag, platform tag) 集合"""
+        try:
+            return {(t.interpreter, t.abi, t.platform) for t in sys_tags()}
+        except Exception:
+            logging.warning(f"获取当前平台兼容标签失败：{traceback.format_exc()}")
+            return set()
+
+    def _is_compatible_wheel(self, filename: str) -> bool:
+        """根据 wheel 文件名判断是否兼容当前平台与 Python 版本"""
+        try:
+            stem = os.path.basename(str(filename))
+            if not stem.endswith(".whl"):
+                return False
+            parts = stem[:-4].split("-")
+            # wheel 文件名从尾部取三段标签：...-{python tag}-{abi tag}-{platform tag}.whl
+            # （distribution-version 之间可能存在可选 build tag，故不能从头部定索引）
+            if len(parts) < 5:
+                return False
+            compatible = self._compatible_tag_set()
+            if not compatible:
+                return False
+            for py in parts[-3].split("."):
+                for abi in parts[-2].split("."):
+                    for plat in parts[-1].split("."):
+                        if (py, abi, plat) in compatible:
+                            return True
+            return False
+        except Exception:
+            return False
 
     def getOnlineAddonDict(self):
         """
@@ -211,8 +263,12 @@ class AddonManager:
                 try:
                     v_inst = parse_version(inst_v_raw)
                     if spec.contains(v_inst, prereleases=True):
-                        logging.info(f"包{package}已安装且满足版本要求{spec}！")
-                        return True
+                        # 版本满足之外还要求可导入：防止平台上装了错误 wheel（如跨平台/跨解释器）
+                        # 后版本号满足却被永久跳过的自锁问题
+                        if self._try_import(package):
+                            logging.info(f"包{package}已安装且满足版本要求{spec}！")
+                            return True
+                        logging.warning(f"包{package}版本{inst_v_raw}满足{spec}但导入失败，将移除并重新安装！")
                 except InvalidVersion:
                     # 解析失败时回退为字符串匹配
                     if inst_v_raw in str(spec):
@@ -222,14 +278,11 @@ class AddonManager:
                 pass
         else:
             # 如果没有 spec，且能 import，则认为已存在
-            try:
-                importlib.import_module(package.replace("-", "_"))
+            if self._try_import(package):
                 logging.info(f"包{package}已存在！")
                 # 如果没有 spec，直接返回 True
                 if not spec:
                     return True
-            except ImportError:
-                pass
 
         logging.info(f"正在安装{package}... 目标目录：{target_dir}")
 
@@ -256,41 +309,31 @@ class AddonManager:
         packages = requests_page.packages
 
         candidate_url = None
-        # 如果有 specifier，则选取满足条件的最高版本 wheel
-        if spec and Version is not None:
-            best_ver = None
-            for package in packages:
-                if package.package_type != "wheel":
-                    continue
+        best_ver = None
+        # 遍历所有 wheel：先按当前平台/Python 版本过滤，再在兼容项中选取满足 specifier 的最高版本
+        # 注意：循环变量不能沿用 package（外部 package 是包名字符串，后面日志与删除逻辑还要用）
+        for dist in packages:
+            if dist.package_type != "wheel":
+                continue
+            if not self._is_compatible_wheel(dist.filename):
+                continue
+            try:
+                ver = parse_version(str(dist.version).strip())
+            except Exception:
+                ver = None
+            if spec and ver is not None:
                 try:
-                    ver = parse_version(str(package.version).strip())
+                    if not spec.contains(ver, prereleases=True):
+                        continue
                 except Exception:
-                    continue
-                # 使用 SpecifierSet 判断是否满足（包含预发行）
-                try:
-                    if spec and spec.contains(ver, prereleases=True):
-                        if best_ver is None or ver > best_ver:
-                            best_ver = ver
-                            candidate_url = package.url
-                except Exception:
-                    # 解析失败则按字符串匹配
-                    if package.version in str(spec):
-                        if best_ver is None or ver > best_ver:
-                            best_ver = ver
-                            candidate_url = package.url
-            # 如果没找到满足 spec 的 wheel，就回退到任意 wheel
-            if not candidate_url:
-                for package in packages:
-                    if package.package_type == "wheel":
-                        candidate_url = package.url
-        else:
-            # 没有 spec，或无法解析版本，选择最后一个 wheel
-            for package in packages:
-                if package.package_type == "wheel":
-                    candidate_url = package.url
+                    if str(dist.version) not in str(spec):
+                        continue
+            if best_ver is None or (ver is not None and (best_ver is None or ver > best_ver)):
+                best_ver = ver
+                candidate_url = dist.url
 
         if not candidate_url:
-            logging.error(f"未找到包{package}！")
+            logging.error(f"未找到与当前平台和 Python 版本兼容的包{package}的 wheel（将跳过安装）！")
             return False
 
         result = zb.singleDownload(candidate_url, target_dir, True, True)
@@ -298,6 +341,8 @@ class AddonManager:
             logging.error(f"下载包{package}失败！")
             return False
         zb.extractZip(result, target_dir, True)
+        logging.info(f"包{package}安装成功：{candidate_url.rsplit('/', 1)[-1]}")
+        return True
 
 
 addonManager = AddonManager()
