@@ -47,6 +47,19 @@ jobs:
         run: |
           Add-Type -AssemblyName System.IO.Compression.FileSystem
 
+          # 单文件上传封装：失败立即报错终止（明确指出是哪个文件），并自动重试瞬时故障
+          function Publish-File {
+            param([string]$Path, [string]$Url)
+            curl --fail --silent --show-error --retry 3 --retry-all-errors --connect-timeout 20 --max-time 300 `
+              --user "$($Env:DUFS_USER):$($Env:DUFS_PASSWORD)" `
+              -T "$Path" "$Url"
+            if ($LASTEXITCODE -ne 0) {
+              Write-Error "上传失败 (curl exit $LASTEXITCODE): $Path -> $Url"
+              exit 1
+            }
+            Write-Host "已上传: $Url"
+          }
+
           # 插件目录
           $addonPath = Join-Path $Env:GITHUB_WORKSPACE "addon" $Env:ADDON_ID
           if (-not (Test-Path $addonPath)) {
@@ -116,35 +129,27 @@ jobs:
           [System.IO.Compression.ZipFile]::CreateFromDirectory($addonPath, $zipPath)
 
           # 上传 ZIP
-          curl --fail --silent --show-error `
-            --user "$($Env:DUFS_USER):$($Env:DUFS_PASSWORD)" `
-            -T "$zipPath" "$addonDufs/$($addonConfig.id).zip"
+          Publish-File -Path "$zipPath" -Url "$addonDufs/$($addonConfig.id).zip"
 
           # 上传 icon
           if ($addonConfig.icon) {
             $iconName = [System.IO.Path]::GetFileName($addonConfig.icon)
             $iconPath = Join-Path $addonPath $iconName
             if (Test-Path $iconPath) {
-              curl --fail --silent --show-error `
-                --user "$($Env:DUFS_USER):$($Env:DUFS_PASSWORD)" `
-                -T "$iconPath" "$addonDufs/$iconName"
+              Publish-File -Path "$iconPath" -Url "$addonDufs/$iconName"
             }
           }
 
           # 上传 addon.json
-          curl --fail --silent --show-error `
-            --user "$($Env:DUFS_USER):$($Env:DUFS_PASSWORD)" `
-            -T "$addonJsonPath" "$addonDufs/addon.json"
+          Publish-File -Path "$addonJsonPath" -Url "$addonDufs/addon.json"
 
           # 更新主索引
           $mainIndexPath = Join-Path $Env:GITHUB_WORKSPACE "addon" "addon.json"
           $mainIndex = Get-Content -Raw $mainIndexPath | ConvertFrom-Json
-          $mainIndex.$($addonConfig.id) = $jsonLink
+          $mainIndex | Add-Member -NotePropertyName $addonConfig.id -NotePropertyValue $jsonLink -Force
           $mainIndex | ConvertTo-Json | Set-Content $mainIndexPath -Encoding UTF8
 
-          curl --fail --silent --show-error `
-            --user "$($Env:DUFS_USER):$($Env:DUFS_PASSWORD)" `
-            -T "$mainIndexPath" "$dufsBase/code/${{ env.PROGRAM_NAME }}/addon/addon.json"
+          Publish-File -Path "$mainIndexPath" -Url "$dufsBase/code/${{ env.PROGRAM_NAME }}/addon/addon.json"
 
           Write-Host "插件发布完成"
           Write-Host "插件地址: $jsonLink"
