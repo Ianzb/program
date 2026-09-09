@@ -7,7 +7,7 @@
   "version_code": 2,
   "api_version": 9,
   "icon": "",
-  "file": "",
+  "file": "https://drive.ianzb.cn/code/zbProgram/addon/njuxk/njuxk.zip",
   "history": {
     "0.2.0": {
       "time": "2026年9月2日",
@@ -25,5 +25,5 @@
     "numpy",
     "requests"
   ],
-  "url": ""
+  "url": "https://drive.ianzb.cn/code/zbProgram/addon/njuxk/addon.json"
 }
