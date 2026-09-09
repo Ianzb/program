@@ -93,15 +93,24 @@ class AddonManager:
             logging.error(f"插件{url}信息获取失败，报错信息：{traceback.format_exc()}！")
             return {}
 
-    def downloadAddonFromInfo(self, data: dict):
+    def downloadAddonFromInfo(self, data: dict, progress=None):
         """
         通过插件自述文件数据链接获取指定插件信息
         @param data: 插件信息
         @param general_data: 基础链接（addon.json链接，仅文件为相对路径的时候需要）
+        @param progress: 可选回调 progress(str)，用于向任务中心等上报安装阶段
         """
+
+        def report(text):
+            if progress:
+                try:
+                    progress(text)
+                except Exception:
+                    pass
 
         try:
             logging.info(f"正在下载插件{data.get("name", "")}！")
+            report(f"正在下载插件包...")
             dir_path = zb.joinPath(program.ADDON_PATH, data.get("id", ""))
             zb.createDir(dir_path)
             with open(zb.joinPath(dir_path, "addon.json"), "w+", encoding="utf-8") as file:
@@ -109,8 +118,9 @@ class AddonManager:
             result = zb.singleDownload(data.get("file", ""), dir_path, True, True)
             # packages can be like ["name==1.2","name>=1.0","name"]
             for package in data.get("packages", []):
-                self.installPackage(package)
+                self.installPackage(package, progress=progress)
             if result:
+                report("正在解压插件文件...")
                 zb.extractZip(result, dir_path, True)
                 logging.info(f"插件{data.get("name", "")}下载成功！")
                 return True
@@ -188,12 +198,21 @@ class AddonManager:
                     continue
         return None, None
 
-    def installPackage(self, package: str, target_dir: str = program.PACKAGE_PATH):
+    def installPackage(self, package: str, target_dir: str = program.PACKAGE_PATH, progress=None):
         """
         安装包到 target_dir；支持 requirement 风格的 version specifier（例如 "pkg>=1.2" 或参数 version=">=1.2"），
         若已安装的版本满足 specifier 则跳过，否则删除 target_dir 下相关文件并重新下载 wheel 并解压到 target_dir。
+        @param progress: 可选回调 progress(str)，用于向任务中心等上报安装阶段
         返回 True/False
         """
+
+        def report(text):
+            if progress:
+                try:
+                    progress(text)
+                except Exception:
+                    pass
+
         zb.createDir(target_dir)
         if target_dir not in sys.path:
             sys.path.insert(0, target_dir)
@@ -267,6 +286,7 @@ class AddonManager:
                         # 后版本号满足却被永久跳过的自锁问题
                         if self._try_import(package):
                             logging.info(f"包{package}已安装且满足版本要求{spec}！")
+                            report(f"运行库 {package} 已就绪")
                             return True
                         logging.warning(f"包{package}版本{inst_v_raw}满足{spec}但导入失败，将移除并重新安装！")
                 except InvalidVersion:
@@ -280,11 +300,13 @@ class AddonManager:
             # 如果没有 spec，且能 import，则认为已存在
             if self._try_import(package):
                 logging.info(f"包{package}已存在！")
+                report(f"运行库 {package} 已就绪")
                 # 如果没有 spec，直接返回 True
                 if not spec:
                     return True
 
         logging.info(f"正在安装{package}... 目标目录：{target_dir}")
+        report(f"正在安装运行库 {package}...")
 
         # 如果安装存在但不满足版本，则尝试删除 target_dir 下的相关文件，然后重新安装
         if installed_version and spec:
@@ -342,6 +364,7 @@ class AddonManager:
             return False
         zb.extractZip(result, target_dir, True)
         logging.info(f"包{package}安装成功：{candidate_url.rsplit('/', 1)[-1]}")
+        report(f"运行库 {package} 安装完成")
         return True
 
 

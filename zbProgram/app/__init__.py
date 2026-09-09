@@ -103,15 +103,31 @@ class Window(zbw.Window):
             program.close()
 
     def downloadAddon(self, data):
-        self.__downloadAddon(data)
+        # 任务卡必须在主线程创建；工作线程内仅通过信号安全接口更新
+        name = data.get("name", data.get("id", "未知插件"))
+        card = self.progressCenter.addTask(True, True, False, False, False)
+        card.setTitle(f"安装插件：{name}")
+        card.setText("准备安装...")
+        card.start()
+        self.__downloadAddon(data, card)
 
     @zb.threadPoolDecorator(program.THREAD_POOL)
-    def __downloadAddon(self, data):
-        result = addonManager.downloadAddonFromInfo(data)
-        self.addAddonFinishEvent.emit(data.get("id"))
-        if result:
-            self.addAddonEvent.emit(data)
-        else:
+    def __downloadAddon(self, data, card):
+        try:
+            result = addonManager.downloadAddonFromInfo(data, progress=card.setText)
+            self.addAddonFinishEvent.emit(data.get("id"))
+            if result:
+                card.setText("安装完成")
+                card.finish(True)
+                self.addAddonEvent.emit(data)
+            else:
+                card.setText("安装失败")
+                card.finish(False)
+                self.downloadAddonFailedSignal.emit(data)
+        except Exception:
+            logging.warning(f"插件{data.get("name")}安装任务异常：{traceback.format_exc()}")
+            card.setText("安装失败")
+            card.finish(False)
             self.downloadAddonFailedSignal.emit(data)
 
     def __downloadAddonFailed(self, data):
@@ -164,6 +180,11 @@ class Window(zbw.Window):
         移除插件
         @param info: 数据
         """
+        name = info.get("name", info.get("id", "未知插件"))
+        card = self.progressCenter.addTask(False, True, False, False, False)
+        card.setTitle(f"卸载插件：{name}")
+        card.setText("正在移除插件文件...")
+        card.start()
         try:
             if info.get("id") in addonManager.ADDON_OBJECT:
                 lib = addonManager.ADDON_OBJECT.pop(info.get("id"), None)
@@ -181,7 +202,11 @@ class Window(zbw.Window):
 
                 self.infoBar = InfoBar(InfoBarIcon.SUCCESS, "提示", f"插件{info.get("name")}删除成功！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.mainPage)
                 self.infoBar.show()
+                card.setText("卸载完成")
+                card.finish(True)
             else:
+                card.setText("卸载失败：文件删除不彻底")
+                card.finish(False)
                 raise "删除插件失败"
 
         except:
@@ -189,6 +214,8 @@ class Window(zbw.Window):
 
             self.infoBar = InfoBar(InfoBarIcon.ERROR, "错误", f"插件{info.get("name")}删除失败！", Qt.Orientation.Vertical, True, 10000, InfoBarPosition.TOP_RIGHT, self.mainPage)
             self.infoBar.show()
+            card.setText("卸载失败")
+            card.finish(False)
 
     def timerEvent(self):
         """
